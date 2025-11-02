@@ -67,8 +67,7 @@ function NFTsPageContent() {
           try {
             (urlFilters as Record<string, unknown>)[key] = JSON.parse(decodeURIComponent(value))
           } catch {
-            // If parsing fails, skip this filter
-            console.warn(`Failed to parse ${key} filter from URL`)
+            // If parsing fails, skip this filter (invalid URL parameter)
           }
         }
       })

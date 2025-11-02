@@ -12,10 +12,7 @@ const SESSION_SECRET = process.env.SESSION_SECRET;
 const SESSION_COOKIE_NAME = 'siwe-session';
 const SESSION_MAX_AGE = 7 * 24 * 60 * 60; // 7 days
 
-// Warn if SESSION_SECRET is not set in production
-if (process.env.NODE_ENV === 'production' && !SESSION_SECRET) {
-  console.warn('⚠️  WARNING: SESSION_SECRET not set in production. Sessions are less secure.');
-}
+// Note: SESSION_SECRET should be set in production for enhanced security
 
 interface SIWESession {
   address: string;
@@ -49,7 +46,6 @@ export async function GET(request: NextRequest) {
     
     // Validate all values are defined
     if (!domain || !origin || !address) {
-      console.error('Missing required values:', { domain, origin, address });
       return NextResponse.json(
         { error: 'Failed to generate login payload: missing required parameters' },
         { status: 500 }
@@ -76,7 +72,6 @@ Expiration Time: ${expirationTime}`;
 
     return NextResponse.json({ payload: message });
   } catch (error) {
-    console.error('Error generating SIWE payload:', error);
     return NextResponse.json(
       { error: 'Failed to generate login payload' },
       { status: 500 }
@@ -159,14 +154,14 @@ export async function POST(request: NextRequest) {
 
       return response;
     } catch (error) {
-      console.error('Signature verification error:', error);
+      // Signature verification failed - invalid signature
       return NextResponse.json(
         { error: 'Invalid signature format' },
         { status: 401 }
       );
     }
   } catch (error) {
-    console.error('Error in SIWE login:', error);
+    // Error in SIWE login - return error response
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

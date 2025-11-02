@@ -46,10 +46,7 @@ export async function GET(request: NextRequest) {
       .order('added_at', { ascending: false });
 
     if (error) {
-      // Only log unexpected database errors (suppress expected connection issues)
-      if (!error.message?.includes('connection') && !error.code?.includes('ECONN')) {
-        console.error('[Favorites API] Database error:', error.message || error);
-      }
+      // Database error - return error response
       return NextResponse.json(
         { success: false, error: 'Failed to fetch favorites' },
         { status: 500 }
@@ -72,11 +69,7 @@ export async function GET(request: NextRequest) {
       favorites: formattedFavorites,
     });
   } catch (error) {
-    // Only log actual unexpected errors (not connection issues)
-    const errorMsg = error instanceof Error ? error.message : String(error);
-    if (!errorMsg.includes('connection') && !errorMsg.includes('ECONN')) {
-      console.error('[Favorites API] GET error:', errorMsg);
-    }
+    // Internal server error - return error response
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
@@ -160,10 +153,7 @@ export async function POST(request: NextRequest) {
           { status: 409 }
         );
       }
-      // Only log unexpected database errors
-      if (!error.message?.includes('connection') && !error.code?.includes('ECONN')) {
-        console.error('[Favorites API] Database error adding:', error.message || error);
-      }
+      // Database error - return error response
       return NextResponse.json(
         { success: false, error: 'Failed to add favorite' },
         { status: 500 }
@@ -183,11 +173,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    // Only log actual unexpected errors (not connection issues)
-    const errorMsg = error instanceof Error ? error.message : String(error);
-    if (!errorMsg.includes('connection') && !errorMsg.includes('ECONN')) {
-      console.error('[Favorites API] POST error:', errorMsg);
-    }
+    // Internal server error - return error response
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

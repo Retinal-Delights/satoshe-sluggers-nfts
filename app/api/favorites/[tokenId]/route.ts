@@ -56,10 +56,7 @@ export async function DELETE(
       .eq('token_id', tokenId);
 
     if (error) {
-      // Only log unexpected database errors
-      if (!error.message?.includes('connection') && !error.code?.includes('ECONN')) {
-        console.error('[Favorites API] Database error deleting:', error.message || error);
-      }
+      // Database error - return error response
       return NextResponse.json(
         { success: false, error: 'Failed to remove favorite' },
         { status: 500 }
@@ -71,11 +68,7 @@ export async function DELETE(
       message: 'Favorite removed successfully',
     });
   } catch (error) {
-    // Only log actual unexpected errors (not connection issues)
-    const errorMsg = error instanceof Error ? error.message : String(error);
-    if (!errorMsg.includes('connection') && !errorMsg.includes('ECONN')) {
-      console.error('[Favorites API] DELETE error:', errorMsg);
-    }
+    // Internal server error - return error response
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

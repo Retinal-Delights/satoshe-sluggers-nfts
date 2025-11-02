@@ -119,10 +119,7 @@ export function useFavorites() {
           errorMessage.includes('NetworkError') ||
           errorMessage.includes('ECONNREFUSED');
         
-        if (!isConnectionError) {
-          // Only log unexpected errors
-          console.error('[Favorites] Error loading favorites:', errorMessage);
-        }
+        // Error loading favorites - will use localStorage fallback
         
         setError(errorMessage);
         
@@ -196,7 +193,7 @@ export function useFavorites() {
         errorMessage.includes('NetworkError') ||
         errorMessage.includes('ECONNREFUSED');
       if (!isConnectionError) {
-        console.error('[Favorites] Error adding favorite:', errorMessage);
+        // Error adding favorite - will rollback optimistic update
       }
       
       // Still save to localStorage as fallback
@@ -266,7 +263,7 @@ export function useFavorites() {
         errorMessage.includes('NetworkError') ||
         errorMessage.includes('ECONNREFUSED');
       if (!isConnectionError) {
-        console.error('[Favorites] Error removing favorite:', errorMessage);
+        // Error removing favorite - will rollback optimistic update
       }
     }
   }, [accountAddress]);

@@ -86,7 +86,7 @@ export default function TermlyScript() {
       data-website-uuid="ba09ca99-2e6c-4e83-adca-6b3e27ffe054"
       strategy="afterInteractive"
       onError={() => {
-        console.error('Termly: Failed to load cookie consent script. Banner will not appear.');
+        // Termly script failed to load - will attempt to load on next page navigation
       }}
     />
   )

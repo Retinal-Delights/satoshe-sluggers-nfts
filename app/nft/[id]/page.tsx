@@ -181,7 +181,7 @@ export default function NFTDetailPage() {
           }
         }
       } catch (error) {
-        console.error('Error loading pricing data:', error);
+        // Error loading pricing data - continue without pricing
       }
     };
     

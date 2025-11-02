@@ -93,7 +93,7 @@ function MyNFTsContent() {
         window.addEventListener('nftPurchased', handler as EventListener);
         return () => window.removeEventListener('nftPurchased', handler as EventListener);
       } catch (error) {
-        console.error("Error loading owned NFTs:", error);
+        // Error loading owned NFTs - set empty array
         setOwnedNFTs([]);
       } finally {
         setIsLoading(false);
@@ -152,7 +152,7 @@ function MyNFTsContent() {
         return []
       }
     } catch (error) {
-      console.error("Error in getActiveNFTs:", error)
+      // Error in getActiveNFTs - return empty array
       return []
     }
   }
