@@ -156,9 +156,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
   const [pricingMappings, setPricingMappings] = useState<Record<number, { price_eth: number; listing_id?: number }>>({});
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
   const [scrollPosition, setScrollPosition] = useState<number>(0);
-  // Track purchased tokens for potential future use (currently only updating nfts state directly)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_purchasedTokens, setPurchasedTokens] = useState<Set<number>>(new Set());
+  // Note: Purchased tokens are tracked directly in nfts state via isForSale flag
   const gridRef = useRef<HTMLDivElement>(null);
   
   // Load pricing mappings (prioritize token_pricing_mappings.json which has updated listing IDs)
@@ -211,7 +209,6 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
       const tokenIdNum = custom.detail?.tokenId;
       const priceEthFromEvent = custom.detail?.priceEth;
       if (typeof tokenIdNum === 'number' && !Number.isNaN(tokenIdNum)) {
-        setPurchasedTokens(prev => new Set(prev).add(tokenIdNum));
         setNfts(prev => prev.map(item => {
           if (parseInt(item.tokenId) === tokenIdNum) {
             const soldPrice = typeof priceEthFromEvent === 'number' ? priceEthFromEvent : (typeof item.priceEth === 'number' ? item.priceEth : 0);
@@ -226,7 +223,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
   }, []);
 
   // Favorites functionality - call hook once at grid level
-  const { isFavorited, toggleFavorite, isConnected } = useFavorites();
+  const { isFavorited, toggleFavorite } = useFavorites();
 
   // Column sort handler
   const handleColumnSort = (field: string) => {
@@ -601,11 +598,6 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
         });
 
         if (soldSet.size > 0) {
-          setPurchasedTokens(prev => {
-            const merged = new Set(prev);
-            soldSet.forEach(t => merged.add(t));
-            return merged;
-          });
           setNfts(prev => prev.map(item => soldSet.has(parseInt(item.tokenId)) ? { ...item, isForSale: false, priceWei: '0', priceEth: 0 } : item));
         }
       } catch {
@@ -623,10 +615,21 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
   }, [currentPage, totalPages]);
 
 
-  // Compute trait counts from ALL NFTs (not filtered) so all options remain visible
+  // Compute trait counts from NFTs filtered by current tab (All/Live/Sold) only
+  // This ensures counts reflect the NFTs available in the current tab context
+  const tabFilteredNFTs = useMemo(() => {
+    return nfts.filter(nft => {
+      // Match the same logic used in filteredNFTs for tab filtering
+      if (!showLive && nft.isForSale) return false;
+      if (!showSold && !nft.isForSale) return false;
+      return true;
+    });
+  }, [nfts, showLive, showSold]);
+
+  // Compute trait counts from tab-filtered NFTs so counts match available options
   const traitCounts = useMemo(() => {
-    return computeTraitCounts(nfts, ["background", "skinTone", "shirt", "eyewear", "hair", "headwear", "rarity"]);
-  }, [nfts]);
+    return computeTraitCounts(tabFilteredNFTs, ["background", "skinTone", "shirt", "eyewear", "hair", "headwear", "rarity"]);
+  }, [tabFilteredNFTs]);
 
   const prevFilteredCountRef = useRef<number>(0);
   const prevTraitCountsRef = useRef<Record<string, Record<string, number>>>({});
@@ -887,9 +890,10 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
               {paginatedNFTs.map((nft, index) => {
                 // Prioritize loading first 12-16 images (first visible rows depending on view mode)
                 // This ensures above-the-fold images load immediately
-                const imagesPerRow = viewMode === 'grid-large' ? 5 : viewMode === 'grid-medium' ? 6 : 8;
-                const priorityThreshold = imagesPerRow * 2; // First 2 rows
-                const isPriority = index < priorityThreshold;
+                // Note: Priority logic available if needed - currently all images use lazy loading
+                // const imagesPerRow = viewMode === 'grid-large' ? 5 : viewMode === 'grid-medium' ? 6 : 8;
+                // const priorityThreshold = imagesPerRow * 2;
+                // const isPriority = index < priorityThreshold;
                 
                 return (
                   <div
@@ -910,7 +914,6 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                       tokenId={nft.tokenId}
                       cardNumber={nft.cardNumber}
                       isForSale={nft.isForSale}
-                      tier={nft.tier}
                       viewMode={viewMode}
                     />
                   </div>

@@ -25,6 +25,8 @@ font-light (300)     → Values, body text, descriptions
 ```
 
 ### Font Sizes
+
+#### Standard Sizes (Fixed)
 ```
 text-3xl (30px)     → Page titles (desktop)
 text-2xl (24px)     → NFT names, prices
@@ -35,6 +37,42 @@ text-[15px] (15px)  → NFT card details
 text-sm (14px)      → Body text, descriptions, labels
 text-xs (12px)      → Footer, small metadata
 ```
+
+#### Fluid Typography (Responsive with clamp())
+For responsive typography that scales smoothly with viewport width, use CSS `clamp()`:
+
+**NFT Cards & Grid:**
+- NFT Name: `text-[clamp(0.9rem, 0.7vw, 1.1rem)]` (scales 14.4px → 17.6px)
+- Stats (Rank/Rarity/Tier): `text-[clamp(0.7rem, 0.45vw, 0.85rem)]` (scales 11.2px → 13.6px)
+- Price: `text-[clamp(0.75rem, 0.6vw, 1rem)]` (scales 12px → 16px)
+- Buy Button: `text-[clamp(0.6rem, 0.5vw, 0.85rem)]` (scales 9.6px → 13.6px)
+
+**Sidebar:**
+- Category Titles: `text-[clamp(0.9rem, 0.6vw, 1rem)]` (scales 14.4px → 16px)
+- Filter Labels: `text-[clamp(0.75rem, 0.45vw, 0.9rem)]` (scales 12px → 14.4px)
+- Search/Buttons: `text-[clamp(0.75rem, 0.5vw, 0.9rem)]` (scales 12px → 14.4px)
+
+**Collection Stats:**
+- Labels: `text-[clamp(0.75rem, 0.5vw, 0.9rem)]` (scales 12px → 14.4px)
+- Numbers: `text-[clamp(1rem, 0.8vw, 1.3rem)]` (scales 16px → 20.8px)
+
+**Dropdowns & Tabs:**
+- Tab Buttons: `text-[clamp(0.8rem, 0.55vw, 1rem)]` (scales 12.8px → 16px)
+
+**Global CSS Variables:**
+Available in `app/globals.css`:
+- `--fluid-xs`: `clamp(0.65rem, 0.25vw + 0.6rem, 0.8rem)`
+- `--fluid-sm`: `clamp(0.75rem, 0.3vw + 0.7rem, 0.9rem)`
+- `--fluid-md`: `clamp(0.9rem, 0.5vw + 0.8rem, 1.1rem)`
+- `--fluid-lg`: `clamp(1rem, 0.6vw + 0.9rem, 1.25rem)`
+- `--fluid-xl`: `clamp(1.25rem, 0.8vw + 1rem, 1.6rem)`
+
+Use utility classes: `.text-fluid-xs`, `.text-fluid-sm`, `.text-fluid-md`, `.text-fluid-lg`, `.text-fluid-xl`
+
+**Benefits of clamp():**
+- Scales smoothly between min and max without breakpoints
+- Better UX across all device sizes
+- Reduces need for multiple responsive classes
 
 ### Usage Examples
 ```tsx
@@ -659,7 +697,7 @@ Inputs:
 ### **Design Token Usage**
 ```tsx
 // Import design tokens
-import { typography, components, getValue, getLabel } from '@/lib/design-tokens';
+import { typography, components } from '@/lib/design-system';
 
 // Use typography
 <h1 className={typography.h1}>Page Title</h1>

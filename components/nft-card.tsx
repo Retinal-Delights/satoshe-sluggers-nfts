@@ -19,7 +19,6 @@ interface NFTCardProps {
   tokenId: string;
   cardNumber: number;
   isForSale: boolean;
-  tier: string | number;
   viewMode?: "grid-large" | "grid-medium" | "grid-small" | "compact";
 }
 
@@ -33,12 +32,10 @@ export default function NFTCard({
   tokenId,
   cardNumber,
   isForSale,
-  tier,
   viewMode = "grid-medium",
 }: NFTCardProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const [imgError, setImgError] = useState(false);
-  const [imgLoading, setImgLoading] = useState(true);
   const placeholder = "/nfts/placeholder-nft.webp";
   const showPlaceholder = !imgLoaded || imgError;
 
@@ -63,9 +60,7 @@ export default function NFTCard({
     });
   };
 
-  // --- Fluid font sizes (via clamp) ---
-  const titleSize = "text-[clamp(0.85rem,0.25vw+0.8rem,1.05rem)]";
-  const labelSize = "text-[clamp(0.7rem,0.2vw+0.65rem,0.9rem)]";
+  // Fluid font size for medium grid view
   const smallText = "text-[clamp(0.65rem,0.2vw+0.6rem,0.8rem)]";
 
   // --- View: Small grid ---
@@ -88,11 +83,9 @@ export default function NFTCard({
               className={`object-contain p-2 hover:scale-[1.02] hover:rotate-[5deg] transition-transform duration-300 ease-out ${showPlaceholder ? "animate-pulse" : ""}`}
               onLoad={() => {
                 setImgLoaded(true);
-                setImgLoading(false);
               }}
               onError={() => {
                 setImgError(true);
-                setImgLoading(false);
               }}
               sizes="(max-width:768px)100vw,(max-width:1200px)50vw,33vw"
             />
@@ -119,8 +112,8 @@ export default function NFTCard({
               loading="lazy"
               className="object-contain p-2 rounded-lg transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg] hover:-translate-y-1"
               sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
-              onLoad={() => { setImgLoaded(true); setImgLoading(false); }}
-              onError={() => { setImgError(true); setImgLoading(false); }}
+              onLoad={() => { setImgLoaded(true); }}
+              onError={() => { setImgError(true); }}
             />
           </div>
         </Link>
@@ -165,29 +158,29 @@ export default function NFTCard({
             </div>
           </div>
 
-          {/* Buy Section */}
-          {isForSale && (
-            <div className="pt-1">
-              <div className="flex items-end justify-between gap-3 flex-wrap">
-                <div className="flex-1 min-w-0">
-                  <div className="text-blue-500 font-medium text-[clamp(0.65rem,0.4vw,0.85rem)]">
-                    Buy Now
-                  </div>
-                  <div className="text-blue-400 font-semibold text-[clamp(0.75rem,0.6vw,1rem)] leading-none whitespace-nowrap">
-                    {priceEth} ETH
-                  </div>
+          {/* Buy/Sold Section */}
+          <div className="pt-1">
+            <div className="flex items-end justify-between gap-3 flex-wrap">
+              <div className="flex-1 min-w-0">
+                <div className={`font-medium text-[clamp(0.65rem,0.4vw,0.85rem)] ${isForSale ? 'text-blue-500' : 'text-green-500'}`}>
+                  {isForSale ? 'Buy Now' : 'Sold!'}
                 </div>
-                <Link
-                  href={`/nft/${cardNumber}`}
-                  className="px-3 py-1.5 bg-blue-500/10 border border-blue-500/30 rounded-sm 
-                             text-blue-400 text-[clamp(0.6rem,0.5vw,0.85rem)] font-medium 
-                             hover:bg-blue-500/20 transition-colors whitespace-nowrap"
-                >
-                  BUY
-                </Link>
+                <div className={`font-semibold text-[clamp(0.75rem,0.6vw,1rem)] leading-none whitespace-nowrap ${isForSale ? 'text-blue-400' : 'text-green-400'}`}>
+                  {priceEth} ETH
+                </div>
               </div>
+              <Link
+                href={`/nft/${cardNumber}`}
+                className={`px-3 py-1.5 rounded-sm text-[clamp(0.6rem,0.5vw,0.85rem)] font-medium transition-colors whitespace-nowrap ${
+                  isForSale
+                    ? 'bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20'
+                    : 'bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20'
+                }`}
+              >
+                {isForSale ? 'BUY' : 'Sold'}
+              </Link>
             </div>
-          )}
+          </div>
         </div>
       </div>
     );
@@ -209,11 +202,9 @@ export default function NFTCard({
             className={`object-contain p-1 hover:scale-[1.02] hover:rotate-[5deg] transition-transform duration-300 ease-out ${showPlaceholder ? "animate-pulse" : ""}`}
             onLoad={() => {
               setImgLoaded(true);
-              setImgLoading(false);
             }}
             onError={() => {
               setImgError(true);
-              setImgLoading(false);
             }}
             sizes="(max-width:768px)100vw,(max-width:1200px)50vw,33vw"
           />
@@ -222,7 +213,7 @@ export default function NFTCard({
 
       <div className="pl-4 pr-3 pb-2 flex flex-col">
         <div className="flex items-center justify-between mb-1">
-          <div className={`text-green-400 font-medium leading-tight ${smallText}`}>
+          <div className={`font-medium leading-tight ${smallText} ${isForSale ? 'text-blue-400' : 'text-green-400'}`}>
             NFT — #{cardNumber}
           </div>
           <Button
@@ -241,22 +232,25 @@ export default function NFTCard({
           </Button>
         </div>
 
-        <div className="flex justify-start">
-          {isForSale ? (
+        <div className="space-y-1 mt-1">
+          <div className={`font-medium ${smallText} ${isForSale ? 'text-blue-500' : 'text-green-500'}`}>
+            {isForSale ? 'Buy Now' : 'Sold!'}
+          </div>
+          <div className={`font-semibold ${smallText} ${isForSale ? 'text-blue-400' : 'text-green-400'}`}>
+            {priceEth} ETH
+          </div>
+          <div className="flex justify-start">
             <Link
               href={`/nft/${cardNumber}`}
-              className="px-2.5 py-1 bg-blue-500/10 border-2 border-blue-500/30 rounded-sm text-blue-400 text-xs font-medium hover:bg-blue-500/20 transition-colors"
+              className={`px-2.5 py-1 rounded-sm text-xs font-medium transition-colors ${
+                isForSale
+                  ? 'bg-blue-500/10 border-2 border-blue-500/30 text-blue-400 hover:bg-blue-500/20'
+                  : 'bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20'
+              }`}
             >
-              Buy
+              {isForSale ? 'Buy' : 'Sold'}
             </Link>
-          ) : (
-            <Link
-              href={`/nft/${cardNumber}`}
-              className="px-2.5 py-1 bg-green-500/10 border border-green-500/30 rounded-sm text-green-400 text-xs font-medium hover:bg-green-500/20 transition-colors"
-            >
-              Sold
-            </Link>
-          )}
+          </div>
         </div>
       </div>
     </div>
