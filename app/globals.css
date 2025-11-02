@@ -47,6 +47,13 @@
     --ring: 0 0% 3.9%;
 
     --radius: 0.5rem;
+
+    /* Universal Fluid Typography - Scales gently with viewport width */
+    --fluid-xs: clamp(0.65rem, 0.25vw + 0.6rem, 0.8rem);
+    --fluid-sm: clamp(0.75rem, 0.3vw + 0.7rem, 0.9rem);
+    --fluid-md: clamp(0.9rem, 0.5vw + 0.8rem, 1.1rem);
+    --fluid-lg: clamp(1rem, 0.6vw + 0.9rem, 1.25rem);
+    --fluid-xl: clamp(1.25rem, 0.8vw + 1rem, 1.6rem);
   }
 
   .dark {
@@ -369,4 +376,41 @@ button[aria-label*="Execute buyFromListing"] * {
 /* Font Variables */
 .font-inconsolata {
   font-family: var(--font-inconsolata);
+}
+
+/* Universal Fluid Typography Utility Classes */
+.text-fluid-xs {
+  font-size: var(--fluid-xs);
+}
+
+.text-fluid-sm {
+  font-size: var(--fluid-sm);
+}
+
+.text-fluid-md {
+  font-size: var(--fluid-md);
+}
+
+.text-fluid-lg {
+  font-size: var(--fluid-lg);
+}
+
+.text-fluid-xl {
+  font-size: var(--fluid-xl);
+}
+
+/* Global NFT Image Scaling */
+.nft-image {
+  aspect-ratio: 1 / 1;
+  max-height: clamp(180px, 35vw, 420px);
+  object-fit: contain;
+}
+
+/* NFT Meta Labels and Values - /nfts page only */
+.nft-meta-label {
+  font-size: clamp(0.7rem, 0.45vw, 0.85rem);
+}
+
+.nft-meta-value {
+  font-size: clamp(0.75rem, 0.55vw, 0.95rem);
 }

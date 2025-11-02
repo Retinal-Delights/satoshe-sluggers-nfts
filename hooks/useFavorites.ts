@@ -20,6 +20,8 @@ export function useFavorites() {
   const [error, setError] = useState<string | null>(null);
   const prevAddressRef = useRef<string | null>(null);
   const isLoadingRef = useRef(false);
+  // Stabilize address to prevent unnecessary effect re-runs
+  const accountAddress = account?.address?.toLowerCase() || null;
 
   // Get storage key for current wallet (for localStorage fallback)
   const getStorageKey = (address: string) => {
@@ -28,11 +30,11 @@ export function useFavorites() {
 
   // Load favorites from API when account changes
   useEffect(() => {
-    const currentAddress = account?.address || null;
+    const addressString = accountAddress;
     
     // Only update if address actually changed (string comparison, not object reference)
-    if (currentAddress === prevAddressRef.current || isLoadingRef.current) {
-      if (!currentAddress && prevAddressRef.current === null) {
+    if (addressString === prevAddressRef.current || isLoadingRef.current) {
+      if (!addressString && prevAddressRef.current === null) {
         // Both null, already handled
         setIsLoading(false);
       }
@@ -41,28 +43,64 @@ export function useFavorites() {
     
     // Mark as loading immediately to prevent re-runs
     isLoadingRef.current = true;
-    prevAddressRef.current = currentAddress;
+    prevAddressRef.current = addressString;
     setIsLoading(true);
     setError(null);
     
-    if (!currentAddress) {
+    if (!addressString) {
       setFavorites([]);
       setIsLoading(false);
       isLoadingRef.current = false;
       return;
     }
 
+    // Check localStorage first (immediate, no API call needed if available and recent)
+    try {
+      const storageKey = getStorageKey(addressString);
+      const stored = localStorage.getItem(storageKey);
+      if (stored) {
+        try {
+          const parsedFavorites = JSON.parse(stored);
+          if (Array.isArray(parsedFavorites) && parsedFavorites.length >= 0) {
+            setFavorites(parsedFavorites);
+            setIsLoading(false);
+            // Still fetch from API in background to sync, but don't block UI
+            getFavorites(addressString)
+              .then((apiFavorites) => {
+                if (prevAddressRef.current === addressString) {
+                  setFavorites(apiFavorites);
+                  localStorage.setItem(storageKey, JSON.stringify(apiFavorites));
+                }
+              })
+              .catch(() => {
+                // Silently fail - we already have localStorage data
+              })
+              .finally(() => {
+                if (prevAddressRef.current === addressString) {
+                  isLoadingRef.current = false;
+                }
+              });
+            return;
+          }
+        } catch {
+          // Invalid localStorage data, proceed to API
+        }
+      }
+    } catch {
+      // localStorage error, proceed to API
+    }
+
     // Try to load from API (pass wallet address)
-    getFavorites(currentAddress)
+    getFavorites(addressString)
       .then((apiFavorites) => {
         // Double-check address hasn't changed during the API call
-        if (prevAddressRef.current !== currentAddress) {
+        if (prevAddressRef.current !== addressString) {
           return;
         }
         setFavorites(apiFavorites);
         // Sync to localStorage as backup
         try {
-          const storageKey = getStorageKey(currentAddress);
+          const storageKey = getStorageKey(addressString);
           localStorage.setItem(storageKey, JSON.stringify(apiFavorites));
         } catch {
           // Ignore localStorage errors
@@ -70,18 +108,27 @@ export function useFavorites() {
       })
       .catch((err) => {
         // Double-check address hasn't changed during the API call
-        if (prevAddressRef.current !== currentAddress) {
+        if (prevAddressRef.current !== addressString) {
           return;
         }
-        // Only log if it's not a connection refused (server down)
-        if (!err.message?.includes('Failed to fetch') && !err.message?.includes('ERR_CONNECTION_REFUSED')) {
-          console.error('Error loading favorites from API:', err);
+        // Suppress error logging for connection failures (reduces terminal clutter)
+        const errorMessage = err.message || 'Failed to load favorites';
+        const isConnectionError = 
+          errorMessage.includes('Failed to fetch') || 
+          errorMessage.includes('ERR_CONNECTION_REFUSED') ||
+          errorMessage.includes('NetworkError') ||
+          errorMessage.includes('ECONNREFUSED');
+        
+        if (!isConnectionError) {
+          // Only log unexpected errors
+          console.error('[Favorites] Error loading favorites:', errorMessage);
         }
-        setError(err.message || 'Failed to load favorites');
+        
+        setError(errorMessage);
         
         // Fallback to localStorage if API fails
         try {
-          const storageKey = getStorageKey(currentAddress);
+          const storageKey = getStorageKey(addressString);
           const stored = localStorage.getItem(storageKey);
           if (stored) {
             const parsedFavorites = JSON.parse(stored);
@@ -95,16 +142,16 @@ export function useFavorites() {
       })
       .finally(() => {
         // Only update if address hasn't changed
-        if (prevAddressRef.current === currentAddress) {
+        if (prevAddressRef.current === addressString) {
           setIsLoading(false);
           isLoadingRef.current = false;
         }
       });
-  }, [account?.address]);
+  }, [accountAddress]);
 
   // Add NFT to favorites (API + optimistic update)
   const addToFavorites = useCallback(async (nft: Omit<FavoriteNFT, 'addedAt'>) => {
-    if (!account?.address) return false;
+    if (!accountAddress) return false;
 
     // Optimistic update
     const optimisticFavorite: FavoriteNFT = {
@@ -115,7 +162,7 @@ export function useFavorites() {
 
     try {
       // Sync to API (pass wallet address)
-      const apiFavorite = await addFavorite(account.address, nft);
+      const apiFavorite = await addFavorite(accountAddress, nft);
       
       // Update with server data
       setFavorites((prev) => {
@@ -125,7 +172,7 @@ export function useFavorites() {
 
       // Sync to localStorage as backup
       try {
-        const storageKey = getStorageKey(account.address);
+        const storageKey = getStorageKey(accountAddress);
         setFavorites((currentFavs) => {
           const updated = [...currentFavs.filter((f) => f.tokenId !== nft.tokenId), apiFavorite];
           localStorage.setItem(storageKey, JSON.stringify(updated));
@@ -142,13 +189,19 @@ export function useFavorites() {
       
       const errorMessage = err instanceof Error ? err.message : 'Failed to add favorite';
       setError(errorMessage);
-      if (!errorMessage.includes('Failed to fetch') && !errorMessage.includes('ERR_CONNECTION_REFUSED')) {
-        console.error('Error adding favorite:', err);
+      // Suppress connection error logging (reduces terminal clutter)
+      const isConnectionError = 
+        errorMessage.includes('Failed to fetch') || 
+        errorMessage.includes('ERR_CONNECTION_REFUSED') ||
+        errorMessage.includes('NetworkError') ||
+        errorMessage.includes('ECONNREFUSED');
+      if (!isConnectionError) {
+        console.error('[Favorites] Error adding favorite:', errorMessage);
       }
       
       // Still save to localStorage as fallback
       try {
-        const storageKey = getStorageKey(account.address);
+        const storageKey = getStorageKey(accountAddress);
         setFavorites((currentFavs) => {
           const updated = [...currentFavs.filter((f) => f.tokenId !== nft.tokenId), optimisticFavorite];
           localStorage.setItem(storageKey, JSON.stringify(updated));
@@ -160,11 +213,11 @@ export function useFavorites() {
 
       return false;
     }
-  }, [account?.address]);
+  }, [accountAddress]);
 
   // Remove NFT from favorites (API + optimistic update)
   const removeFromFavorites = useCallback(async (tokenId: string) => {
-    if (!account?.address) return;
+    if (!accountAddress) return;
 
     // Optimistic update - capture current favorites before update
     setFavorites((prev) => {
@@ -172,7 +225,7 @@ export function useFavorites() {
       
       // Save to localStorage immediately for fallback
       try {
-        const storageKey = getStorageKey(account.address);
+        const storageKey = getStorageKey(accountAddress);
         localStorage.setItem(storageKey, JSON.stringify(removedFavorites));
       } catch {
         // Ignore localStorage errors
@@ -183,7 +236,7 @@ export function useFavorites() {
 
     try {
       // Sync to API (pass wallet address)
-      await removeFavorite(account.address, tokenId);
+      await removeFavorite(accountAddress, tokenId);
     } catch (err) {
       // Rollback optimistic update on error
       setFavorites((prev) => {
@@ -192,7 +245,7 @@ export function useFavorites() {
         if (wasRemoved) {
           // Restore from localStorage
           try {
-            const storageKey = getStorageKey(account.address);
+            const storageKey = getStorageKey(accountAddress);
             const stored = localStorage.getItem(storageKey);
             if (stored) {
               return JSON.parse(stored);
@@ -206,11 +259,17 @@ export function useFavorites() {
       
       const errorMessage = err instanceof Error ? err.message : 'Failed to remove favorite';
       setError(errorMessage);
-      if (!errorMessage.includes('Failed to fetch') && !errorMessage.includes('ERR_CONNECTION_REFUSED')) {
-        console.error('Error removing favorite:', err);
+      // Suppress connection error logging (reduces terminal clutter)
+      const isConnectionError = 
+        errorMessage.includes('Failed to fetch') || 
+        errorMessage.includes('ERR_CONNECTION_REFUSED') ||
+        errorMessage.includes('NetworkError') ||
+        errorMessage.includes('ECONNREFUSED');
+      if (!isConnectionError) {
+        console.error('[Favorites] Error removing favorite:', errorMessage);
       }
     }
-  }, [account?.address]);
+  }, [accountAddress]);
 
   // Check if NFT is favorited
   const isFavorited = useCallback((tokenId: string) => {
@@ -219,7 +278,7 @@ export function useFavorites() {
 
   // Toggle favorite status
   const toggleFavorite = useCallback(async (nft: Omit<FavoriteNFT, 'addedAt'>) => {
-    if (!account?.address) return false;
+    if (!accountAddress) return false;
 
     if (isFavorited(nft.tokenId)) {
       await removeFromFavorites(nft.tokenId);
@@ -228,7 +287,7 @@ export function useFavorites() {
       const success = await addToFavorites(nft);
       return success;
     }
-  }, [account?.address, isFavorited, addToFavorites, removeFromFavorites]);
+  }, [accountAddress, isFavorited, addToFavorites, removeFromFavorites]);
 
   return {
     favorites,
@@ -238,7 +297,7 @@ export function useFavorites() {
     removeFromFavorites,
     isFavorited,
     toggleFavorite,
-    isConnected: !!account?.address,
+    isConnected: !!accountAddress,
   };
 }
 

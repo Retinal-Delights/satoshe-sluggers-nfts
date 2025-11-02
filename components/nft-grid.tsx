@@ -654,16 +654,16 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
     return (
       <div className="w-full max-w-full">
         <div className="mb-6">
-          <h2 className="text-lg font-medium">NFT Collection</h2>
-          <div className="text-sm font-medium text-pink-500 mt-1">Loading...</div>
+          <h2 className="text-fluid-lg font-medium">NFT Collection</h2>
+          <div className="text-fluid-sm font-medium text-pink-500 mt-1">Loading...</div>
         </div>
         <div className="mt-8 mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
           {Array.from({ length: 12 }).map((_, index) => (
-            <div key={index} className="bg-neutral-800 rounded-lg p-4 animate-pulse">
-              <div className="aspect-square bg-neutral-700 rounded-lg mb-3"></div>
-              <div className="h-4 bg-neutral-700 rounded mb-2"></div>
-              <div className="h-3 bg-neutral-700 rounded mb-1"></div>
-              <div className="h-3 bg-neutral-700 rounded w-2/3"></div>
+            <div key={index} className="bg-neutral-800 rounded-sm p-2 animate-pulse">
+              <div className="aspect-square bg-neutral-700 rounded-sm mb-3"></div>
+              <div className="h-4 bg-neutral-700 rounded-sm mb-2"></div>
+              <div className="h-3 bg-neutral-700 rounded-sm mb-1"></div>
+              <div className="h-3 bg-neutral-700 rounded-sm w-2/3"></div>
             </div>
           ))}
         </div>
@@ -678,7 +678,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 overflow-x-hidden">
           {/* Left side: Title and stats */}
           <div>
-            <h2 className="text-lg font-medium">NFT Collection</h2>
+            <h2 className="text-fluid-lg font-medium">NFT Collection</h2>
             <div className="mt-2 flex items-center gap-2 flex-wrap">
               <ToggleGroup 
                 type="single" 
@@ -707,15 +707,17 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                 <ToggleGroupItem 
                   value="all" 
                   aria-label="Show all NFTs"
-                  className="h-7 px-3 text-xs rounded-sm data-[state=on]:bg-[#ff0099]/20 data-[state=on]:text-[#ff0099] data-[state=on]:border-[#ff0099] text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-neutral-200 flex items-center justify-center leading-none"
+                  className="h-7 px-3 rounded-sm data-[state=on]:bg-[#ff0099]/20 data-[state=on]:text-[#ff0099] data-[state=on]:border-[#ff0099] text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-neutral-200 flex items-center justify-center leading-none"
+                  style={{ fontSize: 'clamp(0.8rem, 0.55vw, 1rem)' }}
                 >
                   <span className="flex items-center justify-center w-full h-full">All</span>
                 </ToggleGroupItem>
                 <ToggleGroupItem 
                   value="live" 
                   aria-label={`Show live NFTs (${isCheckingOwnership && checkedCount < totalToCheck ? (checkedCount > 0 ? onChainLiveCount : nfts.filter(n => n.isForSale).length) : onChainLiveCount})`}
-                  className="h-7 px-3 text-xs rounded-sm data-[state=on]:bg-blue-500/20 data-[state=on]:text-blue-400 data-[state=on]:border-blue-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-blue-300 flex items-center justify-center leading-none"
+                  className="h-7 px-3 rounded-sm data-[state=on]:bg-blue-500/20 data-[state=on]:text-blue-400 data-[state=on]:border-blue-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-blue-300 flex items-center justify-center leading-none"
                   disabled={!setShowLive}
+                  style={{ fontSize: 'clamp(0.8rem, 0.55vw, 1rem)' }}
                 >
                   <span className="flex items-center justify-center w-full h-full">
                     {isCheckingOwnership && checkedCount < totalToCheck ? (
@@ -728,8 +730,9 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                 <ToggleGroupItem 
                   value="sold" 
                   aria-label={`Show sold NFTs (${isCheckingOwnership && checkedCount < totalToCheck ? (checkedCount > 0 ? onChainSoldCount : nfts.filter(n => !n.isForSale).length) : onChainSoldCount})`}
-                  className="h-7 px-3 text-xs rounded-sm data-[state=on]:bg-green-500/20 data-[state=on]:text-green-400 data-[state=on]:border-green-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-green-300 flex items-center justify-center leading-none"
+                  className="h-7 px-3 rounded-sm data-[state=on]:bg-green-500/20 data-[state=on]:text-green-400 data-[state=on]:border-green-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-green-300 flex items-center justify-center leading-none"
                   disabled={!setShowSold}
+                  style={{ fontSize: 'clamp(0.8rem, 0.55vw, 1rem)' }}
                 >
                   <span className="flex items-center justify-center w-full h-full">
                     {isCheckingOwnership && checkedCount < totalToCheck ? (
@@ -742,7 +745,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
               </ToggleGroup>
             </div>
             {filteredNFTs.length > 0 && (
-              <div className="text-xs text-neutral-500 mt-3">
+              <div className="text-neutral-500 mt-3" style={{ fontSize: 'clamp(0.8rem, 0.55vw, 1rem)' }}>
                 {startIndex + 1}-{Math.min(endIndex, filteredNFTs.length)} of {filteredNFTs.length} NFTs
               </div>
             )}
@@ -831,12 +834,12 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
             {/* Dropdowns - Below view toggles */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto flex-wrap">
               <div className="flex items-center gap-2 w-full sm:w-auto min-w-0">
-                <span className="text-sm text-neutral-500 whitespace-nowrap flex-shrink-0">Sort by: </span>
+                <span className="text-neutral-500 whitespace-nowrap flex-shrink-0" style={{ fontSize: 'clamp(0.8rem, 0.55vw, 1rem)' }}>Sort by: </span>
                 <Select value={sortBy} onValueChange={(value) => {
                   setSortBy(value);
                   setColumnSort(null); // Clear column sort when using dropdown
                 }}>
-                  <SelectTrigger className="w-full sm:w-[200px] md:w-[240px] bg-neutral-900 border-neutral-700 rounded-sm text-[#FFFBEB] text-sm font-normal min-w-0">
+                  <SelectTrigger className="w-full sm:w-[200px] md:w-[240px] bg-neutral-900 border-neutral-700 rounded-sm text-[#FFFBEB] font-normal min-w-0" style={{ fontSize: 'clamp(0.8rem, 0.55vw, 1rem)' }}>
                     <SelectValue placeholder="Default" />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-sm">
@@ -852,9 +855,9 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
               </div>
 
               <div className="flex items-center gap-2 w-full sm:w-auto min-w-0">
-                <span className="text-sm text-neutral-500 whitespace-nowrap flex-shrink-0">Show: </span>
+                <span className="text-neutral-500 whitespace-nowrap flex-shrink-0" style={{ fontSize: 'clamp(0.8rem, 0.55vw, 1rem)' }}>Show: </span>
                 <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
-                  <SelectTrigger className="w-full sm:w-[120px] bg-neutral-900 border-neutral-700 rounded-sm text-[#FFFBEB] text-sm font-normal min-w-0">
+                  <SelectTrigger className="w-full sm:w-[120px] bg-neutral-900 border-neutral-700 rounded-sm text-[#FFFBEB] font-normal min-w-0" style={{ fontSize: 'clamp(0.8rem, 0.55vw, 1rem)' }}>
                     <SelectValue placeholder="15 items" />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-sm">
@@ -875,11 +878,12 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
         <>
           {/* Grid Views */}
           {(viewMode === 'grid-large' || viewMode === 'grid-medium' || viewMode === 'grid-small') && (
-            <div ref={gridRef} className={`mt-4 mb-8 grid ${
-              viewMode === 'grid-large' ? 'gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' :
-              viewMode === 'grid-medium' ? 'gap-1 grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6' :
-              'gap-2 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8'
-            }`}>
+            <div ref={gridRef} className="mt-4 mb-8 grid w-full" style={{
+              gridTemplateColumns: viewMode === 'grid-large' ? 'repeat(auto-fit, minmax(clamp(160px, 48vw, 300px), 1fr))' : 
+                                  viewMode === 'grid-medium' ? 'repeat(auto-fit, minmax(clamp(140px, 45vw, 260px), 1fr))' :
+                                  'repeat(auto-fit, minmax(clamp(120px, 40vw, 200px), 1fr))',
+              gap: 'clamp(0.5rem, 0.8vw, 1rem)'
+            }}>
               {paginatedNFTs.map((nft, index) => {
                 // Prioritize loading first 12-16 images (first visible rows depending on view mode)
                 // This ensures above-the-fold images load immediately

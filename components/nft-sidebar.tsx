@@ -114,7 +114,10 @@ function FilterSection({
       >
         <div className="flex items-center gap-2">
           {icon && <span className={colorClasses[color]}>{icon}</span>}
-          <h3 className={`font-normal text-base ${isOpen ? colorClasses[color] : ''}`} style={!isOpen ? { color: "#fffbeb" } : {}}>
+          <h3 className={`font-normal ${isOpen ? colorClasses[color] : ''}`} style={{ 
+            ...(!isOpen ? { color: "#fffbeb" } : {}),
+            fontSize: 'clamp(0.9rem, 0.6vw, 1rem)'
+          }}>
             {title}
           </h3>
           {/* Active filter indicator */}
@@ -143,10 +146,11 @@ function FilterSection({
         <div className="mt-2 space-y-1">
           {sortable && (
             <div className="mb-3 px-1">
-            <span className="text-sm text-neutral-400 block mb-1">Sort by:</span>
+            <span className="text-neutral-400 block mb-1" style={{ fontSize: 'clamp(0.75rem, 0.45vw, 0.9rem)' }}>Sort by:</span>
             <button
                 onClick={() => setSortOrder(sortOrder === "commonToRare" ? "rareToCommon" : "commonToRare")}
-              className="flex items-center gap-1 text-sm px-3 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition-colors w-full justify-between text-off-white"
+              className="flex items-center gap-1 px-3 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition-colors w-full justify-between text-off-white"
+              style={{ fontSize: 'clamp(0.75rem, 0.5vw, 0.9rem)' }}
             >
               <span className={colorClasses[color]}>
                 {sortOrder === "commonToRare" ? "Common to Rare" : "Rare to Common"}
@@ -160,7 +164,7 @@ function FilterSection({
           </div>
           )}
 
-      <div className="space-y-0.5">
+      <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
             {sortedOptions.map((option) => {
               const optValue = typeof option === 'string' ? option : option.value
               const optDisplay = typeof option === 'string' ? option : option.display
@@ -174,7 +178,7 @@ function FilterSection({
                       id={optValue}
                       checked={selected.includes(optValue)}
                       onChange={() => handleCheckboxChange(optValue)}
-                    className="sidebar-checkbox mr-3"
+                    className="sidebar-checkbox mr-2 flex-shrink-0"
                     style={{
                       '--checkbox-color': color === 'purple' ? '#8b5cf6' : 
                                         color === 'blue' ? '#3b82f6' :
@@ -187,12 +191,13 @@ function FilterSection({
                   />
                   <label
                       htmlFor={optValue}
-                      className="text-sm text-neutral-300 cursor-pointer flex-1 py-0.5 whitespace-pre-line leading-tight"
+                      className="text-neutral-300 cursor-pointer flex-1 py-0.5 whitespace-pre-line leading-tight min-w-0"
+                      style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}
                   >
-                    <div className="flex items-center justify-between">
-                        <span>{optDisplay.replace('\n', ' ')}</span>
+                    <div className="flex items-center justify-between gap-1">
+                        <span className="break-words min-w-0">{optDisplay.replace('\n', ' ')}</span>
                         {count && (
-                          <span className={`${colorClasses[color]} text-xs font-medium`}>
+                          <span className={`${colorClasses[color]} font-medium flex-shrink-0 ml-1`} style={{ fontSize: 'clamp(0.65rem, 0.35vw, 0.8rem)' }}>
                             ({count})
                           </span>
                         )}
@@ -281,7 +286,10 @@ function SubcategorySection({
       >
         <div className="flex items-center gap-2">
           {icon && <span className={colorClasses[color]}>{icon}</span>}
-          <h3 className={`font-normal text-base ${isOpen ? colorClasses[color] : ''}`} style={!isOpen ? { color: "#fffbeb" } : {}}>
+          <h3 className={`font-normal ${isOpen ? colorClasses[color] : ''}`} style={{ 
+            ...(!isOpen ? { color: "#fffbeb" } : {}),
+            fontSize: 'clamp(0.9rem, 0.6vw, 1rem)'
+          }}>
             {title}
           </h3>
           {/* Active filter indicator for subcategories */}
@@ -343,13 +351,14 @@ function SubcategorySection({
                   />
                   <label
                     htmlFor={`subcat-${subcategory.name}`}
-                    className={`text-sm cursor-pointer py-0.5 pr-2 block flex-1 ${isChecked ? `border-b ${borderClasses[color]} pb-1` : ''}`}
+                    className={`cursor-pointer py-0.5 pr-2 block flex-1 ${isChecked ? `border-b ${borderClasses[color]} pb-1` : ''}`}
                     onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                    style={{ fontSize: 'clamp(0.8rem, 0.5vw, 0.95rem)' }}
                   >
                     <div className="flex items-center justify-between pb-1">
                       <span className={colorClasses[color]}>{subcategory.name}</span>
                       {totalCount > 0 && (
-                          <span className={`${colorClasses[color]} text-xs font-medium`}>
+                          <span className={`${colorClasses[color]} font-medium`} style={{ fontSize: 'clamp(0.65rem, 0.35vw, 0.8rem)' }}>
                             ({totalCount})
                           </span>
                       )}
@@ -358,7 +367,7 @@ function SubcategorySection({
                 </div>
 
                 {isChecked && (
-                  <div className="ml-7 mt-1 space-y-1">
+                  <div className="ml-7 mt-1 grid grid-cols-2 gap-x-2 gap-y-0.5">
                     {subcategory.options.map((option) => {
                       const fullValue = `${subcategory.name} ${option}`
                       const count = traitCounts[key]?.[fullValue]
@@ -370,7 +379,7 @@ function SubcategorySection({
                           id={`${subcategory.name}-${option}`}
                           checked={selected[subcategory.name]?.includes(option) ?? false}
                             onChange={() => handleColorToggle(subcategory.name, option)}
-                          className="sidebar-checkbox mr-3"
+                          className="sidebar-checkbox mr-2 flex-shrink-0"
                           style={{
                             '--checkbox-color': color === 'purple' ? '#8b5cf6' : 
                                               color === 'blue' ? '#3b82f6' :
@@ -383,14 +392,17 @@ function SubcategorySection({
                         />
                         <label
                           htmlFor={`${subcategory.name}-${option}`}
-                            className="text-sm text-neutral-300 cursor-pointer flex-1 py-0.5 pr-2 block flex justify-between items-center"
+                            className="text-neutral-300 cursor-pointer flex-1 py-0.5 min-w-0"
+                          style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}
                         >
-                          <span>{option}</span>
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="break-words min-w-0">{option}</span>
                             {count && (
-                              <span className={`${colorClasses[color]} text-xs font-medium flex-shrink-0`}>
+                              <span className={`${colorClasses[color]} font-medium flex-shrink-0 ml-1`} style={{ fontSize: 'clamp(0.65rem, 0.35vw, 0.8rem)' }}>
                                 ({count})
                               </span>
                             )}
+                          </div>
                         </label>
                       </div>
                       )
@@ -543,38 +555,40 @@ export default function NFTSidebar({
 
   return (
     <div
-      className="w-full max-w-[95vw] sm:max-w-3xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl space-y-2 bg-card p-3 lg:p-4 pt-6 rounded border border-neutral-700 shadow-sm"
+      className="w-full max-w-[95vw] sm:max-w-3xl lg:max-w-4xl xl:max-w-full 2xl:max-w-full space-y-2 bg-card p-3 lg:p-4 pt-6 rounded border border-neutral-700 shadow-sm"
       suppressHydrationWarning={true}
     >
       {/* Blockchain Info */}
         <div className="space-y-1 mb-4 p-3 border border-neutral-700 rounded">
           <div>
-          <div className="text-[11px] font-mono font-extralight text-off-white mb-0">Blockchain: Base</div>
+          <div className="font-mono font-extralight text-off-white mb-0" style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}>Blockchain: Base</div>
         </div>
           <div>
-          <div className="text-[11px] font-mono font-extralight text-off-white mb-0">Chain ID: 8453</div>
+          <div className="font-mono font-extralight text-off-white mb-0" style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}>Chain ID: 8453</div>
         </div>
           <div>
-          <div className="text-[11px] font-mono font-extralight text-off-white mb-2">Token Standard: ERC-721</div>
+          <div className="font-mono font-extralight text-off-white mb-2" style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}>Token Standard: ERC-721</div>
         </div>
 
         {/* Contract Links */}
         <div className="space-y-3 mt-3">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h4 className="text-[11px] font-mono font-extralight text-off-white">Marketplace</h4>
+              <h4 className="font-mono font-extralight text-off-white" style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}>Marketplace</h4>
             </div>
             <div className="flex gap-2">
                <button
                 onClick={() => window.open(`https://basescan.org/address/${process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 text-[11px] px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer"
+                style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}
               >
                 BaseScan
                 <ExternalLink className="h-3 w-3" style={{ color: "#fffbeb" }} />
               </button>
               <button
                 onClick={() => window.open(`https://base.blockscout.com/address/${process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 text-[11px] px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer"
+                style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}
               >
                 Blockscout
                 <ExternalLink className="h-3 w-3" style={{ color: "#fffbeb" }} />
@@ -584,19 +598,21 @@ export default function NFTSidebar({
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h4 className="text-[11px] font-mono font-extralight text-off-white">NFT Contract</h4>
+              <h4 className="font-mono font-extralight text-off-white" style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}>NFT Contract</h4>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => window.open(`https://basescan.org/address/${process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 text-[11px] px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer"
+                style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}
               >
                 BaseScan
                 <ExternalLink className="h-3 w-3" style={{ color: "#fffbeb" }} />
               </button>
               <button
                 onClick={() => window.open(`https://base.blockscout.com/address/${process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 text-[11px] px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer"
+                style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}
               >
                 Blockscout
                 <ExternalLink className="h-3 w-3" style={{ color: "#fffbeb" }} />
@@ -610,29 +626,31 @@ export default function NFTSidebar({
 
       {/* Search */}
       <div suppressHydrationWarning={true}>
-        <h3 className="font-normal mb-2 text-base" style={{ color: "#fffbeb" }}>Search</h3>
+        <h3 className="font-normal mb-2" style={{ color: "#fffbeb", fontSize: 'clamp(0.9rem, 0.6vw, 1rem)' }}>Search</h3>
         
         <div className="mb-3">
           <div className="flex bg-neutral-700 rounded p-1">
             <button
               onClick={() => handleSearchModeChange("contains")}
-              className={`flex-1 px-3 py-1.5 text-xs rounded transition-colors ${
+              className={`flex-1 px-3 py-1.5 rounded transition-colors ${
                 searchMode === "contains"
                   ? "bg-[#ff0099] text-white"
                   : "text-neutral-400 hover:text-white"
               }`}
               aria-pressed={searchMode === "contains"}
+              style={{ fontSize: 'clamp(0.75rem, 0.5vw, 0.9rem)' }}
             >
               Contains
             </button>
             <button
               onClick={() => handleSearchModeChange("exact")}
-              className={`flex-1 px-3 py-1.5 text-xs rounded transition-colors ${
+              className={`flex-1 px-3 py-1.5 rounded transition-colors ${
                 searchMode === "exact"
                   ? "bg-[#ff0099] text-white"
                   : "text-neutral-200 hover:text-white"
               }`}
               aria-pressed={searchMode === "exact"}
+              style={{ fontSize: 'clamp(0.75rem, 0.5vw, 0.9rem)' }}
             >
               Exact
             </button>
@@ -643,7 +661,8 @@ export default function NFTSidebar({
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-500" />
           <Input
             placeholder="Search NFTs..."
-            className="pl-9 py-1.5 text-sm font-light h-8 rounded text-brand-pink border-neutral-600 focus:outline-none focus:ring-0 focus:border-brand-pink transition-colors placeholder:font-light"
+            className="pl-9 py-1.5 font-light h-8 rounded text-brand-pink border-neutral-600 focus:outline-none focus:ring-0 focus:border-brand-pink transition-colors placeholder:font-light"
+            style={{ fontSize: 'clamp(0.75rem, 0.5vw, 0.9rem)' }}
             value={searchTerm}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setSearchTerm(e.target.value)
@@ -656,8 +675,9 @@ export default function NFTSidebar({
         <Button
           variant="outline"
           size="sm"
-          className="text-sm font-medium flex items-center justify-center h-8 w-full mb-4 rounded border-[#ff0099] text-[#ff0099] bg-transparent hover:bg-[#ff0099] hover:text-white focus:outline-none focus:ring-0 focus:border-[#ff0099] transition-colors"
+          className="font-medium flex items-center justify-center h-8 w-full mb-4 rounded border-[#ff0099] text-[#ff0099] bg-transparent hover:bg-[#ff0099] hover:text-white focus:outline-none focus:ring-0 focus:border-[#ff0099] transition-colors"
           aria-label="Search NFTs"
+          style={{ fontSize: 'clamp(0.75rem, 0.5vw, 0.9rem)' }}
         >
           Search
         </Button>
@@ -670,7 +690,8 @@ export default function NFTSidebar({
           variant="outline" 
           size="sm" 
           onClick={clearAllFilters}
-          className="text-sm font-light flex items-center justify-center gap-1 h-9 w-full rounded border-neutral-500 text-neutral-300 hover:bg-neutral-700 hover:text-white hover:border-neutral-400 focus:outline-none focus:ring-0 focus:border-neutral-400 transition-colors" 
+          className="font-light flex items-center justify-center gap-1 h-9 w-full rounded border-neutral-500 text-neutral-300 hover:bg-neutral-700 hover:text-white hover:border-neutral-400 focus:outline-none focus:ring-0 focus:border-neutral-400 transition-colors"
+          style={{ fontSize: 'clamp(0.75rem, 0.5vw, 0.9rem)' }} 
           aria-label="Clear all filters and search"
         >
           <X className="h-4 w-4" /> Clear All Filters

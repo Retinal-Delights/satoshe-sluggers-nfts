@@ -4,44 +4,90 @@
 
 import type { FavoriteNFT } from '@/hooks/useFavorites';
 
+// Request deduplication cache - prevents multiple simultaneous calls for same address
+const pendingRequests = new Map<string, Promise<FavoriteNFT[]>>();
+const requestCache = new Map<string, { data: FavoriteNFT[]; timestamp: number }>();
+const CACHE_TTL = 10000; // 10 seconds cache
+
 /**
- * Get all favorites for wallet address
+ * Invalidate cache for a wallet address (call after add/remove operations)
+ */
+export function invalidateCache(walletAddress: string) {
+  const normalizedAddress = walletAddress.toLowerCase();
+  requestCache.delete(normalizedAddress);
+}
+
+/**
+ * Get all favorites for wallet address (with request deduplication and caching)
  */
 export async function getFavorites(walletAddress: string): Promise<FavoriteNFT[]> {
   if (!walletAddress) {
     throw new Error('Wallet address is required');
   }
 
-  const response = await fetch(`/api/favorites?walletAddress=${encodeURIComponent(walletAddress)}`);
+  const normalizedAddress = walletAddress.toLowerCase();
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || `Failed to fetch favorites: ${response.status}`);
+  // Check cache first
+  const cached = requestCache.get(normalizedAddress);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data;
   }
 
-  const data = await response.json();
-
-  if (!data.success) {
-    throw new Error(data.error || 'Failed to fetch favorites');
+  // If there's already a pending request for this address, reuse it
+  const pending = pendingRequests.get(normalizedAddress);
+  if (pending) {
+    return pending;
   }
 
-  return data.favorites.map((fav: {
-    tokenId: string;
-    name: string;
-    image: string;
-    rarity: string;
-    rank: string | number;
-    rarityPercent: string | number;
-    addedAt: string;
-  }) => ({
-    tokenId: fav.tokenId,
-    name: fav.name,
-    image: fav.image,
-    rarity: fav.rarity,
-    rank: fav.rank,
-    rarityPercent: fav.rarityPercent,
-    addedAt: new Date(fav.addedAt).getTime(),
-  }));
+  // Create new request
+  const requestPromise = fetch(`/api/favorites?walletAddress=${encodeURIComponent(normalizedAddress)}`)
+    .then(async (response) => {
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to fetch favorites: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to fetch favorites');
+      }
+
+      const favorites = data.favorites.map((fav: {
+        tokenId: string;
+        name: string;
+        image: string;
+        rarity: string;
+        rank: string | number;
+        rarityPercent: string | number;
+        addedAt: string;
+      }) => ({
+        tokenId: fav.tokenId,
+        name: fav.name,
+        image: fav.image,
+        rarity: fav.rarity,
+        rank: fav.rank,
+        rarityPercent: fav.rarityPercent,
+        addedAt: new Date(fav.addedAt).getTime(),
+      }));
+
+      // Cache the result
+      requestCache.set(normalizedAddress, {
+        data: favorites,
+        timestamp: Date.now(),
+      });
+
+      return favorites;
+    })
+    .finally(() => {
+      // Remove from pending requests when done
+      pendingRequests.delete(normalizedAddress);
+    });
+
+  // Store pending request
+  pendingRequests.set(normalizedAddress, requestPromise);
+
+  return requestPromise;
 }
 
 /**
@@ -82,7 +128,7 @@ export async function addFavorite(
     throw new Error(data.error || 'Failed to add favorite');
   }
 
-  return {
+  const favorite: FavoriteNFT = {
     tokenId: data.favorite.tokenId,
     name: data.favorite.name,
     image: data.favorite.image,
@@ -91,6 +137,11 @@ export async function addFavorite(
     rarityPercent: data.favorite.rarityPercent,
     addedAt: new Date(data.favorite.addedAt).getTime(),
   };
+
+  // Invalidate cache so next getFavorites call fetches fresh data
+  invalidateCache(walletAddress);
+
+  return favorite;
 }
 
 /**
@@ -115,5 +166,8 @@ export async function removeFavorite(walletAddress: string, tokenId: string): Pr
   if (!data.success) {
     throw new Error(data.error || 'Failed to remove favorite');
   }
+
+  // Invalidate cache so next getFavorites call fetches fresh data
+  invalidateCache(walletAddress);
 }
 
