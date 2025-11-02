@@ -19,6 +19,7 @@ interface MobileMenuProps {
 
 export function MobileMenu({ isWalletConnected = false, hasUserActivity = false }: MobileMenuProps) {
   const [open, setOpen] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(false)
   const [walletConnected, setWalletConnected] = useState(isWalletConnected)
   const [userActivity, setUserActivity] = useState(hasUserActivity)
   const [mounted, setMounted] = useState(false)
@@ -80,7 +81,7 @@ export function MobileMenu({ isWalletConnected = false, hasUserActivity = false 
       document.addEventListener('keydown', handleEscape)
       return () => document.removeEventListener('keydown', handleEscape)
     }
-  }, [open])
+  }, [open, isAnimating])
 
   // Determine active page from pathname
   const getActivePage = () => {
@@ -96,12 +97,29 @@ export function MobileMenu({ isWalletConnected = false, hasUserActivity = false 
   const activePage = getActivePage()
 
   const handleClose = () => {
-    setOpen(false)
+    setIsAnimating(false)
+    // Wait for exit animation to complete before hiding
+    setTimeout(() => {
+      setOpen(false)
+    }, 200) // Match transition duration
+  }
+
+  const handleOpen = () => {
+    setOpen(true)
+    // Trigger enter animation after state updates
+    setTimeout(() => {
+      setIsAnimating(true)
+    }, 10)
   }
 
   const mobileMenuContent = open && mounted && (
     <div 
-      className="fixed inset-0 z-[60] bg-black/50"
+      className={`fixed inset-0 z-[60] transition-opacity duration-200 ease-out ${
+        isAnimating ? 'opacity-100' : 'opacity-0'
+      }`}
+      style={{
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      }}
       onClick={handleClose}
       role="dialog"
       aria-modal="true"
@@ -109,7 +127,11 @@ export function MobileMenu({ isWalletConnected = false, hasUserActivity = false 
     >
           <div 
             ref={menuRef}
-            className="w-80 max-w-[90vw] fixed left-1/2 -translate-x-1/2 rounded-lg pt-4 pb-8 px-8"
+            className={`w-80 max-w-[90vw] fixed left-1/2 -translate-x-1/2 rounded-lg pt-4 pb-12 px-8 transition-all duration-200 ease-out ${
+              isAnimating 
+                ? 'opacity-100 translate-y-0' 
+                : 'opacity-0 -translate-y-4'
+            }`}
         style={{
           top: '76px', // Position below navbar (navbar height is ~76px)
           maxHeight: 'calc(100vh - 100px)', // Leave some margin
@@ -232,7 +254,13 @@ export function MobileMenu({ isWalletConnected = false, hasUserActivity = false 
         variant="ghost"
         size="icon"
         className="p-2 hover:bg-accent rounded-full transition-colors border border-neutral-700 cursor-pointer"
-        onClick={() => setOpen(!open)}
+        onClick={() => {
+          if (open) {
+            handleClose()
+          } else {
+            handleOpen()
+          }
+        }}
       >
         <Menu className="h-9 w-9" />
         <span className="sr-only">Toggle menu</span>
