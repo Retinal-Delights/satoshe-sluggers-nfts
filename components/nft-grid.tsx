@@ -763,14 +763,14 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                         setViewMode('grid-large')
                         announceToScreenReader('Switched to large grid view')
                       }}
-                      className={`p-2 rounded-sm transition-colors ${viewMode === 'grid-large' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                      className={`p-2 rounded-sm transition-colors ${viewMode === 'grid-large' ? 'bg-neutral-800 text-brand-pink' : 'text-neutral-500 hover:text-neutral-300'}`}
                       aria-label="Switch to large grid view"
                       aria-pressed={viewMode === 'grid-large'}
                     >
                       <Square className="w-4 h-4" />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="top" className="bg-neutral-800 text-[#FFFBEB] border-neutral-600">
+                  <TooltipContent side="top" className="bg-neutral-800 text-off-white border-neutral-600">
                     <p>Large Grid</p>
                   </TooltipContent>
                 </Tooltip>
@@ -781,14 +781,14 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                         setViewMode('grid-medium')
                         announceToScreenReader('Switched to medium grid view')
                       }}
-                      className={`p-2 rounded-sm transition-colors ${viewMode === 'grid-medium' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                      className={`p-2 rounded-sm transition-colors ${viewMode === 'grid-medium' ? 'bg-neutral-800 text-brand-pink' : 'text-neutral-500 hover:text-neutral-300'}`}
                       aria-label="Switch to medium grid view"
                       aria-pressed={viewMode === 'grid-medium'}
                     >
                       <LayoutGrid className="w-4 h-4" />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="top" className="bg-neutral-800 text-[#FFFBEB] border-neutral-600">
+                  <TooltipContent side="top" className="bg-neutral-800 text-off-white border-neutral-600">
                     <p>Medium Grid</p>
                   </TooltipContent>
                 </Tooltip>
@@ -799,14 +799,14 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                         setViewMode('grid-small')
                         announceToScreenReader('Switched to small grid view')
                       }}
-                      className={`p-2 rounded-sm transition-colors ${viewMode === 'grid-small' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                      className={`p-2 rounded-sm transition-colors ${viewMode === 'grid-small' ? 'bg-neutral-800 text-brand-pink' : 'text-neutral-500 hover:text-neutral-300'}`}
                       aria-label="Switch to small grid view"
                       aria-pressed={viewMode === 'grid-small'}
                     >
                       <Grid3x3 className="w-4 h-4" />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="top" className="bg-neutral-800 text-[#FFFBEB] border-neutral-600">
+                  <TooltipContent side="top" className="bg-neutral-800 text-off-white border-neutral-600">
                     <p>Small Grid</p>
                   </TooltipContent>
                 </Tooltip>
@@ -817,14 +817,14 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                         setViewMode('compact')
                         announceToScreenReader('Switched to compact table view')
                       }}
-                      className={`p-2 rounded-sm transition-colors ${viewMode === 'compact' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                      className={`p-2 rounded-sm transition-colors ${viewMode === 'compact' ? 'bg-neutral-800 text-brand-pink' : 'text-neutral-500 hover:text-neutral-300'}`}
                       aria-label="Switch to compact table view"
                       aria-pressed={viewMode === 'compact'}
                     >
                       <Rows3 className="w-4 h-4" />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="top" className="bg-neutral-800 text-[#FFFBEB] border-neutral-600">
+                  <TooltipContent side="top" className="bg-neutral-800 text-off-white border-neutral-600">
                     <p>Compact Table</p>
                   </TooltipContent>
                 </Tooltip>
@@ -897,8 +897,8 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                     key={nft.id}
                     tabIndex={0}
                     onKeyDown={(e) => handleKeyDown(e, index)}
-                    className={`focus:outline-none focus:ring-2 focus:ring-[#ff0099] focus:ring-offset-2 focus:ring-offset-neutral-900 rounded-sm ${
-                      focusedIndex === index ? 'ring-2 ring-[#ff0099] ring-offset-2 ring-offset-neutral-900' : ''
+                    className={`focus:outline-none focus:ring-2 focus:ring-brand-pink focus:ring-offset-2 focus:ring-offset-neutral-900 rounded-sm ${
+                      focusedIndex === index ? 'ring-2 ring-brand-pink ring-offset-2 ring-offset-neutral-900' : ''
                     }`}
                   >
                     <NFTCard
@@ -927,29 +927,29 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                 <table className="w-full table-fixed">
                 <thead className="bg-neutral-800/50 border-b border-neutral-700">
                   <tr>
-                    <th className="text-center px-1 sm:px-2 py-3 text-xs sm:text-sm font-medium text-[#FFFBEB] w-[5%] sm:w-[4%]">Favorite</th>
+                    <th className="text-center px-1 sm:px-2 py-3 text-xs sm:text-sm font-medium text-off-white w-[5%] sm:w-[4%]">Favorite</th>
                     <th 
-                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-[#FFFBEB] hover:text-neutral-200 cursor-pointer select-none w-[23%] sm:w-[21%]"
+                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-neutral-200 cursor-pointer select-none w-[23%] sm:w-[21%]"
                       onClick={() => handleColumnSort('nft')}
                     >
                       <div className="flex items-center gap-1">
                         NFT
                         {columnSort?.field === 'nft' && (
-                          <span className="text-[#ff0099]">
+                          <span className="text-brand-pink">
                             {columnSort.direction === 'asc' ? '↑' : '↓'}
                           </span>
                         )}
                       </div>
                     </th>
                     <th 
-                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-[#FFFBEB] hover:text-neutral-200 cursor-pointer select-none w-[10%] sm:w-[10%]"
+                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-neutral-200 cursor-pointer select-none w-[10%] sm:w-[10%]"
                       onClick={() => handleColumnSort('rank')}
                     >
                       <div className="flex flex-col items-start gap-0.5">
                         <div className="flex items-center gap-1">
                           Rank
                           {columnSort?.field === 'rank' && (
-                            <span className="text-[#ff0099]">
+                            <span className="text-brand-pink">
                               {columnSort.direction === 'asc' ? '↑' : '↓'}
                             </span>
                           )}
@@ -958,45 +958,45 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                       </div>
                     </th>
                     <th 
-                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-[#FFFBEB] hover:text-neutral-200 cursor-pointer select-none w-[14%] sm:w-[10%]"
+                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-neutral-200 cursor-pointer select-none w-[14%] sm:w-[10%]"
                       onClick={() => handleColumnSort('rarity')}
                     >
                       <div className="flex items-center gap-1">
                         Rarity
                         {columnSort?.field === 'rarity' && (
-                          <span className="text-[#ff0099]">
+                          <span className="text-brand-pink">
                             {columnSort.direction === 'asc' ? '↑' : '↓'}
                           </span>
                         )}
                       </div>
                     </th>
                     <th 
-                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-[#FFFBEB] hover:text-neutral-200 cursor-pointer select-none w-[16%] sm:w-[18%]"
+                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-neutral-200 cursor-pointer select-none w-[16%] sm:w-[18%]"
                       onClick={() => handleColumnSort('tier')}
                     >
                       <div className="flex items-center gap-1">
                         Tier
                         {columnSort?.field === 'tier' && (
-                          <span className="text-[#ff0099]">
+                          <span className="text-brand-pink">
                             {columnSort.direction === 'asc' ? '↑' : '↓'}
                           </span>
                         )}
                       </div>
                     </th>
                     <th 
-                      className="text-right px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-[#FFFBEB] hover:text-neutral-200 cursor-pointer select-none w-[10%] sm:w-[12%]"
+                      className="text-right px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-neutral-200 cursor-pointer select-none w-[10%] sm:w-[12%]"
                       onClick={() => handleColumnSort('price')}
                     >
                       <div className="flex items-center justify-end gap-1">
                         Price
                         {columnSort?.field === 'price' && (
-                          <span className="text-[#ff0099]">
+                          <span className="text-brand-pink">
                             {columnSort.direction === 'asc' ? '↑' : '↓'}
                           </span>
                         )}
                       </div>
                     </th>
-                    <th className="text-right px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-[#FFFBEB] w-[16%]">Actions</th>
+                    <th className="text-right px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white w-[16%]">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1005,9 +1005,9 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                       key={nft.id} 
                       tabIndex={0}
                       onKeyDown={(e) => handleKeyDown(e, index)}
-                      className={`border-b border-neutral-700/50 hover:bg-neutral-800/30 transition-colors focus:outline-none focus:ring-2 focus:ring-[#ff0099] focus:ring-inset ${
+                      className={`border-b border-neutral-700/50 hover:bg-neutral-800/30 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-pink focus:ring-inset ${
                         index % 2 === 0 ? 'bg-neutral-900/20' : ''
-                      } ${focusedIndex === index ? 'ring-2 ring-[#ff0099] ring-inset' : ''}`}
+                      } ${focusedIndex === index ? 'ring-2 ring-brand-pink ring-inset' : ''}`}
                     >
                       <td className="px-1 sm:px-2 py-3 text-center">
                         <button
@@ -1025,7 +1025,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                           }}
                           className="p-1 hover:bg-neutral-700 rounded transition-colors mx-auto"
                         >
-                          <Heart className={`w-4 h-4 ${isFavorited(nft.tokenId) ? "fill-[#ff0099] text-[#ff0099]" : "text-neutral-400 hover:text-neutral-300"}`} />
+                          <Heart className={`w-4 h-4 ${isFavorited(nft.tokenId) ? "fill-brand-pink text-brand-pink" : "text-neutral-400 hover:text-neutral-300"}`} />
                         </button>
                       </td>
                       <td className="px-2 sm:px-3 py-3">
@@ -1033,7 +1033,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                           <Link href={`/nft/${nft.cardNumber}${typeof window !== 'undefined' && window.location.search ? `?returnTo=${encodeURIComponent(`/nfts${window.location.search}`)}` : ''}`} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity min-w-0 flex-1">
                             <Image src={nft.image} alt={`${nft.name} - NFT #${nft.cardNumber}, Rank ${nft.rank}, ${nft.rarity} rarity, Tier ${nft.tier}`} width={32} height={32} className="rounded object-contain flex-shrink-0" />
                             <div className="min-w-0 flex-1">
-                              <p className="text-xs font-normal text-[#FFFBEB] leading-tight line-clamp-2">NFT #{nft.cardNumber}</p>
+                              <p className="text-xs font-normal text-off-white leading-tight line-clamp-2">NFT #{nft.cardNumber}</p>
                               <p className="text-xs text-neutral-500 leading-tight line-clamp-1">Token ID: {nft.tokenId}</p>
                             </div>
                           </Link>

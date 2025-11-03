@@ -93,11 +93,11 @@ export default function AttributeRarityChart({ attributes, overallRarity }: Attr
           cursor={false}
           content={<ChartTooltipContent
             hideLabel
-            className="bg-neutral-900 border-neutral-600 text-[#FFFBEB]"
+            className="bg-neutral-900 border-neutral-600 text-off-white"
             formatter={(value, name) => {
               const item = chartData.find(d => d.name === name);
               return [
-                <span key={name} className="text-[#FFFBEB] font-medium">
+                <span key={name} className="text-off-white font-medium">
                   {name}: {item?.value} ({value}%)
                 </span>,
                 ""

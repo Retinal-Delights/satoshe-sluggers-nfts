@@ -569,19 +569,17 @@ export default function NFTSidebar({
             <div className="flex gap-2">
                <button
                 onClick={() => window.open(`https://basescan.org/address/${process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer"
-                className="text-fluid-xs"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-fluid-xs"
               >
                 BaseScan
-                <ExternalLink className="h-3 w-3" style={{ color: "#fffbeb" }} />
+                <ExternalLink className="h-3 w-3 text-off-white" />
               </button>
               <button
                 onClick={() => window.open(`https://base.blockscout.com/address/${process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer"
-                className="text-fluid-xs"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-fluid-xs"
               >
                 Blockscout
-                <ExternalLink className="h-3 w-3" style={{ color: "#fffbeb" }} />
+                <ExternalLink className="h-3 w-3 text-off-white" />
               </button>
             </div>
           </div>
@@ -593,19 +591,17 @@ export default function NFTSidebar({
             <div className="flex gap-2">
               <button
                 onClick={() => window.open(`https://basescan.org/address/${process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer"
-                className="text-fluid-xs"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-fluid-xs"
               >
                 BaseScan
-                <ExternalLink className="h-3 w-3" style={{ color: "#fffbeb" }} />
+                <ExternalLink className="h-3 w-3 text-off-white" />
               </button>
               <button
                 onClick={() => window.open(`https://base.blockscout.com/address/${process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer"
-                className="text-fluid-xs"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-fluid-xs"
               >
                 Blockscout
-                <ExternalLink className="h-3 w-3" style={{ color: "#fffbeb" }} />
+                <ExternalLink className="h-3 w-3 text-off-white" />
               </button>
             </div>
           </div>
@@ -622,13 +618,12 @@ export default function NFTSidebar({
           <div className="flex bg-neutral-700 rounded p-1">
             <button
               onClick={() => handleSearchModeChange("contains")}
-              className={`flex-1 px-3 py-1.5 rounded transition-colors ${
+              className={`flex-1 px-3 py-1.5 rounded transition-colors text-fluid-sm ${
                 searchMode === "contains"
                   ? "bg-brand-pink text-white"
                   : "text-neutral-400 hover:text-white"
               }`}
               aria-pressed={searchMode === "contains"}
-              className="text-fluid-sm"
             >
               Contains
             </button>
@@ -650,8 +645,7 @@ export default function NFTSidebar({
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-500" />
           <Input
             placeholder="Search NFTs..."
-            className="pl-9 py-1.5 font-light h-8 rounded text-brand-pink border-neutral-600 focus:outline-none focus:ring-0 focus:border-brand-pink transition-colors placeholder:font-light"
-            className="text-fluid-sm"
+            className="pl-9 py-1.5 font-light h-8 rounded text-brand-pink border-neutral-600 focus:outline-none focus:ring-0 focus:border-brand-pink transition-colors placeholder:font-light text-fluid-sm"
             value={searchTerm}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setSearchTerm(e.target.value)
@@ -664,9 +658,8 @@ export default function NFTSidebar({
         <Button
           variant="outline"
           size="sm"
-          className="font-medium flex items-center justify-center h-8 w-full mb-4 rounded border-brand-pink text-brand-pink bg-transparent hover:bg-brand-pink hover:text-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-colors"
+          className="font-medium flex items-center justify-center h-8 w-full mb-4 rounded border-brand-pink text-brand-pink bg-transparent hover:bg-brand-pink hover:text-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-colors text-fluid-sm"
           aria-label="Search NFTs"
-          className="text-fluid-sm"
         >
           Search
         </Button>
@@ -679,8 +672,7 @@ export default function NFTSidebar({
           variant="outline" 
           size="sm" 
           onClick={clearAllFilters}
-          className="font-light flex items-center justify-center gap-1 h-9 w-full rounded border-neutral-500 text-neutral-300 hover:bg-neutral-700 hover:text-white hover:border-neutral-400 focus:outline-none focus:ring-0 focus:border-neutral-400 transition-colors"
-          className="text-fluid-sm" 
+          className="font-light flex items-center justify-center gap-1 h-9 w-full rounded border-neutral-500 text-neutral-300 hover:bg-neutral-700 hover:text-white hover:border-neutral-400 focus:outline-none focus:ring-0 focus:border-neutral-400 transition-colors text-fluid-sm"
           aria-label="Clear all filters and search"
         >
           <X className="h-4 w-4" /> Clear All Filters

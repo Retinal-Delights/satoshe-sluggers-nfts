@@ -150,7 +150,7 @@ export function MobileMenu({ isWalletConnected = false, hasUserActivity = false 
                 onClick={handleClose}
                 aria-label="Close mobile menu"
               >
-                <X className="h-6 w-6 text-[#ff0099]" />
+                <X className="h-6 w-6 text-brand-pink" />
               </Button>
             </div>
             

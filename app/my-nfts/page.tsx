@@ -161,7 +161,7 @@ function MyNFTsContent() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-background text-[#FFFBEB] flex flex-col">
+      <main className="min-h-screen bg-background text-off-white flex flex-col">
         <Navigation />
         <div className="flex-grow flex justify-center items-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -172,7 +172,7 @@ function MyNFTsContent() {
   }
 
   return (
-    <main id="main-content" className="min-h-screen bg-background text-[#FFFBEB] flex flex-col pt-24 sm:pt-28">
+    <main id="main-content" className="min-h-screen bg-background text-off-white flex flex-col pt-24 sm:pt-28">
       <Navigation activePage="my-nfts" />
 
       <div className="max-w-7xl mx-auto px-6 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24 py-8 flex-grow">
@@ -188,17 +188,17 @@ function MyNFTsContent() {
         <div className="mb-6">
           <div className="flex border-b border-neutral-700">
             <button
-              className={`py-2 px-4 flex items-center gap-2 ${activeTab === "favorites" ? "border-b-2 border-[#ff0099] text-offwhite font-medium" : "text-neutral-400 hover:text-offwhite"}`}
+              className={`py-2 px-4 flex items-center gap-2 ${activeTab === "favorites" ? "border-b-2 border-brand-pink text-offwhite font-medium" : "text-neutral-400 hover:text-offwhite"}`}
               onClick={() => setActiveTab("favorites")}
             >
-              <Heart className={`w-4 h-4 ${activeTab === "favorites" ? "fill-[#ff0099] text-[#ff0099]" : ""}`} />
+              <Heart className={`w-4 h-4 ${activeTab === "favorites" ? "fill-brand-pink text-brand-pink" : ""}`} />
               Favorites ({favorites.length - locallyUnfavorited.size})
             </button>
             <button
-              className={`py-2 px-4 flex items-center gap-2 ${activeTab === "owned" ? "border-b-2 border-[#ff0099] text-offwhite font-medium" : "text-neutral-400 hover:text-offwhite"}`}
+              className={`py-2 px-4 flex items-center gap-2 ${activeTab === "owned" ? "border-b-2 border-brand-pink text-offwhite font-medium" : "text-neutral-400 hover:text-offwhite"}`}
               onClick={() => setActiveTab("owned")}
             >
-              <Package className={`w-4 h-4 ${activeTab === "owned" ? "text-[#ff0099]" : ""}`} />
+              <Package className={`w-4 h-4 ${activeTab === "owned" ? "text-brand-pink" : ""}`} />
               Owned ({Array.isArray(ownedNFTs) ? ownedNFTs.length : 0})
             </button>
           </div>
@@ -210,7 +210,7 @@ function MyNFTsContent() {
             <p className="text-red-400 mb-4">Error loading NFTs. Please try refreshing the page.</p>
             <Button 
               onClick={() => window.location.reload()} 
-              className="px-6 py-2 border border-[#ff0099] bg-transparent text-[#ff0099] font-normal rounded-sm hover:bg-[#ff0099]/90 hover:text-white transition-all duration-200"
+              className="px-6 py-2 border border-brand-pink bg-transparent text-brand-pink font-normal rounded-sm hover:bg-brand-pink/90 hover:text-white transition-all duration-200"
             >
               Refresh Page
             </Button>
@@ -226,7 +226,7 @@ function MyNFTsContent() {
             {(activeTab === "owned" || activeTab === "favorites") && (
               <Button 
                 onClick={() => router.push("/nfts")} 
-                className="px-6 py-2 border border-[#ff0099] bg-transparent text-[#ff0099] font-normal rounded-sm hover:bg-[#ff0099]/90 hover:text-white transition-all duration-200"
+                className="px-6 py-2 border border-brand-pink bg-transparent text-brand-pink font-normal rounded-sm hover:bg-brand-pink/90 hover:text-white transition-all duration-200 !cursor-pointer"
               >
                 Browse NFTs
               </Button>
@@ -284,7 +284,7 @@ function MyNFTsContent() {
                         <Heart className={`w-4 h-4 group-hover:scale-110 transition-transform ${
                           (nft as NFT).isLocallyUnfavorited 
                             ? "text-neutral-400 hover:text-red-500" // Outlined when locally unfavorited
-                            : "fill-[#ff0099] text-[#ff0099]" // Filled when favorited
+                            : "fill-brand-pink text-brand-pink" // Filled when favorited
                         }`} />
                       </button>
                     )}
@@ -294,7 +294,7 @@ function MyNFTsContent() {
                   {activeTab === "owned" && (
                     <Button
                       onClick={() => router.push(`/nft/${nft.id}`)}
-                      className="w-full border border-[#ff0099] bg-transparent text-[#ff0099] font-normal rounded-sm hover:bg-[#ff0099]/90 hover:text-white transition-all duration-200"
+                      className="w-full border border-brand-pink bg-transparent text-brand-pink font-normal rounded-sm hover:bg-brand-pink/90 hover:text-white transition-all duration-200"
                     >
                       View Details
                     </Button>

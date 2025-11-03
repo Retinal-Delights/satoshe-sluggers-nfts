@@ -412,7 +412,7 @@ export default function NFTDetailPage() {
             return (
               <Link
                 href={backTo}
-                className="inline-flex items-center text-neutral-400 hover:text-[#ff0099] text-sm transition-colors"
+                className="inline-flex items-center text-neutral-400 hover:text-brand-pink text-sm transition-colors"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to collection
@@ -425,7 +425,7 @@ export default function NFTDetailPage() {
             {navigationTokens.prev !== null && (
               <Link
                 href={`/nft/${navigationTokens.prev}`}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800 hover:bg-[#171717] text-neutral-400 hover:text-[#ff0099] transition-colors border border-neutral-700 hover:border-[#ff0099]"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800 hover:bg-[#171717] text-neutral-400 hover:text-brand-pink transition-colors border border-neutral-700 hover:border-brand-pink"
                 title={`Previous NFT #${navigationTokens.prev + 1}`}
               >
                 <ChevronLeft className="h-5 w-5" />
@@ -439,7 +439,7 @@ export default function NFTDetailPage() {
             {navigationTokens.next !== null && (
               <Link
                 href={`/nft/${navigationTokens.next}`}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800 hover:bg-[#171717] text-neutral-400 hover:text-[#ff0099] transition-colors border border-neutral-700 hover:border-[#ff0099]"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800 hover:bg-[#171717] text-neutral-400 hover:text-brand-pink transition-colors border border-neutral-700 hover:border-brand-pink"
                 title={`Next NFT #${navigationTokens.next + 1}`}
               >
                 <ChevronRight className="h-5 w-5" />
@@ -499,7 +499,7 @@ export default function NFTDetailPage() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="text-neutral-400 group-hover:text-[#ff0099] transition-colors"
+                  className="text-neutral-400 group-hover:text-brand-pink transition-colors"
                   aria-hidden="true"
                 >
                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -539,7 +539,7 @@ export default function NFTDetailPage() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="text-neutral-400 group-hover:text-[#ff0099] transition-colors"
+                  className="text-neutral-400 group-hover:text-brand-pink transition-colors"
                   aria-hidden="true"
                 >
                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -699,8 +699,8 @@ export default function NFTDetailPage() {
                 <Heart
                   className={`w-6 h-6 transition-colors cursor-pointer ${
                     isFav
-                      ? "text-[#ff0099] fill-[#ff0099]"
-                      : "text-neutral-400 hover:text-[#ff0099]"
+                      ? "text-brand-pink fill-brand-pink"
+                      : "text-neutral-400 hover:text-brand-pink"
                   }`}
                 />
               </button>

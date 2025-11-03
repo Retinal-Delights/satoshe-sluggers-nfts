@@ -13,8 +13,8 @@
   input:-webkit-autofill:focus,
   input:-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0 1000px #262626 inset !important;
-    -webkit-text-fill-color: #FFFBEB !important;
-    color: #FFFBEB !important;
+    -webkit-text-fill-color: var(--off-white) !important;
+    color: var(--off-white) !important;
   }
   
   :root {
@@ -99,11 +99,20 @@
   .text-brand-pink {
     color: var(--brand-pink);
   }
+  .bg-brand-pink {
+    background-color: var(--brand-pink);
+  }
+  .border-brand-pink {
+    border-color: var(--brand-pink);
+  }
   .fill-brand-pink {
     fill: var(--brand-pink);
   }
   .hover\:text-brand-pink:hover {
     color: var(--brand-pink);
+  }
+  .hover\:bg-brand-pink:hover {
+    background-color: var(--brand-pink);
   }
   .hover\:fill-brand-pink:hover {
     fill: var(--brand-pink);
@@ -180,8 +189,8 @@ input[type="checkbox"].sidebar-checkbox {
 }
 
 input[type="checkbox"].sidebar-checkbox:checked {
-  background-color: var(--checkbox-color, #ff0099);
-  border-color: var(--checkbox-color, #ff0099);
+  background-color: var(--checkbox-color, var(--brand-pink));
+  border-color: var(--checkbox-color, var(--brand-pink));
 }
 
 input[type="checkbox"].sidebar-checkbox:checked::after {

@@ -25,7 +25,7 @@ export default function HomePage() {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </Head>
-      <main id="main-content" className="min-h-screen bg-background text-[#FFFBEB]">
+      <main id="main-content" className="min-h-screen bg-background text-off-white">
         <Navigation activePage="home" />
         <Header80 />
         <Footer />
