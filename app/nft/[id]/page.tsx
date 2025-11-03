@@ -188,17 +188,19 @@ export default function NFTDetailPage() {
     loadPricingData();
   }, [tokenId]);
 
-  // Load current owner from chain (ERC-721 ownerOf)
+  // Load current owner from chain (ERC-721 ownerOf) with rate limiting
   useEffect(() => {
     const fetchOwner = async () => {
       setOwnerCheckComplete(false);
       try {
         const contract = getContract({ client, chain: base, address: CONTRACT_ADDRESS });
         const actualTokenId = BigInt(parseInt(tokenId) - 1);
-        const result = await readContract({
-          contract,
-          method: "function ownerOf(uint256 tokenId) view returns (address)",
-          params: [actualTokenId],
+        const result = await rpcRateLimiter.execute(async () => {
+          return await readContract({
+            contract,
+            method: "function ownerOf(uint256 tokenId) view returns (address)",
+            params: [actualTokenId],
+          });
         });
         if (typeof result === "string") {
           setOwnerAddress(result);
@@ -222,15 +224,17 @@ export default function NFTDetailPage() {
       const actualTokenId = parseInt(tokenId) - 1; // Convert display number to token ID
       if (typeof tokenIdNum === 'number' && !Number.isNaN(tokenIdNum) && tokenIdNum === actualTokenId) {
         setIsPurchased(true);
-        // Refetch owner immediately
+        // Refetch owner immediately with rate limiting
         const fetchOwner = async () => {
           try {
             const contract = getContract({ client, chain: base, address: CONTRACT_ADDRESS });
             const actualTokenIdBigInt = BigInt(actualTokenId);
-            const result = await readContract({
-              contract,
-              method: "function ownerOf(uint256 tokenId) view returns (address)",
-              params: [actualTokenIdBigInt],
+            const result = await rpcRateLimiter.execute(async () => {
+              return await readContract({
+                contract,
+                method: "function ownerOf(uint256 tokenId) view returns (address)",
+                params: [actualTokenIdBigInt],
+              });
             });
             if (typeof result === "string") {
               setOwnerAddress(result);
@@ -323,11 +327,13 @@ export default function NFTDetailPage() {
     try {
       const contract = getContract({ client, chain: base, address: CONTRACT_ADDRESS });
       const actualTokenId = BigInt(parseInt(tokenId) - 1);
-      const result = await readContract({
-        contract,
-        method: "function ownerOf(uint256 tokenId) view returns (address)",
-        params: [actualTokenId],
-      });
+            const result = await rpcRateLimiter.execute(async () => {
+              return await readContract({
+                contract,
+                method: "function ownerOf(uint256 tokenId) view returns (address)",
+                params: [actualTokenId],
+              });
+            });
       if (typeof result === "string") {
         setOwnerAddress(result);
       } else if (result && typeof result === "object" && "_value" in result) {

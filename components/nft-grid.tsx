@@ -26,6 +26,7 @@ import { loadAllNFTs } from "@/lib/simple-data-service";
 import { announceToScreenReader } from "@/lib/accessibility-utils";
 import { convertIpfsUrl } from "@/lib/utils";
 import { useOnChainOwnership } from "@/hooks/useOnChainOwnership";
+import { rpcRateLimiter } from "@/lib/rpc-rate-limiter";
 
 
 
@@ -278,7 +279,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
           return item;
         }));
         
-        // Force immediate on-chain verification for this specific token
+        // Force immediate on-chain verification for this specific token with rate limiting
         const verifyPurchasedToken = async () => {
           try {
             const creator = process.env.NEXT_PUBLIC_CREATOR_ADDRESS?.toLowerCase();
@@ -286,13 +287,17 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
 
             const contract = getContract({ client, chain: base, address: process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS! });
             const tokenIdBigInt = BigInt(tokenIdNum);
-            const owner = await readContract({
-              contract,
-              method: "function ownerOf(uint256 tokenId) view returns (address)",
-              params: [tokenIdBigInt],
-            }) as string;
             
-            const isSold = owner.toLowerCase() !== creator;
+            // Use rate limiter for this single call
+            const owner = await rpcRateLimiter.execute(async () => {
+              return await readContract({
+                contract,
+                method: "function ownerOf(uint256 tokenId) view returns (address)",
+                params: [tokenIdBigInt],
+              }) as string;
+            });
+            
+            const isSold = (owner as string).toLowerCase() !== creator;
             if (isSold) {
               // Double-check and update if needed
               setNfts(prev => prev.map(item => {
@@ -703,8 +708,96 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
     }
   }, [filteredNFTs.length, scrollPosition, isLoading]); // Only depend on length, not the entire array
 
-  // DISABLED: On-chain ownership verification - removed to prevent RPC limit exceeded
-  // Ownership state is managed via purchase events and initial metadata only
+  // Verify ownership for current page items with rate limiting
+  // Only checks visible page items (max 25 per page) to stay under RPC limits
+  const prevPageItemsRef = useRef<string>('');
+  const verificationInProgressRef = useRef(false);
+  useEffect(() => {
+    // Create a stable key from token IDs to prevent re-running for same page content
+    const pageItemsKey = paginatedNFTs.map(n => n.tokenId).join(',');
+    if (pageItemsKey === prevPageItemsRef.current || paginatedNFTs.length === 0 || verificationInProgressRef.current) {
+      return;
+    }
+    prevPageItemsRef.current = pageItemsKey;
+
+    const verifyOwnership = async () => {
+      // Prevent concurrent verification batches
+      if (verificationInProgressRef.current) return;
+      verificationInProgressRef.current = true;
+
+      try {
+        const creator = process.env.NEXT_PUBLIC_CREATOR_ADDRESS?.toLowerCase();
+        if (!creator) {
+          verificationInProgressRef.current = false;
+          return;
+        }
+
+        const pageItems = paginatedNFTs;
+        const tokenIds = pageItems.map(item => parseInt(item.tokenId));
+
+        // Use batch API (Insight API via backend route) instead of individual RPC calls
+        try {
+          const response = await fetch('/api/nft/ownership', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tokenIds }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            const soldSet = new Set<number>();
+
+            if (data.ownership) {
+              Object.entries(data.ownership).forEach(([tokenIdStr, ownership]: [string, any]) => {
+                const tokenId = parseInt(tokenIdStr);
+                if (!isNaN(tokenId) && ownership && typeof ownership === 'object' && ownership.isSold) {
+                  soldSet.add(tokenId);
+                }
+              });
+            }
+
+            if (soldSet.size > 0) {
+              setNfts(prev => prev.map(item => soldSet.has(parseInt(item.tokenId)) ? { ...item, isForSale: false, priceWei: '0', priceEth: 0 } : item));
+            }
+            return; // Success, exit early
+          }
+        } catch (error) {
+          console.warn('Ownership API failed, falling back to individual RPC calls:', error);
+        }
+
+        // Fallback to individual RPC calls if API fails
+        const contract = getContract({ client, chain: base, address: process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS! });
+        const calls = pageItems.map((item) => async () => {
+          const tokenIdNum = BigInt(parseInt(item.tokenId));
+          return await readContract({
+            contract,
+            method: "function ownerOf(uint256 tokenId) view returns (address)",
+            params: [tokenIdNum],
+          }) as string;
+        });
+
+        const results = await rpcRateLimiter.executeBatch(calls, 5);
+        const soldSet = new Set<number>();
+        results.forEach((owner, idx) => {
+          if (owner && typeof owner === 'string') {
+            const item = pageItems[idx];
+            if (owner.toLowerCase() !== creator) {
+              soldSet.add(parseInt(item.tokenId));
+            }
+          }
+        });
+
+        if (soldSet.size > 0) {
+          setNfts(prev => prev.map(item => soldSet.has(parseInt(item.tokenId)) ? { ...item, isForSale: false, priceWei: '0', priceEth: 0 } : item));
+        }
+      } catch {
+        // ignore errors - ownership verification is non-critical
+      } finally {
+        verificationInProgressRef.current = false;
+      }
+    };
+    verifyOwnership();
+  }, [paginatedNFTs]);
 
   // Update page if out of bounds
   useEffect(() => {
@@ -875,7 +968,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
 
           {/* Right side: View toggles and dropdowns */}
           <div className="flex flex-col items-start sm:items-end gap-2 w-full sm:w-auto overflow-x-hidden">
-            {/* View Mode Toggles - Above dropdowns */}
+            {/* View Mode Toggles - Above dropdowns (original position) */}
             <TooltipProvider>
               <div className="flex items-center gap-1 border border-neutral-700 rounded-sm p-1 bg-neutral-900 flex-shrink-0">
                 <Tooltip>
@@ -953,41 +1046,41 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
               </div>
             </TooltipProvider>
 
-            {/* Dropdowns - Below view toggles */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto flex-wrap">
-              <div className="flex items-center gap-2 w-full sm:w-auto min-w-0">
+            {/* Dropdowns - Below view toggles, aligned to the right */}
+            <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto flex-wrap justify-end">
+              <div className="flex items-center gap-2 min-w-0">
                 <span className="text-neutral-500 whitespace-nowrap flex-shrink-0 text-fluid-md">Sort by: </span>
                 <Select value={sortBy} onValueChange={(value) => {
                   setSortBy(value);
                   setColumnSort(null); // Clear column sort when using dropdown
                 }}>
-                  <SelectTrigger className="w-full sm:w-[200px] md:w-[240px] bg-neutral-900 border-neutral-700 rounded-sm text-off-white font-normal min-w-0 text-sm">
+                  <SelectTrigger className="w-[200px] md:w-[240px] bg-neutral-900 border-neutral-700 rounded-sm text-off-white font-normal min-w-0 text-sm whitespace-nowrap">
                     <SelectValue placeholder="Default" />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-sm">
-                    <SelectItem value="default" className="text-sm">Default</SelectItem>
-                    <SelectItem value="rank-asc" className="text-sm">Rank: Low to High</SelectItem>
-                    <SelectItem value="rank-desc" className="text-sm">Rank: High to Low</SelectItem>
-                    <SelectItem value="rarity-asc" className="text-sm">Rarity: Low to High</SelectItem>
-                    <SelectItem value="rarity-desc" className="text-sm">Rarity: High to Low</SelectItem>
-                    <SelectItem value="price-asc" className="text-sm">Price: Low to High</SelectItem>
-                    <SelectItem value="price-desc" className="text-sm">Price: High to Low</SelectItem>
+                    <SelectItem value="default" className="text-sm whitespace-nowrap">Default</SelectItem>
+                    <SelectItem value="rank-asc" className="text-sm whitespace-nowrap">Rank: Low to High</SelectItem>
+                    <SelectItem value="rank-desc" className="text-sm whitespace-nowrap">Rank: High to Low</SelectItem>
+                    <SelectItem value="rarity-asc" className="text-sm whitespace-nowrap">Rarity: Low to High</SelectItem>
+                    <SelectItem value="rarity-desc" className="text-sm whitespace-nowrap">Rarity: High to Low</SelectItem>
+                    <SelectItem value="price-asc" className="text-sm whitespace-nowrap">Price: Low to High</SelectItem>
+                    <SelectItem value="price-desc" className="text-sm whitespace-nowrap">Price: High to Low</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="flex items-center gap-2 w-full sm:w-auto min-w-0">
+              <div className="flex items-center gap-2 min-w-0">
                 <span className="text-neutral-500 whitespace-nowrap flex-shrink-0 text-fluid-md">Show: </span>
                 <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
-                  <SelectTrigger className="w-full sm:w-[120px] bg-neutral-900 border-neutral-700 rounded-sm text-off-white font-normal min-w-0 text-sm">
+                  <SelectTrigger className="w-[120px] bg-neutral-900 border-neutral-700 rounded-sm text-off-white font-normal min-w-0 text-sm whitespace-nowrap">
                     <SelectValue placeholder="15 items" />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-sm">
-                    <SelectItem value="15" className="text-sm">15 items</SelectItem>
-                    <SelectItem value="25" className="text-sm">25 items</SelectItem>
-                    <SelectItem value="50" className="text-sm">50 items</SelectItem>
-                    <SelectItem value="100" className="text-sm">100 items</SelectItem>
-                    <SelectItem value="250" className="text-sm">250 items</SelectItem>
+                    <SelectItem value="15" className="text-sm whitespace-nowrap">15 items</SelectItem>
+                    <SelectItem value="25" className="text-sm whitespace-nowrap">25 items</SelectItem>
+                    <SelectItem value="50" className="text-sm whitespace-nowrap">50 items</SelectItem>
+                    <SelectItem value="100" className="text-sm whitespace-nowrap">100 items</SelectItem>
+                    <SelectItem value="250" className="text-sm whitespace-nowrap">250 items</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

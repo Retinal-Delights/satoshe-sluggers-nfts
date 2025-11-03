@@ -17,6 +17,7 @@ import { client } from "@/lib/thirdweb"
 import { TOTAL_COLLECTION_SIZE } from "@/lib/contracts"
 import { loadAllNFTs } from "@/lib/simple-data-service"
 import { convertIpfsUrl } from "@/lib/utils"
+import { rpcRateLimiter } from "@/lib/rpc-rate-limiter"
 
 // Types for NFT data
 interface NFT {
@@ -88,44 +89,88 @@ function MyNFTsContent() {
         // Load NFT metadata for this collection only
         const allMetadata = await loadAllNFTs();
         
-        // Check ownership in batches to avoid rate limits
-        // Only checking tokens 0 to TOTAL_COLLECTION_SIZE-1 from THIS collection
-        const batchSize = 50;
+        // Check ownership using batch API (Insight API via backend route)
+        // This reduces RPC calls from 7,777 individual calls to batch API calls
+        const tokenIdsToCheck = Array.from(
+          { length: Math.min(TOTAL_COLLECTION_SIZE, allMetadata.length) },
+          (_, idx) => idx
+        );
+
+        // Use batch API to check ownership for all tokens at once
+        const response = await fetch('/api/nft/ownership', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tokenIds: tokenIdsToCheck }),
+        });
+
         const ownedNFTsList: NFT[] = [];
 
-        // Only check tokens from this collection (0 to TOTAL_COLLECTION_SIZE-1)
-        for (let i = 0; i < Math.min(TOTAL_COLLECTION_SIZE, allMetadata.length); i += batchSize) {
-          const batch = Array.from({ length: Math.min(batchSize, TOTAL_COLLECTION_SIZE - i) }, (_, idx) => i + idx);
+        if (response.ok) {
+          const data = await response.json();
           
-          const results = await Promise.allSettled(
-            batch.map(async (tokenIdNum) => {
-              const tokenId = BigInt(tokenIdNum);
-              const owner = await readContract({
-                contract,
-                method: "function ownerOf(uint256 tokenId) view returns (address)",
-                params: [tokenId],
-              }) as string;
-              return { tokenId: tokenIdNum, owner: owner.toLowerCase() };
-            })
-          );
-
-          results.forEach((result, idx) => {
-            if (result.status === 'fulfilled') {
-              const { tokenId: tokenIdNum, owner } = result.value;
-              if (owner === userAddress) {
-                const meta = allMetadata[tokenIdNum];
-                const mediaUrl = meta?.merged_data?.media_url || meta?.image;
-                const imageUrl = convertIpfsUrl(mediaUrl);
-                ownedNFTsList.push({
-                  id: (tokenIdNum + 1).toString(),
-                  tokenId: tokenIdNum.toString(),
-                  name: meta?.name || `Satoshe Slugger #${tokenIdNum + 1}`,
-                  image: imageUrl || "/nfts/placeholder-nft.webp",
-                  rarity: meta?.rarity_tier || "Unknown",
-                });
+          // Find NFTs owned by the user
+          if (data.ownership) {
+            Object.entries(data.ownership).forEach(([tokenIdStr, ownership]: [string, any]) => {
+              const tokenIdNum = parseInt(tokenIdStr);
+              if (!isNaN(tokenIdNum) && ownership && typeof ownership === 'object') {
+                const owner = ownership.owner?.toLowerCase() || '';
+                if (owner === userAddress) {
+                  const meta = allMetadata[tokenIdNum];
+                  const mediaUrl = meta?.merged_data?.media_url || meta?.image;
+                  const imageUrl = convertIpfsUrl(mediaUrl);
+                  ownedNFTsList.push({
+                    id: (tokenIdNum + 1).toString(),
+                    tokenId: tokenIdNum.toString(),
+                    name: meta?.name || `Satoshe Slugger #${tokenIdNum + 1}`,
+                    image: imageUrl || "/nfts/placeholder-nft.webp",
+                    rarity: meta?.rarity_tier || "Unknown",
+                  });
+                }
               }
+            });
+          }
+        } else {
+          // Fallback to individual RPC calls if API fails
+          console.warn('Ownership API failed, falling back to individual RPC calls');
+          const batchSize = 10;
+          for (let i = 0; i < Math.min(TOTAL_COLLECTION_SIZE, allMetadata.length); i += batchSize) {
+            const batch = Array.from({ length: Math.min(batchSize, TOTAL_COLLECTION_SIZE - i) }, (_, idx) => i + idx);
+            
+            const calls = batch.map((tokenIdNum) => async () => {
+              const tokenId = BigInt(tokenIdNum);
+              const owner = await rpcRateLimiter.execute(async () => {
+                return await readContract({
+                  contract,
+                  method: "function ownerOf(uint256 tokenId) view returns (address)",
+                  params: [tokenId],
+                }) as string;
+              });
+              return { tokenId: tokenIdNum, owner: (owner as string).toLowerCase() };
+            });
+
+            const results = await rpcRateLimiter.executeBatch(calls, 5);
+            results.forEach((result) => {
+              if (result && typeof result === 'object' && 'tokenId' in result && 'owner' in result) {
+                const { tokenId: tokenIdNum, owner } = result as { tokenId: number; owner: string };
+                if (owner === userAddress) {
+                  const meta = allMetadata[tokenIdNum];
+                  const mediaUrl = meta?.merged_data?.media_url || meta?.image;
+                  const imageUrl = convertIpfsUrl(mediaUrl);
+                  ownedNFTsList.push({
+                    id: (tokenIdNum + 1).toString(),
+                    tokenId: tokenIdNum.toString(),
+                    name: meta?.name || `Satoshe Slugger #${tokenIdNum + 1}`,
+                    image: imageUrl || "/nfts/placeholder-nft.webp",
+                    rarity: meta?.rarity_tier || "Unknown",
+                  });
+                }
+              }
+            });
+
+            if (i + batchSize < Math.min(TOTAL_COLLECTION_SIZE, allMetadata.length)) {
+              await new Promise(resolve => setTimeout(resolve, 50));
             }
-          });
+          }
         }
 
         setOwnedNFTs(ownedNFTsList);
