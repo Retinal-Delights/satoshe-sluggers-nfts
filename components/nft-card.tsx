@@ -9,6 +9,31 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { track } from "@vercel/analytics";
 import { TOTAL_COLLECTION_SIZE } from "@/lib/contracts";
 
+/**
+ * NFTCard Component
+ * 
+ * Displays a single NFT card with image, details, and purchase/favorite options.
+ * Supports multiple view modes: grid-large, grid-medium, grid-small, and compact.
+ * 
+ * @example
+ * ```tsx
+ * <NFTCard
+ *   name="Satoshe Slugger #1"
+ *   image="/nfts/1.webp"
+ *   rank={1}
+ *   rarity="Legendary"
+ *   rarityPercent="0.01"
+ *   priceEth={0.5}
+ *   tokenId="1"
+ *   cardNumber={1}
+ *   isForSale={true}
+ *   viewMode="grid-large"
+ * />
+ * ```
+ * 
+ * @param {NFTCardProps} props - Component props
+ * @returns {JSX.Element} NFT card component
+ */
 interface NFTCardProps {
   image: string;
   name: string;
@@ -122,8 +147,7 @@ export default function NFTCard({
         <div className="space-y-1 pl-3 pr-2 pb-2 w-full box-border">
           <div className="flex items-start justify-between gap-2 flex-wrap">
             <h3
-              className="font-semibold text-[#FFFBEB]
-                         text-[clamp(0.9rem,0.7vw,1.1rem)]
+              className="font-semibold text-off-white text-fluid-md
                          leading-snug break-words flex-1 min-w-0"
             >
               {name}
@@ -138,8 +162,8 @@ export default function NFTCard({
               <Heart
                 className={`w-4 h-4 transition-colors ${
                   isFav
-                    ? "fill-[#ff0099] text-[#ff0099]"
-                    : "text-neutral-400 hover:text-[#ff0099]"
+                    ? "fill-brand-pink text-brand-pink"
+                    : "text-neutral-400 hover:text-brand-pink"
                 }`}
               />
             </Button>
@@ -162,10 +186,10 @@ export default function NFTCard({
           <div className="pt-1">
             <div className="flex items-end justify-between gap-3 flex-wrap">
               <div className="flex-1 min-w-0">
-                <div className={`font-medium text-[clamp(0.65rem,0.4vw,0.85rem)] ${isForSale ? 'text-blue-500' : 'text-green-500'}`}>
+                <div className={`font-medium text-fluid-xs ${isForSale ? 'text-blue-500' : 'text-green-500'}`}>
                   {isForSale ? 'Buy Now' : 'Sold!'}
                 </div>
-                <div className={`font-semibold text-[clamp(0.75rem,0.6vw,1rem)] leading-none whitespace-nowrap ${isForSale ? 'text-blue-400' : 'text-green-400'}`}>
+                <div className={`font-semibold text-fluid-sm leading-none whitespace-nowrap ${isForSale ? 'text-blue-400' : 'text-green-400'}`}>
                   {priceEth} ETH
                 </div>
               </div>
@@ -225,8 +249,8 @@ export default function NFTCard({
             <Heart
               className={`w-4 h-4 ${
                 isFav
-                  ? "fill-[#ff0099] text-[#ff0099]"
-                  : "text-[#FFFBEB] hover:text-[#ff0099]"
+                  ? "fill-brand-pink text-brand-pink"
+                  : "text-off-white hover:text-brand-pink"
               }`}
             />
           </Button>

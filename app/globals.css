@@ -54,6 +54,10 @@
     --fluid-md: clamp(0.9rem, 0.5vw + 0.8rem, 1.1rem);
     --fluid-lg: clamp(1rem, 0.6vw + 0.9rem, 1.25rem);
     --fluid-xl: clamp(1.25rem, 0.8vw + 1rem, 1.6rem);
+
+    /* Brand colors as CSS variables for consistent usage */
+    --brand-pink: #ff0099;
+    --off-white: #FFFBEB;
   }
 
   .dark {
@@ -88,7 +92,21 @@
 
   /* Custom off-white color for all white text */
   .text-off-white {
-    color: #FFFBEB;
+    color: var(--off-white);
+  }
+  
+  /* Brand color utility classes */
+  .text-brand-pink {
+    color: var(--brand-pink);
+  }
+  .fill-brand-pink {
+    fill: var(--brand-pink);
+  }
+  .hover\:text-brand-pink:hover {
+    color: var(--brand-pink);
+  }
+  .hover\:fill-brand-pink:hover {
+    fill: var(--brand-pink);
   }
 }
 

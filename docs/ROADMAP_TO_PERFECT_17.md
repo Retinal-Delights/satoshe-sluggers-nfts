@@ -7,15 +7,15 @@
 
 ## 📊 Current Score Breakdown
 
-| Category | Current | Target | Gap |
-|----------|---------|--------|-----|
-| Security | 16/17 | 17/17 | -1 |
-| Code Quality | 14/17 | 17/17 | -3 |
-| Architecture | 15/17 | 17/17 | -2 |
-| Performance | 12/17 | 17/17 | -5 |
-| Documentation | 12/17 | 17/17 | -5 |
-| Design Consistency | 12/17 | 17/17 | -5 |
-| Dependencies | 15/17 | 17/17 | -2 |
+| Category           | Current | Target | Gap | Improvement Score |
+|--------------------|---------|--------|-----|-------------------|
+| Security           | 16/17   | 17/17  | -1  |
+| Code Quality       | 14/17   | 17/17  | -3  |
+| Architecture       | 15/17   | 17/17  | -2  |
+| Performance        | 12/17   | 17/17  | -5  |
+| Documentation      | 12/17   | 17/17  | -5  |
+| Design Consistency | 12/17   | 17/17  | -5  |
+| Dependencies       | 15/17   | 17/17  | -2  |
 
 ---
 
