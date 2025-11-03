@@ -4,7 +4,6 @@
 import { useState, useEffect, useRef, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import Footer from "@/components/footer"
 import Navigation from "@/components/navigation"
 import Image from "next/image"
@@ -236,7 +235,7 @@ function MyNFTsContent() {
       <main className="min-h-screen bg-background text-off-white flex flex-col">
         <Navigation />
         <div className="flex-grow flex justify-center items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          {/* Loading state - no spinner, just empty state */}
         </div>
         <Footer />
       </main>
@@ -309,19 +308,7 @@ function MyNFTsContent() {
             {activeNFTs.map((nft) => (
               <div key={nft.id} className="rounded-md overflow-hidden">
                 <div className="relative w-full" style={{ aspectRatio: "0.9/1" }}>
-                  <Badge
-                    className={`absolute top-3 right-3 z-10 text-xs ${
-                      nft.rarity === "uncommon"
-                        ? "bg-blue-500"
-                        : nft.rarity === "rare"
-                          ? "bg-purple-600"
-                          : "bg-neutral-500"
-                    }`}
-                  >
-                    {nft.rarity}
-                  </Badge>
-                  
-                  
+                  {/* No overlays on NFT images */}
                   <Link 
                     href={`/nft/${nft.id}`}
                     className="w-full h-full flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
@@ -390,7 +377,7 @@ export default function MyNFTsPage() {
       <main className="flex min-h-screen flex-col bg-gradient-to-b from-background to-neutral-950">
         <Navigation />
         <div className="flex-grow flex items-center justify-center">
-          <div className="animate-pulse text-neutral-400">Loading...</div>
+          {/* Loading state - no spinner */}
         </div>
         <Footer />
       </main>
