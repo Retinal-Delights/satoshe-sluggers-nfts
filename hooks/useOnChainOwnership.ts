@@ -100,110 +100,28 @@ export function useOnChainOwnership(totalNFTs: number = 7777) {
     []
   );
 
-  // Initialize: Load cache or start checking
+  // DISABLED: On-chain ownership checking to prevent RPC limit exceeded
+  // Only use cached data or purchase events - no live checking
   useEffect(() => {
     if (!CONTRACT_ADDRESS || !CREATOR_ADDRESS || totalNFTs === 0) {
       return;
     }
 
-    // Prevent multiple simultaneous processing loops
-    if (isProcessingRef.current) {
-      return;
-    }
-
     const cache = loadCache();
     if (cache) {
-      // Load from cache
+      // Load from cache only - no new RPC calls
       const soldSet = new Set<number>();
       Object.entries(cache.data).forEach(([tokenId, isSold]) => {
         if (isSold) soldSet.add(parseInt(tokenId));
       });
       setSoldTokens(soldSet);
       setCheckedCount(Object.keys(cache.data).length);
-      return;
+    } else {
+      // No cache, use empty state - don't check on-chain
+      setSoldTokens(new Set());
+      setCheckedCount(0);
     }
-
-    // Mark as processing to prevent re-runs
-    isProcessingRef.current = true;
-
-    // Start checking from scratch
-    setIsChecking(true);
-    setCheckedCount(0);
-    setSoldTokens(new Set());
-
-    let currentBatch: number[] = [];
-    let allResults: Record<number, boolean> = {};
-    let currentTokenId = 0;
-    let isCancelled = false;
-
-    const processNextBatch = async () => {
-      // Check if cancelled before processing
-      if (isCancelled) {
-        return;
-      }
-
-      // Build batch
-      while (currentBatch.length < BATCH_SIZE && currentTokenId < totalNFTs) {
-        currentBatch.push(currentTokenId);
-        currentTokenId++;
-      }
-
-      if (currentBatch.length === 0) {
-        // Done checking all NFTs
-        if (!isCancelled) {
-          setIsChecking(false);
-          saveCache(allResults);
-        }
-        isProcessingRef.current = false;
-        return;
-      }
-
-      // Check batch
-      const batchResults = await checkBatch(currentBatch);
-      
-      // Check again if cancelled after async operation
-      if (isCancelled) {
-        isProcessingRef.current = false;
-        return;
-      }
-      
-      allResults = { ...allResults, ...batchResults };
-
-      // Update state
-      setCheckedCount((prev) => prev + currentBatch.length);
-      setSoldTokens((prev) => {
-        const newSet = new Set(prev);
-        Object.entries(batchResults).forEach(([tokenId, isSold]) => {
-          if (isSold) newSet.add(parseInt(tokenId));
-          else newSet.delete(parseInt(tokenId));
-        });
-        return newSet;
-      });
-
-      // Clear batch and continue
-      currentBatch = [];
-      
-      // Small delay to avoid rate limits - store timeout ref for cleanup
-      if (!isCancelled) {
-        timeoutRef.current = setTimeout(() => {
-          timeoutRef.current = null;
-          processNextBatch();
-        }, 100);
-      }
-    };
-
-    processNextBatch();
-
-    // Cleanup function to cancel processing
-    return () => {
-      isCancelled = true;
-      isProcessingRef.current = false;
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
-    };
-  }, [totalNFTs, loadCache, saveCache, checkBatch]);
+  }, [totalNFTs, loadCache]);
 
   // Listen for purchase events to update counts immediately
   useEffect(() => {

@@ -343,6 +343,129 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
   }, [columnSort]);
 
   /**
+   * Filters NFTs based on search term, search mode, selected filters, and sale state
+   * 
+   * Applies multiple filter criteria:
+   * - Sale state (live/sold) based on showLive and showSold flags
+   * - Search term matching (exact or contains mode) against name, token ID, and NFT number
+   * - Rarity filter (normalized to handle "Ultra-Legendary" suffix)
+   * - Attribute filters (background, skinTone, shirt, eyewear)
+   * - Complex attribute filters (hair, headwear) supporting subcategory and color combinations
+   * 
+   * @type {NFTGridItem[]} Filtered array of NFTs matching all criteria
+   */
+  const filteredNFTs = useMemo(() => {
+    return nfts.filter(nft => {
+    // Sale state filter based on checkboxes
+    // Live: NFTs that are currently for sale (isForSale = true)
+    // Sold: NFTs that were listed (had priceEth > 0 or soldPriceEth exists) and are now sold (isForSale = false)
+    //      Exclude unlisted NFTs (priceEth = 0, never had a listing)
+    if (!showLive && nft.isForSale) return false;
+    if (!showSold) {
+      // Hide sold NFTs when showSold is false
+      // Consider sold if: (was listed and now not for sale) OR (has soldPriceEth)
+      const wasListed = (nft.priceEth > 0 || nft.soldPriceEth !== undefined);
+      if (!nft.isForSale && wasListed) return false;
+    }
+    if (showSold && !showLive) {
+      // When only "Sold" tab is selected, only show NFTs that were actually listed and sold
+      // Exclude unlisted NFTs (priceEth = 0, never had a listing, no soldPriceEth)
+      const wasListed = (nft.priceEth > 0 || nft.soldPriceEth !== undefined);
+      if (!wasListed || nft.isForSale) return false;
+    }
+    // Search logic with Contains/Exact mode
+    let matchesSearch = true;
+    if (searchTerm.trim()) {
+      if (searchMode === "exact") {
+        // Exact match: Check if token ID, NFT number, or name matches exactly
+        const searchValue = searchTerm.trim();
+        const tokenIdMatch = nft.tokenId.toString() === searchValue;
+        const nftNumberMatch = (parseInt(nft.tokenId) + 1).toString() === searchValue;
+        const nameMatch = nft.name.toLowerCase() === searchValue.toLowerCase();
+        matchesSearch = tokenIdMatch || nftNumberMatch || nameMatch;
+      } else {
+        // Contains mode: Search in name, token ID, or NFT number
+        const lowerSearch = searchTerm.toLowerCase();
+        const nameMatch = nft.name.toLowerCase().includes(lowerSearch);
+        const tokenIdMatch = nft.tokenId.toString().includes(searchTerm);
+        const nftNumberMatch = (parseInt(nft.tokenId) + 1).toString().includes(searchTerm);
+        matchesSearch = nameMatch || tokenIdMatch || nftNumberMatch;
+      }
+    }
+
+    const matchesRarity =
+      !selectedFilters.rarity ||
+      selectedFilters.rarity.length === 0 ||
+      selectedFilters.rarity.some(filterRarity => {
+        // Normalize filter rarity by removing " (Ultra-Legendary)" suffix
+        const normalizedFilterRarity = filterRarity.replace(" (Ultra-Legendary)", "");
+        return normalizedFilterRarity === nft.rarity;
+      });
+
+    const matchesBackground =
+      !selectedFilters.background ||
+      selectedFilters.background.length === 0 ||
+      (nft.background && selectedFilters.background.includes(nft.background));
+
+    const matchesSkinTone =
+      !selectedFilters.skinTone ||
+      selectedFilters.skinTone.length === 0 ||
+      (nft.skinTone && selectedFilters.skinTone.includes(nft.skinTone));
+
+    const matchesShirt =
+      !selectedFilters.shirt ||
+      selectedFilters.shirt.length === 0 ||
+      (nft.shirt && selectedFilters.shirt.includes(nft.shirt));
+
+    const matchesEyewear =
+      !selectedFilters.eyewear ||
+      selectedFilters.eyewear.length === 0 ||
+      (nft.eyewear && selectedFilters.eyewear.includes(nft.eyewear));
+
+    const hairFilters = selectedFilters.hair || {};
+    const hairSubcats = Object.keys(hairFilters);
+    const matchesHair =
+      hairSubcats.length === 0 ||
+      hairSubcats.some(subcat => {
+        const colors = hairFilters[subcat];
+        const nftHair = nft.hair ? String(nft.hair) : "";
+        if (!nftHair) return false;
+        if (!colors || colors.length === 0) {
+          return nftHair.startsWith(subcat);
+        } else {
+          return (colors as string[]).some((color: string) => nftHair === `${subcat} ${color}`);
+        }
+      });
+
+    const headwearFilters = selectedFilters.headwear || {};
+    const headwearSubcats = Object.keys(headwearFilters);
+    const matchesHeadwear =
+      headwearSubcats.length === 0 ||
+      headwearSubcats.some(subcat => {
+        const colors = headwearFilters[subcat];
+        const nftHeadwear = nft.headwear ? String(nft.headwear) : "";
+        if (!nftHeadwear) return false;
+        if (!colors || colors.length === 0) {
+          return nftHeadwear.startsWith(subcat);
+        } else {
+          return (colors as string[]).some((color: string) => nftHeadwear === `${subcat} ${color}`);
+        }
+      });
+
+    return (
+      matchesSearch &&
+      matchesRarity &&
+      matchesBackground &&
+      matchesSkinTone &&
+      matchesShirt &&
+      matchesEyewear &&
+      matchesHair &&
+      matchesHeadwear
+    );
+  });
+  }, [nfts, searchTerm, searchMode, selectedFilters, showLive, showSold]);
+
+  /**
    * Sorts filtered NFTs based on column sort or dropdown sort selection
    * 
    * Column sort takes precedence over dropdown sort.
@@ -568,129 +691,6 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  /**
-   * Filters NFTs based on search term, search mode, selected filters, and sale state
-   * 
-   * Applies multiple filter criteria:
-   * - Sale state (live/sold) based on showLive and showSold flags
-   * - Search term matching (exact or contains mode) against name, token ID, and NFT number
-   * - Rarity filter (normalized to handle "Ultra-Legendary" suffix)
-   * - Attribute filters (background, skinTone, shirt, eyewear)
-   * - Complex attribute filters (hair, headwear) supporting subcategory and color combinations
-   * 
-   * @type {NFTGridItem[]} Filtered array of NFTs matching all criteria
-   */
-  const filteredNFTs = useMemo(() => {
-    return nfts.filter(nft => {
-    // Sale state filter based on checkboxes
-    // Live: NFTs that are currently for sale (isForSale = true)
-    // Sold: NFTs that were listed (had priceEth > 0 or soldPriceEth exists) and are now sold (isForSale = false)
-    //      Exclude unlisted NFTs (priceEth = 0, never had a listing)
-    if (!showLive && nft.isForSale) return false;
-    if (!showSold) {
-      // Hide sold NFTs when showSold is false
-      // Consider sold if: (was listed and now not for sale) OR (has soldPriceEth)
-      const wasListed = (nft.priceEth > 0 || nft.soldPriceEth !== undefined);
-      if (!nft.isForSale && wasListed) return false;
-    }
-    if (showSold && !showLive) {
-      // When only "Sold" tab is selected, only show NFTs that were actually listed and sold
-      // Exclude unlisted NFTs (priceEth = 0, never had a listing, no soldPriceEth)
-      const wasListed = (nft.priceEth > 0 || nft.soldPriceEth !== undefined);
-      if (!wasListed || nft.isForSale) return false;
-    }
-    // Search logic with Contains/Exact mode
-    let matchesSearch = true;
-    if (searchTerm.trim()) {
-      if (searchMode === "exact") {
-        // Exact match: Check if token ID, NFT number, or name matches exactly
-        const searchValue = searchTerm.trim();
-        const tokenIdMatch = nft.tokenId.toString() === searchValue;
-        const nftNumberMatch = (parseInt(nft.tokenId) + 1).toString() === searchValue;
-        const nameMatch = nft.name.toLowerCase() === searchValue.toLowerCase();
-        matchesSearch = tokenIdMatch || nftNumberMatch || nameMatch;
-      } else {
-        // Contains mode: Search in name, token ID, or NFT number
-        const lowerSearch = searchTerm.toLowerCase();
-        const nameMatch = nft.name.toLowerCase().includes(lowerSearch);
-        const tokenIdMatch = nft.tokenId.toString().includes(searchTerm);
-        const nftNumberMatch = (parseInt(nft.tokenId) + 1).toString().includes(searchTerm);
-        matchesSearch = nameMatch || tokenIdMatch || nftNumberMatch;
-      }
-    }
-
-    const matchesRarity =
-      !selectedFilters.rarity ||
-      selectedFilters.rarity.length === 0 ||
-      selectedFilters.rarity.some(filterRarity => {
-        // Normalize filter rarity by removing " (Ultra-Legendary)" suffix
-        const normalizedFilterRarity = filterRarity.replace(" (Ultra-Legendary)", "");
-        return normalizedFilterRarity === nft.rarity;
-      });
-
-    const matchesBackground =
-      !selectedFilters.background ||
-      selectedFilters.background.length === 0 ||
-      (nft.background && selectedFilters.background.includes(nft.background));
-
-    const matchesSkinTone =
-      !selectedFilters.skinTone ||
-      selectedFilters.skinTone.length === 0 ||
-      (nft.skinTone && selectedFilters.skinTone.includes(nft.skinTone));
-
-    const matchesShirt =
-      !selectedFilters.shirt ||
-      selectedFilters.shirt.length === 0 ||
-      (nft.shirt && selectedFilters.shirt.includes(nft.shirt));
-
-    const matchesEyewear =
-      !selectedFilters.eyewear ||
-      selectedFilters.eyewear.length === 0 ||
-      (nft.eyewear && selectedFilters.eyewear.includes(nft.eyewear));
-
-    const hairFilters = selectedFilters.hair || {};
-    const hairSubcats = Object.keys(hairFilters);
-    const matchesHair =
-      hairSubcats.length === 0 ||
-      hairSubcats.some(subcat => {
-        const colors = hairFilters[subcat];
-        const nftHair = nft.hair ? String(nft.hair) : "";
-        if (!nftHair) return false;
-        if (!colors || colors.length === 0) {
-          return nftHair.startsWith(subcat);
-        } else {
-          return (colors as string[]).some((color: string) => nftHair === `${subcat} ${color}`);
-        }
-      });
-
-    const headwearFilters = selectedFilters.headwear || {};
-    const headwearSubcats = Object.keys(headwearFilters);
-    const matchesHeadwear =
-      headwearSubcats.length === 0 ||
-      headwearSubcats.some(subcat => {
-        const colors = headwearFilters[subcat];
-        const nftHeadwear = nft.headwear ? String(nft.headwear) : "";
-        if (!nftHeadwear) return false;
-        if (!colors || colors.length === 0) {
-          return nftHeadwear.startsWith(subcat);
-        } else {
-          return (colors as string[]).some((color: string) => nftHeadwear === `${subcat} ${color}`);
-        }
-      });
-
-    return (
-      matchesSearch &&
-      matchesRarity &&
-      matchesBackground &&
-      matchesSkinTone &&
-      matchesShirt &&
-      matchesEyewear &&
-      matchesHair &&
-      matchesHeadwear
-    );
-  });
-  }, [nfts, searchTerm, searchMode, selectedFilters, showLive, showSold]);
-
   // Restore scroll position after filtering
   useEffect(() => {
     if (scrollPosition > 0 && !isLoading) {
@@ -703,66 +703,8 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
     }
   }, [filteredNFTs.length, scrollPosition, isLoading]); // Only depend on length, not the entire array
 
-  // Verify ownership for current page items to reflect sold state from chain
-  const prevPageItemsRef = useRef<string>('');
-  // Rate-limited ownership verification: max 25 calls per page (well under 200/sec limit)
-  const verificationInProgressRef = useRef(false);
-  useEffect(() => {
-    // Create a stable key from token IDs to prevent re-running for same page content
-    const pageItemsKey = paginatedNFTs.map(n => n.tokenId).join(',');
-    if (pageItemsKey === prevPageItemsRef.current || paginatedNFTs.length === 0 || verificationInProgressRef.current) {
-      return;
-    }
-    prevPageItemsRef.current = pageItemsKey;
-
-    const verifyOwnership = async () => {
-      // Prevent concurrent verification batches
-      if (verificationInProgressRef.current) return;
-      verificationInProgressRef.current = true;
-
-      try {
-        const creator = process.env.NEXT_PUBLIC_CREATOR_ADDRESS?.toLowerCase();
-        if (!creator) {
-          verificationInProgressRef.current = false;
-          return;
-        }
-
-        const contract = getContract({ client, chain: base, address: process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS! });
-
-        const pageItems = paginatedNFTs;
-        // Batch calls: max 25 per page load (itemsPerPage limit), well under 200/sec
-        // Promise.allSettled ensures all calls complete even if some fail
-        const results = await Promise.allSettled(pageItems.map(item => {
-          const tokenIdNum = BigInt(parseInt(item.tokenId));
-          return readContract({
-            contract,
-            method: "function ownerOf(uint256 tokenId) view returns (address)",
-            params: [tokenIdNum],
-          }) as Promise<string>;
-        }));
-
-        const soldSet = new Set<number>();
-        results.forEach((res, idx) => {
-          if (res.status === 'fulfilled') {
-            const owner = (res.value as string).toLowerCase();
-            const item = pageItems[idx];
-            if (owner !== creator) {
-              soldSet.add(parseInt(item.tokenId));
-            }
-          }
-        });
-
-        if (soldSet.size > 0) {
-          setNfts(prev => prev.map(item => soldSet.has(parseInt(item.tokenId)) ? { ...item, isForSale: false, priceWei: '0', priceEth: 0 } : item));
-        }
-      } catch {
-        // ignore errors - ownership verification is non-critical
-      } finally {
-        verificationInProgressRef.current = false;
-      }
-    };
-    verifyOwnership();
-  }, [paginatedNFTs]);
+  // DISABLED: On-chain ownership verification - removed to prevent RPC limit exceeded
+  // Ownership state is managed via purchase events and initial metadata only
 
   // Update page if out of bounds
   useEffect(() => {

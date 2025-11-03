@@ -38,8 +38,10 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
         >
           HOME
           <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out ${
-            activePage === "home" ? "w-full" : "w-0 group-hover:w-full"
-          }`} style={{ backgroundColor: activePage === "home" ? "var(--brand-pink)" : "var(--off-white)" }}></span>
+            activePage === "home" 
+              ? "w-full bg-brand-pink" 
+              : "w-0 group-hover:w-full bg-off-white"
+          }`}></span>
         </Link>
         <Link
           href="/about"
@@ -49,8 +51,10 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
         >
           ABOUT
           <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out ${
-            activePage === "about" ? "w-full" : "w-0 group-hover:w-full"
-          }`} style={{ backgroundColor: activePage === "about" ? "var(--brand-pink)" : "var(--off-white)" }}></span>
+            activePage === "about" 
+              ? "w-full bg-brand-pink" 
+              : "w-0 group-hover:w-full bg-off-white"
+          }`}></span>
         </Link>
         <Link
           href="/nfts"
@@ -60,8 +64,10 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
         >
           NFTS
           <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out ${
-            activePage === "nfts" ? "w-full" : "w-0 group-hover:w-full"
-          }`} style={{ backgroundColor: activePage === "nfts" ? "var(--brand-pink)" : "var(--off-white)" }}></span>
+            activePage === "nfts" 
+              ? "w-full bg-brand-pink" 
+              : "w-0 group-hover:w-full bg-off-white"
+          }`}></span>
         </Link>
         <Link
           href="/provenance"
@@ -71,8 +77,10 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
         >
           PROVENANCE
           <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out ${
-            activePage === "provenance" ? "w-full" : "w-0 group-hover:w-full"
-          }`} style={{ backgroundColor: activePage === "provenance" ? "var(--brand-pink)" : "var(--off-white)" }}></span>
+            activePage === "provenance" 
+              ? "w-full bg-brand-pink" 
+              : "w-0 group-hover:w-full bg-off-white"
+          }`}></span>
         </Link>
         <Link
           href="/contact"
@@ -82,8 +90,10 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
         >
           CONTACT
           <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out ${
-            activePage === "contact" ? "w-full" : "w-0 group-hover:w-full"
-          }`} style={{ backgroundColor: activePage === "contact" ? "var(--brand-pink)" : "var(--off-white)" }}></span>
+            activePage === "contact" 
+              ? "w-full bg-brand-pink" 
+              : "w-0 group-hover:w-full bg-off-white"
+          }`}></span>
         </Link>
         {account && (
           <Link
@@ -94,8 +104,10 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
           >
             MY NFTS
             <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out ${
-              activePage === "my-nfts" ? "w-full" : "w-0 group-hover:w-full"
-            }`} style={{ backgroundColor: activePage === "my-nfts" ? "var(--brand-pink)" : "var(--off-white)" }}></span>
+              activePage === "my-nfts" 
+                ? "w-full bg-brand-pink" 
+                : "w-0 group-hover:w-full bg-off-white"
+            }`}></span>
           </Link>
         )}
       </nav>
