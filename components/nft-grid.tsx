@@ -343,6 +343,73 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
   }, [columnSort]);
 
   /**
+   * Sorts filtered NFTs based on column sort or dropdown sort selection
+   * 
+   * Column sort takes precedence over dropdown sort.
+   * Supports sorting by: NFT name, rank, rarity percent, tier, and price.
+   * Rank sorting: lower numbers = higher rank (rank #1 is best)
+   * Rarity sorting: lower percent = rarer (0.01% is rarer than 1%)
+   * 
+   * @type {NFTGridItem[]} Sorted array of filtered NFTs
+   */
+  const sortedNFTs = useMemo(() => {
+    return [...filteredNFTs].sort((a, b) => {
+      // Column sort takes precedence
+      if (columnSort) {
+        const { field, direction } = columnSort;
+        const multiplier = direction === 'asc' ? 1 : -1;
+        
+        switch (field) {
+          case 'nft':
+            return multiplier * (a.name.localeCompare(b.name));
+          case 'rank':
+            return multiplier * (Number(a.rank) - Number(b.rank));
+          case 'rarity':
+            return multiplier * (Number(a.rarityPercent) - Number(b.rarityPercent));
+          case 'tier':
+            return multiplier * (a.rarity.localeCompare(b.rarity));
+          case 'price':
+            return multiplier * (Number(a.priceWei) - Number(b.priceWei));
+          default:
+            return 0;
+        }
+      }
+      
+      // Fallback to dropdown sort
+      switch (sortBy) {
+        // Rank: "High to Low" should show best rank first (rank #1 is highest)
+        case "rank-asc":
+          // Low to High (worst to best)
+          return Number(b.rank) - Number(a.rank);
+        case "rank-desc":
+          // High to Low (best to worst)
+          return Number(a.rank) - Number(b.rank);
+        // Rarity percent: lower % is rarer (higher value)
+        case "rarity-asc":
+          // Low to High (rarest to most common) -> show common later
+          return Number(b.rarityPercent) - Number(a.rarityPercent);
+        case "rarity-desc":
+          // High to Low (rarest first)
+          return Number(a.rarityPercent) - Number(b.rarityPercent);
+        case "price-asc":
+          return Number(a.priceWei) - Number(b.priceWei);
+        case "price-desc":
+          return Number(b.priceWei) - Number(a.priceWei);
+        default:
+          return 0;
+      }
+    });
+  }, [filteredNFTs, sortBy, columnSort]);
+
+
+  // Pagination
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedNFTs = sortedNFTs.slice(startIndex, endIndex);
+
+  const totalPages = Math.ceil(sortedNFTs.length / itemsPerPage) || 1;
+
+  /**
    * Handles keyboard navigation for grid and table items
    * 
    * Supports arrow keys (↑↓←→), Home, and End keys for navigation.
@@ -635,73 +702,6 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
       return () => clearTimeout(timeoutId);
     }
   }, [filteredNFTs.length, scrollPosition, isLoading]); // Only depend on length, not the entire array
-
-  /**
-   * Sorts filtered NFTs based on column sort or dropdown sort selection
-   * 
-   * Column sort takes precedence over dropdown sort.
-   * Supports sorting by: NFT name, rank, rarity percent, tier, and price.
-   * Rank sorting: lower numbers = higher rank (rank #1 is best)
-   * Rarity sorting: lower percent = rarer (0.01% is rarer than 1%)
-   * 
-   * @type {NFTGridItem[]} Sorted array of filtered NFTs
-   */
-  const sortedNFTs = useMemo(() => {
-    return [...filteredNFTs].sort((a, b) => {
-      // Column sort takes precedence
-      if (columnSort) {
-        const { field, direction } = columnSort;
-        const multiplier = direction === 'asc' ? 1 : -1;
-        
-        switch (field) {
-          case 'nft':
-            return multiplier * (a.name.localeCompare(b.name));
-          case 'rank':
-            return multiplier * (Number(a.rank) - Number(b.rank));
-          case 'rarity':
-            return multiplier * (Number(a.rarityPercent) - Number(b.rarityPercent));
-          case 'tier':
-            return multiplier * (a.rarity.localeCompare(b.rarity));
-          case 'price':
-            return multiplier * (Number(a.priceWei) - Number(b.priceWei));
-          default:
-            return 0;
-        }
-      }
-      
-      // Fallback to dropdown sort
-      switch (sortBy) {
-        // Rank: "High to Low" should show best rank first (rank #1 is highest)
-        case "rank-asc":
-          // Low to High (worst to best)
-          return Number(b.rank) - Number(a.rank);
-        case "rank-desc":
-          // High to Low (best to worst)
-          return Number(a.rank) - Number(b.rank);
-        // Rarity percent: lower % is rarer (higher value)
-        case "rarity-asc":
-          // Low to High (rarest to most common) -> show common later
-          return Number(b.rarityPercent) - Number(a.rarityPercent);
-        case "rarity-desc":
-          // High to Low (rarest first)
-          return Number(a.rarityPercent) - Number(b.rarityPercent);
-        case "price-asc":
-          return Number(a.priceWei) - Number(b.priceWei);
-        case "price-desc":
-          return Number(b.priceWei) - Number(a.priceWei);
-        default:
-          return 0;
-      }
-    });
-  }, [filteredNFTs, sortBy, columnSort]);
-
-
-  // Pagination
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedNFTs = sortedNFTs.slice(startIndex, endIndex);
-
-  const totalPages = Math.ceil(sortedNFTs.length / itemsPerPage) || 1;
 
   // Verify ownership for current page items to reflect sold state from chain
   const prevPageItemsRef = useRef<string>('');
