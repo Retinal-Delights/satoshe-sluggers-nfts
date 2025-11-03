@@ -197,12 +197,9 @@ export default function ProvenancePage() {
 
         <div className="container mx-auto px-6 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24 py-8 max-w-7xl flex-grow">
         <div className="mb-12">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 uppercase tracking-tight">
-            <span className="text-off-white">SATO</span><span className="text-brand-pink">S</span><span className="text-brand-pink">H</span><span className="text-brand-pink">E</span> <span className="text-off-white">Sluggers</span>
-          </h1>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-8 uppercase tracking-tight text-off-white">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-8 uppercase tracking-tight text-off-white">
             PROVENANCE RECORD
-          </h2>
+          </h1>
           <div className="text-muted-foreground leading-relaxed max-w-6xl space-y-3 mb-20">
             <p className="text-sm sm:text-base md:text-lg font-normal text-neutral-300">
               This record is your assurance and source of truth — verified by math, preserved by code.
