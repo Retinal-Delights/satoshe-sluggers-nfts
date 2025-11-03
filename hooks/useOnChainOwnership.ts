@@ -205,6 +205,28 @@ export function useOnChainOwnership(totalNFTs: number = 7777) {
     };
   }, [totalNFTs, loadCache, saveCache, checkBatch]);
 
+  // Listen for purchase events to update counts immediately
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const custom = e as CustomEvent<{ tokenId: number }>;
+      const tokenIdNum = custom.detail?.tokenId;
+      if (typeof tokenIdNum === 'number' && !Number.isNaN(tokenIdNum)) {
+        // Immediately mark as sold without waiting for on-chain check
+        setSoldTokens(prev => {
+          const newSet = new Set(prev);
+          newSet.add(tokenIdNum);
+          return newSet;
+        });
+        // Invalidate cache so next load refreshes
+        if (typeof window !== "undefined") {
+          localStorage.removeItem(CACHE_KEY);
+        }
+      }
+    };
+    window.addEventListener('nftPurchased', handler as EventListener);
+    return () => window.removeEventListener('nftPurchased', handler as EventListener);
+  }, []);
+
   // Compute counts
   const liveCount = totalNFTs - soldTokens.size;
   const soldCount = soldTokens.size;

@@ -214,6 +214,41 @@ export default function NFTDetailPage() {
     fetchOwner();
   }, [tokenId]);
 
+  // Listen for purchase events to update immediately (for when navigating from grid)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const custom = e as CustomEvent<{ tokenId: number; priceEth?: number }>;
+      const tokenIdNum = custom.detail?.tokenId;
+      const actualTokenId = parseInt(tokenId) - 1; // Convert display number to token ID
+      if (typeof tokenIdNum === 'number' && !Number.isNaN(tokenIdNum) && tokenIdNum === actualTokenId) {
+        setIsPurchased(true);
+        // Refetch owner immediately
+        const fetchOwner = async () => {
+          try {
+            const contract = getContract({ client, chain: base, address: CONTRACT_ADDRESS });
+            const actualTokenIdBigInt = BigInt(actualTokenId);
+            const result = await readContract({
+              contract,
+              method: "function ownerOf(uint256 tokenId) view returns (address)",
+              params: [actualTokenIdBigInt],
+            });
+            if (typeof result === "string") {
+              setOwnerAddress(result);
+            } else if (result && typeof result === "object" && "_value" in result) {
+              setOwnerAddress(String((result as { _value: unknown })._value));
+            }
+            setOwnerCheckComplete(true);
+          } catch {
+            setOwnerCheckComplete(true);
+          }
+        };
+        fetchOwner();
+      }
+    };
+    window.addEventListener('nftPurchased', handler as EventListener);
+    return () => window.removeEventListener('nftPurchased', handler as EventListener);
+  }, [tokenId]);
+
   const attributes = useMemo(() => {
     // Use real attributes from complete metadata
     if (metadata && metadata.attributes) {
@@ -752,18 +787,24 @@ export default function NFTDetailPage() {
                 </div>
               </div>
             ) : isPurchased || isSoldOnChain ? (
-              <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-3 lg:order-none">
+              <div className="bg-neutral-800 p-4 rounded border border-green-500/30 order-3 lg:order-none">
                 <div>
-                  <p className="text-sm md:text-base mb-1 text-green-400">Purchased for</p>
+                  <p className="text-sm md:text-base mb-1 text-green-400">Sold!</p>
                   <p className="text-2xl sm:text-3xl md:text-2xl font-bold mb-3 text-green-400">
                     {priceEth > 0 ? `${priceEth} ETH` : '—'}
                   </p>
                   {ownerAddress && (
-                    <p className="text-sm text-neutral-400 mt-2">
+                    <p className="text-sm text-neutral-400 mt-2 mb-3">
                       Owner: <a href={`https://basescan.org/address/${ownerAddress}`} target="_blank" rel="noopener noreferrer" className="text-green-400 underline hover:text-green-300">{ownerAddress.slice(0,6)}...{ownerAddress.slice(-4)}</a>
                     </p>
                   )}
-                  <div className="mt-4">
+                  <div className="flex items-center justify-between gap-3 mt-4">
+                    <button
+                      disabled
+                      className="px-4 py-2 rounded-sm text-sm font-normal bg-green-500/10 border border-green-500/30 text-green-400 cursor-not-allowed opacity-75"
+                    >
+                      Sold
+                    </button>
                     <Link
                       href={`https://opensea.io/assets/base/${CONTRACT_ADDRESS}/${parseInt(tokenId) - 1}`}
                       target="_blank"

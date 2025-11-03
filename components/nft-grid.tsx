@@ -261,20 +261,54 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
     loadPricingMappings();
   }, []);
 
-  // Listen for purchase events to mark items sold immediately
+  // Listen for purchase events to mark items sold immediately and trigger on-chain verification
   useEffect(() => {
     const handler = (e: Event) => {
       const custom = e as CustomEvent<{ tokenId: number; priceEth?: number }>;
       const tokenIdNum = custom.detail?.tokenId;
       const priceEthFromEvent = custom.detail?.priceEth;
       if (typeof tokenIdNum === 'number' && !Number.isNaN(tokenIdNum)) {
+        // Update NFT state immediately
         setNfts(prev => prev.map(item => {
-          if (parseInt(item.tokenId) === tokenIdNum) {
+          const itemTokenId = parseInt(item.tokenId);
+          if (itemTokenId === tokenIdNum) {
             const soldPrice = typeof priceEthFromEvent === 'number' ? priceEthFromEvent : (typeof item.priceEth === 'number' ? item.priceEth : 0);
             return { ...item, isForSale: false, priceWei: '0', priceEth: 0, soldPriceEth: soldPrice };
           }
           return item;
         }));
+        
+        // Force immediate on-chain verification for this specific token
+        const verifyPurchasedToken = async () => {
+          try {
+            const creator = process.env.NEXT_PUBLIC_CREATOR_ADDRESS?.toLowerCase();
+            if (!creator) return;
+
+            const contract = getContract({ client, chain: base, address: process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS! });
+            const tokenIdBigInt = BigInt(tokenIdNum);
+            const owner = await readContract({
+              contract,
+              method: "function ownerOf(uint256 tokenId) view returns (address)",
+              params: [tokenIdBigInt],
+            }) as string;
+            
+            const isSold = owner.toLowerCase() !== creator;
+            if (isSold) {
+              // Double-check and update if needed
+              setNfts(prev => prev.map(item => {
+                if (parseInt(item.tokenId) === tokenIdNum && item.isForSale) {
+                  return { ...item, isForSale: false, priceWei: '0', priceEth: 0 };
+                }
+                return item;
+              }));
+            }
+          } catch {
+            // Ignore errors - state already updated from event
+          }
+        };
+        
+        // Verify after a short delay to allow transaction to settle
+        setTimeout(verifyPurchasedToken, 2000);
       }
     };
     window.addEventListener('nftPurchased', handler as EventListener);
@@ -819,7 +853,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                 <ToggleGroupItem 
                   value="all" 
                   aria-label="Show all NFTs"
-                  className="h-7 px-3 rounded-sm data-[state=on]:bg-brand-pink/20 data-[state=on]:text-brand-pink data-[state=on]:border-brand-pink text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-neutral-200 flex items-center justify-center leading-none text-fluid-md"
+                  className="h-7 px-3 rounded-sm data-[state=on]:bg-brand-pink/20 data-[state=on]:text-brand-pink data-[state=on]:border-brand-pink text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-brand-pink flex items-center justify-center leading-none text-fluid-md"
                 >
                   <span className="flex items-center justify-center w-full h-full">All</span>
                 </ToggleGroupItem>
