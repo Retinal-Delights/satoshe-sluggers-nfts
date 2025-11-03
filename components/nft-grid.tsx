@@ -516,8 +516,22 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
   const filteredNFTs = useMemo(() => {
     return nfts.filter(nft => {
     // Sale state filter based on checkboxes
+    // Live: NFTs that are currently for sale (isForSale = true)
+    // Sold: NFTs that were listed (had priceEth > 0 or soldPriceEth exists) and are now sold (isForSale = false)
+    //      Exclude unlisted NFTs (priceEth = 0, never had a listing)
     if (!showLive && nft.isForSale) return false;
-    if (!showSold && !nft.isForSale) return false;
+    if (!showSold) {
+      // Hide sold NFTs when showSold is false
+      // Consider sold if: (was listed and now not for sale) OR (has soldPriceEth)
+      const wasListed = (nft.priceEth > 0 || nft.soldPriceEth !== undefined);
+      if (!nft.isForSale && wasListed) return false;
+    }
+    if (showSold && !showLive) {
+      // When only "Sold" tab is selected, only show NFTs that were actually listed and sold
+      // Exclude unlisted NFTs (priceEth = 0, never had a listing, no soldPriceEth)
+      const wasListed = (nft.priceEth > 0 || nft.soldPriceEth !== undefined);
+      if (!wasListed || nft.isForSale) return false;
+    }
     // Search logic with Contains/Exact mode
     let matchesSearch = true;
     if (searchTerm.trim()) {
@@ -763,8 +777,17 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
   const tabFilteredNFTs = useMemo(() => {
     return nfts.filter(nft => {
       // Match the same logic used in filteredNFTs for tab filtering
+      // Live: NFTs that are currently for sale
+      // Sold: NFTs that were listed and are now sold (exclude unlisted)
       if (!showLive && nft.isForSale) return false;
-      if (!showSold && !nft.isForSale) return false;
+      if (!showSold) {
+        const wasListed = (nft.priceEth > 0 || nft.soldPriceEth !== undefined);
+        if (!nft.isForSale && wasListed) return false;
+      }
+      if (showSold && !showLive) {
+        const wasListed = (nft.priceEth > 0 || nft.soldPriceEth !== undefined);
+        if (!wasListed || nft.isForSale) return false;
+      }
       return true;
     });
   }, [nfts, showLive, showSold]);
@@ -773,6 +796,20 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
   const traitCounts = useMemo(() => {
     return computeTraitCounts(tabFilteredNFTs, ["background", "skinTone", "shirt", "eyewear", "hair", "headwear", "rarity"]);
   }, [tabFilteredNFTs]);
+
+  // Compute displayed sold count (matches what's actually shown in Sold tab)
+  // Only counts NFTs that were listed (had priceEth > 0 or soldPriceEth) and are now sold
+  const displayedSoldCount = useMemo(() => {
+    return nfts.filter(nft => {
+      const wasListed = (nft.priceEth > 0 || nft.soldPriceEth !== undefined);
+      return !nft.isForSale && wasListed;
+    }).length;
+  }, [nfts]);
+
+  // Compute displayed live count (matches what's actually shown in Live tab)
+  const displayedLiveCount = useMemo(() => {
+    return nfts.filter(nft => nft.isForSale).length;
+  }, [nfts]);
 
   const prevFilteredCountRef = useRef<number>(0);
   const prevTraitCountsRef = useRef<Record<string, Record<string, number>>>({});
@@ -859,29 +896,29 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                 </ToggleGroupItem>
                 <ToggleGroupItem 
                   value="live" 
-                  aria-label={`Show live NFTs (${isCheckingOwnership && checkedCount < totalToCheck ? (checkedCount > 0 ? onChainLiveCount : nfts.filter(n => n.isForSale).length) : onChainLiveCount})`}
+                  aria-label={`Show live NFTs (${displayedLiveCount})`}
                   className="h-7 px-3 rounded-sm data-[state=on]:bg-blue-500/20 data-[state=on]:text-blue-400 data-[state=on]:border-blue-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-blue-300 flex items-center justify-center leading-none text-fluid-md"
                   disabled={!setShowLive}
                 >
                   <span className="flex items-center justify-center w-full h-full">
                     {isCheckingOwnership && checkedCount < totalToCheck ? (
-                      <span className="text-neutral-500">Live — {checkedCount > 0 ? onChainLiveCount : nfts.filter(n => n.isForSale).length}...</span>
+                      <span className="text-neutral-500">Live — {displayedLiveCount}...</span>
                     ) : (
-                      `Live — ${onChainLiveCount}`
+                      `Live — ${displayedLiveCount}`
                     )}
                   </span>
                 </ToggleGroupItem>
                 <ToggleGroupItem 
                   value="sold" 
-                  aria-label={`Show sold NFTs (${isCheckingOwnership && checkedCount < totalToCheck ? (checkedCount > 0 ? onChainSoldCount : nfts.filter(n => !n.isForSale).length) : onChainSoldCount})`}
+                  aria-label={`Show sold NFTs (${displayedSoldCount})`}
                   className="h-7 px-3 rounded-sm data-[state=on]:bg-green-500/20 data-[state=on]:text-green-400 data-[state=on]:border-green-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-green-300 flex items-center justify-center leading-none text-fluid-md"
                   disabled={!setShowSold}
                 >
                   <span className="flex items-center justify-center w-full h-full">
                     {isCheckingOwnership && checkedCount < totalToCheck ? (
-                      <span className="text-neutral-500">Sold — {checkedCount > 0 ? onChainSoldCount : nfts.filter(n => !n.isForSale).length}...</span>
+                      <span className="text-neutral-500">Sold — {displayedSoldCount}...</span>
                     ) : (
-                      `Sold — ${onChainSoldCount}`
+                      `Sold — ${displayedSoldCount}`
                     )}
                   </span>
                 </ToggleGroupItem>

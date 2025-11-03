@@ -435,9 +435,9 @@ button[aria-label*="Execute buyFromListing"] * {
 
 /* NFT Meta Labels and Values - /nfts page only */
 .nft-meta-label {
-  font-size: clamp(0.7rem, 0.45vw, 0.85rem);
+  font-size: clamp(0.75rem, 0.5vw, 0.9rem);
 }
 
 .nft-meta-value {
-  font-size: clamp(0.75rem, 0.55vw, 0.95rem);
+  font-size: clamp(0.85rem, 0.6vw, 1rem);
 }
