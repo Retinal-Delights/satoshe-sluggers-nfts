@@ -12,6 +12,12 @@ import Link from "next/link"
 import { useActiveAccount } from "thirdweb/react"
 import { useFavorites } from "@/hooks/useFavorites"
 import { Heart, Package } from "lucide-react"
+import { getContract, readContract } from "thirdweb"
+import { base } from "thirdweb/chains"
+import { client } from "@/lib/thirdweb"
+import { TOTAL_COLLECTION_SIZE } from "@/lib/contracts"
+import { loadAllNFTs } from "@/lib/simple-data-service"
+import { convertIpfsUrl } from "@/lib/utils"
 
 // Types for NFT data
 interface NFT {
@@ -70,7 +76,59 @@ function MyNFTsContent() {
 
       setIsLoading(true);
       try {
-        // Session-level: include newly purchased NFT from broadcasted event
+        const userAddress = account.address.toLowerCase();
+        
+        // Check on-chain ownership for all NFTs
+        const contract = getContract({ 
+          client, 
+          chain: base, 
+          address: process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS! 
+        });
+
+        // Load all NFT metadata
+        const allMetadata = await loadAllNFTs();
+        
+        // Check ownership in batches to avoid rate limits
+        const batchSize = 50;
+        const ownedNFTsList: NFT[] = [];
+
+        for (let i = 0; i < Math.min(TOTAL_COLLECTION_SIZE, allMetadata.length); i += batchSize) {
+          const batch = Array.from({ length: Math.min(batchSize, TOTAL_COLLECTION_SIZE - i) }, (_, idx) => i + idx);
+          
+          const results = await Promise.allSettled(
+            batch.map(async (tokenIdNum) => {
+              const tokenId = BigInt(tokenIdNum);
+              const owner = await readContract({
+                contract,
+                method: "function ownerOf(uint256 tokenId) view returns (address)",
+                params: [tokenId],
+              }) as string;
+              return { tokenId: tokenIdNum, owner: owner.toLowerCase() };
+            })
+          );
+
+          results.forEach((result, idx) => {
+            if (result.status === 'fulfilled') {
+              const { tokenId: tokenIdNum, owner } = result.value;
+              if (owner === userAddress) {
+                const meta = allMetadata[tokenIdNum];
+                const mediaUrl = meta?.merged_data?.media_url || meta?.media_url || meta?.image;
+                const imageUrl = convertIpfsUrl(mediaUrl);
+                ownedNFTsList.push({
+                  id: (tokenIdNum + 1).toString(),
+                  tokenId: tokenIdNum.toString(),
+                  name: meta?.name || `Satoshe Slugger #${tokenIdNum + 1}`,
+                  image: imageUrl || "/nfts/placeholder-nft.webp",
+                  rarity: meta?.rarity_tier || "Unknown",
+                });
+              }
+            }
+          });
+        }
+
+        setOwnedNFTs(ownedNFTsList);
+
+        // Also listen for newly purchased NFTs during this session
         const handler = (e: Event) => {
           const custom = e as CustomEvent<{ tokenId: number }>;
           const t = custom.detail?.tokenId;
@@ -78,12 +136,16 @@ function MyNFTsContent() {
             const idStr = (t + 1).toString();
             setOwnedNFTs(prev => {
               if (prev.some(n => n.id === idStr)) return prev;
+              const meta = allMetadata[t];
+              const mediaUrl = meta?.merged_data?.media_url || meta?.media_url || meta?.image;
+              const imageUrl = convertIpfsUrl(mediaUrl);
               return [
                 {
                   id: idStr,
                   tokenId: t.toString(),
-                  name: `Satoshe Slugger #${t + 1}`,
-                  image: "/nfts/placeholder-nft.webp",
+                  name: meta?.name || `Satoshe Slugger #${t + 1}`,
+                  image: imageUrl || "/nfts/placeholder-nft.webp",
+                  rarity: meta?.rarity_tier || "Unknown",
                 },
                 ...prev,
               ];
@@ -101,6 +163,16 @@ function MyNFTsContent() {
     };
     loadUserData();
   }, [account?.address])
+
+  // Navigate to home when account disconnects
+  useEffect(() => {
+    if (!account && router) {
+      // Check if we're on the my-nfts page
+      if (typeof window !== 'undefined' && window.location.pathname === '/my-nfts') {
+        router.push('/');
+      }
+    }
+  }, [account, router])
 
   const handleUnfavorite = (tokenId: string) => {
     // Add to locally unfavorited set (visual feedback only)

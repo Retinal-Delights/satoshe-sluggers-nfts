@@ -322,7 +322,18 @@ export default function ProvenancePage() {
             {/* Right Column - Merkle Tree */}
             <div>
               {/* Header - positioned directly above scroll box, similar to Concatenated SHA-256 Hash */}
-              <h2 className="text-2xl font-bold uppercase tracking-tight mb-6">Merkle Tree</h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold uppercase tracking-tight">Merkle Tree</h2>
+                {/* Copy button in top right */}
+                <button
+                  onClick={copyMerkleTree}
+                  className="p-2 text-muted-foreground hover:text-off-white hover:bg-accent transition-colors rounded flex-shrink-0"
+                  title="Copy to clipboard"
+                  disabled={!merkleTree}
+                >
+                  {copiedMerkleTree ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                </button>
+              </div>
               
               <div className="bg-card border border-neutral-700 p-2 rounded max-w-full overflow-hidden">
                 <div
@@ -359,18 +370,6 @@ export default function ProvenancePage() {
                   </div>
                 </div>
               </div>
-              
-              {/* Copy button aligned with bottom of section */}
-              <div className="flex justify-end mt-4">
-                <button
-                  onClick={copyMerkleTree}
-                  className="p-2 text-muted-foreground hover:text-off-white hover:bg-accent transition-colors rounded"
-                  title="Copy to clipboard"
-                  disabled={!merkleTree}
-                >
-                  {copiedMerkleTree ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                </button>
-              </div>
             </div>
 
           </div>
@@ -378,7 +377,18 @@ export default function ProvenancePage() {
 
         {/* Concatenated SHA-256 Hash Section */}
         <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-6 uppercase tracking-tight">Concatenated SHA-256 Hash</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold uppercase tracking-tight">Concatenated SHA-256 Hash</h2>
+            {/* Copy button in top right */}
+            <button
+              onClick={copyConcatenatedHash}
+              className="p-2 text-muted-foreground hover:text-off-white hover:bg-accent transition-colors rounded flex-shrink-0"
+              title="Copy to clipboard"
+              disabled={!concatenatedHash}
+            >
+              {copiedConcatenatedHash ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            </button>
+          </div>
           <div className="bg-neutral-900 border border-neutral-700 rounded p-4">
             <textarea
               readOnly
@@ -386,17 +396,6 @@ export default function ProvenancePage() {
               className="w-full h-32 bg-transparent text-xs font-inconsolata text-off-white resize-none border-none outline-none pr-6"
               style={{ fontWeight: '300' }}
             />
-          </div>
-          {/* Copy button aligned with bottom of section */}
-          <div className="flex justify-end mt-4">
-            <button
-              onClick={copyConcatenatedHash}
-              className="p-2 text-muted-foreground hover:text-off-white hover:bg-accent transition-colors rounded"
-              title="Copy to clipboard"
-              disabled={!concatenatedHash}
-            >
-              {copiedConcatenatedHash ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            </button>
           </div>
         </div>
 
