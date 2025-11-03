@@ -146,8 +146,7 @@ function FilterSection({
             <span className="text-neutral-400 block mb-1 text-fluid-sm">Sort by:</span>
             <button
                 onClick={() => setSortOrder(sortOrder === "commonToRare" ? "rareToCommon" : "commonToRare")}
-              className="flex items-center gap-1 px-3 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition-colors w-full justify-between text-off-white"
-              className="text-fluid-sm"
+              className="flex items-center gap-1 px-3 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition-colors w-full justify-between text-off-white text-fluid-sm"
             >
               <span className={colorClasses[color]}>
                 {sortOrder === "commonToRare" ? "Common to Rare" : "Rare to Common"}
@@ -188,8 +187,7 @@ function FilterSection({
                   />
                   <label
                       htmlFor={optValue}
-                      className="text-neutral-300 cursor-pointer flex-1 py-0.5 whitespace-pre-line leading-tight min-w-0"
-                      className="text-fluid-xs"
+                      className="text-neutral-300 cursor-pointer flex-1 py-0.5 whitespace-pre-line leading-tight min-w-0 text-fluid-xs"
                   >
                     <div className="flex items-center justify-between gap-1">
                         <span className="break-words min-w-0">{optDisplay.replace('\n', ' ')}</span>
@@ -345,9 +343,8 @@ function SubcategorySection({
                   />
                   <label
                     htmlFor={`subcat-${subcategory.name}`}
-                    className={`cursor-pointer py-0.5 pr-2 block flex-1 ${isChecked ? `border-b ${borderClasses[color]} pb-1` : ''}`}
+                    className={`cursor-pointer py-0.5 pr-2 block flex-1 text-fluid-sm ${isChecked ? `border-b ${borderClasses[color]} pb-1` : ''}`}
                     onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                    className="text-fluid-sm"
                   >
                     <div className="flex items-center justify-between pb-1">
                       <span className={colorClasses[color]}>{subcategory.name}</span>
@@ -386,8 +383,7 @@ function SubcategorySection({
                         />
                         <label
                           htmlFor={`${subcategory.name}-${option}`}
-                            className="text-neutral-300 cursor-pointer flex-1 py-0.5 min-w-0"
-                          className="text-fluid-xs"
+                          className="text-neutral-300 cursor-pointer flex-1 py-0.5 min-w-0 text-fluid-xs"
                         >
                           <div className="flex items-center justify-between gap-1">
                             <span className="break-words min-w-0">{option}</span>
