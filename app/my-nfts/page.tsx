@@ -77,20 +77,23 @@ function MyNFTsContent() {
       try {
         const userAddress = account.address.toLowerCase();
         
-        // Check on-chain ownership for all NFTs
+        // Check on-chain ownership for NFTs from THIS collection only
+        // Using the Satoshe Sluggers contract address - no other collections
         const contract = getContract({ 
           client, 
           chain: base, 
           address: process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS! 
         });
 
-        // Load all NFT metadata
+        // Load NFT metadata for this collection only
         const allMetadata = await loadAllNFTs();
         
         // Check ownership in batches to avoid rate limits
+        // Only checking tokens 0 to TOTAL_COLLECTION_SIZE-1 from THIS collection
         const batchSize = 50;
         const ownedNFTsList: NFT[] = [];
 
+        // Only check tokens from this collection (0 to TOTAL_COLLECTION_SIZE-1)
         for (let i = 0; i < Math.min(TOTAL_COLLECTION_SIZE, allMetadata.length); i += batchSize) {
           const batch = Array.from({ length: Math.min(batchSize, TOTAL_COLLECTION_SIZE - i) }, (_, idx) => i + idx);
           
