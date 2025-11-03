@@ -144,7 +144,7 @@ export default function NFTCard({
         </Link>
 
         {/* NFT Details - aligned with card content, not drop shadow */}
-        <div className="space-y-1 pl-3 pr-2 pb-2 w-full box-border">
+        <div className="space-y-1 px-2 pb-2 w-full box-border max-w-full overflow-hidden">
           <div className="flex items-start justify-between gap-2 flex-wrap">
             <h3
               className="font-semibold text-off-white text-fluid-md
@@ -235,9 +235,9 @@ export default function NFTCard({
         </div>
       </Link>
 
-      <div className="pl-4 pr-3 pb-2 flex flex-col">
-        <div className="flex items-center justify-between mb-1">
-          <div className={`font-medium leading-tight ${smallText} ${isForSale ? 'text-blue-400' : 'text-green-400'}`}>
+      <div className="px-2 pb-2 flex flex-col max-w-full overflow-hidden">
+        <div className="flex items-center justify-between mb-1 gap-2">
+          <div className={`font-medium leading-tight ${smallText} ${isForSale ? 'text-blue-400' : 'text-green-400'} truncate flex-1 min-w-0`}>
             NFT — #{cardNumber}
           </div>
           <Button

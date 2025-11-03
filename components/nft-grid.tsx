@@ -657,22 +657,33 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
 
   // Verify ownership for current page items to reflect sold state from chain
   const prevPageItemsRef = useRef<string>('');
+  // Rate-limited ownership verification: max 25 calls per page (well under 200/sec limit)
+  const verificationInProgressRef = useRef(false);
   useEffect(() => {
     // Create a stable key from token IDs to prevent re-running for same page content
     const pageItemsKey = paginatedNFTs.map(n => n.tokenId).join(',');
-    if (pageItemsKey === prevPageItemsRef.current || paginatedNFTs.length === 0) {
+    if (pageItemsKey === prevPageItemsRef.current || paginatedNFTs.length === 0 || verificationInProgressRef.current) {
       return;
     }
     prevPageItemsRef.current = pageItemsKey;
 
     const verifyOwnership = async () => {
+      // Prevent concurrent verification batches
+      if (verificationInProgressRef.current) return;
+      verificationInProgressRef.current = true;
+
       try {
         const creator = process.env.NEXT_PUBLIC_CREATOR_ADDRESS?.toLowerCase();
-        if (!creator) return;
+        if (!creator) {
+          verificationInProgressRef.current = false;
+          return;
+        }
 
         const contract = getContract({ client, chain: base, address: process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS! });
 
         const pageItems = paginatedNFTs;
+        // Batch calls: max 25 per page load (itemsPerPage limit), well under 200/sec
+        // Promise.allSettled ensures all calls complete even if some fail
         const results = await Promise.allSettled(pageItems.map(item => {
           const tokenIdNum = BigInt(parseInt(item.tokenId));
           return readContract({
@@ -697,7 +708,9 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
           setNfts(prev => prev.map(item => soldSet.has(parseInt(item.tokenId)) ? { ...item, isForSale: false, priceWei: '0', priceEth: 0 } : item));
         }
       } catch {
-        // ignore
+        // ignore errors - ownership verification is non-critical
+      } finally {
+        verificationInProgressRef.current = false;
       }
     };
     verifyOwnership();
@@ -772,7 +785,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
 
   return (
     <div className="w-full max-w-full overflow-x-hidden">
-      <div className="flex flex-col gap-2 mb-4 pl-2 overflow-x-hidden">
+      <div className="flex flex-col gap-2 mb-4 overflow-x-hidden">
         {/* Header section: Title, stats, and controls all together */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 overflow-x-hidden">
           {/* Left side: Title and stats */}
