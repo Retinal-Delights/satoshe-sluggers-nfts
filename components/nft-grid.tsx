@@ -753,7 +753,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
     return (
       <div className="w-full max-w-full">
         <div className="mb-6">
-          <h2 className="text-fluid-lg font-medium">NFT Collection</h2>
+          <h2 className="text-fluid-xl font-medium">NFT Collection</h2>
           <div className="text-fluid-sm font-medium text-pink-500 mt-1">Loading...</div>
         </div>
         <div className="mt-8 mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
@@ -777,7 +777,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 overflow-x-hidden">
           {/* Left side: Title and stats */}
           <div>
-            <h2 className="text-fluid-lg font-medium">NFT Collection</h2>
+            <h2 className="text-fluid-xl font-medium">NFT Collection</h2>
             <div className="mt-2 flex items-center gap-2 flex-wrap">
               <ToggleGroup 
                 type="single" 
@@ -935,17 +935,17 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                   setSortBy(value);
                   setColumnSort(null); // Clear column sort when using dropdown
                 }}>
-                  <SelectTrigger className="w-full sm:w-[200px] md:w-[240px] bg-neutral-900 border-neutral-700 rounded-sm text-off-white font-normal min-w-0 text-fluid-md">
+                  <SelectTrigger className="w-full sm:w-[200px] md:w-[240px] bg-neutral-900 border-neutral-700 rounded-sm text-off-white font-normal min-w-0 text-sm">
                     <SelectValue placeholder="Default" />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-sm">
-                    <SelectItem value="default">Default</SelectItem>
-                    <SelectItem value="rank-asc">Rank: Low to High</SelectItem>
-                    <SelectItem value="rank-desc">Rank: High to Low</SelectItem>
-                    <SelectItem value="rarity-asc">Rarity: Low to High</SelectItem>
-                    <SelectItem value="rarity-desc">Rarity: High to Low</SelectItem>
-                    <SelectItem value="price-asc">Price: Low to High</SelectItem>
-                    <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                    <SelectItem value="default" className="text-sm">Default</SelectItem>
+                    <SelectItem value="rank-asc" className="text-sm">Rank: Low to High</SelectItem>
+                    <SelectItem value="rank-desc" className="text-sm">Rank: High to Low</SelectItem>
+                    <SelectItem value="rarity-asc" className="text-sm">Rarity: Low to High</SelectItem>
+                    <SelectItem value="rarity-desc" className="text-sm">Rarity: High to Low</SelectItem>
+                    <SelectItem value="price-asc" className="text-sm">Price: Low to High</SelectItem>
+                    <SelectItem value="price-desc" className="text-sm">Price: High to Low</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -953,15 +953,15 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
               <div className="flex items-center gap-2 w-full sm:w-auto min-w-0">
                 <span className="text-neutral-500 whitespace-nowrap flex-shrink-0 text-fluid-md">Show: </span>
                 <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
-                  <SelectTrigger className="w-full sm:w-[120px] bg-neutral-900 border-neutral-700 rounded-sm text-off-white font-normal min-w-0 text-fluid-md">
+                  <SelectTrigger className="w-full sm:w-[120px] bg-neutral-900 border-neutral-700 rounded-sm text-off-white font-normal min-w-0 text-sm">
                     <SelectValue placeholder="15 items" />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-sm">
-                    <SelectItem value="15">15 items</SelectItem>
-                    <SelectItem value="25">25 items</SelectItem>
-                    <SelectItem value="50">50 items</SelectItem>
-                    <SelectItem value="100">100 items</SelectItem>
-                    <SelectItem value="250">250 items</SelectItem>
+                    <SelectItem value="15" className="text-sm">15 items</SelectItem>
+                    <SelectItem value="25" className="text-sm">25 items</SelectItem>
+                    <SelectItem value="50" className="text-sm">50 items</SelectItem>
+                    <SelectItem value="100" className="text-sm">100 items</SelectItem>
+                    <SelectItem value="250" className="text-sm">250 items</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
