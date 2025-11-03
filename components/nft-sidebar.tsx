@@ -535,12 +535,14 @@ export default function NFTSidebar({
   setSelectedFilters, 
   traitCounts = {} 
 }: NFTSidebarProps) {
-
+  // Key to force remount of all filter sections when clearing filters
+  const [filterResetKey, setFilterResetKey] = useState(0)
 
   const clearAllFilters = () => {
     setSearchTerm("")
     setSearchMode("contains")
     setSelectedFilters({})
+    setFilterResetKey(prev => prev + 1) // Increment key to force all sections to remount closed
     announceToScreenReader("All filters cleared")
   }
 
@@ -753,6 +755,7 @@ export default function NFTSidebar({
 
       {/* Filter Sections */}
       <FilterSection
+          key={`rarity-${filterResetKey}`}
           title="Rarity Tiers"
           color="orange"
         options={RARITY_TIERS}
@@ -772,6 +775,7 @@ export default function NFTSidebar({
         />
 
       <FilterSection
+          key={`background-${filterResetKey}`}
           title="Background"
           color="blue"
         options={traitCounts["background"] ? Object.keys(traitCounts["background"]).sort().map(value => ({ value, display: value })) : FALLBACK_OPTIONS.background.map(value => ({ value, display: value }))}
@@ -790,6 +794,7 @@ export default function NFTSidebar({
         />
 
       <FilterSection
+          key={`skintone-${filterResetKey}`}
           title="Skin Tone"
           color="amber"
           options={traitCounts["skinTone"] ? Object.keys(traitCounts["skinTone"]).sort().map(value => ({ value, display: value })) : FALLBACK_OPTIONS.skinTone.map(value => ({ value, display: value }))}
@@ -802,6 +807,7 @@ export default function NFTSidebar({
         />
 
       <FilterSection
+          key={`shirt-${filterResetKey}`}
           title="Shirt"
           color="red"
           options={traitCounts["shirt"] ? Object.keys(traitCounts["shirt"]).sort().map(value => ({ value, display: value })) : FALLBACK_OPTIONS.shirt.map(value => ({ value, display: value }))}
@@ -812,6 +818,7 @@ export default function NFTSidebar({
         />
 
       <SubcategorySection
+          key={`hair-${filterResetKey}`}
           title="Hair"
           color="green"
         subcategories={FALLBACK_OPTIONS.hair}
@@ -822,6 +829,7 @@ export default function NFTSidebar({
         />
 
       <FilterSection
+          key={`eyewear-${filterResetKey}`}
           title="Eyewear"
           color="cyan"
         options={traitCounts["eyewear"] ? Object.keys(traitCounts["eyewear"]).sort().map(value => ({ value, display: formatEyewearDisplay(value) })) : FALLBACK_OPTIONS.eyewear.map(value => ({
@@ -835,6 +843,7 @@ export default function NFTSidebar({
         />
 
       <SubcategorySection
+          key={`headwear-${filterResetKey}`}
           title="Headwear"
           color="purple"
         subcategories={FALLBACK_OPTIONS.headwear}

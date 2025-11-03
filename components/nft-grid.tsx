@@ -1,7 +1,7 @@
 // components/nft-grid.tsx
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { TOTAL_COLLECTION_SIZE } from "@/lib/contracts";
 import { base } from "thirdweb/chains";
 import { getContract, readContract } from "thirdweb";
@@ -184,7 +184,7 @@ function computeTraitCounts(nfts: NFTGridItem[], categories: string[]) {
  *   setShowLive={setShowLive}
  *   showSold={true}
  *   setShowSold={setShowSold}
- *   onFilteredCountChange={(count) => console.log(`${count} NFTs found`)}
+ *   onFilteredCountChange={(count) => updateCount(count)}
  *   onTraitCountsChange={(counts) => updateSidebar(counts)}
  * />
  * ```
@@ -327,7 +327,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
    * 
    * @param {string} field - The field name to sort by ('nft', 'rank', 'rarity', 'tier', 'price')
    */
-  const handleColumnSort = (field: string) => {
+  const handleColumnSort = useCallback((field: string) => {
     if (columnSort?.field === field) {
       // Toggle direction if same field
       setColumnSort({
@@ -340,7 +340,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
     }
     // Reset dropdown sort when using column sort
     setSortBy("default");
-  };
+  }, [columnSort]);
 
   /**
    * Handles keyboard navigation for grid and table items
@@ -352,7 +352,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
    * @param {React.KeyboardEvent} event - Keyboard event object
    * @param {number} index - Current item index in the paginated array
    */
-  const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
+  const handleKeyDown = useCallback((event: React.KeyboardEvent, index: number) => {
     const totalItems = paginatedNFTs.length;
     const itemsPerRow = viewMode === 'grid-large' ? 5 : viewMode === 'grid-medium' ? 7 : viewMode === 'grid-small' ? 8 : 1;
     
@@ -390,7 +390,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
         setFocusedIndex(totalItems - 1);
         break;
     }
-  };
+  }, [paginatedNFTs.length, viewMode]);
 
   // Load metadata
   useEffect(() => {

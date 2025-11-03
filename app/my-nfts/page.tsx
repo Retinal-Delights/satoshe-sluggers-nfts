@@ -112,7 +112,7 @@ function MyNFTsContent() {
               const { tokenId: tokenIdNum, owner } = result.value;
               if (owner === userAddress) {
                 const meta = allMetadata[tokenIdNum];
-                const mediaUrl = meta?.merged_data?.media_url || meta?.media_url || meta?.image;
+                const mediaUrl = meta?.merged_data?.media_url || meta?.image;
                 const imageUrl = convertIpfsUrl(mediaUrl);
                 ownedNFTsList.push({
                   id: (tokenIdNum + 1).toString(),
@@ -137,7 +137,7 @@ function MyNFTsContent() {
             setOwnedNFTs(prev => {
               if (prev.some(n => n.id === idStr)) return prev;
               const meta = allMetadata[t];
-              const mediaUrl = meta?.merged_data?.media_url || meta?.media_url || meta?.image;
+              const mediaUrl = meta?.merged_data?.media_url || meta?.image;
               const imageUrl = convertIpfsUrl(mediaUrl);
               return [
                 {
