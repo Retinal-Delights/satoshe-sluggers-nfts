@@ -130,7 +130,7 @@ export default function ContactPage() {
                 <div className="space-y-1.5 sm:space-y-2">
                   <label htmlFor="name" className="block text-sm sm:text-base font-medium text-off-white">
                     Name{" "}
-                    <span style={{ color: "#FF0099" }} aria-hidden="true">
+                    <span className="text-brand-pink" aria-hidden="true">
                       *
                     </span>
                     <span className="sr-only">(required)</span>
@@ -154,7 +154,7 @@ export default function ContactPage() {
                 <div className="space-y-1.5 sm:space-y-2">
                   <label htmlFor="email" className="block text-sm sm:text-base font-medium text-off-white">
                     Email{" "}
-                    <span style={{ color: "#FF0099" }} aria-hidden="true">
+                    <span className="text-brand-pink" aria-hidden="true">
                       *
                     </span>
                     <span className="sr-only">(required)</span>
@@ -181,7 +181,7 @@ export default function ContactPage() {
               <div className="space-y-1.5 sm:space-y-2">
                 <label htmlFor="subject" className="block text-sm sm:text-base font-medium text-off-white">
                   Subject{" "}
-                  <span style={{ color: "#FF0099" }} aria-hidden="true">
+                  <span className="text-brand-pink" aria-hidden="true">
                     *
                   </span>
                   <span className="sr-only">(required)</span>
@@ -205,7 +205,7 @@ export default function ContactPage() {
               <div className="space-y-1.5 sm:space-y-2">
                 <label htmlFor="message" className="block text-sm sm:text-base font-medium text-off-white">
                   Message{" "}
-                  <span style={{ color: "#FF0099" }} aria-hidden="true">
+                  <span className="text-brand-pink" aria-hidden="true">
                     *
                   </span>
                   <span className="sr-only">(required)</span>
@@ -243,8 +243,7 @@ export default function ContactPage() {
                     href="https://retinaldelights.io/privacy"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="underline hover:opacity-80 focus:outline-2"
-                    style={{ color: "#FF0099" }}
+                    className="underline hover:opacity-80 focus:outline-2 text-brand-pink"
                     aria-label="Privacy Policy (opens in a new window)"
                   >
                     Privacy Policy
@@ -254,17 +253,16 @@ export default function ContactPage() {
                     href="https://retinaldelights.io/terms"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="underline hover:opacity-80 focus:outline-2"
-                    style={{ color: "#FF0099" }}
+                    className="underline hover:opacity-80 focus:outline-2 text-brand-pink"
                     aria-label="Terms of Service (opens in a new window)"
                   >
-                    Terms</a><span style={{ color: "#FF0099" }} aria-hidden="true">.*</span>
+                    Terms</a><span className="text-brand-pink" aria-hidden="true">.*</span>
                   <span className="sr-only">(required)</span>
                 </Label>
               </div>
 
               <div className="text-neutral-300 text-xs sm:text-sm pt-1">
-                <span style={{ color: "#FF0099" }}>*</span> Required fields
+                <span className="text-brand-pink">*</span> Required fields
               </div>
 
               <div className="flex justify-end pt-4 sm:pt-5 md:pt-6 pb-4 sm:pb-5 md:pb-6">

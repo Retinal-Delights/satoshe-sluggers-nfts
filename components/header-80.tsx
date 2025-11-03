@@ -155,8 +155,8 @@ const Header80: React.FC = () => {
               />
             </h1>
             <p className="relative z-20 text-xl md:text-2xl lg:text-3xl font-medium text-center -mt-2">
-            <span className="text-[#FF0099] font-bold">THE ONLY NFTS FUNDING</span><br />
-            <span className="text-[#FF0099] font-bold">A FUTURE FOR WOMEN&apos;S BASEBALL</span>
+            <span className="text-brand-pink font-bold">THE ONLY NFTS FUNDING</span><br />
+            <span className="text-brand-pink font-bold">A FUTURE FOR WOMEN&apos;S BASEBALL</span>
             </p>
             <div className="relative z-20 mt-16 flex items-center justify-center gap-x-4 md:mt-20">
               <div className="relative group">

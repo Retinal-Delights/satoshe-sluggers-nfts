@@ -7,7 +7,13 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { announceToScreenReader } from "@/lib/accessibility-utils"
 
-// Simple types
+/**
+ * Filter state interface for NFT sidebar
+ * 
+ * Represents selected filter values organized by trait category.
+ * Simple traits (rarity, background, etc.) use string arrays.
+ * Complex traits (hair, headwear) use nested objects with subcategories and colors.
+ */
 interface FilterState {
   rarity?: string[];
   background?: string[];
@@ -18,6 +24,18 @@ interface FilterState {
   headwear?: Record<string, string[]>;
 }
 
+/**
+ * Props interface for NFTSidebar component
+ * 
+ * @interface NFTSidebarProps
+ * @property {string} searchTerm - Current search query string
+ * @property {function} setSearchTerm - Callback to update search term
+ * @property {"exact" | "contains"} searchMode - Search matching mode
+ * @property {function} setSearchMode - Callback to update search mode
+ * @property {FilterState} selectedFilters - Currently selected filter values
+ * @property {function} setSelectedFilters - Callback to update selected filters
+ * @property {Record<string, Record<string, number>>} [traitCounts] - Optional trait counts for displaying availability
+ */
 interface NFTSidebarProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
@@ -28,7 +46,37 @@ interface NFTSidebarProps {
   traitCounts?: Record<string, Record<string, number>>;
 }
 
-// Simple filter section component
+/**
+ * FilterSection Component
+ * 
+ * A collapsible filter section for selecting NFT traits by category.
+ * Supports checkbox selection, trait count display, and optional sorting.
+ * Used throughout the sidebar for different trait categories (rarity, background, etc.).
+ * 
+ * @param {Object} props - Component props
+ * @param {string} props.title - Section title (e.g., "Background", "Skin Tone")
+ * @param {string} props.color - Color theme for the section (purple, blue, amber, red, green, cyan, orange)
+ * @param {string[] | Array<{value: string, display: string}>} props.options - Available filter options
+ * @param {string[]} [props.selected=[]] - Currently selected options
+ * @param {function} props.onChange - Callback when selection changes
+ * @param {Record<string, Record<string, number>>} [props.traitCounts={}] - Trait counts for displaying availability
+ * @param {React.ReactNode} [props.icon] - Optional icon to display next to title
+ * @param {boolean} [props.sortable=false] - Whether options can be sorted by count
+ * @returns {JSX.Element} Collapsible filter section component
+ * 
+ * @example
+ * ```tsx
+ * <FilterSection
+ *   title="Background"
+ *   color="blue"
+ *   options={["Blue", "Red", "Green"]}
+ *   selected={selectedFilters.background || []}
+ *   onChange={(selected) => setSelectedFilters({...selectedFilters, background: selected})}
+ *   traitCounts={traitCounts}
+ *   sortable={true}
+ * />
+ * ```
+ */
 function FilterSection({ 
   title, 
   color, 
@@ -454,6 +502,30 @@ const RARITY_TIERS = [
   { value: "Grand Slam (Ultra-Legendary)", display: "Grand Slam" },
 ]
 
+/**
+ * NFTSidebar Component
+ * 
+ * A comprehensive sidebar component for filtering and searching NFTs by traits.
+ * Provides search functionality (exact/contains modes), collapsible filter sections
+ * for various traits (rarity, background, skin tone, etc.), and blockchain information.
+ * Supports complex filtering for traits with subcategories (hair, headwear).
+ * 
+ * @example
+ * ```tsx
+ * <NFTSidebar
+ *   searchTerm={searchTerm}
+ *   setSearchTerm={setSearchTerm}
+ *   searchMode="contains"
+ *   setSearchMode={setSearchMode}
+ *   selectedFilters={selectedFilters}
+ *   setSelectedFilters={setSelectedFilters}
+ *   traitCounts={traitCounts}
+ * />
+ * ```
+ * 
+ * @param {NFTSidebarProps} props - Component props
+ * @returns {JSX.Element} Sidebar component with search and filter controls
+ */
 export default function NFTSidebar({ 
   searchTerm, 
   setSearchTerm, 

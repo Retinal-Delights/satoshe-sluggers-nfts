@@ -425,7 +425,7 @@ export default function NFTDetailPage() {
             {navigationTokens.prev !== null && (
               <Link
                 href={`/nft/${navigationTokens.prev}`}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800 hover:bg-[#171717] text-neutral-400 hover:text-brand-pink transition-colors border border-neutral-700 hover:border-brand-pink"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800 hover:bg-neutral-900 text-neutral-400 hover:text-brand-pink transition-colors border border-neutral-700 hover:border-brand-pink"
                 title={`Previous NFT #${navigationTokens.prev + 1}`}
               >
                 <ChevronLeft className="h-5 w-5" />
@@ -439,7 +439,7 @@ export default function NFTDetailPage() {
             {navigationTokens.next !== null && (
               <Link
                 href={`/nft/${navigationTokens.next}`}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800 hover:bg-[#171717] text-neutral-400 hover:text-brand-pink transition-colors border border-neutral-700 hover:border-brand-pink"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800 hover:bg-neutral-900 text-neutral-400 hover:text-brand-pink transition-colors border border-neutral-700 hover:border-brand-pink"
                 title={`Next NFT #${navigationTokens.next + 1}`}
               >
                 <ChevronRight className="h-5 w-5" />
@@ -472,7 +472,7 @@ export default function NFTDetailPage() {
                 href="https://kristenwoerdeman.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group cursor-pointer"
+                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 rounded transition-colors group cursor-pointer"
                 aria-label="Visit Kristen Woerdeman's website"
               >
                 <div className="flex items-center gap-3">
@@ -512,7 +512,7 @@ export default function NFTDetailPage() {
                 href="https://retinaldelights.io"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group cursor-pointer"
+                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 rounded transition-colors group cursor-pointer"
                 aria-label="Visit Retinal Delights website"
               >
                 <div className="flex items-center gap-3">
@@ -754,13 +754,13 @@ export default function NFTDetailPage() {
             ) : isPurchased || isSoldOnChain ? (
               <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-3 lg:order-none">
                 <div>
-                  <p className="text-sm md:text-base mb-1" style={{ color: "#10B981" }}>Purchased for</p>
-                  <p className="text-2xl sm:text-3xl md:text-2xl font-bold mb-3" style={{ color: "#10B981" }}>
+                  <p className="text-sm md:text-base mb-1 text-green-400">Purchased for</p>
+                  <p className="text-2xl sm:text-3xl md:text-2xl font-bold mb-3 text-green-400">
                     {priceEth > 0 ? `${priceEth} ETH` : '—'}
                   </p>
                   {ownerAddress && (
                     <p className="text-sm text-neutral-400 mt-2">
-                      Owner: <a href={`https://basescan.org/address/${ownerAddress}`} target="_blank" rel="noopener noreferrer" className="text-[#10B981] underline hover:text-green-400">{ownerAddress.slice(0,6)}...{ownerAddress.slice(-4)}</a>
+                      Owner: <a href={`https://basescan.org/address/${ownerAddress}`} target="_blank" rel="noopener noreferrer" className="text-green-400 underline hover:text-green-300">{ownerAddress.slice(0,6)}...{ownerAddress.slice(-4)}</a>
                     </p>
                   )}
                   <div className="mt-4">
@@ -768,7 +768,7 @@ export default function NFTDetailPage() {
                       href={`https://opensea.io/assets/base/${CONTRACT_ADDRESS}/${parseInt(tokenId) - 1}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm text-[#10B981] hover:text-green-400 underline transition-colors"
+                      className="inline-flex items-center gap-2 text-sm text-green-400 hover:text-green-300 underline transition-colors"
                     >
                       View on OpenSea
                       <ExternalLink className="w-4 h-4" />

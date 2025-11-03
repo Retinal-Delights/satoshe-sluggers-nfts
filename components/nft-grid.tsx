@@ -99,12 +99,34 @@ interface NFTGridProps {
   onTraitCountsChange?: (counts: Record<string, Record<string, number>>) => void;
 }
 
-// Helper to extract attribute value from metadata
+/**
+ * Helper function to extract attribute value from NFT metadata
+ * 
+ * @param {NFTMetadata} meta - The NFT metadata object containing attributes array
+ * @param {string} traitType - The trait type to search for (e.g., "Background", "Skin Tone")
+ * @returns {string | undefined} The attribute value if found, undefined otherwise
+ */
 function getAttribute(meta: NFTMetadata, traitType: string) {
   return meta?.attributes?.find((attr) => attr.trait_type === traitType)?.value;
 }
 
-// Compute dynamic trait counts
+/**
+ * Computes dynamic trait counts for filtering sidebar
+ * 
+ * Counts occurrences of each trait value across the NFT collection.
+ * For complex traits like hair and headwear, counts both subcategories
+ * (e.g., "Curly") and full combinations (e.g., "Curly Blonde").
+ * 
+ * @param {NFTGridItem[]} nfts - Array of NFT items to count traits from
+ * @param {string[]} categories - Array of trait category names to count
+ * @returns {Record<string, Record<string, number>>} Nested object with category -> trait value -> count mapping
+ * 
+ * @example
+ * ```ts
+ * const counts = computeTraitCounts(nfts, ["background", "rarity"]);
+ * // Returns: { background: { "Blue": 50, "Red": 30 }, rarity: { "Legendary": 10 } }
+ * ```
+ */
 function computeTraitCounts(nfts: NFTGridItem[], categories: string[]) {
   const counts: Record<string, Record<string, number>> = {};
   categories.forEach(category => {
@@ -142,6 +164,43 @@ function computeTraitCounts(nfts: NFTGridItem[], categories: string[]) {
   return counts;
 }
 
+/**
+ * NFTGrid Component
+ * 
+ * A comprehensive grid component for displaying, filtering, sorting, and paginating NFTs.
+ * Supports multiple view modes (grid-large, grid-medium, grid-small, compact table),
+ * real-time filtering by traits and search terms, column sorting, and on-chain ownership verification.
+ * 
+ * @example
+ * ```tsx
+ * <NFTGrid
+ *   searchTerm="slugger"
+ *   searchMode="contains"
+ *   selectedFilters={{
+ *     rarity: ["Legendary"],
+ *     background: ["Blue"]
+ *   }}
+ *   showLive={true}
+ *   setShowLive={setShowLive}
+ *   showSold={true}
+ *   setShowSold={setShowSold}
+ *   onFilteredCountChange={(count) => console.log(`${count} NFTs found`)}
+ *   onTraitCountsChange={(counts) => updateSidebar(counts)}
+ * />
+ * ```
+ * 
+ * @param {NFTGridProps} props - Component props
+ * @param {string} props.searchTerm - Search query string
+ * @param {"contains" | "exact"} props.searchMode - Search matching mode ("contains" for partial, "exact" for full match)
+ * @param {SelectedFilters} props.selectedFilters - Object containing selected filter values by category
+ * @param {boolean} [props.showLive=true] - Whether to show live/available NFTs
+ * @param {function} [props.setShowLive] - Callback to update showLive state
+ * @param {boolean} [props.showSold=true] - Whether to show sold NFTs
+ * @param {function} [props.setShowSold] - Callback to update showSold state
+ * @param {function} [props.onFilteredCountChange] - Callback invoked when filtered NFT count changes
+ * @param {function} [props.onTraitCountsChange] - Callback invoked when trait counts change (for sidebar updates)
+ * @returns {JSX.Element} NFT grid component with filtering, sorting, and pagination controls
+ */
 export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showLive = true, setShowLive, showSold = true, setShowSold, onFilteredCountChange, onTraitCountsChange }: NFTGridProps) {
   // Use on-chain ownership data for accurate Live/Sold counts
   const { liveCount: onChainLiveCount, soldCount: onChainSoldCount, isChecking: isCheckingOwnership, checkedCount, totalToCheck } = useOnChainOwnership(TOTAL_COLLECTION_SIZE);
@@ -225,7 +284,15 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
   // Favorites functionality - call hook once at grid level
   const { isFavorited, toggleFavorite } = useFavorites();
 
-  // Column sort handler
+  /**
+   * Handles column header click for sorting in compact table view
+   * 
+   * Toggles sort direction if the same column is clicked again,
+   * otherwise sets a new sort column with ascending direction.
+   * Resets dropdown sort when using column sort.
+   * 
+   * @param {string} field - The field name to sort by ('nft', 'rank', 'rarity', 'tier', 'price')
+   */
   const handleColumnSort = (field: string) => {
     if (columnSort?.field === field) {
       // Toggle direction if same field
@@ -241,7 +308,16 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
     setSortBy("default");
   };
 
-  // Keyboard navigation for grid items
+  /**
+   * Handles keyboard navigation for grid and table items
+   * 
+   * Supports arrow keys (↑↓←→), Home, and End keys for navigation.
+   * Arrow keys navigate within the grid respecting view mode layout.
+   * Home moves to first item, End moves to last item.
+   * 
+   * @param {React.KeyboardEvent} event - Keyboard event object
+   * @param {number} index - Current item index in the paginated array
+   */
   const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
     const totalItems = paginatedNFTs.length;
     const itemsPerRow = viewMode === 'grid-large' ? 5 : viewMode === 'grid-medium' ? 7 : viewMode === 'grid-small' ? 8 : 1;
@@ -391,7 +467,18 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Filter NFTs
+  /**
+   * Filters NFTs based on search term, search mode, selected filters, and sale state
+   * 
+   * Applies multiple filter criteria:
+   * - Sale state (live/sold) based on showLive and showSold flags
+   * - Search term matching (exact or contains mode) against name, token ID, and NFT number
+   * - Rarity filter (normalized to handle "Ultra-Legendary" suffix)
+   * - Attribute filters (background, skinTone, shirt, eyewear)
+   * - Complex attribute filters (hair, headwear) supporting subcategory and color combinations
+   * 
+   * @type {NFTGridItem[]} Filtered array of NFTs matching all criteria
+   */
   const filteredNFTs = useMemo(() => {
     return nfts.filter(nft => {
     // Sale state filter based on checkboxes
@@ -501,7 +588,16 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
     }
   }, [filteredNFTs.length, scrollPosition, isLoading]); // Only depend on length, not the entire array
 
-  // Sort filtered NFTs
+  /**
+   * Sorts filtered NFTs based on column sort or dropdown sort selection
+   * 
+   * Column sort takes precedence over dropdown sort.
+   * Supports sorting by: NFT name, rank, rarity percent, tier, and price.
+   * Rank sorting: lower numbers = higher rank (rank #1 is best)
+   * Rarity sorting: lower percent = rarer (0.01% is rarer than 1%)
+   * 
+   * @type {NFTGridItem[]} Sorted array of filtered NFTs
+   */
   const sortedNFTs = useMemo(() => {
     return [...filteredNFTs].sort((a, b) => {
       // Column sort takes precedence
@@ -878,12 +974,15 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
         <>
           {/* Grid Views */}
           {(viewMode === 'grid-large' || viewMode === 'grid-medium' || viewMode === 'grid-small') && (
-            <div ref={gridRef} className="mt-4 mb-8 grid w-full" style={{
-              gridTemplateColumns: viewMode === 'grid-large' ? 'repeat(auto-fit, minmax(clamp(160px, 48vw, 300px), 1fr))' : 
-                                  viewMode === 'grid-medium' ? 'repeat(auto-fit, minmax(clamp(140px, 45vw, 260px), 1fr))' :
-                                  'repeat(auto-fit, minmax(clamp(120px, 40vw, 200px), 1fr))',
-              gap: 'clamp(0.5rem, 0.8vw, 1rem)'
-            }}>
+            <div 
+              ref={gridRef} 
+              className="mt-4 mb-8 grid w-full gap-[clamp(0.5rem,0.8vw,1rem)]"
+              style={{
+                gridTemplateColumns: viewMode === 'grid-large' ? 'repeat(auto-fit, minmax(clamp(160px, 48vw, 300px), 1fr))' : 
+                                    viewMode === 'grid-medium' ? 'repeat(auto-fit, minmax(clamp(140px, 45vw, 260px), 1fr))' :
+                                    'repeat(auto-fit, minmax(clamp(120px, 40vw, 200px), 1fr))'
+              }}
+            >
               {paginatedNFTs.map((nft, index) => {
                 // Prioritize loading first 12-16 images (first visible rows depending on view mode)
                 // This ensures above-the-fold images load immediately
