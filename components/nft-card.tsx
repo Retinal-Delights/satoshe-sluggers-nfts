@@ -113,6 +113,7 @@ export default function NFTCard({
                 setImgError(true);
               }}
               sizes="(max-width:768px)100vw,(max-width:1200px)50vw,33vw"
+              unoptimized={Boolean(image && (image.includes('/ipfs/') || image.includes('cloudflare-ipfs') || image.includes('ipfs.io')))}
             />
           </div>
         </Link>
@@ -139,6 +140,7 @@ export default function NFTCard({
               sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
               onLoad={() => { setImgLoaded(true); }}
               onError={() => { setImgError(true); }}
+              unoptimized={Boolean(image && (image.includes('/ipfs/') || image.includes('cloudflare-ipfs') || image.includes('ipfs.io')))}
             />
           </div>
         </Link>

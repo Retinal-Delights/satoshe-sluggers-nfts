@@ -323,6 +323,7 @@ function MyNFTsContent() {
                       height={278}
                       className="max-w-full max-h-full object-contain"
                       loading="lazy"
+                      unoptimized={Boolean(nft.image && (nft.image.includes('/ipfs/') || nft.image.includes('cloudflare-ipfs') || nft.image.includes('ipfs.io')))}
                     />
                   </Link>
                 </div>
