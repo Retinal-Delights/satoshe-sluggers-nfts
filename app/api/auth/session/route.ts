@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
       return response;
     }
   } catch (error) {
-    console.error('Error checking session:', error);
+    // Error checking session - return not logged in
     return NextResponse.json({ isLoggedIn: false });
   }
 }

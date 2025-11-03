@@ -99,7 +99,7 @@ export async function loadAllNFTs(): Promise<NFTData[]> {
 
     return metadataCache || [];
   } catch (error) {
-    console.error('Error loading NFT data:', error);
+    // Error loading NFT data - return empty array
     return [];
   }
 }
