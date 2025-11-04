@@ -730,7 +730,7 @@ export default function NFTSidebar({
         </div>
         
         <button
-          className="font-medium flex items-center justify-center h-8 w-full mb-4 rounded border border-brand-pink text-brand-pink bg-transparent hover:bg-brand-pink hover:text-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-fluid-sm"
+          className="font-light flex items-center justify-center h-8 w-full mb-4 rounded border border-brand-pink text-brand-pink bg-transparent hover:bg-brand-pink hover:text-off-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-fluid-sm"
           aria-label="Search NFTs"
         >
           Search

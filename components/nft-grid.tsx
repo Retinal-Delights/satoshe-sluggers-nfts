@@ -1147,65 +1147,65 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                   <tr>
                     <th className="text-center px-1 sm:px-2 py-3 text-xs sm:text-sm font-medium text-off-white w-[5%] sm:w-[4%]">Favorite</th>
                     <th 
-                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-neutral-200 cursor-pointer select-none w-[23%] sm:w-[21%]"
+                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors w-[23%] sm:w-[21%]"
                       onClick={() => handleColumnSort('nft')}
                     >
                       <div className="flex items-center gap-1">
                         NFT
                         {columnSort?.field === 'nft' && (
-                          <span className="text-brand-pink">
+                          <span className="text-brand-pink font-semibold">
                             {columnSort.direction === 'asc' ? '↑' : '↓'}
                           </span>
                         )}
                       </div>
                     </th>
                     <th 
-                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-neutral-200 cursor-pointer select-none w-[10%] sm:w-[10%]"
+                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors w-[10%] sm:w-[10%]"
                       onClick={() => handleColumnSort('rank')}
                     >
                       <div className="flex items-center gap-1">
                         Rank out of {TOTAL_COLLECTION_SIZE}
                         {columnSort?.field === 'rank' && (
-                          <span className="text-brand-pink">
+                          <span className="text-brand-pink font-semibold">
                             {columnSort.direction === 'asc' ? '↑' : '↓'}
                           </span>
                         )}
                       </div>
                     </th>
                     <th 
-                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-neutral-200 cursor-pointer select-none w-[14%] sm:w-[10%]"
+                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors w-[14%] sm:w-[10%]"
                       onClick={() => handleColumnSort('rarity')}
                     >
                       <div className="flex items-center gap-1">
                         Rarity
                         {columnSort?.field === 'rarity' && (
-                          <span className="text-brand-pink">
+                          <span className="text-brand-pink font-semibold">
                             {columnSort.direction === 'asc' ? '↑' : '↓'}
                           </span>
                         )}
                       </div>
                     </th>
                     <th 
-                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-neutral-200 cursor-pointer select-none w-[16%] sm:w-[18%]"
+                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors w-[16%] sm:w-[18%]"
                       onClick={() => handleColumnSort('tier')}
                     >
                       <div className="flex items-center gap-1">
                         Tier
                         {columnSort?.field === 'tier' && (
-                          <span className="text-brand-pink">
+                          <span className="text-brand-pink font-semibold">
                             {columnSort.direction === 'asc' ? '↑' : '↓'}
                           </span>
                         )}
                       </div>
                     </th>
                     <th 
-                      className="text-right px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-neutral-200 cursor-pointer select-none w-[12%] sm:w-[14%]"
+                      className="text-right px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors w-[12%] sm:w-[14%]"
                       onClick={() => handleColumnSort('price')}
                     >
                       <div className="flex items-center justify-end gap-1">
                         Price
                         {columnSort?.field === 'price' && (
-                          <span className="text-brand-pink">
+                          <span className="text-brand-pink font-semibold">
                             {columnSort.direction === 'asc' ? '↑' : '↓'}
                           </span>
                         )}
@@ -1255,13 +1255,22 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                         </div>
                       </td>
                       <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left">{nft.rank} / {TOTAL_COLLECTION_SIZE}</td>
-                      <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left line-clamp-2">{nft.rarityPercent}%</td>
-                      <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left line-clamp-2">{typeof nft.tier === 'string' ? nft.tier.replace(" (Ultra-Legendary)", "") : nft.tier}</td>
-                      <td className="px-2 sm:px-3 py-3 text-xs font-normal text-blue-500 text-right">
-                        <div className="leading-tight">
-                          <span className="whitespace-nowrap">{nft.priceEth}</span>
-                          <span className="block sm:inline sm:ml-1">ETH</span>
-                        </div>
+                      <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left">{nft.rarityPercent}%</td>
+                      <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left">{nft.rarity || (typeof nft.tier === 'string' ? nft.tier.replace(" (Ultra-Legendary)", "") : nft.tier || '—')}</td>
+                      <td className="px-2 sm:px-3 py-3 text-xs font-normal text-right">
+                        {nft.isForSale && nft.priceEth > 0 ? (
+                          <div className="leading-tight text-blue-500">
+                            <span className="whitespace-nowrap">{nft.priceEth}</span>
+                            <span className="block sm:inline sm:ml-1">ETH</span>
+                          </div>
+                        ) : nft.soldPriceEth ? (
+                          <div className="leading-tight text-green-500">
+                            <span className="whitespace-nowrap">{nft.soldPriceEth}</span>
+                            <span className="block sm:inline sm:ml-1">ETH</span>
+                          </div>
+                        ) : (
+                          <span className="text-neutral-500">—</span>
+                        )}
                       </td>
                       <td className="px-2 sm:px-3 py-3 text-right">
                         <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1 justify-end flex-wrap">

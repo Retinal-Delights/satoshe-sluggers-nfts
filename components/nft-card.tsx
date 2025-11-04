@@ -146,12 +146,13 @@ export default function NFTCard({
         </Link>
 
         {/* NFT Details - constrained to image width, accounting for drop shadow */}
-        {/* Image has p-2 (8px padding all around), so visible image width = 100% - 16px */}
-        {/* Drop shadow ~3px on left, so left padding = 8px + 3px = 11px, right = 8px to match image */}
+        {/* Image has p-2 (8px padding all around), visible image spans full width with 8px padding on each side */}
+        {/* Drop shadow ~3px on left, so left padding = 8px + 3px = 11px to align with image */}
+        {/* Right side: 8px padding to align with image edge (no drop shadow compensation) */}
         <div className="space-y-1 pb-2 box-border overflow-hidden" style={{ 
           paddingLeft: '11px', 
           paddingRight: '8px', 
-          width: 'calc(100% - 16px)',
+          width: 'calc(100% - 8px)',
           marginLeft: '8px'
         }}>
           <div className="flex items-start justify-between gap-2 flex-wrap">
@@ -191,28 +192,26 @@ export default function NFTCard({
             </div>
           </div>
 
-          {/* Buy/Sold Section */}
-          <div className="pt-1">
-            <div className="flex items-end justify-between gap-3 flex-wrap">
-              <div className="flex-1 min-w-0">
-                <div className={`font-medium text-fluid-xs ${isForSale ? 'text-blue-500' : 'text-green-500'}`}>
-                  {isForSale ? 'Buy Now' : 'Sold!'}
-                </div>
-                <div className={`font-semibold text-fluid-sm leading-none whitespace-nowrap ${isForSale ? 'text-blue-400' : 'text-green-400'}`}>
-                  {priceEth} ETH
-                </div>
+          {/* Buy/Sold Section - Price display with separate button */}
+          <div className="pt-1 flex items-center justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <div className={`text-fluid-xs font-medium ${isForSale ? 'text-blue-500' : 'text-green-500'}`}>
+                {isForSale ? 'Buy Now' : 'Sold'}
               </div>
-              <Link
-                href={`/nft/${cardNumber}`}
-                className={`px-3 py-1.5 rounded-sm text-[clamp(0.6rem,0.5vw,0.85rem)] font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
-                  isForSale
-                    ? 'bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20'
-                    : 'bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20'
-                }`}
-              >
-                {isForSale ? 'BUY' : 'Sold'}
-              </Link>
+              <div className={`text-fluid-sm font-semibold leading-tight ${isForSale ? 'text-blue-400' : 'text-green-400'}`}>
+                {priceEth} ETH
+              </div>
             </div>
+            <Link
+              href={`/nft/${cardNumber}`}
+              className={`px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 ${
+                isForSale
+                  ? 'bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500/50'
+                  : 'bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50'
+              }`}
+            >
+              {isForSale ? 'Buy' : 'Sold'}
+            </Link>
           </div>
         </div>
       </div>
@@ -244,12 +243,13 @@ export default function NFTCard({
         </div>
       </Link>
 
-      {/* Text constrained to image width - image has p-1 (4px padding), so visible image width = 100% - 8px */}
-      {/* Drop shadow ~3px on left, so left padding = 4px + 3px = 7px, right = 4px to match image */}
+      {/* Text constrained to image width - image has p-1 (4px padding), visible image spans full width with 4px padding on each side */}
+      {/* Drop shadow ~3px on left, so left padding = 4px + 3px = 7px to align with image */}
+      {/* Right side: 4px padding to align with image edge (no drop shadow compensation) */}
       <div className="pb-2 flex flex-col overflow-hidden" style={{ 
         paddingLeft: '7px', 
         paddingRight: '4px', 
-        width: 'calc(100% - 8px)',
+        width: 'calc(100% - 4px)',
         marginLeft: '4px'
       }}>
         <div className="flex items-center justify-between mb-1 gap-2">
@@ -272,25 +272,26 @@ export default function NFTCard({
           </Button>
         </div>
 
-        <div className="space-y-1 mt-1">
-          <div className={`font-medium ${smallText} ${isForSale ? 'text-blue-500' : 'text-green-500'}`}>
-            {isForSale ? 'Buy Now' : 'Sold!'}
+        {/* Buy/Sold Section - Price display with separate button */}
+        <div className="mt-1 flex items-center justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <div className={`${smallText} font-medium ${isForSale ? 'text-blue-500' : 'text-green-500'}`}>
+              {isForSale ? 'Buy Now' : 'Sold'}
+            </div>
+            <div className={`${smallText} font-semibold leading-tight ${isForSale ? 'text-blue-400' : 'text-green-400'}`}>
+              {priceEth} ETH
+            </div>
           </div>
-          <div className={`font-semibold ${smallText} ${isForSale ? 'text-blue-400' : 'text-green-400'}`}>
-            {priceEth} ETH
-          </div>
-          <div className="flex justify-start">
-            <Link
-              href={`/nft/${cardNumber}`}
-              className={`px-2.5 py-1 rounded-sm text-xs font-medium transition-colors ${
-                isForSale
-                  ? 'bg-blue-500/10 border-2 border-blue-500/30 text-blue-400 hover:bg-blue-500/20'
-                  : 'bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20'
-              }`}
-            >
-              {isForSale ? 'Buy' : 'Sold'}
-            </Link>
-          </div>
+          <Link
+            href={`/nft/${cardNumber}`}
+            className={`px-2.5 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 ${
+              isForSale
+                ? 'bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500/50'
+                : 'bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50'
+            }`}
+          >
+            {isForSale ? 'Buy' : 'Sold'}
+          </Link>
         </div>
       </div>
     </div>
