@@ -13,9 +13,9 @@ import { getContract, readContract } from "thirdweb";
 const CLIENT_ID = process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID; // For Thirdweb SDK
 const INSIGHT_CLIENT_ID = process.env.NEXT_PUBLIC_INSIGHT_CLIENT_ID || process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID; // For Insight API
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS;
-const CREATOR_ADDRESS = process.env.NEXT_PUBLIC_CREATOR_ADDRESS?.toLowerCase();
+const MARKETPLACE_ADDRESS = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
 
-if (!CLIENT_ID || !CONTRACT_ADDRESS || !CREATOR_ADDRESS) {
+if (!CLIENT_ID || !CONTRACT_ADDRESS || !MARKETPLACE_ADDRESS) {
   throw new Error("Missing required environment variables for ownership API");
 }
 
@@ -98,7 +98,7 @@ async function fetchInsightOwnership(
             `https://insight.thirdweb.com/v1/tokens/${CHAIN_ID}/${CONTRACT_ADDRESS}/owners?tokenId=${tokenId}&page=1&limit=1`,
             {
               headers: {
-                'x-client-id': INSIGHT_CLIENT_ID,
+                'x-client-id': INSIGHT_CLIENT_ID || '',
                 'Content-Type': 'application/json',
               },
             }
@@ -117,7 +117,7 @@ async function fetchInsightOwnership(
             owner = (data.data[0].owner || '').toLowerCase();
           }
 
-          const isSold = owner !== '' && owner !== CREATOR_ADDRESS;
+          const isSold = owner !== '' && owner !== MARKETPLACE_ADDRESS;
           return { tokenId, owner, isSold };
         } catch {
           return { tokenId, owner: '', isSold: false };
@@ -175,7 +175,7 @@ async function fetchRPCOwnership(
           return {
             tokenId,
             owner: ownerLower,
-            isSold: ownerLower !== CREATOR_ADDRESS,
+            isSold: ownerLower !== MARKETPLACE_ADDRESS,
           };
         } catch {
           return {

@@ -832,19 +832,8 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
     return computeTraitCounts(tabFilteredNFTs, ["background", "skinTone", "shirt", "eyewear", "hair", "headwear", "rarity"]);
   }, [tabFilteredNFTs]);
 
-  // Compute displayed sold count (matches what's actually shown in Sold tab)
-  // Only counts NFTs that were listed (had priceEth > 0 or soldPriceEth) and are now sold
-  const displayedSoldCount = useMemo(() => {
-    return nfts.filter(nft => {
-      const wasListed = (nft.priceEth > 0 || nft.soldPriceEth !== undefined);
-      return !nft.isForSale && wasListed;
-    }).length;
-  }, [nfts]);
-
-  // Compute displayed live count (matches what's actually shown in Live tab)
-  const displayedLiveCount = useMemo(() => {
-    return nfts.filter(nft => nft.isForSale).length;
-  }, [nfts]);
+  // Note: Using onChainLiveCount and onChainSoldCount from useOnChainOwnership hook for tab counts
+  // These update immediately on purchase events and provide accurate aggregate counts
 
   const prevFilteredCountRef = useRef<number>(0);
   const prevTraitCountsRef = useRef<Record<string, Record<string, number>>>({});
