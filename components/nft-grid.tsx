@@ -931,29 +931,29 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                 </ToggleGroupItem>
                 <ToggleGroupItem 
                   value="live" 
-                  aria-label={`Show live NFTs (${displayedLiveCount})`}
-                  className="h-7 px-3 rounded-sm data-[state=on]:bg-blue-500/20 data-[state=on]:text-blue-400 data-[state=on]:border-blue-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-blue-300 flex items-center justify-center leading-none text-fluid-sm font-normal"
+                  aria-label={`Show live NFTs (${onChainLiveCount})`}
+                  className="h-7 px-3 rounded-sm data-[state=on]:bg-blue-500/20 data-[state=on]:text-blue-400 data-[state=on]:border-blue-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-blue-400 flex items-center justify-center leading-none text-fluid-sm font-normal"
                   disabled={!setShowLive}
                 >
                   <span className="flex items-center justify-center w-full h-full">
                     {isCheckingOwnership && checkedCount < totalToCheck ? (
-                      <span className="text-neutral-500">Live — {displayedLiveCount}...</span>
+                      <span className="text-neutral-500">Live — {onChainLiveCount}...</span>
                     ) : (
-                      `Live — ${displayedLiveCount}`
+                      `Live — ${onChainLiveCount}`
                     )}
                   </span>
                 </ToggleGroupItem>
                 <ToggleGroupItem 
                   value="sold" 
-                  aria-label={`Show sold NFTs (${displayedSoldCount})`}
-                  className="h-7 px-3 rounded-sm data-[state=on]:bg-green-500/20 data-[state=on]:text-green-400 data-[state=on]:border-green-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-green-300 flex items-center justify-center leading-none text-fluid-sm font-normal"
+                  aria-label={`Show sold NFTs (${onChainSoldCount})`}
+                  className="h-7 px-3 rounded-sm data-[state=on]:bg-green-500/20 data-[state=on]:text-green-400 data-[state=on]:border-green-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-green-400 flex items-center justify-center leading-none text-fluid-sm font-normal"
                   disabled={!setShowSold}
                 >
                   <span className="flex items-center justify-center w-full h-full">
                     {isCheckingOwnership && checkedCount < totalToCheck ? (
-                      <span className="text-neutral-500">Sold — {displayedSoldCount}...</span>
+                      <span className="text-neutral-500">Sold — {onChainSoldCount}...</span>
                     ) : (
-                      `Sold — ${displayedSoldCount}`
+                      `Sold — ${onChainSoldCount}`
                     )}
                   </span>
                 </ToggleGroupItem>

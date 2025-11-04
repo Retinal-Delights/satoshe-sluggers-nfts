@@ -42,7 +42,8 @@ export async function GET(request: NextRequest) {
     // Transfer events FROM the marketplace address indicate sales (marketplace transfers NFT to buyer)
     // Correct format: insight.thirdweb.com with chain as query parameter
     // Use from_address (not filter_from_address or fromAddresses) for sender address filtering
-    const apiUrl = `https://insight.thirdweb.com/v1/events/${CONTRACT_ADDRESS}/Transfer(address,address,uint256)?chain=${CHAIN_ID}&from_address=${MARKETPLACE_ADDRESS}&limit=10000`;
+    // Note: Maximum limit is 1000 per API specification
+    const apiUrl = `https://insight.thirdweb.com/v1/events/${CONTRACT_ADDRESS}/Transfer(address,address,uint256)?chain=${CHAIN_ID}&from_address=${MARKETPLACE_ADDRESS}&limit=1000`;
     
     const response = await fetch(apiUrl, {
       headers: {
@@ -81,6 +82,8 @@ export async function GET(request: NextRequest) {
       soldCount = data.aggregations[0].count || 0;
     } else if (data.data && Array.isArray(data.data)) {
       // Fallback: Count unique token IDs from events
+      // Note: If there are more than 1000 sales, we'll need to paginate
+      // For now, we count what we get and note that it may be incomplete
       const soldTokenIds = new Set<string>();
       data.data.forEach((event: any) => {
         const tokenId = event.args?.tokenId || event.token_id;
@@ -89,6 +92,11 @@ export async function GET(request: NextRequest) {
         }
       });
       soldCount = soldTokenIds.size;
+      
+      // If we got 1000 events and there might be more, log a warning in development
+      if (process.env.NODE_ENV === 'development' && data.data.length === 1000) {
+        console.warn('Aggregate counts: Reached 1000 event limit. May need pagination if more sales exist.');
+      }
     }
 
     const liveCount = TOTAL_NFTS - soldCount;

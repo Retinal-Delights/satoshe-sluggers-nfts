@@ -20,6 +20,7 @@ import confetti from 'canvas-confetti';
 import { Separator } from "@/components/ui/separator";
 import { convertIpfsUrl } from "@/lib/utils";
 import { CONTRACT_ADDRESS } from "@/lib/constants";
+import { rpcRateLimiter } from "@/lib/rpc-rate-limiter";
 
 // Type definitions
 interface NFTAttribute {
@@ -285,8 +286,9 @@ export default function NFTDetailPage() {
   // Get pricing data from loaded pricing data or metadata fallback
   const priceEth = pricingData?.price_eth || metadata?.merged_data?.price_eth || 0;
   const listingId = pricingData?.listing_id || metadata?.merged_data?.listing_id || 0;
-  const creatorAddress = process.env.NEXT_PUBLIC_CREATOR_ADDRESS?.toLowerCase();
-  const isSoldOnChain = ownerAddress && creatorAddress ? ownerAddress.toLowerCase() !== creatorAddress : false;
+  const marketplaceAddress = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
+  // NFT is sold if owner exists and is not the marketplace (or if owner check completed and owner is not marketplace)
+  const isSoldOnChain = ownerAddress && marketplaceAddress ? ownerAddress.toLowerCase() !== marketplaceAddress : (ownerCheckComplete && ownerAddress && marketplaceAddress ? ownerAddress.toLowerCase() !== marketplaceAddress : false);
   // Only show "Buy Now" if owner check is complete AND NFT is confirmed for sale
   const isForSale = ownerCheckComplete && priceEth > 0 && !isPurchased && !isSoldOnChain;
 
@@ -453,9 +455,9 @@ export default function NFTDetailPage() {
             return (
               <Link
                 href={backTo}
-                className="inline-flex items-center text-neutral-400 hover:text-brand-pink text-sm transition-colors group"
+                className="inline-flex items-center text-neutral-400 hover:text-off-white text-sm transition-colors group"
               >
-                <ArrowLeft className="h-4 w-4 mr-2 transition-transform group-hover:-translate-x-1" />
+                <ArrowLeft className="h-4 w-4 mr-2 transition-all group-hover:-translate-x-1 group-hover:text-off-white" />
                 Back to collection
               </Link>
             );
@@ -466,24 +468,24 @@ export default function NFTDetailPage() {
             {navigationTokens.prev !== null && (
               <Link
                 href={`/nft/${navigationTokens.prev}`}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800 hover:bg-neutral-900 text-neutral-400 hover:text-brand-pink transition-colors border border-neutral-700 hover:border-brand-pink"
-                title={`Previous NFT #${navigationTokens.prev + 1}`}
+                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800 hover:bg-neutral-900 text-neutral-400 transition-all border border-neutral-700 hover:border-brand-pink group"
+                title={`Previous NFT #${navigationTokens.prev}`}
               >
-                <ChevronLeft className="h-5 w-5" />
+                <ChevronLeft className="h-5 w-5 transition-colors group-hover:text-brand-pink" />
               </Link>
             )}
             
             <span className="text-sm text-neutral-500 px-2">
-              {parseInt(tokenId) + 1} of {TOTAL_COLLECTION_SIZE}
+              {parseInt(tokenId)} of {TOTAL_COLLECTION_SIZE}
             </span>
             
             {navigationTokens.next !== null && (
               <Link
                 href={`/nft/${navigationTokens.next}`}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800 hover:bg-neutral-900 text-neutral-400 hover:text-brand-pink transition-colors border border-neutral-700 hover:border-brand-pink"
-                title={`Next NFT #${navigationTokens.next + 1}`}
+                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800 hover:bg-neutral-900 text-neutral-400 transition-all border border-neutral-700 hover:border-brand-pink group"
+                title={`Next NFT #${navigationTokens.next}`}
               >
-                <ChevronRight className="h-5 w-5" />
+                <ChevronRight className="h-5 w-5 transition-colors group-hover:text-brand-pink" />
               </Link>
             )}
           </div>
@@ -513,7 +515,7 @@ export default function NFTDetailPage() {
                 href="https://kristenwoerdeman.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 rounded transition-colors group cursor-pointer"
+                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded transition-all group cursor-pointer"
                 aria-label="Visit Kristen Woerdeman's website"
               >
                 <div className="flex items-center gap-3">
@@ -526,8 +528,8 @@ export default function NFTDetailPage() {
                     sizes="26px"
                   />
                   <div>
-                    <p className="text-sm font-medium text-off-white">Artist</p>
-                    <p className="text-xs text-neutral-400">Kristen Woerdeman</p>
+                    <p className="text-sm font-medium text-off-white group-hover:text-off-white transition-colors">Artist</p>
+                    <p className="text-xs text-neutral-400 group-hover:text-off-white transition-colors">Kristen Woerdeman</p>
                   </div>
                 </div>
                 <svg
@@ -553,7 +555,7 @@ export default function NFTDetailPage() {
                 href="https://retinaldelights.io"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 rounded transition-colors group cursor-pointer"
+                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded transition-all group cursor-pointer"
                 aria-label="Visit Retinal Delights website"
               >
                 <div className="flex items-center gap-3">
@@ -566,8 +568,8 @@ export default function NFTDetailPage() {
                     sizes="26px"
                   />
                   <div>
-                    <p className="text-sm font-medium text-off-white">Platform</p>
-                    <p className="text-xs text-neutral-400">Retinal Delights</p>
+                    <p className="text-sm font-medium text-off-white group-hover:text-off-white transition-colors">Platform</p>
+                    <p className="text-xs text-neutral-400 group-hover:text-off-white transition-colors">Retinal Delights</p>
                   </div>
                 </div>
                 <svg
@@ -794,20 +796,22 @@ export default function NFTDetailPage() {
               </div>
             ) : isPurchased || isSoldOnChain ? (
               <div className="bg-neutral-800 p-4 rounded border border-green-500/30 order-3 lg:order-none">
-                <div>
-                  <p className="text-sm md:text-base mb-1 text-green-400">Sold!</p>
-                  <p className="text-2xl sm:text-3xl md:text-2xl font-bold mb-3 text-green-400">
-                    {priceEth > 0 ? `${priceEth} ETH` : '—'}
-                  </p>
-                  {ownerAddress && (
-                    <p className="text-sm text-neutral-400 mt-2 mb-3">
-                      Owner: <a href={`https://basescan.org/address/${ownerAddress}`} target="_blank" rel="noopener noreferrer" className="text-green-400 underline hover:text-green-300">{ownerAddress.slice(0,6)}...{ownerAddress.slice(-4)}</a>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+                  <div className="flex-1">
+                    <p className="text-sm md:text-base text-green-400 mb-1">Purchased for</p>
+                    <p className="text-2xl sm:text-3xl md:text-2xl font-bold text-green-400">
+                      {priceEth > 0 ? `${priceEth} ETH` : '—'}
                     </p>
-                  )}
-                  <div className="flex items-center justify-between gap-3 mt-4">
+                    {ownerAddress && (
+                      <p className="text-xs text-neutral-400 mt-2">
+                        Owner: <a href={`https://basescan.org/address/${ownerAddress}`} target="_blank" rel="noopener noreferrer" className="text-green-400 underline hover:text-green-300">{ownerAddress.slice(0,6)}...{ownerAddress.slice(-4)}</a>
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 w-full sm:w-auto">
                     <button
                       disabled
-                      className="px-4 py-2 rounded-sm text-sm font-normal bg-green-500/10 border border-green-500/30 text-green-400 cursor-not-allowed opacity-75"
+                      className="px-4 py-2 sm:px-6 sm:py-3 rounded-sm text-sm sm:text-base font-bold bg-green-500/10 border border-green-500/30 text-green-400 cursor-not-allowed opacity-75 w-full sm:w-auto"
                     >
                       Sold
                     </button>
@@ -815,7 +819,7 @@ export default function NFTDetailPage() {
                       href={`https://opensea.io/assets/base/${CONTRACT_ADDRESS}/${parseInt(tokenId) - 1}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm text-green-400 hover:text-green-300 underline transition-colors"
+                      className="inline-flex items-center gap-2 text-sm text-green-400 hover:text-green-300 underline transition-colors whitespace-nowrap"
                     >
                       View on OpenSea
                       <ExternalLink className="w-4 h-4" />

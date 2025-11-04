@@ -83,7 +83,7 @@ export default function Footer() {
             Created with <Heart className="inline-block h-3 w-3 mx-1 text-brand-pink fill-brand-pink" /> in Los Angeles by{" "}
             <a
               href="https://kristenwoerdeman.com"
-              className="text-brand-pink hover:text-brand-pink/80 transition-colors font-medium"
+              className="text-brand-pink hover:text-off-white transition-colors font-medium"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -95,7 +95,7 @@ export default function Footer() {
             2025 ©{" "}
             <a
               href="https://retinaldelights.io"
-              className="text-brand-pink hover:text-brand-pink/80 transition-colors font-medium"
+              className="text-brand-pink hover:text-off-white transition-colors font-medium"
               target="_blank"
               rel="noopener noreferrer"
             >

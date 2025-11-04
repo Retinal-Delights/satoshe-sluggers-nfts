@@ -127,21 +127,24 @@ function MyNFTsContent() {
           
           if (data.data && Array.isArray(data.data)) {
             data.data.forEach((nft: any) => {
-              // Check if this NFT is from our collection
+              // Check if this NFT is from our collection - use lowercase comparison
               const nftContract = (nft.contract_address || nft.contractAddress || '').toLowerCase();
-              if (nftContract === CONTRACT_ADDRESS) {
+              if (CONTRACT_ADDRESS && nftContract === CONTRACT_ADDRESS.toLowerCase()) {
                 const tokenId = parseInt(nft.tokenId || nft.token_id || '0');
-                if (!isNaN(tokenId) && tokenId < allMetadata.length) {
+                // Only include if tokenId is valid and within our collection range
+                if (!isNaN(tokenId) && tokenId >= 0 && tokenId < allMetadata.length) {
                   const meta = allMetadata[tokenId];
-                  const mediaUrl = meta?.merged_data?.media_url || meta?.image;
-                  const imageUrl = convertIpfsUrl(mediaUrl);
-                  ownedNFTsList.push({
-                    id: (tokenId + 1).toString(),
-                    tokenId: tokenId.toString(),
-                    name: meta?.name || `Satoshe Slugger #${tokenId + 1}`,
-                    image: imageUrl || "/nfts/placeholder-nft.webp",
-                    rarity: meta?.rarity_tier || "Unknown",
-                  });
+                  if (meta) { // Only add if metadata exists
+                    const mediaUrl = meta?.merged_data?.media_url || meta?.image;
+                    const imageUrl = convertIpfsUrl(mediaUrl);
+                    ownedNFTsList.push({
+                      id: (tokenId + 1).toString(),
+                      tokenId: tokenId.toString(),
+                      name: meta?.name || `Satoshe Slugger #${tokenId + 1}`,
+                      image: imageUrl || "/nfts/placeholder-nft.webp",
+                      rarity: meta?.rarity_tier || "Unknown",
+                    });
+                  }
                 }
               }
             });
@@ -438,12 +441,13 @@ function MyNFTsContent() {
                   
 
                   {activeTab === "owned" && (
-                    <Button
+                    <button
                       onClick={() => router.push(`/nft/${nft.id}`)}
-                      className="w-full border border-brand-pink bg-transparent text-brand-pink font-normal rounded-sm hover:bg-brand-pink/90 hover:text-white transition-all duration-200"
+                      className="font-light flex items-center justify-center h-8 w-full rounded border border-brand-pink text-brand-pink bg-transparent hover:bg-brand-pink hover:text-off-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-fluid-sm"
+                      aria-label="View NFT details"
                     >
                       View Details
-                    </Button>
+                    </button>
                   )}
                 </div>
               </div>
