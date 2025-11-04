@@ -145,8 +145,15 @@ export default function NFTCard({
           </div>
         </Link>
 
-        {/* NFT Details - aligned with card content, not drop shadow */}
-        <div className="space-y-1 px-2 pb-2 w-full box-border max-w-full overflow-hidden">
+        {/* NFT Details - constrained to image width, accounting for drop shadow */}
+        {/* Image has p-2 (8px padding all around), so visible image width = 100% - 16px */}
+        {/* Drop shadow ~3px on left, so left padding = 8px + 3px = 11px, right = 8px to match image */}
+        <div className="space-y-1 pb-2 box-border overflow-hidden" style={{ 
+          paddingLeft: '11px', 
+          paddingRight: '8px', 
+          width: 'calc(100% - 16px)',
+          marginLeft: '8px'
+        }}>
           <div className="flex items-start justify-between gap-2 flex-wrap">
             <h3
               className="font-semibold text-off-white text-fluid-md
@@ -197,7 +204,7 @@ export default function NFTCard({
               </div>
               <Link
                 href={`/nft/${cardNumber}`}
-                className={`px-3 py-1.5 rounded-sm text-[clamp(0.6rem,0.5vw,0.85rem)] font-medium transition-colors whitespace-nowrap ${
+                className={`px-3 py-1.5 rounded-sm text-[clamp(0.6rem,0.5vw,0.85rem)] font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                   isForSale
                     ? 'bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20'
                     : 'bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20'
@@ -237,7 +244,14 @@ export default function NFTCard({
         </div>
       </Link>
 
-      <div className="px-2 pb-2 flex flex-col max-w-full overflow-hidden">
+      {/* Text constrained to image width - image has p-1 (4px padding), so visible image width = 100% - 8px */}
+      {/* Drop shadow ~3px on left, so left padding = 4px + 3px = 7px, right = 4px to match image */}
+      <div className="pb-2 flex flex-col overflow-hidden" style={{ 
+        paddingLeft: '7px', 
+        paddingRight: '4px', 
+        width: 'calc(100% - 8px)',
+        marginLeft: '4px'
+      }}>
         <div className="flex items-center justify-between mb-1 gap-2">
           <div className={`font-medium leading-tight ${smallText} ${isForSale ? 'text-blue-400' : 'text-green-400'} truncate flex-1 min-w-0`}>
             NFT — #{cardNumber}
@@ -245,7 +259,7 @@ export default function NFTCard({
           <Button
             variant="ghost"
             size="sm"
-            className="h-6 w-6 p-0 hover:bg-transparent"
+            className="h-6 w-6 p-0 hover:bg-transparent flex-shrink-0"
             onClick={handleFavoriteClick}
           >
             <Heart

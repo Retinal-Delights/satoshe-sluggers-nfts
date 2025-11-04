@@ -102,14 +102,14 @@ function MyNFTsContent() {
         
         // Use Insight API to fetch NFTs owned by this user
         // Correct endpoint: /v1/tokens/erc721/{ownerAddress}?chain=8453
-        const CLIENT_ID = process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID;
+        const INSIGHT_CLIENT_ID = process.env.NEXT_PUBLIC_INSIGHT_CLIENT_ID || process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID;
         const CHAIN_ID = 8453; // Base
         
         const response = await fetch(
           `https://insight.thirdweb.com/v1/tokens/erc721/${userAddress}?chain=${CHAIN_ID}`,
           {
             headers: {
-              'x-client-id': CLIENT_ID || '',
+              'x-client-id': INSIGHT_CLIENT_ID || '',
               'Content-Type': 'application/json',
             },
           }

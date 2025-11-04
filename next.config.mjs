@@ -68,6 +68,12 @@ const nextConfig = {
         port: '',
         pathname: '/ipfs/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'dweb.link',
+        port: '',
+        pathname: '/ipfs/**',
+      },
     ],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 31536000, // 1 year

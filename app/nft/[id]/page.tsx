@@ -453,9 +453,9 @@ export default function NFTDetailPage() {
             return (
               <Link
                 href={backTo}
-                className="inline-flex items-center text-neutral-400 hover:text-brand-pink text-sm transition-colors"
+                className="inline-flex items-center text-neutral-400 hover:text-brand-pink text-sm transition-colors group"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
+                <ArrowLeft className="h-4 w-4 mr-2 transition-transform group-hover:-translate-x-1" />
                 Back to collection
               </Link>
             );

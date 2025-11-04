@@ -925,14 +925,14 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                 <ToggleGroupItem 
                   value="all" 
                   aria-label="Show all NFTs"
-                  className="h-7 px-3 rounded-sm data-[state=on]:bg-brand-pink/20 data-[state=on]:text-brand-pink data-[state=on]:border-brand-pink text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-brand-pink flex items-center justify-center leading-none text-fluid-md"
+                  className="h-7 px-3 rounded-sm data-[state=on]:bg-brand-pink/20 data-[state=on]:text-brand-pink data-[state=on]:border-brand-pink text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-brand-pink flex items-center justify-center leading-none text-fluid-sm font-normal"
                 >
                   <span className="flex items-center justify-center w-full h-full">All</span>
                 </ToggleGroupItem>
                 <ToggleGroupItem 
                   value="live" 
                   aria-label={`Show live NFTs (${displayedLiveCount})`}
-                  className="h-7 px-3 rounded-sm data-[state=on]:bg-blue-500/20 data-[state=on]:text-blue-400 data-[state=on]:border-blue-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-blue-300 flex items-center justify-center leading-none text-fluid-md"
+                  className="h-7 px-3 rounded-sm data-[state=on]:bg-blue-500/20 data-[state=on]:text-blue-400 data-[state=on]:border-blue-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-blue-300 flex items-center justify-center leading-none text-fluid-sm font-normal"
                   disabled={!setShowLive}
                 >
                   <span className="flex items-center justify-center w-full h-full">
@@ -946,7 +946,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                 <ToggleGroupItem 
                   value="sold" 
                   aria-label={`Show sold NFTs (${displayedSoldCount})`}
-                  className="h-7 px-3 rounded-sm data-[state=on]:bg-green-500/20 data-[state=on]:text-green-400 data-[state=on]:border-green-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-green-300 flex items-center justify-center leading-none text-fluid-md"
+                  className="h-7 px-3 rounded-sm data-[state=on]:bg-green-500/20 data-[state=on]:text-green-400 data-[state=on]:border-green-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-green-300 flex items-center justify-center leading-none text-fluid-sm font-normal"
                   disabled={!setShowSold}
                 >
                   <span className="flex items-center justify-center w-full h-full">
@@ -1097,9 +1097,9 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
               ref={gridRef} 
               className="mt-4 mb-8 grid w-full gap-[clamp(0.5rem,0.8vw,1rem)]"
               style={{
-                gridTemplateColumns: viewMode === 'grid-large' ? 'repeat(auto-fit, minmax(clamp(160px, 48vw, 300px), 1fr))' : 
-                                    viewMode === 'grid-medium' ? 'repeat(auto-fit, minmax(clamp(140px, 45vw, 260px), 1fr))' :
-                                    'repeat(auto-fit, minmax(clamp(120px, 40vw, 200px), 1fr))'
+                gridTemplateColumns: viewMode === 'grid-large' ? 'repeat(auto-fit, minmax(clamp(180px, 20vw, 280px), 1fr))' : 
+                                    viewMode === 'grid-medium' ? 'repeat(auto-fit, minmax(clamp(160px, 18vw, 240px), 1fr))' :
+                                    'repeat(auto-fit, minmax(clamp(140px, 16vw, 200px), 1fr))'
               }}
             >
               {paginatedNFTs.map((nft, index) => {
@@ -1163,16 +1163,13 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                       className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-neutral-200 cursor-pointer select-none w-[10%] sm:w-[10%]"
                       onClick={() => handleColumnSort('rank')}
                     >
-                      <div className="flex flex-col items-start gap-0.5">
-                        <div className="flex items-center gap-1">
-                          Rank
-                          {columnSort?.field === 'rank' && (
-                            <span className="text-brand-pink">
-                              {columnSort.direction === 'asc' ? '↑' : '↓'}
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[9px] sm:text-[10px] text-neutral-500 font-normal whitespace-nowrap">(Out of {TOTAL_COLLECTION_SIZE})</div>
+                      <div className="flex items-center gap-1">
+                        Rank out of {TOTAL_COLLECTION_SIZE}
+                        {columnSort?.field === 'rank' && (
+                          <span className="text-brand-pink">
+                            {columnSort.direction === 'asc' ? '↑' : '↓'}
+                          </span>
+                        )}
                       </div>
                     </th>
                     <th 
@@ -1202,7 +1199,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                       </div>
                     </th>
                     <th 
-                      className="text-right px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-neutral-200 cursor-pointer select-none w-[10%] sm:w-[12%]"
+                      className="text-right px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-neutral-200 cursor-pointer select-none w-[12%] sm:w-[14%]"
                       onClick={() => handleColumnSort('price')}
                     >
                       <div className="flex items-center justify-end gap-1">
@@ -1214,7 +1211,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                         )}
                       </div>
                     </th>
-                    <th className="text-right px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white w-[16%]">Actions</th>
+                    <th className="text-right px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white w-[18%] sm:w-[20%]">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1257,9 +1254,9 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                           </Link>
                         </div>
                       </td>
-                      <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left">{nft.rank}</td>
+                      <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left">{nft.rank} / {TOTAL_COLLECTION_SIZE}</td>
                       <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left line-clamp-2">{nft.rarityPercent}%</td>
-                      <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal line-clamp-2">{nft.rarity.replace(" (Ultra-Legendary)", "")}</td>
+                      <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left line-clamp-2">{typeof nft.tier === 'string' ? nft.tier.replace(" (Ultra-Legendary)", "") : nft.tier}</td>
                       <td className="px-2 sm:px-3 py-3 text-xs font-normal text-blue-500 text-right">
                         <div className="leading-tight">
                           <span className="whitespace-nowrap">{nft.priceEth}</span>

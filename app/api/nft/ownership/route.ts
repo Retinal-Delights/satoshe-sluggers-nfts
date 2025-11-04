@@ -10,7 +10,8 @@ import { createThirdwebClient } from "thirdweb";
 import { base } from "thirdweb/chains";
 import { getContract, readContract } from "thirdweb";
 
-const CLIENT_ID = process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID;
+const CLIENT_ID = process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID; // For Thirdweb SDK
+const INSIGHT_CLIENT_ID = process.env.NEXT_PUBLIC_INSIGHT_CLIENT_ID || process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID; // For Insight API
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS;
 const CREATOR_ADDRESS = process.env.NEXT_PUBLIC_CREATOR_ADDRESS?.toLowerCase();
 
@@ -97,7 +98,7 @@ async function fetchInsightOwnership(
             `https://insight.thirdweb.com/v1/tokens/${CHAIN_ID}/${CONTRACT_ADDRESS}/owners?tokenId=${tokenId}&page=1&limit=1`,
             {
               headers: {
-                'x-client-id': CLIENT_ID,
+                'x-client-id': INSIGHT_CLIENT_ID,
                 'Content-Type': 'application/json',
               },
             }
