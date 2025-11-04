@@ -56,8 +56,7 @@ export async function POST(request: NextRequest) {
           const rpcResults = await fetchRPCOwnership(batch);
           Object.assign(results, rpcResults);
         }
-      } catch (error) {
-        console.error("Error fetching ownership for batch:", error);
+      } catch {
         // Fallback to RPC for this batch
         const rpcResults = await fetchRPCOwnership(batch);
         Object.assign(results, rpcResults);
@@ -65,8 +64,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ ownership: results });
-  } catch (error) {
-    console.error("Error in ownership API:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch ownership data" },
       { status: 500 }
@@ -76,39 +74,64 @@ export async function POST(request: NextRequest) {
 
 /**
  * Fetch ownership using Thirdweb Insight API (batch call)
+ * Uses the correct Insight endpoint: /v1/tokens/{CHAIN_ID}/{CONTRACT_ADDRESS}/owners?tokenId={TOKEN_ID}
  * Returns null if Insight API is unavailable
  */
 async function fetchInsightOwnership(
   tokenIds: number[]
 ): Promise<Record<number, { owner: string; isSold: boolean }> | null> {
   try {
-    // Use Thirdweb's Insight API endpoint
-    // Note: This endpoint may need adjustment based on actual Thirdweb Insight API documentation
-    const response = await fetch(
-      `https://api.thirdweb.com/v1/contracts/${CONTRACT_ADDRESS}/nfts?chain=${base.id}&tokenIds=${tokenIds.join(',')}`,
-      {
-        headers: {
-          'Authorization': `Bearer ${CLIENT_ID}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const data = await response.json();
     const results: Record<number, { owner: string; isSold: boolean }> = {};
+    const CHAIN_ID = base.id; // 8453 for Base
 
-    if (data.data && Array.isArray(data.data)) {
-      data.data.forEach((nft: any) => {
-        const tokenId = parseInt(nft.tokenId) || parseInt(nft.token_id);
-        const owner = (nft.owner || '').toLowerCase();
-        const isSold = owner !== '' && owner !== CREATOR_ADDRESS;
+    // Fetch ownership for each token ID using the correct Insight endpoint
+    // Process in smaller batches to avoid overwhelming the API
+    const BATCH_SIZE = 20; // Insight API limit per request
+    for (let i = 0; i < tokenIds.length; i += BATCH_SIZE) {
+      const batch = tokenIds.slice(i, i + BATCH_SIZE);
+      
+      // Fetch each token in the batch
+      const batchPromises = batch.map(async (tokenId) => {
+        try {
+          const response = await fetch(
+            `https://insight.thirdweb.com/v1/tokens/${CHAIN_ID}/${CONTRACT_ADDRESS}/owners?tokenId=${tokenId}&page=1&limit=1`,
+            {
+              headers: {
+                'x-client-id': CLIENT_ID,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
 
+          if (!response.ok) {
+            return { tokenId, owner: '', isSold: false };
+          }
+
+          const data = await response.json();
+          
+          // Extract owner from response
+          // Response format: { data: [{ owner: "0x...", ... }], ... }
+          let owner = '';
+          if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+            owner = (data.data[0].owner || '').toLowerCase();
+          }
+
+          const isSold = owner !== '' && owner !== CREATOR_ADDRESS;
+          return { tokenId, owner, isSold };
+        } catch {
+          return { tokenId, owner: '', isSold: false };
+        }
+      });
+
+      const batchResults = await Promise.all(batchPromises);
+      batchResults.forEach(({ tokenId, owner, isSold }) => {
         results[tokenId] = { owner, isSold };
       });
+
+      // Small delay between batches to respect rate limits
+      if (i + BATCH_SIZE < tokenIds.length) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
     }
 
     return results;

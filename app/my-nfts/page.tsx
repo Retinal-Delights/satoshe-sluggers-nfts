@@ -67,14 +67,22 @@ function MyNFTsContent() {
   }, [removeFromFavorites]);
 
   useEffect(() => {
+    let cancelled = false;
+    let purchaseHandler: ((e: Event) => void) | null = null;
+
     const loadUserData = async () => {
       if (!account?.address) {
-        setOwnedNFTs([]);
-        setIsLoading(false);
+        if (!cancelled) {
+          setOwnedNFTs([]);
+          setIsLoading(false);
+        }
         return;
       }
 
-      setIsLoading(true);
+      if (!cancelled) {
+        setIsLoading(true);
+      }
+
       try {
         const userAddress = account.address.toLowerCase();
         
@@ -89,39 +97,48 @@ function MyNFTsContent() {
         // Load NFT metadata for this collection only
         const allMetadata = await loadAllNFTs();
         
-        // Check ownership using batch API (Insight API via backend route)
-        // This reduces RPC calls from 7,777 individual calls to batch API calls
-        const tokenIdsToCheck = Array.from(
-          { length: Math.min(TOTAL_COLLECTION_SIZE, allMetadata.length) },
-          (_, idx) => idx
+        // Check if cancelled before continuing
+        if (cancelled) return;
+        
+        // Use Insight API to fetch NFTs owned by this user
+        // Correct endpoint: /v1/tokens/erc721/{ownerAddress}?chain=8453
+        const CLIENT_ID = process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID;
+        const CHAIN_ID = 8453; // Base
+        
+        const response = await fetch(
+          `https://insight.thirdweb.com/v1/tokens/erc721/${userAddress}?chain=${CHAIN_ID}`,
+          {
+            headers: {
+              'x-client-id': CLIENT_ID || '',
+              'Content-Type': 'application/json',
+            },
+          }
         );
 
-        // Use batch API to check ownership for all tokens at once
-        const response = await fetch('/api/nft/ownership', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tokenIds: tokenIdsToCheck }),
-        });
+        if (cancelled) return;
 
         const ownedNFTsList: NFT[] = [];
 
         if (response.ok) {
           const data = await response.json();
           
-          // Find NFTs owned by the user
-          if (data.ownership) {
-            Object.entries(data.ownership).forEach(([tokenIdStr, ownership]: [string, any]) => {
-              const tokenIdNum = parseInt(tokenIdStr);
-              if (!isNaN(tokenIdNum) && ownership && typeof ownership === 'object') {
-                const owner = ownership.owner?.toLowerCase() || '';
-                if (owner === userAddress) {
-                  const meta = allMetadata[tokenIdNum];
+          // Filter NFTs from this collection only
+          const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS?.toLowerCase();
+          
+          if (data.data && Array.isArray(data.data)) {
+            data.data.forEach((nft: any) => {
+              // Check if this NFT is from our collection
+              const nftContract = (nft.contract_address || nft.contractAddress || '').toLowerCase();
+              if (nftContract === CONTRACT_ADDRESS) {
+                const tokenId = parseInt(nft.tokenId || nft.token_id || '0');
+                if (!isNaN(tokenId) && tokenId < allMetadata.length) {
+                  const meta = allMetadata[tokenId];
                   const mediaUrl = meta?.merged_data?.media_url || meta?.image;
                   const imageUrl = convertIpfsUrl(mediaUrl);
                   ownedNFTsList.push({
-                    id: (tokenIdNum + 1).toString(),
-                    tokenId: tokenIdNum.toString(),
-                    name: meta?.name || `Satoshe Slugger #${tokenIdNum + 1}`,
+                    id: (tokenId + 1).toString(),
+                    tokenId: tokenId.toString(),
+                    name: meta?.name || `Satoshe Slugger #${tokenId + 1}`,
                     image: imageUrl || "/nfts/placeholder-nft.webp",
                     rarity: meta?.rarity_tier || "Unknown",
                   });
@@ -130,11 +147,15 @@ function MyNFTsContent() {
             });
           }
         } else {
-          // Fallback to individual RPC calls if API fails
-          console.warn('Ownership API failed, falling back to individual RPC calls');
+          // Fallback: Use RPC with rate limiting if Insight API fails
           const batchSize = 10;
-          for (let i = 0; i < Math.min(TOTAL_COLLECTION_SIZE, allMetadata.length); i += batchSize) {
-            const batch = Array.from({ length: Math.min(batchSize, TOTAL_COLLECTION_SIZE - i) }, (_, idx) => i + idx);
+          const tokenIdsToCheck = Array.from(
+            { length: Math.min(TOTAL_COLLECTION_SIZE, allMetadata.length) },
+            (_, idx) => idx
+          );
+          
+          for (let i = 0; i < tokenIdsToCheck.length && !cancelled; i += batchSize) {
+            const batch = tokenIdsToCheck.slice(i, i + batchSize);
             
             const calls = batch.map((tokenIdNum) => async () => {
               const tokenId = BigInt(tokenIdNum);
@@ -149,6 +170,9 @@ function MyNFTsContent() {
             });
 
             const results = await rpcRateLimiter.executeBatch(calls, 5);
+            
+            if (cancelled) break;
+            
             results.forEach((result) => {
               if (result && typeof result === 'object' && 'tokenId' in result && 'owner' in result) {
                 const { tokenId: tokenIdNum, owner } = result as { tokenId: number; owner: string };
@@ -167,48 +191,62 @@ function MyNFTsContent() {
               }
             });
 
-            if (i + batchSize < Math.min(TOTAL_COLLECTION_SIZE, allMetadata.length)) {
+            if (i + batchSize < Math.min(TOTAL_COLLECTION_SIZE, allMetadata.length) && !cancelled) {
               await new Promise(resolve => setTimeout(resolve, 50));
             }
           }
         }
 
-        setOwnedNFTs(ownedNFTsList);
+        if (!cancelled) {
+          setOwnedNFTs(ownedNFTsList);
 
-        // Also listen for newly purchased NFTs during this session
-        const handler = (e: Event) => {
-          const custom = e as CustomEvent<{ tokenId: number }>;
-          const t = custom.detail?.tokenId;
-          if (typeof t === 'number' && !Number.isNaN(t)) {
-            const idStr = (t + 1).toString();
-            setOwnedNFTs(prev => {
-              if (prev.some(n => n.id === idStr)) return prev;
-              const meta = allMetadata[t];
-              const mediaUrl = meta?.merged_data?.media_url || meta?.image;
-              const imageUrl = convertIpfsUrl(mediaUrl);
-              return [
-                {
-                  id: idStr,
-                  tokenId: t.toString(),
-                  name: meta?.name || `Satoshe Slugger #${t + 1}`,
-                  image: imageUrl || "/nfts/placeholder-nft.webp",
-                  rarity: meta?.rarity_tier || "Unknown",
-                },
-                ...prev,
-              ];
-            });
-          }
-        };
-        window.addEventListener('nftPurchased', handler as EventListener);
-        return () => window.removeEventListener('nftPurchased', handler as EventListener);
-      } catch (error) {
-        // Error loading owned NFTs - set empty array
-        setOwnedNFTs([]);
+          // Also listen for newly purchased NFTs during this session
+          purchaseHandler = (e: Event) => {
+            const custom = e as CustomEvent<{ tokenId: number }>;
+            const t = custom.detail?.tokenId;
+            if (typeof t === 'number' && !Number.isNaN(t) && !cancelled) {
+              const idStr = (t + 1).toString();
+              setOwnedNFTs(prev => {
+                if (prev.some(n => n.id === idStr)) return prev;
+                const meta = allMetadata[t];
+                const mediaUrl = meta?.merged_data?.media_url || meta?.image;
+                const imageUrl = convertIpfsUrl(mediaUrl);
+                return [
+                  {
+                    id: idStr,
+                    tokenId: t.toString(),
+                    name: meta?.name || `Satoshe Slugger #${t + 1}`,
+                    image: imageUrl || "/nfts/placeholder-nft.webp",
+                    rarity: meta?.rarity_tier || "Unknown",
+                  },
+                  ...prev,
+                ];
+              });
+            }
+          };
+          window.addEventListener('nftPurchased', purchaseHandler as EventListener);
+        }
+      } catch {
+        // Error loading owned NFTs - set empty array only if not cancelled
+        if (!cancelled) {
+          setOwnedNFTs([]);
+        }
       } finally {
-        setIsLoading(false);
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
     };
+
     loadUserData();
+
+    // Cleanup function
+    return () => {
+      cancelled = true;
+      if (purchaseHandler) {
+        window.removeEventListener('nftPurchased', purchaseHandler as EventListener);
+      }
+    };
   }, [account?.address])
 
   // Navigate to home when account disconnects
