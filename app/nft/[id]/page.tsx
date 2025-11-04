@@ -796,25 +796,27 @@ export default function NFTDetailPage() {
               </div>
             ) : isPurchased || isSoldOnChain ? (
               <div className="bg-neutral-800 p-4 rounded border border-green-500/30 order-3 lg:order-none">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-                  <div className="flex-1">
-                    <p className="text-sm md:text-base text-green-400 mb-1">Purchased for</p>
-                    <p className="text-2xl sm:text-3xl md:text-2xl font-bold text-green-400">
-                      {priceEth > 0 ? `${priceEth} ETH` : '—'}
-                    </p>
-                    {ownerAddress && (
-                      <p className="text-xs text-neutral-400 mt-2">
-                        Owner: <a href={`https://basescan.org/address/${ownerAddress}`} target="_blank" rel="noopener noreferrer" className="text-green-400 underline hover:text-green-300">{ownerAddress.slice(0,6)}...{ownerAddress.slice(-4)}</a>
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <p className="text-sm md:text-base text-green-400 mb-1">Purchased for</p>
+                      <p className="text-2xl sm:text-3xl md:text-2xl font-bold text-green-500">
+                        {priceEth > 0 ? `${priceEth} ETH` : '—'}
                       </p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3 w-full sm:w-auto">
+                    </div>
                     <button
                       disabled
-                      className="px-4 py-2 sm:px-6 sm:py-3 rounded-sm text-sm sm:text-base font-bold bg-green-500/10 border border-green-500/30 text-green-400 cursor-not-allowed opacity-75 w-full sm:w-auto"
+                      className="px-4 py-2 sm:px-6 sm:py-3 rounded-sm text-sm sm:text-base font-bold bg-green-500/10 border border-green-500/30 text-green-400 cursor-not-allowed opacity-75"
                     >
                       Sold
                     </button>
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-neutral-700">
+                    {ownerAddress && (
+                      <p className="text-xs sm:text-sm text-neutral-400">
+                        Owner: <a href={`https://basescan.org/address/${ownerAddress}`} target="_blank" rel="noopener noreferrer" className="text-green-400 underline hover:text-green-300">{ownerAddress.slice(0,6)}...{ownerAddress.slice(-4)}</a>
+                      </p>
+                    )}
                     <Link
                       href={`https://opensea.io/assets/base/${CONTRACT_ADDRESS}/${parseInt(tokenId) - 1}`}
                       target="_blank"

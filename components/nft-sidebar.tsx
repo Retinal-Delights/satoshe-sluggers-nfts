@@ -147,12 +147,38 @@ function FilterSection({
 
   // Sort options based on sortOrder when sortable is true
   const sortedOptions = useMemo(() => {
-    if (!sortable || sortOrder === "commonToRare") {
+    if (!sortable) {
+      return options
+    }
+    
+    // For rarity tiers, use the defined order
+    if (title === "Rarity Tiers") {
+      const optionsArray = Array.isArray(options) ? options : []
+      const sorted = [...optionsArray].sort((a, b) => {
+        const valueA = typeof a === 'string' ? a : a.value || a.display || ''
+        const valueB = typeof b === 'string' ? b : b.value || b.display || ''
+        // Normalize tier names (remove " (Ultra-Legendary)" suffix)
+        const normalizedA = valueA.replace(' (Ultra-Legendary)', '')
+        const normalizedB = valueB.replace(' (Ultra-Legendary)', '')
+        const orderA = RARITY_TIER_ORDER[normalizedA] ?? 999
+        const orderB = RARITY_TIER_ORDER[normalizedB] ?? 999
+        
+        if (sortOrder === "commonToRare") {
+          return orderA - orderB
+        } else {
+          return orderB - orderA
+        }
+      })
+      return sorted
+    }
+    
+    // For other sortable options, use default behavior
+    if (sortOrder === "commonToRare") {
       return options
     }
     // Reverse the array for "Rare to Common" order
     return [...options].reverse()
-  }, [options, sortOrder, sortable])
+  }, [options, sortOrder, sortable, title])
 
   return (
     <div className={`${isOpen ? 'pt-3 pb-3' : 'pt-1'}`}>
@@ -487,6 +513,22 @@ const FALLBACK_OPTIONS = {
   ]
 }
 
+// Rarity tier order (common to rare) - used for sorting
+const RARITY_TIER_ORDER: Record<string, number> = {
+  "Ground Ball": 1,
+  "Base Hit": 2,
+  "Double": 3,
+  "Stand-Up Double": 4,
+  "Line Drive": 5,
+  "Triple": 6,
+  "Pinch Hit Home Run": 7,
+  "Over-the-Fence Shot": 8,
+  "Home Run": 9,
+  "Walk-Off Home Run": 10,
+  "Grand Slam": 11,
+  "Grand Slam (Ultra-Legendary)": 11,
+};
+
 // Rarity tiers
 const RARITY_TIERS = [
   { value: "Ground Ball", display: "Ground Ball" },
@@ -496,8 +538,8 @@ const RARITY_TIERS = [
   { value: "Line Drive", display: "Line Drive" },
   { value: "Triple", display: "Triple" },
   { value: "Pinch Hit Home Run", display: "Pinch Hit Home Run" },
-  { value: "Home Run", display: "Home Run" },
   { value: "Over-the-Fence Shot", display: "Over-the-Fence Shot" },
+  { value: "Home Run", display: "Home Run" },
   { value: "Walk-Off Home Run", display: "Walk-Off Home Run" },
   { value: "Grand Slam (Ultra-Legendary)", display: "Grand Slam" },
 ]
@@ -730,7 +772,7 @@ export default function NFTSidebar({
         </div>
         
         <button
-          className="font-light flex items-center justify-center h-8 w-full mb-4 rounded border border-brand-pink text-brand-pink bg-transparent hover:bg-brand-pink hover:text-off-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-fluid-sm"
+          className="font-light flex items-center justify-center h-8 w-full mb-4 rounded border border-brand-pink text-brand-pink bg-transparent hover:bg-brand-pink hover:text-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-fluid-sm"
           aria-label="Search NFTs"
         >
           Search

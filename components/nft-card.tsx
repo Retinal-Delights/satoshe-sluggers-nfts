@@ -44,6 +44,7 @@ interface NFTCardProps {
   tokenId: string;
   cardNumber: number;
   isForSale: boolean;
+  soldPriceEth?: number;
   viewMode?: "grid-large" | "grid-medium" | "grid-small" | "compact";
 }
 
@@ -57,8 +58,11 @@ export default function NFTCard({
   tokenId,
   cardNumber,
   isForSale,
+  soldPriceEth,
   viewMode = "grid-medium",
 }: NFTCardProps) {
+  // Use soldPriceEth if available and not for sale, otherwise use priceEth
+  const displayPrice = (!isForSale && soldPriceEth) ? soldPriceEth : priceEth;
   const [imgLoaded, setImgLoaded] = useState(false);
   const [imgError, setImgError] = useState(false);
   const placeholder = "/nfts/placeholder-nft.webp";
@@ -193,26 +197,43 @@ export default function NFTCard({
           </div>
 
           {/* Buy/Sold Section - Price display with separate button */}
-          <div className="pt-1 flex items-center justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <div className={`text-fluid-xs font-medium ${isForSale ? 'text-blue-500' : 'text-green-500'}`}>
-                {isForSale ? 'Buy Now' : 'Sold'}
+          {isForSale ? (
+            <div className="pt-1 flex items-center justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="text-fluid-xs font-medium text-blue-500">
+                  Buy Now
+                </div>
+                <div className="text-fluid-sm font-semibold leading-tight text-blue-400">
+                  {displayPrice} ETH
+                </div>
               </div>
-              <div className={`text-fluid-sm font-semibold leading-tight ${isForSale ? 'text-blue-400' : 'text-green-400'}`}>
-                {priceEth} ETH
-              </div>
+              <Link
+                href={`/nft/${cardNumber}`}
+                className="px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.75rem,0.5vw,0.85rem)] bg-blue-500/10 border-[1.75px] border-blue-500/30 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500/50"
+              >
+                BUY
+              </Link>
             </div>
-            <Link
-              href={`/nft/${cardNumber}`}
-              className={`px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.75rem,0.5vw,0.85rem)] ${
-                isForSale
-                  ? 'bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500/50'
-                  : 'bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50'
-              }`}
-            >
-              {isForSale ? 'BUY' : 'Sold'}
-            </Link>
-          </div>
+          ) : (
+            <div className="pt-1 flex items-center justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="text-fluid-xs font-medium text-green-500">
+                  Sold
+                </div>
+                {soldPriceEth && soldPriceEth > 0 ? (
+                  <div className="text-fluid-sm font-semibold leading-tight text-green-400">
+                    {soldPriceEth} ETH
+                  </div>
+                ) : null}
+              </div>
+              <Link
+                href={`/nft/${cardNumber}`}
+                className="px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.75rem,0.5vw,0.85rem)] bg-green-500/10 border-[1.5px] border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50"
+              >
+                Sold
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -273,26 +294,43 @@ export default function NFTCard({
         </div>
 
         {/* Buy/Sold Section - Price display with separate button */}
-        <div className="mt-1 flex items-center justify-between gap-2">
-          <div className="flex-1 min-w-0">
-            <div className={`${smallText} font-medium ${isForSale ? 'text-blue-500' : 'text-green-500'}`}>
-              {isForSale ? 'Buy Now' : 'Sold'}
+        {isForSale ? (
+          <div className="mt-1 flex items-center justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <div className={`${smallText} font-medium text-blue-500`}>
+                Buy Now
+              </div>
+              <div className={`${smallText} font-semibold leading-tight text-blue-400`}>
+                {displayPrice} ETH
+              </div>
             </div>
-            <div className={`${smallText} font-semibold leading-tight ${isForSale ? 'text-blue-400' : 'text-green-400'}`}>
-              {priceEth} ETH
-            </div>
+            <Link
+              href={`/nft/${cardNumber}`}
+              className="px-2.5 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.75rem,0.5vw,0.85rem)] bg-blue-500/10 border-[1.75px] border-blue-500/30 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500/50"
+            >
+              BUY
+            </Link>
           </div>
-          <Link
-            href={`/nft/${cardNumber}`}
-            className={`px-2.5 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.75rem,0.5vw,0.85rem)] ${
-              isForSale
-                ? 'bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500/50'
-                : 'bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50'
-            }`}
-          >
-            {isForSale ? 'BUY' : 'Sold'}
-          </Link>
-        </div>
+        ) : (
+          <div className="mt-1 flex items-center justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <div className={`${smallText} font-medium text-green-500`}>
+                Sold
+              </div>
+              {soldPriceEth && soldPriceEth > 0 ? (
+                <div className={`${smallText} font-semibold leading-tight text-green-400`}>
+                  {soldPriceEth} ETH
+                </div>
+              ) : null}
+            </div>
+            <Link
+              href={`/nft/${cardNumber}`}
+              className="px-2.5 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.75rem,0.5vw,0.85rem)] bg-green-500/10 border-[1.5px] border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50"
+            >
+              Sold
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

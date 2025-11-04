@@ -124,7 +124,7 @@ export default function NFTPagination({
   const pageNumbers = getPageNumbers()
 
   return (
-    <div className="md:sticky md:bottom-0 w-full bg-neutral-900 py-3 px-4 rounded-t-lg border-t border-neutral-800 z-30">
+    <div className="sticky bottom-0 w-full bg-neutral-900 py-3 px-4 rounded-t-lg border-t border-neutral-800 z-30">
       <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
         <div className="flex items-center gap-1">
           <Button

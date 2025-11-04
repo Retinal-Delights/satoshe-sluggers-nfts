@@ -9,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea"
 import Footer from "@/components/footer"
 import Navigation from "@/components/navigation"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -116,7 +115,7 @@ export default function ContactPage() {
               </p>
               <Button
                 asChild
-                className="px-6 py-2 border border-brand-pink bg-transparent text-brand-pink font-normal rounded-sm hover:bg-brand-pink/90 hover:text-white transition-all duration-200"
+                className="px-6 py-2 border border-brand-pink bg-transparent text-brand-pink font-normal rounded-sm hover:bg-brand-pink hover:text-white transition-all duration-200"
               >
                 <Link href="/">Return Home</Link>
               </Button>
@@ -228,11 +227,15 @@ export default function ContactPage() {
               </div>
 
               <div className="flex items-center gap-2 pt-2 sm:pt-3 md:pt-4">
-                <Checkbox
+                <input
+                  type="checkbox"
                   id="terms"
                   checked={consentChecked}
-                  onCheckedChange={(checked) => setConsentChecked(checked === true)}
-                  className="h-4 w-4 sm:h-5 sm:w-5 shrink-0"
+                  onChange={(e) => setConsentChecked(e.target.checked)}
+                  className="sidebar-checkbox shrink-0"
+                  style={{
+                    '--checkbox-color': '#ff0099'
+                  } as React.CSSProperties}
                   aria-describedby="terms-desc"
                   required
                   aria-required="true"
@@ -256,8 +259,7 @@ export default function ContactPage() {
                     className="underline hover:opacity-80 focus:outline-2 text-brand-pink"
                     aria-label="Terms of Service (opens in a new window)"
                   >
-                    Terms</a><span className="text-brand-pink" aria-hidden="true">.*</span>
-                  <span className="sr-only">(required)</span>
+                    Terms</a><span className="text-off-white no-underline">.</span><span className="text-brand-pink no-underline">*</span><span className="sr-only">(required)</span>
                 </Label>
               </div>
 
@@ -269,7 +271,7 @@ export default function ContactPage() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-1.5 sm:px-5 sm:py-2 md:px-6 md:py-2 text-sm sm:text-base border border-brand-pink bg-transparent text-brand-pink font-normal rounded-sm hover:bg-brand-pink/90 hover:text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-1.5 sm:px-5 sm:py-2 md:px-6 md:py-2 text-sm sm:text-base border border-brand-pink bg-transparent text-brand-pink font-normal rounded-sm hover:bg-brand-pink hover:text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-live="polite"
                 >
                   {isSubmitting ? (

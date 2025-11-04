@@ -6,6 +6,22 @@ import { TOTAL_COLLECTION_SIZE } from "@/lib/contracts";
 import { base } from "thirdweb/chains";
 import { getContract, readContract } from "thirdweb";
 import { client } from "@/lib/thirdweb";
+
+// Rarity tier order (common to rare)
+const RARITY_TIER_ORDER: Record<string, number> = {
+  "Ground Ball": 1,
+  "Base Hit": 2,
+  "Double": 3,
+  "Stand-Up Double": 4,
+  "Line Drive": 5,
+  "Triple": 6,
+  "Pinch Hit Home Run": 7,
+  "Over-the-Fence Shot": 8,
+  "Home Run": 9,
+  "Walk-Off Home Run": 10,
+  "Grand Slam": 11,
+  "Grand Slam (Ultra-Legendary)": 11,
+};
 import {
   Select,
   SelectContent,
@@ -282,8 +298,8 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
         // Force immediate on-chain verification for this specific token with rate limiting
         const verifyPurchasedToken = async () => {
           try {
-            const creator = process.env.NEXT_PUBLIC_CREATOR_ADDRESS?.toLowerCase();
-            if (!creator) return;
+            const marketplace = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
+            if (!marketplace) return;
 
             const contract = getContract({ client, chain: base, address: process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS! });
             const tokenIdBigInt = BigInt(tokenIdNum);
@@ -297,12 +313,20 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
               }) as string;
             });
             
-            const isSold = (owner as string).toLowerCase() !== creator;
+            const isSold = (owner as string).toLowerCase() !== marketplace;
             if (isSold) {
-              // Double-check and update if needed
+              // Double-check and update if needed, preserving sold price
               setNfts(prev => prev.map(item => {
                 if (parseInt(item.tokenId) === tokenIdNum && item.isForSale) {
-                  return { ...item, isForSale: false, priceWei: '0', priceEth: 0 };
+                  const soldPriceEth = item.priceEth > 0 ? item.priceEth : (item.soldPriceEth || 0);
+                  const soldPriceWei = soldPriceEth > 0 ? (soldPriceEth * 1e18).toString() : '0';
+                  return { 
+                    ...item, 
+                    isForSale: false, 
+                    priceWei: soldPriceWei,
+                    priceEth: 0,
+                    soldPriceEth: soldPriceEth
+                  };
                 }
                 return item;
               }));
@@ -335,16 +359,27 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
   const handleColumnSort = useCallback((field: string) => {
     if (columnSort?.field === field) {
       // Toggle direction if same field
+      const newDirection = columnSort.direction === 'asc' ? 'desc' : 'asc';
       setColumnSort({
         field,
-        direction: columnSort.direction === 'asc' ? 'desc' : 'asc'
+        direction: newDirection
       });
+      // Sync dropdown sort when column sorting favorites
+      if (field === 'favorite') {
+        setSortBy('favorite');
+      } else {
+        setSortBy("default");
+      }
     } else {
       // New field, start with ascending
       setColumnSort({ field, direction: 'asc' });
+      // Sync dropdown sort when column sorting favorites
+      if (field === 'favorite') {
+        setSortBy('favorite');
+      } else {
+        setSortBy("default");
+      }
     }
-    // Reset dropdown sort when using column sort
-    setSortBy("default");
   }, [columnSort]);
 
   /**
@@ -495,9 +530,27 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
           case 'rarity':
             return multiplier * (Number(a.rarityPercent) - Number(b.rarityPercent));
           case 'tier':
-            return multiplier * (a.rarity.localeCompare(b.rarity));
+            // Normalize tier name (remove " (Ultra-Legendary)" suffix for comparison)
+            const tierA = (a.rarity || String(a.tier || '')).replace(' (Ultra-Legendary)', '');
+            const tierB = (b.rarity || String(b.tier || '')).replace(' (Ultra-Legendary)', '');
+            const orderA = RARITY_TIER_ORDER[tierA] ?? 999;
+            const orderB = RARITY_TIER_ORDER[tierB] ?? 999;
+            return multiplier * (orderA - orderB);
           case 'price':
-            return multiplier * (Number(a.priceWei) - Number(b.priceWei));
+            // For price sorting, prioritize NFTs with actual prices (for sale or sold)
+            // Sold NFTs use soldPriceEth, unlisted NFTs sort to the end
+            const priceA = a.isForSale && a.priceEth > 0 
+              ? Number(a.priceWei) 
+              : (a.soldPriceEth ? (a.soldPriceEth * 1e18) : Number.MAX_SAFE_INTEGER);
+            const priceB = b.isForSale && b.priceEth > 0 
+              ? Number(b.priceWei) 
+              : (b.soldPriceEth ? (b.soldPriceEth * 1e18) : Number.MAX_SAFE_INTEGER);
+            return multiplier * (priceA - priceB);
+          case 'favorite':
+            // Sort by favorites: favorited first (asc) or last (desc)
+            const aFavorited = isFavorited(a.tokenId) ? 1 : 0;
+            const bFavorited = isFavorited(b.tokenId) ? 1 : 0;
+            return multiplier * (bFavorited - aFavorited); // Invert so favorited comes first in asc
           default:
             return 0;
         }
@@ -505,13 +558,12 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
       
       // Fallback to dropdown sort
       switch (sortBy) {
-        // Rank: "High to Low" should show best rank first (rank #1 is highest)
         case "rank-asc":
-          // Low to High (worst to best)
-          return Number(b.rank) - Number(a.rank);
-        case "rank-desc":
-          // High to Low (best to worst)
+          // Low to High (rank #1 is best, so lower rank number = higher rank)
           return Number(a.rank) - Number(b.rank);
+        case "rank-desc":
+          // High to Low
+          return Number(b.rank) - Number(a.rank);
         // Rarity percent: lower % is rarer (higher value)
         case "rarity-asc":
           // Low to High (rarest to most common) -> show common later
@@ -520,14 +572,35 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
           // High to Low (rarest first)
           return Number(a.rarityPercent) - Number(b.rarityPercent);
         case "price-asc":
-          return Number(a.priceWei) - Number(b.priceWei);
+          // For price sorting, prioritize NFTs with actual prices (for sale or sold)
+          // Sold NFTs use soldPriceEth, unlisted NFTs sort to the end
+          const priceAscA = a.isForSale && a.priceEth > 0 
+            ? Number(a.priceWei) 
+            : (a.soldPriceEth ? (a.soldPriceEth * 1e18) : Number.MAX_SAFE_INTEGER);
+          const priceAscB = b.isForSale && b.priceEth > 0 
+            ? Number(b.priceWei) 
+            : (b.soldPriceEth ? (b.soldPriceEth * 1e18) : Number.MAX_SAFE_INTEGER);
+          return priceAscA - priceAscB;
         case "price-desc":
-          return Number(b.priceWei) - Number(a.priceWei);
+          // For high to low, prioritize NFTs with actual prices (for sale or sold)
+          // Sold NFTs use soldPriceEth, unlisted NFTs sort to the beginning
+          const priceDescA = a.isForSale && a.priceEth > 0 
+            ? Number(a.priceWei) 
+            : (a.soldPriceEth ? (a.soldPriceEth * 1e18) : 0);
+          const priceDescB = b.isForSale && b.priceEth > 0 
+            ? Number(b.priceWei) 
+            : (b.soldPriceEth ? (b.soldPriceEth * 1e18) : 0);
+          return priceDescB - priceDescA;
+        case "favorite":
+          // Favorites first
+          const favA = isFavorited(a.tokenId) ? 1 : 0;
+          const favB = isFavorited(b.tokenId) ? 1 : 0;
+          return favB - favA;
         default:
           return 0;
       }
     });
-  }, [filteredNFTs, sortBy, columnSort]);
+  }, [filteredNFTs, sortBy, columnSort, isFavorited]);
 
 
   // Pagination
@@ -726,8 +799,8 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
       verificationInProgressRef.current = true;
 
       try {
-        const creator = process.env.NEXT_PUBLIC_CREATOR_ADDRESS?.toLowerCase();
-        if (!creator) {
+        const marketplace = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
+        if (!marketplace) {
           verificationInProgressRef.current = false;
           return;
         }
@@ -757,7 +830,21 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
             }
 
             if (soldSet.size > 0) {
-              setNfts(prev => prev.map(item => soldSet.has(parseInt(item.tokenId)) ? { ...item, isForSale: false, priceWei: '0', priceEth: 0 } : item));
+              setNfts(prev => prev.map(item => {
+                if (soldSet.has(parseInt(item.tokenId))) {
+                  // Preserve original price as soldPriceEth when marking as sold
+                  const soldPriceEth = item.priceEth > 0 ? item.priceEth : (item.soldPriceEth || 0);
+                  const soldPriceWei = soldPriceEth > 0 ? (soldPriceEth * 1e18).toString() : '0';
+                  return { 
+                    ...item, 
+                    isForSale: false, 
+                    priceWei: soldPriceWei,
+                    priceEth: 0, // Clear current listing price
+                    soldPriceEth: soldPriceEth // Preserve as sold price
+                  };
+                }
+                return item;
+              }));
             }
             return; // Success, exit early
           }
@@ -781,14 +868,28 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
         results.forEach((owner, idx) => {
           if (owner && typeof owner === 'string') {
             const item = pageItems[idx];
-            if (owner.toLowerCase() !== creator) {
+            if (owner.toLowerCase() !== marketplace) {
               soldSet.add(parseInt(item.tokenId));
             }
           }
         });
 
         if (soldSet.size > 0) {
-          setNfts(prev => prev.map(item => soldSet.has(parseInt(item.tokenId)) ? { ...item, isForSale: false, priceWei: '0', priceEth: 0 } : item));
+          setNfts(prev => prev.map(item => {
+            if (soldSet.has(parseInt(item.tokenId))) {
+              // Preserve original price as soldPriceEth when marking as sold
+              const soldPriceEth = item.priceEth > 0 ? item.priceEth : (item.soldPriceEth || 0);
+              const soldPriceWei = soldPriceEth > 0 ? (soldPriceEth * 1e18).toString() : '0';
+              return { 
+                ...item, 
+                isForSale: false, 
+                priceWei: soldPriceWei,
+                priceEth: 0, // Clear current listing price
+                soldPriceEth: soldPriceEth // Preserve as sold price
+              };
+            }
+            return item;
+          }));
         }
       } catch {
         // ignore errors - ownership verification is non-critical
@@ -1041,7 +1142,12 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                 <span className="text-neutral-500 whitespace-nowrap flex-shrink-0 text-fluid-md">Sort by: </span>
                 <Select value={sortBy} onValueChange={(value) => {
                   setSortBy(value);
-                  setColumnSort(null); // Clear column sort when using dropdown
+                  // Sync column sort when using dropdown for favorites
+                  if (value === 'favorite') {
+                    setColumnSort({ field: 'favorite', direction: 'asc' });
+                  } else {
+                    setColumnSort(null); // Clear column sort when using dropdown for other sorts
+                  }
                 }}>
                   <SelectTrigger className="w-[200px] md:w-[240px] bg-neutral-900 border-neutral-700 rounded-sm text-off-white font-normal min-w-0 text-sm whitespace-nowrap">
                     <SelectValue placeholder="Default" />
@@ -1054,6 +1160,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                     <SelectItem value="rarity-desc" className="text-sm whitespace-nowrap">Rarity: High to Low</SelectItem>
                     <SelectItem value="price-asc" className="text-sm whitespace-nowrap">Price: Low to High</SelectItem>
                     <SelectItem value="price-desc" className="text-sm whitespace-nowrap">Price: High to Low</SelectItem>
+                    <SelectItem value="favorite" className="text-sm whitespace-nowrap">Favorites</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1061,7 +1168,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
               <div className="flex items-center gap-2 min-w-0">
                 <span className="text-neutral-500 whitespace-nowrap flex-shrink-0 text-fluid-md">Show: </span>
                 <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
-                  <SelectTrigger className="w-[120px] bg-neutral-900 border-neutral-700 rounded-sm text-off-white font-normal min-w-0 text-sm whitespace-nowrap">
+                  <SelectTrigger className="w-[154px] bg-neutral-900 border-neutral-700 rounded-sm text-off-white font-normal min-w-0 text-sm whitespace-nowrap">
                     <SelectValue placeholder="15 items" />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-sm">
@@ -1118,6 +1225,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                       tokenId={nft.tokenId}
                       cardNumber={nft.cardNumber}
                       isForSale={nft.isForSale}
+                      soldPriceEth={nft.soldPriceEth}
                       viewMode={viewMode}
                     />
                   </div>
@@ -1134,9 +1242,8 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                 <table className="w-full table-fixed">
                 <thead className="bg-neutral-800/50 border-b border-neutral-700">
                   <tr>
-                    <th className="text-center px-1 sm:px-2 py-3 text-xs sm:text-sm font-medium text-off-white w-[5%] sm:w-[4%]">Favorite</th>
                     <th 
-                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors w-[23%] sm:w-[21%]"
+                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors w-[15%]"
                       onClick={() => handleColumnSort('nft')}
                     >
                       <div className="flex items-center gap-1">
@@ -1149,11 +1256,11 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                       </div>
                     </th>
                     <th 
-                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors w-[10%] sm:w-[10%]"
+                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors w-[10%]"
                       onClick={() => handleColumnSort('rank')}
                     >
                       <div className="flex items-center gap-1">
-                        Rank out of {TOTAL_COLLECTION_SIZE}
+                        Rank
                         {columnSort?.field === 'rank' && (
                           <span className="text-brand-pink font-semibold">
                             {columnSort.direction === 'asc' ? '↑' : '↓'}
@@ -1162,7 +1269,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                       </div>
                     </th>
                     <th 
-                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors w-[14%] sm:w-[10%]"
+                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors w-[10%]"
                       onClick={() => handleColumnSort('rarity')}
                     >
                       <div className="flex items-center gap-1">
@@ -1175,11 +1282,11 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                       </div>
                     </th>
                     <th 
-                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors w-[16%] sm:w-[18%]"
+                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors w-[18%]"
                       onClick={() => handleColumnSort('tier')}
                     >
                       <div className="flex items-center gap-1">
-                        Tier
+                        Rarity Tier
                         {columnSort?.field === 'tier' && (
                           <span className="text-brand-pink font-semibold">
                             {columnSort.direction === 'asc' ? '↑' : '↓'}
@@ -1188,10 +1295,10 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                       </div>
                     </th>
                     <th 
-                      className="text-right px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors w-[12%] sm:w-[14%]"
+                      className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors w-[12%]"
                       onClick={() => handleColumnSort('price')}
                     >
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex items-center gap-1">
                         Price
                         {columnSort?.field === 'price' && (
                           <span className="text-brand-pink font-semibold">
@@ -1200,7 +1307,20 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                         )}
                       </div>
                     </th>
-                    <th className="text-right px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white w-[18%] sm:w-[20%]">Actions</th>
+                    <th 
+                      className="text-center px-1 sm:px-2 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors w-[8%]"
+                      onClick={() => handleColumnSort('favorite')}
+                    >
+                      <div className="flex items-center justify-center gap-1">
+                        Favorite
+                        {columnSort?.field === 'favorite' && (
+                          <span className="text-brand-pink font-semibold">
+                            {columnSort.direction === 'asc' ? '↑' : '↓'}
+                          </span>
+                        )}
+                      </div>
+                    </th>
+                    <th className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white w-[15%]">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1213,6 +1333,35 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                         index % 2 === 0 ? 'bg-neutral-900/20' : ''
                       } ${focusedIndex === index ? 'ring-2 ring-brand-pink ring-inset' : ''}`}
                     >
+                      <td className="px-2 sm:px-3 py-3">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Link href={`/nft/${nft.cardNumber}${typeof window !== 'undefined' && window.location.search ? `?returnTo=${encodeURIComponent(`/nfts${window.location.search}`)}` : ''}`} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity min-w-0 flex-1">
+                            <Image src={nft.image} alt={`${nft.name} - NFT #${nft.cardNumber}, Rank ${nft.rank}, ${nft.rarity} rarity, Tier ${nft.tier}`} width={32} height={32} className="rounded object-contain flex-shrink-0" />
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs font-normal text-off-white leading-tight line-clamp-2">NFT #{nft.cardNumber}</p>
+                              <p className="text-xs text-neutral-500 leading-tight line-clamp-1">Token ID: {nft.tokenId}</p>
+                            </div>
+                          </Link>
+                        </div>
+                      </td>
+                      <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left">{nft.rank} / {TOTAL_COLLECTION_SIZE}</td>
+                      <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left">{nft.rarityPercent}%</td>
+                      <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left">{nft.rarity || (typeof nft.tier === 'string' ? nft.tier.replace(" (Ultra-Legendary)", "") : nft.tier || '—')}</td>
+                      <td className="px-2 sm:px-3 py-3 text-xs font-normal text-left">
+                        {nft.isForSale && nft.priceEth > 0 ? (
+                          <div className="leading-tight text-blue-500">
+                            <span className="whitespace-nowrap">{nft.priceEth}</span>
+                            <span className="block sm:inline sm:ml-1">ETH</span>
+                          </div>
+                        ) : nft.soldPriceEth ? (
+                          <div className="leading-tight text-green-500">
+                            <span className="whitespace-nowrap">{nft.soldPriceEth}</span>
+                            <span className="block sm:inline sm:ml-1">ETH</span>
+                          </div>
+                        ) : (
+                          <span className="text-neutral-500">—</span>
+                        )}
+                      </td>
                       <td className="px-1 sm:px-2 py-3 text-center">
                         <button
                           onClick={(e) => {
@@ -1233,53 +1382,29 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                         </button>
                       </td>
                       <td className="px-2 sm:px-3 py-3">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <Link href={`/nft/${nft.cardNumber}${typeof window !== 'undefined' && window.location.search ? `?returnTo=${encodeURIComponent(`/nfts${window.location.search}`)}` : ''}`} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity min-w-0 flex-1">
-                            <Image src={nft.image} alt={`${nft.name} - NFT #${nft.cardNumber}, Rank ${nft.rank}, ${nft.rarity} rarity, Tier ${nft.tier}`} width={32} height={32} className="rounded object-contain flex-shrink-0" />
-                            <div className="min-w-0 flex-1">
-                              <p className="text-xs font-normal text-off-white leading-tight line-clamp-2">NFT #{nft.cardNumber}</p>
-                              <p className="text-xs text-neutral-500 leading-tight line-clamp-1">Token ID: {nft.tokenId}</p>
-                            </div>
-                          </Link>
-                        </div>
-                      </td>
-                      <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left">{nft.rank} / {TOTAL_COLLECTION_SIZE}</td>
-                      <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left">{nft.rarityPercent}%</td>
-                      <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left">{nft.rarity || (typeof nft.tier === 'string' ? nft.tier.replace(" (Ultra-Legendary)", "") : nft.tier || '—')}</td>
-                      <td className="px-2 sm:px-3 py-3 text-xs font-normal text-right">
-                        {nft.isForSale && nft.priceEth > 0 ? (
-                          <div className="leading-tight text-blue-500">
-                            <span className="whitespace-nowrap">{nft.priceEth}</span>
-                            <span className="block sm:inline sm:ml-1">ETH</span>
-                          </div>
-                        ) : nft.soldPriceEth ? (
-                          <div className="leading-tight text-green-500">
-                            <span className="whitespace-nowrap">{nft.soldPriceEth}</span>
-                            <span className="block sm:inline sm:ml-1">ETH</span>
-                          </div>
-                        ) : (
-                          <span className="text-neutral-500">—</span>
-                        )}
-                      </td>
-                      <td className="px-2 sm:px-3 py-3 text-right">
-                        <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1 justify-end flex-wrap">
-                            <Link
-                              href={`/nft/${nft.cardNumber}${typeof window !== 'undefined' && window.location.search ? `?returnTo=${encodeURIComponent(`/nfts${window.location.search}`)}` : ''}`}
-                              className="px-2 py-0.5 bg-yellow-500/10 border border-yellow-500/30 rounded-sm text-yellow-400 text-xs font-normal hover:bg-yellow-500/20 hover:border-yellow-500/50 transition-colors whitespace-nowrap"
-                            >
-                              View
-                            </Link>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 flex-wrap">
                             {nft.isForSale ? (
+                              <>
+                                <Link
+                                  href={`/nft/${nft.cardNumber}${typeof window !== 'undefined' && window.location.search ? `?returnTo=${encodeURIComponent(`/nfts${window.location.search}`)}` : ''}`}
+                                  className="px-2 py-0.5 bg-yellow-500/10 border border-yellow-500/30 rounded-sm text-yellow-400 text-xs font-normal hover:bg-yellow-500/20 hover:border-yellow-500/50 transition-colors whitespace-nowrap"
+                                >
+                                  View
+                                </Link>
+                                <Link
+                                  href={`/nft/${nft.cardNumber}${typeof window !== 'undefined' && window.location.search ? `?returnTo=${encodeURIComponent(`/nfts${window.location.search}`)}` : ''}`}
+                                  className="px-2 py-0.5 bg-blue-500/10 border border-blue-500/30 rounded-sm text-blue-400 text-xs font-normal hover:bg-blue-500/20 hover:border-blue-500/50 transition-colors whitespace-nowrap"
+                                >
+                                  Buy
+                                </Link>
+                              </>
+                            ) : (
                               <Link
                                 href={`/nft/${nft.cardNumber}${typeof window !== 'undefined' && window.location.search ? `?returnTo=${encodeURIComponent(`/nfts${window.location.search}`)}` : ''}`}
-                                className="px-2 py-0.5 bg-blue-500/10 border border-blue-500/30 rounded-sm text-blue-400 text-xs font-normal hover:bg-blue-500/20 hover:border-blue-500/50 transition-colors whitespace-nowrap"
+                                className="px-2 py-0.5 bg-green-500/10 border border-green-500/30 rounded-sm text-green-400 text-xs font-normal hover:bg-green-500/20 hover:border-green-500/50 transition-colors whitespace-nowrap"
                               >
-                                Buy
-                              </Link>
-                            ) : (
-                              <span className="px-2 py-0.5 bg-green-500/10 border border-green-500/30 rounded-sm text-green-400 text-xs font-normal whitespace-nowrap">
                                 Sold
-                              </span>
+                              </Link>
                             )}
                         </div>
                       </td>
