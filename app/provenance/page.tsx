@@ -2,7 +2,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { COLLECTION_NAME, CONTRACT_ADDRESS, FINAL_PROOF_HASH, MERKLE_ROOT } from "@/lib/constants"
+import { COLLECTION_NAME, getContractAddress, FINAL_PROOF_HASH, MERKLE_ROOT } from "@/lib/constants"
 import { Copy, Check, ExternalLink } from "lucide-react"
 import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
@@ -275,14 +275,14 @@ export default function ProvenancePage() {
                     {COLLECTION_NAME} Contract Address
                   </div>
                   <button
-                    onClick={() => copyToClipboard(CONTRACT_ADDRESS, 'contract')}
+                    onClick={() => copyToClipboard(getContractAddress(), 'contract')}
                     className="p-2 text-muted-foreground hover:text-off-white hover:bg-accent transition-colors rounded"
                     title="Copy to clipboard"
                   >
                     {copiedHash === 'contract' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </button>
                 </div>
-                <div className="text-sm font-inconsolata break-all" style={{ fontWeight: '300' }}>{CONTRACT_ADDRESS}</div>
+                <div className="text-sm font-inconsolata break-all" style={{ fontWeight: '300' }}>{getContractAddress()}</div>
               </div>
 
               <div className="bg-card border border-neutral-700 p-4 rounded">

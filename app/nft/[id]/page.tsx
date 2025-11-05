@@ -19,7 +19,7 @@ import { TOTAL_COLLECTION_SIZE } from "@/lib/contracts";
 import confetti from 'canvas-confetti';
 import { Separator } from "@/components/ui/separator";
 import { convertIpfsUrl } from "@/lib/utils";
-import { CONTRACT_ADDRESS } from "@/lib/constants";
+import { getContractAddress } from "@/lib/constants";
 import { rpcRateLimiter } from "@/lib/rpc-rate-limiter";
 
 // Type definitions
@@ -67,7 +67,12 @@ function getColorForAttribute(attributeName: string) {
 
 export default function NFTDetailPage() {
   const params = useParams<{ id: string }>();
+  
+  // TOKEN ID HANDLING:
+  // Route param (from URL) is 1-based (display/NFT #), but all on-chain and array lookups are 0-based.
+  // Always treat tokenId from the route as 1-based (display number)
   const tokenId = params.id;
+  
   const [metadata, setMetadata] = useState<NFTData | null>(null);
   const [imageUrl, setImageUrl] = useState<string>("/nfts/placeholder-nft.webp");
   const [isLoading, setIsLoading] = useState(true);
@@ -79,8 +84,10 @@ export default function NFTDetailPage() {
   const [pricingData, setPricingData] = useState<{ price_eth: number; listing_id?: number } | null>(null);
   const [ownerAddress, setOwnerAddress] = useState<string | null>(null);
   const [ownerCheckComplete, setOwnerCheckComplete] = useState(false);
+  const [confettiTriggered, setConfettiTriggered] = useState(false); // Prevent confetti from running twice
 
-  // Reset all state when tokenId changes (when navigating between NFTs)
+  // Always reset all significant state when the token changes (prevents UI bleed when flipping NFTs)
+  // This ensures a clean state for each NFT viewed and prevents stale data from previous NFT
   useEffect(() => {
     setIsPurchased(false);
     setShowSuccess(false);
@@ -89,11 +96,13 @@ export default function NFTDetailPage() {
     setOwnerAddress(null);
     setOwnerCheckComplete(false);
     setPricingData(null);
+    setConfettiTriggered(false); // Reset confetti trigger when navigating between NFTs
   }, [tokenId]);
   
   const { isFavorited, toggleFavorite, isConnected } = useFavorites();
 
-  // Display-friendly NFT number: prefer metadata token_id (0-based), fallback to route param (0-based)
+  // The display number is always 1-based for user context
+  // Convert: route param (1-based) -> metadata token_id (0-based) -> display number (1-based)
   const displayNftNumber = (metadata?.token_id ?? parseInt(tokenId)) + 1;
 
   // Calculate navigation tokens (previous and next)
@@ -110,56 +119,59 @@ export default function NFTDetailPage() {
     });
   }, [tokenId]);
 
-  // Load NFT metadata
+  // LOAD METADATA
+  // Fetch NFT metadata from data service with proper error handling and timeout
   useEffect(() => {
     setIsLoading(true);
-
-    // Set a timeout to prevent infinite loading
+    
+    // Set a timeout to prevent infinite loading state
     const timeoutId = setTimeout(() => {
       setIsLoading(false);
-    }, 10000); // 10 second timeout
+    }, 10000);
 
+    // Convert route param (1-based display number) to 0-based token ID for array/on-chain lookups
     const tokenIdNum = parseInt(tokenId);
+    const actualTokenId = tokenIdNum - 1; // Convert display number to token ID
     
-    // Load NFT data using data service
-    // Note: token IDs in metadata start from 0, but URLs use human-friendly numbers (1-based)
-    const actualTokenId = tokenIdNum - 1;
-      getNFTByTokenId(actualTokenId)
-            .then((nftData: NFTData | null) => {
-            
-            if (nftData) {
-              setMetadata(nftData);
-              
-              // Set image URL from metadata - try multiple sources
-              const mediaUrl = nftData.merged_data?.media_url || nftData.image || null;
-              if (mediaUrl) {
-                setImageUrl(convertIpfsUrl(mediaUrl));
-              } else {
-                setImageUrl("/nfts/placeholder-nft.webp");
-              }
-            } else {
-              setMetadata(null);
-              setImageUrl("/nfts/placeholder-nft.webp");
-            }
-            clearTimeout(timeoutId);
-            setIsLoading(false);
-          })
-          .catch(() => {
-            setMetadata(null);
-            setImageUrl("/nfts/placeholder-nft.webp");
-            clearTimeout(timeoutId);
-            setIsLoading(false);
-          });
+    getNFTByTokenId(actualTokenId)
+      .then((nftData: NFTData | null) => {
+        if (nftData) {
+          setMetadata(nftData);
+          
+          // Set image URL from metadata - try multiple sources with fallback
+          const mediaUrl = nftData.merged_data?.media_url || nftData.image || null;
+          setImageUrl(
+            mediaUrl ? convertIpfsUrl(mediaUrl) : "/nfts/placeholder-nft.webp"
+          );
+        } else {
+          // NFT not found in metadata - set fallback state
+          setMetadata(null);
+          setImageUrl("/nfts/placeholder-nft.webp");
+        }
+        
+        clearTimeout(timeoutId);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        // Error loading metadata - log and set fallback state
+        console.error(`Error loading NFT metadata for token ${tokenId}:`, error);
+        setMetadata(null);
+        setImageUrl("/nfts/placeholder-nft.webp");
+        clearTimeout(timeoutId);
+        setIsLoading(false);
+      });
 
-    // Cleanup timeout on unmount
+    // Cleanup timeout on unmount or tokenId change
     return () => clearTimeout(timeoutId);
   }, [tokenId]);
 
 
-  // Load pricing data
+  // LOAD PRICING DATA
+  // Fetch pricing information from static JSON files with proper error handling
   useEffect(() => {
     const loadPricingData = async () => {
       try {
+        // Convert route param (1-based) to 0-based token ID for pricing lookup
         const tokenIdNum = parseInt(tokenId) - 1;
         
         // Load token pricing mappings first (has updated listing IDs from CSV)
@@ -176,7 +188,7 @@ export default function NFTDetailPage() {
               price_eth: pricing.price_eth,
               listing_id: listingId
             });
-            return;
+            return; // Success, exit early
           }
         }
         
@@ -193,14 +205,17 @@ export default function NFTDetailPage() {
           }
         }
       } catch (error) {
-        // Error loading pricing data - continue without pricing
+        // Error loading pricing data - log and continue without pricing
+        console.error(`Error loading pricing data for token ${tokenId}:`, error);
+        // Continue without pricing - NFT will show as "not for sale"
       }
     };
     
     loadPricingData();
   }, [tokenId]);
 
-  // Load current owner from chain (ERC-721 ownerOf) with rate limiting
+  // LOAD OWNER ADDRESS
+  // Fetch current owner from chain (ERC-721 ownerOf) with rate limiting
   // Also re-check periodically to catch any ownership changes
   useEffect(() => {
     // Reset state immediately when tokenId changes
@@ -209,8 +224,10 @@ export default function NFTDetailPage() {
     
     const fetchOwner = async () => {
       try {
-        const contract = getContract({ client, chain: base, address: CONTRACT_ADDRESS });
+        const contract = getContract({ client, chain: base, address: getContractAddress() });
+        // Convert route param (1-based) to 0-based token ID for on-chain lookup
         const actualTokenId = BigInt(parseInt(tokenId) - 1);
+        
         const result = await rpcRateLimiter.execute(async () => {
           return await readContract({
             contract,
@@ -218,6 +235,8 @@ export default function NFTDetailPage() {
             params: [actualTokenId],
           });
         });
+        
+        // Normalize owner address to lowercase for consistent comparison
         if (typeof result === "string") {
           setOwnerAddress(result.toLowerCase());
         } else if (result && typeof result === "object" && "_value" in result) {
@@ -226,13 +245,16 @@ export default function NFTDetailPage() {
           setOwnerAddress(null);
         }
       } catch (error) {
+        // Error fetching owner - log and set null (will show as "not for sale" by default)
         console.error(`Error fetching owner for token ${tokenId}:`, error);
         setOwnerAddress(null);
       } finally {
+        // Always mark check as complete, even on error (prevents infinite loading state)
         setOwnerCheckComplete(true);
       }
     };
     
+    // Fetch owner immediately on mount/tokenId change
     fetchOwner();
     
     // Re-check ownership every 60 seconds to catch any changes (reduced frequency to prevent flashing)
@@ -240,18 +262,23 @@ export default function NFTDetailPage() {
     return () => clearInterval(interval);
   }, [tokenId]);
 
-  // Listen for purchase events to update immediately (for when navigating from grid)
+  // LISTEN FOR PURCHASE EVENTS
+  // Handle purchase events from other components (e.g., grid view) to update immediately
   useEffect(() => {
     const handler = (e: Event) => {
       const custom = e as CustomEvent<{ tokenId: number; priceEth?: number }>;
       const tokenIdNum = custom.detail?.tokenId;
-      const actualTokenId = parseInt(tokenId) - 1; // Convert display number to token ID
+      // Convert route param (1-based) to 0-based token ID for comparison
+      const actualTokenId = parseInt(tokenId) - 1;
+      
+      // Only process if this event is for the current NFT
       if (typeof tokenIdNum === 'number' && !Number.isNaN(tokenIdNum) && tokenIdNum === actualTokenId) {
         setIsPurchased(true);
-        // Refetch owner immediately with rate limiting
+        
+        // Refetch owner immediately with rate limiting (after delay to allow transaction to confirm)
         const fetchOwner = async () => {
           try {
-            const contract = getContract({ client, chain: base, address: CONTRACT_ADDRESS });
+            const contract = getContract({ client, chain: base, address: getContractAddress() });
             const actualTokenIdBigInt = BigInt(actualTokenId);
             const result = await rpcRateLimiter.execute(async () => {
               return await readContract({
@@ -260,48 +287,54 @@ export default function NFTDetailPage() {
                 params: [actualTokenIdBigInt],
               });
             });
+            
+            // Normalize owner address to lowercase
             if (typeof result === "string") {
-              setOwnerAddress(result);
+              setOwnerAddress(result.toLowerCase());
             } else if (result && typeof result === "object" && "_value" in result) {
-              setOwnerAddress(String((result as { _value: unknown })._value));
+              setOwnerAddress(String((result as { _value: unknown })._value).toLowerCase());
             }
             setOwnerCheckComplete(true);
-          } catch {
+          } catch (error) {
+            // Error fetching owner - still mark as complete to prevent infinite loading
+            console.error(`Error fetching owner after purchase event for token ${tokenId}:`, error);
             setOwnerCheckComplete(true);
           }
         };
-        fetchOwner();
+        
+        // Wait 5 seconds for transaction to confirm on-chain before checking owner
+        setTimeout(fetchOwner, 5000);
       }
     };
+    
     window.addEventListener('nftPurchased', handler as EventListener);
     return () => window.removeEventListener('nftPurchased', handler as EventListener);
   }, [tokenId]);
 
+  // ATTRIBUTE LIST GENERATION (robust)
+  // Generate attribute list from metadata with fallback percentage calculation
   const attributes = useMemo(() => {
-    // Use real attributes from complete metadata
     if (metadata && metadata.attributes) {
-      const mappedAttributes = metadata.attributes.map((attr: NFTAttribute) => {
-        // Generate a simple percentage based on attribute value if not provided
+      return metadata.attributes.map((attr: NFTAttribute) => {
+        // Use provided percentage/rarity, or generate fallback if missing
         let percentage = attr.percentage || attr.rarity || 0;
         
-        // If no percentage data, create a simple distribution
         if (percentage === 0) {
-          // Simple hash-based percentage for demo purposes
-          const hash = attr.value.split('').reduce((a, b) => {
-            a = ((a << 5) - a) + b.charCodeAt(0);
+          // Generate fallback percentage based on attribute value hash
+          const hash = attr.value.split("").reduce((a, b) => {
+            a = (a << 5) - a + b.charCodeAt(0);
             return a & a;
           }, 0);
-          percentage = Math.abs(hash) % 50 + 1; // 1-50% range
+          percentage = (Math.abs(hash) % 50) + 1; // 1-50% range
         }
         
         return {
           name: attr.trait_type,
           value: attr.value,
-          percentage: percentage,
-          occurrence: attr.occurrence
+          percentage,
+          occurrence: attr.occurrence,
         };
       });
-      return mappedAttributes;
     }
     return [];
   }, [metadata]);
@@ -311,38 +344,38 @@ export default function NFTDetailPage() {
   const listingId = pricingData?.listing_id || metadata?.merged_data?.listing_id || 0;
   const marketplaceAddress = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
   
-  // NFT is sold ONLY if:
+  // CRITICAL: Default to FOR SALE (blue) unless definitively confirmed as SOLD
+  // Only mark as sold if ALL conditions are met:
   // 1. Owner check is complete
-  // 2. Owner address exists
-  // 3. Marketplace address exists
-  // 4. Owner address is NOT the marketplace address
-  // DEFAULT TO FALSE (not sold) if any check fails
-  const isSoldOnChain = ownerCheckComplete && ownerAddress && marketplaceAddress 
-    ? ownerAddress.toLowerCase() !== marketplaceAddress.toLowerCase()
-    : false;
+  // 2. Owner address exists and is valid
+  // 3. Marketplace address exists and is valid
+  // 4. Owner address is NOT the marketplace address (meaning it's owned by someone else)
+  // OR manually marked as purchased
+  const isConfirmedSold = (ownerCheckComplete && 
+    ownerAddress && 
+    marketplaceAddress && 
+    ownerAddress.toLowerCase() !== marketplaceAddress.toLowerCase()) || 
+    isPurchased;
   
-  // Only show "Buy Now" if:
-  // 1. Owner check is complete
-  // 2. NFT has a price
-  // 3. Not manually marked as purchased
-  // 4. NOT confirmed as sold on-chain
-  // DEFAULT TO FALSE (not for sale) if owner check incomplete
-  const isForSale = ownerCheckComplete && priceEth > 0 && !isPurchased && !isSoldOnChain;
-  
-  // Only show "Sold" if:
-  // 1. Owner check is complete AND
-  // 2. Either confirmed sold on-chain OR manually marked as purchased
-  // DEFAULT TO FALSE (not sold) if owner check incomplete
-  const isConfirmedSold = ownerCheckComplete && ownerAddress && marketplaceAddress && (isSoldOnChain || isPurchased);
+  // NFT is for sale if:
+  // 1. Has a price AND
+  // 2. Not manually purchased AND
+  // 3. NOT confirmed as sold
+  // DEFAULT: If price exists and not confirmed sold, show as FOR SALE
+  const isForSale = priceEth > 0 && !isPurchased && !isConfirmedSold;
 
-  // Confetti celebration function
+  // CONFETTI CELEBRATION FUNCTION
+  // Trigger confetti safely - only once per purchase to prevent double-triggering
   const triggerConfetti = () => {
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#ff0099', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
-    });
+    if (!confettiTriggered) {
+      setConfettiTriggered(true);
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#ff0099', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
+      });
+    }
   };
 
   // Handle transaction state changes
@@ -355,24 +388,35 @@ export default function NFTDetailPage() {
     setTransactionState('success');
     setIsPurchased(true);
     setShowSuccess(true);
+    
+    // Trigger confetti celebration (safely, only once)
     triggerConfetti();
+    
+    // Track successful purchase
     track('NFT Purchase Success', { 
       tokenId: tokenId,
       transactionHash: receipt.transactionHash,
       blockNumber: Number(receipt.blockNumber)
     });
+    
     // Broadcast to update other views (grid, owned tab)
+    // Convert route param (1-based) to 0-based token ID for event
     try {
       const purchasedActualTokenId = parseInt(tokenId) - 1;
       const priceEthNumber = typeof priceEth === 'number' ? priceEth : Number(priceEth);
-      window.dispatchEvent(new CustomEvent('nftPurchased', { detail: { tokenId: purchasedActualTokenId, priceEth: priceEthNumber } }));
-    } catch {}
+      window.dispatchEvent(new CustomEvent('nftPurchased', { 
+        detail: { tokenId: purchasedActualTokenId, priceEth: priceEthNumber } 
+      }));
+    } catch (error) {
+      console.error('Error broadcasting purchase event:', error);
+    }
     
     // Refetch owner address to update sold state
-    // Wait a bit longer for transaction to confirm on-chain
-    setTimeout(async () => {
+    // Wait 5 seconds for transaction to confirm on-chain before checking owner
+    const ownerCheckTimeout = setTimeout(async () => {
       try {
-        const contract = getContract({ client, chain: base, address: CONTRACT_ADDRESS });
+        const contract = getContract({ client, chain: base, address: getContractAddress() });
+        // Convert route param (1-based) to 0-based token ID for on-chain lookup
         const actualTokenId = BigInt(parseInt(tokenId) - 1);
         const result = await rpcRateLimiter.execute(async () => {
           return await readContract({
@@ -381,26 +425,35 @@ export default function NFTDetailPage() {
             params: [actualTokenId],
           });
         });
+        
+        // Normalize owner address to lowercase
         if (typeof result === "string") {
           setOwnerAddress(result.toLowerCase());
         } else if (result && typeof result === "object" && "_value" in result) {
           setOwnerAddress(String((result as { _value: unknown })._value).toLowerCase());
         }
         setOwnerCheckComplete(true);
-      } catch {
-        // Ignore errors, owner will be fetched on next load
+      } catch (error) {
+        // Error fetching owner - still mark as complete (prevents infinite loading)
+        console.error(`Error fetching owner after purchase for token ${tokenId}:`, error);
         setOwnerCheckComplete(true);
       }
-    }, 5000); // Wait 5 seconds for transaction confirmation
+    }, 5000);
     
-    // Hide success message after 5 seconds
-    setTimeout(() => {
+    // Hide success message after 5 seconds (ensures overlay doesn't get stuck)
+    const successHideTimeout = setTimeout(() => {
       setShowSuccess(false);
     }, 5000);
+    
+    // Store timeouts for cleanup (though component unmount will handle cleanup)
+    return () => {
+      clearTimeout(ownerCheckTimeout);
+      clearTimeout(successHideTimeout);
+    };
   };
 
   const handleTransactionError = (error: Error) => {
-    // Transaction failed - error handled by UI
+    // Transaction failed - set error state
     setTransactionState('error');
     
     // Parse error message for user-friendly display
@@ -421,16 +474,21 @@ export default function NFTDetailPage() {
     }
     
     setTransactionError(errorMessage);
+    
+    // Track failed purchase
     track('NFT Purchase Failed', { 
       tokenId: tokenId,
       error: errorMessage
     });
     
-    // Clear error after 10 seconds
-    setTimeout(() => {
+    // Clear error after 10 seconds (ensures error overlay doesn't get stuck)
+    const errorClearTimeout = setTimeout(() => {
       setTransactionState('idle');
       setTransactionError(null);
     }, 10000);
+    
+    // Store timeout for cleanup
+    return () => clearTimeout(errorClearTimeout);
   };
   
 
@@ -488,7 +546,7 @@ export default function NFTDetailPage() {
   return (
     <main id="main-content" className="min-h-screen bg-background text-foreground flex flex-col">
       <Navigation activePage="nfts" />
-      <div className="max-w-6xl mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-4 sm:px-6 md:px-8">
+      <div className="max-w-7xl mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-4 sm:px-6 md:px-12 lg:px-16">
         <div className="flex items-center justify-between mb-8 sm:mb-10">
           {(() => {
             // Prefer returning to the exact filtered collection URL when provided
@@ -537,9 +595,9 @@ export default function NFTDetailPage() {
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-4">
-          {/* Left Column - Image and metadata links */}
-          <div className="space-y-4 order-1 lg:order-1 w-full lg:w-auto lg:flex-shrink-0">
+        <div className="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-8">
+          {/* Left Column - Image and metadata links - 1/3 width */}
+          <div className="space-y-4 order-1 lg:order-1 w-full lg:w-1/3 lg:flex-shrink-0">
             {/* NFT Image Card */}
             <div className="relative w-full" style={{ aspectRatio: "2700/3000", maxWidth: "100%" }}>
               <div className="relative w-full h-full">
@@ -769,8 +827,8 @@ export default function NFTDetailPage() {
 
           </div>
 
-          {/* Right Column - NFT Details */}
-          <div className="space-y-4 order-2 lg:order-2 flex flex-col w-full lg:w-auto lg:max-w-[400px] lg:flex-shrink-0">
+          {/* Right Column - NFT Details - 2/3 width */}
+          <div className="space-y-6 order-2 lg:order-2 flex flex-col w-full lg:w-2/3 lg:flex-shrink-0 lg:pl-4">
             {/* NFT Name with Heart Icon - Mobile order-2 (after image) */}
             <div className="flex items-start justify-between gap-4 order-2 lg:order-none">
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold leading-tight text-off-white">
@@ -806,7 +864,7 @@ export default function NFTDetailPage() {
 
             {/* Buy Now Section - Simplified - Mobile order-3 */}
             {isForSale ? (
-              <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-3 lg:order-none">
+              <div className="bg-neutral-800 p-6 rounded border border-neutral-700 order-3 lg:order-none">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                   <div className="flex-1">
                     <p className="text-sm md:text-base text-blue-500 mb-1">Buy Now Price</p>
@@ -840,8 +898,8 @@ export default function NFTDetailPage() {
                   </BuyDirectListingButton>
                 </div>
               </div>
-            ) : (isConfirmedSold && ownerCheckComplete && ownerAddress && marketplaceAddress) ? (
-              <div className="bg-neutral-800 p-4 rounded border border-green-500/30 order-3 lg:order-none">
+            ) : isConfirmedSold ? (
+              <div className="bg-neutral-800 p-6 rounded border border-green-500/30 order-3 lg:order-none">
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -864,7 +922,7 @@ export default function NFTDetailPage() {
                       </p>
                     )}
                     <Link
-                      href={`https://opensea.io/assets/base/${CONTRACT_ADDRESS}/${parseInt(tokenId) - 1}`}
+                      href={`https://opensea.io/assets/base/${getContractAddress()}/${parseInt(tokenId) - 1}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 text-sm text-green-400 hover:text-green-300 underline transition-colors whitespace-nowrap"
@@ -919,9 +977,9 @@ export default function NFTDetailPage() {
 
 
             {/* Collection Details - Mobile order-4 */}
-            <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-4 lg:order-none">
-              <h3 className="text-lg font-semibold mb-4 text-off-white">Collection Details</h3>
-              <div className="grid grid-cols-2 gap-4 text-base md:text-sm">
+            <div className="bg-neutral-800 p-6 rounded border border-neutral-700 order-4 lg:order-none">
+              <h3 className="text-lg font-semibold mb-5 text-off-white">Collection Details</h3>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-5 text-base md:text-sm">
                 <div>
                   <p className="text-neutral-400 mb-1 text-sm md:text-xs">NFT Number</p>
                   <p className="font-normal text-off-white">{metadata?.card_number ?? parseInt(tokenId) + 1}</p>
@@ -1177,16 +1235,16 @@ export default function NFTDetailPage() {
             </div>
 
             {/* Contract Details - Mobile order-8 */}
-            <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-8 lg:order-none">
-              <h3 className="text-lg font-semibold mb-4 text-off-white">Contract Details</h3>
-                <div className="space-y-3 text-sm">
+            <div className="bg-neutral-800 p-6 rounded border border-neutral-700 order-8 lg:order-none">
+              <h3 className="text-lg font-semibold mb-5 text-off-white">Contract Details</h3>
+                <div className="space-y-4 text-sm">
                   <div className="flex justify-between items-center">
                     <span className="text-neutral-400">Contract Address</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-off-white">{CONTRACT_ADDRESS.slice(0, 6)}...{CONTRACT_ADDRESS.slice(-4)}</span>
+                      <span className="text-off-white">{getContractAddress().slice(0, 6)}...{getContractAddress().slice(-4)}</span>
                       <button
                         onClick={() => {
-                          navigator.clipboard.writeText(CONTRACT_ADDRESS);
+                          navigator.clipboard.writeText(getContractAddress());
                           // You could add a toast notification here if desired
                         }}
                         className="p-1 hover:bg-neutral-700 rounded transition-colors group"

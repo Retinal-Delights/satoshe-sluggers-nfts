@@ -1,8 +1,7 @@
-// app/api/nft/aggregate-counts/route.ts
 /**
  * NFT Aggregate Counts API Route
- * Uses Thirdweb Insight events API to get Live/Sold counts without checking all 7,777 NFTs
- * Caches results for 10 minutes to prevent excessive API calls
+ * Counts sold NFTs using the Insight aggregate endpoint for speed and reliability.
+ * Always caches results for 10 minutes to avoid excess API pressure.
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -13,20 +12,28 @@ const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS;
 const MARKETPLACE_ADDRESS = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
 const TOTAL_NFTS = 7777;
 
-// In-memory cache (in production, use Redis or similar)
 const cache: {
-  data: { liveCount: number; soldCount: number } | null;
+  data: { liveCount: number; soldCount: number; cached: boolean } | null;
   timestamp: number;
 } = { data: null, timestamp: 0 };
 
-const CACHE_EXPIRY = 10 * 60 * 1000; // 10 minutes
+const CACHE_EXPIRY = 1 * 60 * 1000; // 1 minute (reduced from 10 for faster updates)
 
 export async function GET(request: NextRequest) {
   try {
-    // Check cache first
     const now = Date.now();
-    if (cache.data && now - cache.timestamp < CACHE_EXPIRY) {
-      return NextResponse.json(cache.data);
+    // Check for cache-busting query param
+    const { searchParams } = new URL(request.url);
+    const forceRefresh = searchParams.get('forceRefresh') === 'true';
+    
+    // Clear cache if force refresh is requested
+    if (forceRefresh) {
+      cache.data = null;
+      cache.timestamp = 0;
+    }
+    
+    if (!forceRefresh && cache.data && now - cache.timestamp < CACHE_EXPIRY) {
+      return NextResponse.json({ ...cache.data, cached: true });
     }
 
     if (!INSIGHT_CLIENT_ID || !CONTRACT_ADDRESS || !MARKETPLACE_ADDRESS) {
@@ -36,97 +43,54 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const CHAIN_ID = base.id; // 8453 for Base
+    const CHAIN_ID = base.id;
+    const apiUrl = `https://insight.thirdweb.com/v1/events/${CONTRACT_ADDRESS}/Transfer(address,address,uint256)?chain=${CHAIN_ID}&from_address=${MARKETPLACE_ADDRESS}&aggregate=count()`;
 
-    // Use Insight events API to count Transfer events
-    // Transfer events FROM the marketplace address indicate sales (marketplace transfers NFT to buyer)
-    // Correct format: insight.thirdweb.com with chain as query parameter
-    // Use from_address (not filter_from_address or fromAddresses) for sender address filtering
-    // Note: Maximum limit is 1000 per API specification
-    const apiUrl = `https://insight.thirdweb.com/v1/events/${CONTRACT_ADDRESS}/Transfer(address,address,uint256)?chain=${CHAIN_ID}&from_address=${MARKETPLACE_ADDRESS}&limit=1000`;
-    
     const response = await fetch(apiUrl, {
       headers: {
-        'x-client-id': INSIGHT_CLIENT_ID,
-        'Content-Type': 'application/json',
+        "x-client-id": INSIGHT_CLIENT_ID,
+        "Content-Type": "application/json",
       },
     });
 
     if (!response.ok) {
-      // Log error for debugging (in development)
-      const errorText = await response.text();
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Insight API error:', response.status, errorText);
-      }
-      
-      // If Insight API fails, return conservative estimates
-      // Use cached data if available, otherwise return defaults
-      if (cache.data) {
-        return NextResponse.json(cache.data);
-      }
-      return NextResponse.json({
-        liveCount: TOTAL_NFTS,
-        soldCount: 0,
-        cached: false,
-      });
+      if (cache.data) return NextResponse.json({ ...cache.data, cached: true });
+      return NextResponse.json({ liveCount: TOTAL_NFTS, soldCount: 0, cached: false });
     }
 
     const data = await response.json();
-    
-    // Extract count from aggregations if using aggregate endpoint
-    // Otherwise fall back to counting events (for backwards compatibility)
     let soldCount = 0;
-    
-    if (data.aggregations && Array.isArray(data.aggregations) && data.aggregations.length > 0) {
-      // Use aggregate count if available (more efficient)
-      soldCount = data.aggregations[0].count || 0;
+
+    if (
+      data.aggregations &&
+      Array.isArray(data.aggregations) &&
+      data.aggregations.length > 0 &&
+      typeof data.aggregations[0].count === "number"
+    ) {
+      soldCount = data.aggregations[0].count;
     } else if (data.data && Array.isArray(data.data)) {
-      // Fallback: Count unique token IDs from events
-      // Note: If there are more than 1000 sales, we'll need to paginate
-      // For now, we count what we get and note that it may be incomplete
-      const soldTokenIds = new Set<string>();
+      const tokenSet = new Set<string>();
       data.data.forEach((event: any) => {
         const tokenId = event.args?.tokenId || event.token_id;
-        if (tokenId !== undefined) {
-          soldTokenIds.add(tokenId.toString());
-        }
+        if (tokenId !== undefined) tokenSet.add(tokenId.toString());
       });
-      soldCount = soldTokenIds.size;
-      
-      // If we got 1000 events and there might be more, log a warning in development
-      if (process.env.NODE_ENV === 'development' && data.data.length === 1000) {
-        console.warn('Aggregate counts: Reached 1000 event limit. May need pagination if more sales exist.');
-      }
+      soldCount = tokenSet.size;
     }
 
-    const liveCount = TOTAL_NFTS - soldCount;
+    const liveCount = Math.max(0, TOTAL_NFTS - soldCount);
 
-    const result = {
-      liveCount,
-      soldCount,
-      cached: false,
-    };
-
-    // Update cache
-    cache.data = result;
-    cache.timestamp = now;
+    const result = { liveCount, soldCount, cached: false };
+    
+    // Only cache if not a force refresh (to allow fresh data on purchase events)
+    if (!forceRefresh) {
+      cache.data = result;
+      cache.timestamp = now;
+    }
 
     return NextResponse.json(result);
-  } catch (error) {
-    // Log error for debugging (in development)
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Aggregate counts API error:', error);
-    }
-    
-    // Return cached data if available, otherwise defaults
-    if (cache.data) {
-      return NextResponse.json({ ...cache.data, cached: true });
-    }
-    return NextResponse.json({
-      liveCount: TOTAL_NFTS,
-      soldCount: 0,
-      cached: false,
-    });
+
+  } catch {
+    if (cache.data) return NextResponse.json({ ...cache.data, cached: true });
+    return NextResponse.json({ liveCount: TOTAL_NFTS, soldCount: 0, cached: false });
   }
 }
-

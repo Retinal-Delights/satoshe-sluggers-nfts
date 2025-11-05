@@ -129,7 +129,7 @@ function NFTsPageContent() {
         </div>
 
         <div className="flex flex-col xl:flex-row gap-6 lg:gap-8" suppressHydrationWarning>
-          <div className="xl:sticky xl:top-[76px] xl:self-start xl:max-h-[calc(100vh-76px)] xl:overflow-y-auto z-10 w-full xl:w-[21rem] 2xl:w-[28rem]">
+          <div className="xl:sticky xl:top-[76px] xl:self-start z-10 w-full xl:w-[21rem] 2xl:w-[28rem]">
             <NFTSidebar
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}

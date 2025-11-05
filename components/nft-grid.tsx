@@ -40,7 +40,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { loadAllNFTs } from "@/lib/simple-data-service";
 import { announceToScreenReader } from "@/lib/accessibility-utils";
-import { convertIpfsUrl } from "@/lib/utils";
+import { convertIpfsUrl, cn } from "@/lib/utils";
 import { useOnChainOwnership } from "@/hooks/useOnChainOwnership";
 import { rpcRateLimiter } from "@/lib/rpc-rate-limiter";
 
@@ -234,6 +234,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
   const [scrollPosition, setScrollPosition] = useState<number>(0);
   // Note: Purchased tokens are tracked directly in nfts state via isForSale flag
   const gridRef = useRef<HTMLDivElement>(null);
+  const viewToggleRef = useRef<HTMLDivElement>(null);
   
   // Load pricing mappings (prioritize token_pricing_mappings.json which has updated listing IDs)
   useEffect(() => {
@@ -409,22 +410,20 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
    */
   const filteredNFTs = useMemo(() => {
     return nfts.filter(nft => {
+    // START with sale-state filter
     // Sale state filter based on checkboxes
     // Live: NFTs that are currently for sale (isForSale = true)
     // Sold: NFTs that were listed (had priceEth > 0 or soldPriceEth exists) and are now sold (isForSale = false)
     //      Exclude unlisted NFTs (priceEth = 0, never had a listing)
-    if (!showLive && nft.isForSale) return false;
-    if (!showSold) {
-      // Hide sold NFTs when showSold is false
-      // Consider sold if: (was listed and now not for sale) OR (has soldPriceEth)
-      const wasListed = (nft.priceEth > 0 || nft.soldPriceEth !== undefined);
-      if (!nft.isForSale && wasListed) return false;
-    }
-    if (showSold && !showLive) {
-      // When only "Sold" tab is selected, only show NFTs that were actually listed and sold
-      // Exclude unlisted NFTs (priceEth = 0, never had a listing, no soldPriceEth)
-      const wasListed = (nft.priceEth > 0 || nft.soldPriceEth !== undefined);
-      if (!wasListed || nft.isForSale) return false;
+    if (showLive && showSold) {
+      // Show everything (skip filter)
+    } else if (showLive) {
+      if (!nft.isForSale) return false;
+    } else if (showSold) {
+      if (nft.isForSale || (!nft.priceEth && !nft.soldPriceEth)) return false;
+    } else {
+      // If both off, show nothing
+      return false;
     }
     // Search logic with Contains/Exact mode
     let matchesSearch = true;
@@ -741,6 +740,11 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                 listingId = (pricing.listing_id !== null && pricing.listing_id !== undefined) 
                   ? pricing.listing_id 
                   : (tokenIdNum + 10000);
+              } else {
+                // Warn when pricing mapping is missing (helps debug incomplete mapping files)
+                if (process.env.NODE_ENV === 'development') {
+                  console.warn(`[NFTGrid] No pricing mapping for token_id ${tokenIdNum}`);
+                }
               }
               
               const isForSale = priceEth > 0;
@@ -845,11 +849,18 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
 
         // Use batch API (Insight API via backend route) instead of individual RPC calls
         try {
-          const response = await fetch('/api/nft/ownership', {
+          // Add timeout to ownership API fetch (5 seconds max, then fallback to RPC)
+          const fetchPromise = fetch('/api/nft/ownership', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ tokenIds }),
           });
+          
+          const timeoutPromise = new Promise<Response>((_, reject) => 
+            setTimeout(() => reject(new Error('Ownership API timeout')), 5000)
+          );
+          
+          const response = await Promise.race([fetchPromise, timeoutPromise]);
 
           if (response.ok) {
             const data = await response.json();
@@ -944,45 +955,42 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
     }
   }, [totalPages]); // Only depend on totalPages to avoid resetting during normal page navigation
 
-  // Listen for purchase events to update NFT grid immediately when an NFT is purchased
+  // Sync "Show" dropdown width to match view toggle container width
   useEffect(() => {
-    const handler = (e: Event) => {
-      const custom = e as CustomEvent<{ tokenId: number; priceEth?: number }>;
-      const tokenIdNum = custom.detail?.tokenId;
-      const priceEthFromEvent = custom.detail?.priceEth;
-      
-      if (typeof tokenIdNum === 'number' && !Number.isNaN(tokenIdNum)) {
-        // Update NFT state immediately
-        setNfts(prev => prev.map(item => {
-          if (parseInt(item.tokenId) === tokenIdNum) {
-            const soldPrice = typeof priceEthFromEvent === 'number' ? priceEthFromEvent : (typeof item.priceEth === 'number' ? item.priceEth : 0);
-            return { ...item, isForSale: false, priceWei: '0', priceEth: 0, soldPriceEth: soldPrice };
-          }
-          return item;
-        }));
+    const syncWidth = () => {
+      if (viewToggleRef.current && typeof window !== 'undefined') {
+        const showDropdown = document.querySelector('[data-show-dropdown]') as HTMLElement;
+        if (showDropdown && viewToggleRef.current) {
+          showDropdown.style.width = `${viewToggleRef.current.offsetWidth}px`;
+        }
       }
     };
     
-    window.addEventListener('nftPurchased', handler as EventListener);
-    return () => window.removeEventListener('nftPurchased', handler as EventListener);
-  }, []);
-
+    // Sync on mount and when view mode changes
+    syncWidth();
+    
+    // Also sync on window resize
+    window.addEventListener('resize', syncWidth);
+    return () => window.removeEventListener('resize', syncWidth);
+  }, [viewMode]); // Recalculate when view mode changes (might affect button sizes)
 
   // Compute trait counts from NFTs filtered by current tab (All/Live/Sold) only
   // This ensures counts reflect the NFTs available in the current tab context
   const tabFilteredNFTs = useMemo(() => {
     return nfts.filter(nft => {
+      // START with sale-state filter
       // Match the same logic used in filteredNFTs for tab filtering
       // Live: NFTs that are currently for sale
       // Sold: NFTs that were listed and are now sold (exclude unlisted)
-      if (!showLive && nft.isForSale) return false;
-      if (!showSold) {
-        const wasListed = (nft.priceEth > 0 || nft.soldPriceEth !== undefined);
-        if (!nft.isForSale && wasListed) return false;
-      }
-      if (showSold && !showLive) {
-        const wasListed = (nft.priceEth > 0 || nft.soldPriceEth !== undefined);
-        if (!wasListed || nft.isForSale) return false;
+      if (showLive && showSold) {
+        // Show everything (skip filter)
+      } else if (showLive) {
+        if (!nft.isForSale) return false;
+      } else if (showSold) {
+        if (nft.isForSale || (!nft.priceEth && !nft.soldPriceEth)) return false;
+      } else {
+        // If both off, show nothing
+        return false;
       }
       return true;
     });
@@ -1059,6 +1067,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                   !showLive && showSold ? "sold" :
                   "all"
                 }
+                defaultValue="all"
                 onValueChange={(value) => {
                   if (value === "all") {
                     setShowLive?.(true);
@@ -1076,7 +1085,12 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                 <ToggleGroupItem 
                   value="all" 
                   aria-label="Show all NFTs"
-                  className="h-7 px-3 rounded-sm !data-[state=on]:bg-brand-pink !data-[state=on]:text-white !data-[state=on]:border-brand-pink text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-brand-pink flex items-center justify-center leading-none text-fluid-sm font-normal"
+                  className={cn(
+                    "h-7 px-3 rounded-sm text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-brand-pink flex items-center justify-center leading-none text-fluid-sm font-normal",
+                    (showLive && showSold) || (!showLive && !showSold) 
+                      ? "bg-brand-pink text-white border-brand-pink" 
+                      : ""
+                  )}
                 >
                   <span className="flex items-center justify-center w-full h-full">All</span>
                 </ToggleGroupItem>
@@ -1086,13 +1100,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                   className="h-7 px-3 rounded-sm data-[state=on]:bg-blue-500/20 data-[state=on]:text-blue-400 data-[state=on]:border-blue-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-blue-400 flex items-center justify-center leading-none text-fluid-sm font-normal"
                   disabled={!setShowLive}
                 >
-                  <span className="flex items-center justify-center w-full h-full">
-                    {isCheckingOwnership && checkedCount < totalToCheck ? (
-                      <span className="text-neutral-500">Live — {onChainLiveCount}...</span>
-                    ) : (
-                      `Live — ${onChainLiveCount}`
-                    )}
-                  </span>
+                  <span className="flex items-center justify-center w-full h-full">Live</span>
                 </ToggleGroupItem>
                 <ToggleGroupItem 
                   value="sold" 
@@ -1100,28 +1108,33 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                   className="h-7 px-3 rounded-sm data-[state=on]:bg-green-500/20 data-[state=on]:text-green-400 data-[state=on]:border-green-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-green-400 flex items-center justify-center leading-none text-fluid-sm font-normal"
                   disabled={!setShowSold}
                 >
-                  <span className="flex items-center justify-center w-full h-full">
-                    {isCheckingOwnership && checkedCount < totalToCheck ? (
-                      <span className="text-neutral-500">Sold — {onChainSoldCount}...</span>
-                    ) : (
-                      `Sold — ${onChainSoldCount}`
-                    )}
-                  </span>
+                  <span className="flex items-center justify-center w-full h-full">Sold</span>
                 </ToggleGroupItem>
               </ToggleGroup>
             </div>
-            {filteredNFTs.length > 0 && (
-              <div className="text-neutral-400 mt-3 text-xs sm:text-sm">
-                {startIndex + 1}-{Math.min(endIndex, filteredNFTs.length)} of {filteredNFTs.length} NFTs
-              </div>
-            )}
+            {/* Dynamic count display based on selected tab */}
+            <div className="text-neutral-400 mt-3 text-xs sm:text-sm">
+              {showLive && showSold ? (
+                // All tab: show total collection size
+                `${TOTAL_COLLECTION_SIZE} NFTs`
+              ) : showLive && !showSold ? (
+                // Live tab: show live count
+                `${onChainLiveCount} NFTs`
+              ) : !showLive && showSold ? (
+                // Sold tab: show sold count
+                `${onChainSoldCount} NFTs`
+              ) : (
+                // Fallback (shouldn't happen)
+                `${TOTAL_COLLECTION_SIZE} NFTs`
+              )}
+            </div>
           </div>
 
           {/* Right side: View toggles and dropdowns */}
           <div className="flex flex-col items-start sm:items-end gap-2 flex-shrink-0 overflow-x-hidden">
             {/* View Mode Toggles */}
             <TooltipProvider>
-              <div className="flex items-center gap-1 border border-neutral-700 rounded-sm p-1 bg-neutral-900 flex-shrink-0">
+              <div ref={viewToggleRef} className="flex items-center gap-1 border border-neutral-700 rounded-sm p-1 bg-neutral-900 flex-shrink-0">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
@@ -1229,7 +1242,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
               <div className="flex items-center gap-2 min-w-0">
                 <span className="text-neutral-500 whitespace-nowrap flex-shrink-0 text-xs sm:text-sm w-[64px]">Show:</span>
                 <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
-                  <SelectTrigger className="w-[200px] md:w-[240px] bg-neutral-900 border-neutral-700 rounded-sm text-off-white font-normal min-w-0 text-xs sm:text-sm whitespace-nowrap">
+                  <SelectTrigger data-show-dropdown className="bg-neutral-900 border-neutral-700 rounded-sm text-off-white font-normal min-w-0 text-xs sm:text-sm whitespace-nowrap">
                     <SelectValue placeholder="15 items" />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-sm">
