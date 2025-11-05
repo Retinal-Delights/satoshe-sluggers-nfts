@@ -1,0 +1,262 @@
+import { getContract, createThirdwebClient } from "thirdweb";
+import { getAllListings } from "thirdweb/extensions/marketplace";
+import { ownerOf } from "thirdweb/extensions/erc721";
+import { base } from "thirdweb/chains";
+import dotenv from "dotenv";
+import fs from "fs";
+import path from "path";
+
+// Load from .env.local (Next.js default) or .env as fallback
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+
+// ========== USER SETTINGS ==========
+const MARKETPLACE_ADDRESS = "0x187A56dDfCcc96AA9f4FaAA8C0fE57388820A817";
+const NFT_COLLECTION_ADDRESS = "0x53b062474eF48FD1aE6798f9982c58Ec0267c2Fc";
+
+const THIRDWEB_SECRET_KEY = process.env.THIRDWEB_SECRET_KEY;
+const CLIENT_ID = process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID;
+
+// -----> Set the range to scan below (inclusive)
+const TOKEN_ID_START = 0; // Lowest tokenId
+const TOKEN_ID_END = 199; // Highest tokenId (e.g. 199 for IDs 0–199)
+
+const OUTPUT_DIR = path.join(process.cwd(), "docs", "nfts");
+
+const OUTPUT_BASENAME = `listing_status_tokens_${TOKEN_ID_START}-${TOKEN_ID_END}`;
+const OUTPUT_JSON = path.join(OUTPUT_DIR, `${OUTPUT_BASENAME}.json`);
+const OUTPUT_CSV = path.join(OUTPUT_DIR, `${OUTPUT_BASENAME}.csv`);
+
+const SLEEP_MS_BETWEEN_OWNEROF = 30; // 30ms per call = ~33/sec (well under your 200/sec limit)
+
+function sleep(ms: number) {
+  return new Promise((res) => setTimeout(res, ms));
+}
+
+// Helper to check if a listing is valid and available
+function isValidListing(listing: any): boolean {
+  // Check if it's a direct listing (type 0 or undefined)
+  const listingType = listing.type ?? listing.listingType;
+  const isDirectListing = listingType === 0 || listingType === undefined;
+
+  // Check if status is ACTIVE (1 or "ACTIVE")
+  const status = listing.status;
+  const isActive =
+    Number(status) === 1 ||
+    status === "ACTIVE" ||
+    String(status).toUpperCase() === "ACTIVE";
+
+  // Check if asset contract matches
+  const assetContract =
+    listing.assetContract?.toLowerCase() ||
+    listing.asset?.contractAddress?.toLowerCase() ||
+    "";
+  const matchesCollection =
+    assetContract === NFT_COLLECTION_ADDRESS.toLowerCase();
+
+  // Check if not expired (endTimestamp should be in future or undefined)
+  const now = Math.floor(Date.now() / 1000);
+  const endTimestamp = listing.endTimestamp
+    ? Number(listing.endTimestamp)
+    : null;
+  const notExpired = !endTimestamp || endTimestamp > now;
+
+  // Check if quantity available > 0
+  const quantityAvailable =
+    listing.quantityAvailable ??
+    listing.quantity ??
+    listing.remainingQuantity ??
+    0;
+  const hasQuantity = Number(quantityAvailable) > 0;
+
+  return (
+    isDirectListing &&
+    isActive &&
+    matchesCollection &&
+    notExpired &&
+    hasQuantity
+  );
+}
+
+// Helper to check if a listing is active (but may not be valid)
+function isActiveListing(listing: any): boolean {
+  const listingType = listing.type ?? listing.listingType;
+  const isDirectListing = listingType === 0 || listingType === undefined;
+
+  const status = listing.status;
+  const isActive =
+    Number(status) === 1 ||
+    status === "ACTIVE" ||
+    String(status).toUpperCase() === "ACTIVE";
+
+  const assetContract =
+    listing.assetContract?.toLowerCase() ||
+    listing.asset?.contractAddress?.toLowerCase() ||
+    "";
+  const matchesCollection =
+    assetContract === NFT_COLLECTION_ADDRESS.toLowerCase();
+
+  return isDirectListing && isActive && matchesCollection;
+}
+
+async function main() {
+  if (!THIRDWEB_SECRET_KEY && !CLIENT_ID) {
+    console.error(
+      "❌ ERROR: Please set either THIRDWEB_SECRET_KEY or NEXT_PUBLIC_THIRDWEB_CLIENT_ID in your .env.local file"
+    );
+    process.exit(1);
+  }
+
+  const client = THIRDWEB_SECRET_KEY
+    ? createThirdwebClient({ secretKey: THIRDWEB_SECRET_KEY })
+    : createThirdwebClient({ clientId: CLIENT_ID! });
+
+  const marketplace = await getContract({
+    client,
+    chain: base,
+    address: MARKETPLACE_ADDRESS,
+  });
+
+  const collection = await getContract({
+    client,
+    chain: base,
+    address: NFT_COLLECTION_ADDRESS,
+  });
+
+  console.log(`🔍 Fetching all listings from marketplace...`);
+  console.log(`   Marketplace: ${MARKETPLACE_ADDRESS}`);
+  console.log(`   NFT Collection: ${NFT_COLLECTION_ADDRESS}`);
+  console.log(`   Token ID Range: ${TOKEN_ID_START} - ${TOKEN_ID_END}`);
+  console.log("");
+
+  // Fetch all listings with pagination
+  const allListings: any[] = [];
+  let start: bigint = 0n;
+  let keepGoing = true;
+  const pageSize = 200;
+
+  while (keepGoing) {
+    try {
+      const page = await getAllListings({
+        contract: marketplace,
+        start,
+        count: pageSize,
+      } as any);
+      allListings.push(...page);
+      keepGoing = page.length === pageSize;
+      start += BigInt(pageSize);
+      if (allListings.length % 1000 === 0 && allListings.length > 0) {
+        console.log(`   Fetched ${allListings.length} listings so far...`);
+      }
+    } catch (err) {
+      console.error(`   Error fetching page at start ${start}:`, err);
+      keepGoing = false;
+    }
+  }
+
+  console.log(`✅ Fetched ${allListings.length} total listings`);
+
+  // Filter listings
+  const activeListings = allListings.filter(isActiveListing);
+  const validListings = allListings.filter(isValidListing);
+
+  console.log(`✅ Found ${activeListings.length} active direct listings`);
+  console.log(`✅ Found ${validListings.length} valid direct listings`);
+  console.log("");
+
+  // Map for tokenId lookups
+  const byActiveToken: Record<number, any> = {};
+  activeListings.forEach((l) => {
+    const tokenId =
+      l.tokenId ?? l.asset?.tokenId ?? l.asset?.id ?? null;
+    if (tokenId !== null) {
+      byActiveToken[Number(tokenId)] = l;
+    }
+  });
+
+  const byValidToken: Record<number, any> = {};
+  validListings.forEach((l) => {
+    const tokenId =
+      l.tokenId ?? l.asset?.tokenId ?? l.asset?.id ?? null;
+    if (tokenId !== null) {
+      byValidToken[Number(tokenId)] = l;
+    }
+  });
+
+  // Result rows
+  let records: {
+    tokenId: number;
+    status: "burned" | "valid" | "active" | "missing";
+    listingId?: string;
+    owner?: string;
+  }[] = [];
+
+  for (let tokenId = TOKEN_ID_START; tokenId <= TOKEN_ID_END; tokenId++) {
+    if (byValidToken[tokenId]) {
+      const listing = byValidToken[tokenId];
+      records.push({
+        tokenId,
+        status: "valid",
+        listingId: listing.id?.toString() || listing.listingId?.toString() || "",
+        owner: listing.sellerAddress || listing.listingCreator || "",
+      });
+    } else if (byActiveToken[tokenId]) {
+      const listing = byActiveToken[tokenId];
+      records.push({
+        tokenId,
+        status: "active",
+        listingId: listing.id?.toString() || listing.listingId?.toString() || "",
+        owner: listing.sellerAddress || listing.listingCreator || "",
+      });
+    } else {
+      // Not listed: find owner (may not exist)
+      try {
+        if (SLEEP_MS_BETWEEN_OWNEROF > 0) await sleep(SLEEP_MS_BETWEEN_OWNEROF);
+
+        const owner = await ownerOf({
+          contract: collection,
+          tokenId: BigInt(tokenId),
+        });
+
+        if (owner && owner !== "0x0000000000000000000000000000000000000000") {
+          records.push({ tokenId, status: "missing", owner });
+        } else {
+          records.push({ tokenId, status: "burned" });
+        }
+      } catch (e) {
+        records.push({ tokenId, status: "burned" });
+      }
+    }
+
+    if ((tokenId - TOKEN_ID_START) % 50 === 0)
+      console.log(`Checked tokenId ${tokenId}/${TOKEN_ID_END}`);
+  }
+
+  // Write out JSON and CSV
+  fs.mkdirSync(path.dirname(OUTPUT_JSON), { recursive: true });
+  fs.writeFileSync(OUTPUT_JSON, JSON.stringify(records, null, 2));
+
+  const header = "tokenId,status,listingId,owner";
+  const rows = [
+    header,
+    ...records.map((r) =>
+      [r.tokenId, r.status, r.listingId || "", r.owner || ""].join(",")
+    ),
+  ];
+  fs.writeFileSync(OUTPUT_CSV, rows.join("\n"));
+
+  const summary = records.reduce(
+    (a, r) => {
+      a[r.status] = (a[r.status] || 0) + 1;
+      return a;
+    },
+    {} as Record<string, number>
+  );
+
+  console.log(`\n✅ JSON: ${OUTPUT_JSON}`);
+  console.log(`✅ CSV: ${OUTPUT_CSV}`);
+  console.log("📊 Summary:", summary);
+}
+
+main().catch(console.error);
+

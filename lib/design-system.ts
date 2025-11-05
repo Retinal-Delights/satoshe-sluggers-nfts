@@ -76,6 +76,26 @@ export const colors = {
     infoBorder: '#3B82F6/30',
   },
   
+  // Filter/Trait Colors (for sidebar filters and charts)
+  filter: {
+    red: '#EF4444',           // Red
+    blue: '#3B82F6',          // Blue
+    green: '#10B981',         // Green
+    yellow: '#F59E0B',        // Yellow/Amber
+    purple: '#8B5CF6',        // Purple
+    cyan: '#06B6D4',          // Cyan/Teal
+    orange: '#F97316',        // Orange
+    neutral: '#6B7280',       // Gray
+    violet: '#A855F7',        // Violet (for charts)
+  },
+  
+  // Background Colors
+  background: {
+    dark: '#0a0a0a',          // Very dark background
+    overlay: 'rgba(0, 0, 0, 0.5)', // Overlay
+    stroke: '#262626',        // Stroke/border dark
+  },
+  
   // Neutral Colors (from style guide)
   neutral: {
     white: 'text-white',

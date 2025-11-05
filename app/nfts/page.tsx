@@ -117,7 +117,7 @@ function NFTsPageContent() {
           <h1 id="collection-heading" className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-center mb-3 text-off-white tracking-tight">
             SATO<span className="text-brand-pink">SHE</span> SLUGGERS
           </h1>
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 md:gap-6 text-xs sm:text-sm md:text-base lg:text-lg text-neutral-300 max-w-4xl mx-auto tracking-tight">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 md:gap-6 text-sm sm:text-base md:text-lg lg:text-xl text-neutral-300 max-w-4xl mx-auto tracking-tight">
             <span>/ <span className="text-brand-pink">SHE</span> hits different</span>
             <span>/ <span className="text-brand-pink">SHE</span> funds women&apos;s baseball</span>
             <span>/ <span className="text-brand-pink">SHE</span> makes a difference</span>
@@ -129,7 +129,7 @@ function NFTsPageContent() {
         </div>
 
         <div className="flex flex-col xl:flex-row gap-6 lg:gap-8" suppressHydrationWarning>
-          <div className="xl:sticky xl:top-[76px] xl:self-start z-10 w-full xl:w-[21rem] 2xl:w-[28rem]">
+          <div className="xl:sticky xl:top-[76px] xl:self-start xl:max-h-[calc(100vh-76px)] xl:overflow-y-auto z-10 w-full xl:w-[21rem] 2xl:w-[28rem]">
             <NFTSidebar
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}

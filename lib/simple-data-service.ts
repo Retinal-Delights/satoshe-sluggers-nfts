@@ -38,14 +38,13 @@ export interface NFTData {
   };
 }
 
-// Cache for metadata
+// Cache for metadata - cleared on each load to ensure fresh data
 let metadataCache: NFTData[] | null = null;
 
 // Load all metadata once and cache it
 export async function loadAllNFTs(): Promise<NFTData[]> {
-  if (metadataCache) {
-    return metadataCache ?? [];
-  }
+  // Always reload to ensure fresh data - cache can be stale
+  metadataCache = null;
 
   try {
     // Load both metadata and IPFS URLs

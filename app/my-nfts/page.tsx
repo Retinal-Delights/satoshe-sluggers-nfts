@@ -370,7 +370,7 @@ function MyNFTsContent() {
             <p className="text-red-400 mb-4">Error loading NFTs. Please try refreshing the page.</p>
             <Button 
               onClick={() => window.location.reload()} 
-              className="px-6 py-2 border border-brand-pink bg-transparent text-brand-pink font-normal rounded-sm hover:bg-brand-pink hover:text-white transition-all duration-200"
+              className="px-6 py-2 border border-brand-pink bg-transparent text-brand-pink font-normal rounded-sm hover:!bg-brand-pink hover:!text-white transition-all duration-200"
             >
               Refresh Page
             </Button>
@@ -386,7 +386,7 @@ function MyNFTsContent() {
             {(activeTab === "owned" || activeTab === "favorites") && (
               <Button 
                 onClick={() => router.push("/nfts")} 
-                className="px-6 py-2 border border-brand-pink bg-transparent text-brand-pink font-normal rounded-sm hover:bg-brand-pink hover:text-white transition-all duration-200 !cursor-pointer"
+                className="px-6 py-2 border border-brand-pink bg-transparent text-brand-pink font-normal rounded-sm hover:!bg-brand-pink hover:!text-white transition-all duration-200 !cursor-pointer"
               >
                 Browse NFTs
               </Button>
@@ -443,7 +443,7 @@ function MyNFTsContent() {
                   {activeTab === "owned" && (
                     <button
                       onClick={() => router.push(`/nft/${nft.id}`)}
-                      className="font-light flex items-center justify-center h-8 w-full rounded border border-brand-pink text-brand-pink bg-transparent hover:bg-brand-pink hover:text-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-fluid-sm"
+                      className="font-light flex items-center justify-center h-8 w-full rounded border border-brand-pink text-brand-pink bg-transparent hover:!bg-brand-pink hover:!text-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-fluid-sm"
                       aria-label="View NFT details"
                     >
                       View Details

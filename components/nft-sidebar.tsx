@@ -6,6 +6,7 @@ import Image from "next/image"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { announceToScreenReader } from "@/lib/accessibility-utils"
+import { colors } from "@/lib/design-system"
 
 /**
  * Filter state interface for NFT sidebar
@@ -188,21 +189,23 @@ function FilterSection({
       >
         <div className="flex items-center gap-2">
           {icon && <span className={colorClasses[color]}>{icon}</span>}
-          <h3 className={`font-normal text-fluid-md ${isOpen ? colorClasses[color] : 'text-off-white'}`}>
+          <h3 className={`font-medium text-sm sm:text-base ${isOpen ? colorClasses[color] : 'text-off-white'}`}>
             {title}
           </h3>
           {/* Active filter indicator */}
           {selected && selected.length > 0 && (
             <div 
               className="w-2 h-2 rounded-full flex-shrink-0" 
-              style={{ backgroundColor: color === 'red' ? '#ef4444' : 
-                       color === 'blue' ? '#3b82f6' : 
-                       color === 'green' ? '#10b981' : 
-                       color === 'yellow' ? '#f59e0b' : 
-                       color === 'purple' ? '#8b5cf6' : 
-                       color === 'orange' ? '#f97316' : 
-                       color === 'cyan' ? '#06b6d4' : 
-                       color === 'amber' ? '#f59e0b' : '#6b7280' }}
+              style={{ backgroundColor: 
+                color === 'red' ? colors.filter.red : 
+                color === 'blue' ? colors.filter.blue : 
+                color === 'green' ? colors.filter.green : 
+                color === 'yellow' ? colors.filter.yellow : 
+                color === 'purple' ? colors.filter.purple : 
+                color === 'orange' ? colors.filter.orange : 
+                color === 'cyan' ? colors.filter.cyan : 
+                color === 'amber' ? colors.filter.yellow : colors.filter.neutral 
+              }}
             />
           )}
       </div>
@@ -217,10 +220,10 @@ function FilterSection({
         <div className="mt-2 space-y-1">
           {sortable && (
             <div className="mb-3 px-1">
-            <span className="text-neutral-400 block mb-1 text-fluid-sm">Sort by:</span>
+            <span className="text-neutral-400 block mb-1 text-xs sm:text-sm">Sort by:</span>
             <button
                 onClick={() => setSortOrder(sortOrder === "commonToRare" ? "rareToCommon" : "commonToRare")}
-              className="flex items-center gap-1 px-3 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition-colors w-full justify-between text-off-white text-fluid-sm"
+              className="flex items-center gap-1 px-3 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition-colors w-full justify-between text-off-white text-xs sm:text-sm"
             >
               <span className={colorClasses[color]}>
                 {sortOrder === "commonToRare" ? "Common to Rare" : "Rare to Common"}
@@ -250,13 +253,13 @@ function FilterSection({
                       onChange={() => handleCheckboxChange(optValue)}
                     className="sidebar-checkbox mr-2 flex-shrink-0"
                     style={{
-                      '--checkbox-color': color === 'purple' ? '#8b5cf6' : 
-                                        color === 'blue' ? '#3b82f6' :
-                                        color === 'amber' ? '#f59e0b' :
-                                        color === 'red' ? '#ef4444' :
-                                        color === 'green' ? '#10b981' :
-                                        color === 'cyan' ? '#06b6d4' :
-                                        color === 'orange' ? '#f97316' : '#8b5cf6'
+                      '--checkbox-color': color === 'purple' ? colors.filter.purple : 
+                                        color === 'blue' ? colors.filter.blue :
+                                        color === 'amber' ? colors.filter.yellow :
+                                        color === 'red' ? colors.filter.red :
+                                        color === 'green' ? colors.filter.green :
+                                        color === 'cyan' ? colors.filter.cyan :
+                                        color === 'orange' ? colors.filter.orange : colors.filter.purple
                     } as React.CSSProperties}
                   />
                   <label
@@ -355,20 +358,22 @@ function SubcategorySection({
       >
         <div className="flex items-center gap-2">
           {icon && <span className={colorClasses[color]}>{icon}</span>}
-          <h3 className={`font-normal text-fluid-md ${isOpen ? colorClasses[color] : 'text-off-white'}`}>
+          <h3 className={`font-medium text-sm sm:text-base ${isOpen ? colorClasses[color] : 'text-off-white'}`}>
             {title}
           </h3>
           {/* Active filter indicator for subcategories */}
           {Object.values(selected).some(arr => arr && arr.length > 0) && (
             <div 
               className="w-2 h-2 rounded-full flex-shrink-0" 
-              style={{ backgroundColor: color === 'purple' ? '#8b5cf6' : 
-                       color === 'blue' ? '#3b82f6' : 
-                       color === 'green' ? '#10b981' : 
-                       color === 'yellow' ? '#f59e0b' : 
-                       color === 'red' ? '#ef4444' : 
-                       color === 'cyan' ? '#06b6d4' : 
-                       color === 'orange' ? '#f97316' : '#6b7280' }}
+              style={{ backgroundColor: 
+                color === 'purple' ? colors.filter.purple : 
+                color === 'blue' ? colors.filter.blue : 
+                color === 'green' ? colors.filter.green : 
+                color === 'yellow' ? colors.filter.yellow : 
+                color === 'red' ? colors.filter.red : 
+                color === 'cyan' ? colors.filter.cyan : 
+                color === 'orange' ? colors.filter.orange : colors.filter.neutral 
+              }}
             />
           )}
         </div>
@@ -405,19 +410,19 @@ function SubcategorySection({
                     onChange={() => handleSubcategoryToggle(subcategory.name)}
                     className="sidebar-checkbox mr-2"
                     style={{
-                      '--checkbox-color': color === 'purple' ? '#8b5cf6' : 
-                                        color === 'blue' ? '#3b82f6' :
-                                        color === 'amber' ? '#f59e0b' :
-                                        color === 'red' ? '#ef4444' :
-                                        color === 'green' ? '#10b981' :
-                                        color === 'cyan' ? '#06b6d4' :
-                                        color === 'orange' ? '#f97316' : '#8b5cf6'
+                      '--checkbox-color': color === 'purple' ? colors.filter.purple : 
+                                        color === 'blue' ? colors.filter.blue :
+                                        color === 'amber' ? colors.filter.yellow :
+                                        color === 'red' ? colors.filter.red :
+                                        color === 'green' ? colors.filter.green :
+                                        color === 'cyan' ? colors.filter.cyan :
+                                        color === 'orange' ? colors.filter.orange : colors.filter.purple
                     } as React.CSSProperties}
                     onClick={(e: React.MouseEvent) => e.stopPropagation()}
                   />
                   <label
                     htmlFor={`subcat-${subcategory.name}`}
-                    className={`cursor-pointer py-0.5 pr-2 block flex-1 text-fluid-sm ${isChecked ? `border-b ${borderClasses[color]} pb-1` : ''}`}
+                    className={`cursor-pointer py-0.5 pr-2 block flex-1 text-xs sm:text-sm ${isChecked ? `border-b ${borderClasses[color]} pb-1` : ''}`}
                     onClick={(e: React.MouseEvent) => e.stopPropagation()}
                   >
                     <div className="flex items-center justify-between pb-1">
@@ -665,34 +670,28 @@ export default function NFTSidebar({
       suppressHydrationWarning={true}
     >
       {/* Blockchain Info */}
-        <div className="space-y-1 mb-4 p-3 border border-neutral-700 rounded">
-          <div>
-          <div className="font-mono font-extralight text-off-white mb-0 text-fluid-xs">Blockchain: Base</div>
-        </div>
-          <div>
-          <div className="font-mono font-extralight text-off-white mb-0 text-fluid-xs">Chain ID: 8453</div>
-        </div>
-          <div>
-          <div className="font-mono font-extralight text-off-white mb-2 text-fluid-xs">Token Standard: ERC-721</div>
-        </div>
+        <div className="mb-4 p-3 border border-neutral-700 rounded">
+          <div className="font-inconsolata text-off-white leading-tight text-xs" style={{ fontWeight: '300' }}>Blockchain: Base</div>
+          <div className="font-inconsolata text-off-white leading-tight text-xs" style={{ fontWeight: '300' }}>Chain ID: 8453</div>
+          <div className="font-inconsolata text-off-white leading-tight text-xs" style={{ fontWeight: '300' }}>Token Standard: ERC-721</div>
 
         {/* Contract Links */}
         <div className="space-y-3 mt-3">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h4 className="font-mono font-extralight text-off-white text-fluid-xs">Marketplace</h4>
+              <h4 className="font-inconsolata text-off-white text-xs" style={{ fontWeight: '300' }}>Marketplace</h4>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
                <button
                 onClick={() => window.open(`https://basescan.org/address/${process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-fluid-xs"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-xs w-full sm:w-auto"
               >
                 BaseScan
                 <ExternalLink className="h-3 w-3 text-off-white" />
               </button>
               <button
                 onClick={() => window.open(`https://base.blockscout.com/address/${process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-fluid-xs"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-xs w-full sm:w-auto"
               >
                 Blockscout
                 <ExternalLink className="h-3 w-3 text-off-white" />
@@ -702,19 +701,19 @@ export default function NFTSidebar({
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h4 className="font-mono font-extralight text-off-white text-fluid-xs">NFT Contract</h4>
+              <h4 className="font-inconsolata text-off-white text-xs" style={{ fontWeight: '300' }}>NFT Contract</h4>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <button
                 onClick={() => window.open(`https://basescan.org/address/${process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-fluid-xs"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-xs w-full sm:w-auto"
               >
                 BaseScan
                 <ExternalLink className="h-3 w-3 text-off-white" />
               </button>
               <button
                 onClick={() => window.open(`https://base.blockscout.com/address/${process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-fluid-xs"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-xs w-full sm:w-auto"
               >
                 Blockscout
                 <ExternalLink className="h-3 w-3 text-off-white" />
@@ -728,13 +727,13 @@ export default function NFTSidebar({
 
       {/* Search */}
       <div suppressHydrationWarning={true}>
-        <h3 className="font-normal mb-2 text-off-white text-fluid-md">Search</h3>
+        <h3 className="font-medium mb-2 text-off-white text-sm sm:text-base">Search</h3>
         
         <div className="mb-3">
           <div className="flex bg-neutral-700 rounded p-1">
             <button
               onClick={() => handleSearchModeChange("contains")}
-              className={`flex-1 px-3 py-1.5 rounded transition-colors text-fluid-sm ${
+              className={`flex-1 px-3 py-1.5 rounded transition-colors text-xs sm:text-sm font-normal ${
                 searchMode === "contains"
                   ? "bg-brand-pink text-white"
                   : "text-neutral-400 hover:text-white"
@@ -745,7 +744,7 @@ export default function NFTSidebar({
             </button>
             <button
               onClick={() => handleSearchModeChange("exact")}
-              className={`flex-1 px-3 py-1.5 rounded transition-colors text-fluid-sm ${
+              className={`flex-1 px-3 py-1.5 rounded transition-colors text-xs sm:text-sm font-normal ${
                 searchMode === "exact"
                   ? "bg-brand-pink text-white"
                   : "text-neutral-200 hover:text-white"
@@ -761,7 +760,7 @@ export default function NFTSidebar({
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-500" />
           <Input
             placeholder="Search NFTs..."
-            className="pl-9 py-1.5 font-light h-8 rounded text-brand-pink border-neutral-600 focus:outline-none focus:ring-0 focus:border-brand-pink transition-colors placeholder:font-light text-fluid-sm"
+            className="pl-9 py-1.5 font-light h-8 rounded text-brand-pink border-neutral-600 focus:outline-none focus:ring-0 focus:border-brand-pink transition-colors placeholder:font-light text-xs sm:text-sm"
             value={searchTerm}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setSearchTerm(e.target.value)
@@ -772,7 +771,7 @@ export default function NFTSidebar({
         </div>
         
         <button
-          className="font-light flex items-center justify-center h-8 w-full mb-4 rounded border border-brand-pink text-brand-pink bg-transparent hover:bg-brand-pink hover:text-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-fluid-sm"
+          className="font-light flex items-center justify-center h-8 w-full mb-4 rounded border border-brand-pink text-brand-pink bg-transparent hover:bg-brand-pink hover:text-white hover:border-brand-pink focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-xs sm:text-sm"
           aria-label="Search NFTs"
         >
           Search
@@ -786,7 +785,7 @@ export default function NFTSidebar({
           variant="outline" 
           size="sm" 
           onClick={clearAllFilters}
-          className="font-light flex items-center justify-center gap-1 h-9 w-full rounded border-neutral-500 text-neutral-300 hover:bg-neutral-700 hover:text-white hover:border-neutral-400 focus:outline-none focus:ring-0 focus:border-neutral-400 transition-colors text-fluid-sm"
+          className="font-light flex items-center justify-center gap-1 h-9 w-full rounded border-neutral-500 text-neutral-300 hover:bg-neutral-700 hover:text-white hover:border-neutral-400 focus:outline-none focus:ring-0 focus:border-neutral-400 transition-colors text-xs sm:text-sm"
           aria-label="Clear all filters and search"
         >
           <X className="h-4 w-4" /> Clear All Filters

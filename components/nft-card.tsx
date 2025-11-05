@@ -153,16 +153,17 @@ export default function NFTCard({
         {/* Image has p-2 (8px padding all around), visible image spans full width with 8px padding on each side */}
         {/* Drop shadow ~3px on left, so left padding = 8px + 3px = 11px to align with image */}
         {/* Right side: 8px padding to align with image edge (no drop shadow compensation) */}
-        <div className="space-y-1 pb-2 box-border overflow-hidden" style={{ 
+        <div className="space-y-1 pb-2 box-border overflow-hidden max-w-full" style={{ 
           paddingLeft: '11px', 
           paddingRight: '8px', 
           width: 'calc(100% - 8px)',
-          marginLeft: '8px'
+          marginLeft: '8px',
+          maxWidth: 'calc(100% - 8px)'
         }}>
-          <div className="flex items-start justify-between gap-2 flex-wrap">
+          <div className="flex items-start justify-between gap-2 flex-wrap w-full">
             <h3
               className="font-semibold text-off-white text-fluid-md
-                         leading-snug break-words flex-1 min-w-0"
+                         leading-snug break-words flex-1 min-w-0 max-w-full overflow-hidden"
             >
               {name}
             </h3>
@@ -184,44 +185,45 @@ export default function NFTCard({
           </div>
 
           {/* Stats block */}
-          <div className="text-neutral-400 space-y-0.5">
-            <div className="flex justify-between">
-              <span className="nft-meta-label">Rank:</span><span className="nft-meta-value">{rank} of {TOTAL_COLLECTION_SIZE}</span>
+          <div className="text-neutral-400 space-y-0.5 w-full max-w-full overflow-hidden">
+            <div className="flex justify-between w-full">
+              <span className="nft-meta-label truncate">Rank:</span><span className="nft-meta-value truncate">{rank} of {TOTAL_COLLECTION_SIZE}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="nft-meta-label">Rarity:</span><span className="nft-meta-value">{rarityPercent}%</span>
+            <div className="flex justify-between w-full">
+              <span className="nft-meta-label truncate">Rarity:</span><span className="nft-meta-value truncate">{rarityPercent}%</span>
             </div>
-            <div className="flex justify-between">
-              <span className="nft-meta-label">Tier:</span><span className="nft-meta-value">{rarity}</span>
+            <div className="flex justify-between w-full">
+              <span className="nft-meta-label truncate">Tier:</span><span className="nft-meta-value truncate">{rarity}</span>
             </div>
           </div>
 
           {/* Buy/Sold Section - Price display with separate button */}
           {isForSale ? (
-            <div className="pt-1 flex items-center justify-between gap-2">
-              <div className="flex-1 min-w-0">
-                <div className="text-fluid-xs font-medium text-blue-500">
+            <div className="pt-1 flex items-center justify-between gap-2 w-full max-w-full">
+              <div className="flex-1 min-w-0 max-w-full overflow-hidden">
+                <div className="text-fluid-xs font-medium text-blue-500 truncate">
                   Buy Now
                 </div>
-                <div className="text-fluid-sm font-semibold leading-tight text-blue-400">
+                <div className="text-fluid-sm font-semibold leading-tight text-blue-400 truncate">
                   {displayPrice} ETH
                 </div>
               </div>
               <Link
                 href={`/nft/${cardNumber}`}
-                className="px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.75rem,0.5vw,0.85rem)] bg-blue-500/10 border-[1.75px] border-blue-500/30 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500/50"
+                className="px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.75rem,0.5vw,0.85rem)] bg-blue-500/10 border text-blue-400 hover:bg-blue-500/20 hover:border-blue-500/50"
+                style={{ borderColor: 'rgba(59, 130, 246, 0.3)', borderWidth: '1px', borderStyle: 'solid' }}
               >
                 BUY
               </Link>
             </div>
           ) : (
-            <div className="pt-1 flex items-center justify-between gap-2">
-              <div className="flex-1 min-w-0">
-                <div className="text-fluid-xs font-medium text-green-500">
+            <div className="pt-1 flex items-center justify-between gap-2 w-full max-w-full">
+              <div className="flex-1 min-w-0 max-w-full overflow-hidden">
+                <div className="text-fluid-xs font-medium text-green-500 truncate">
                   Sold
                 </div>
                 {soldPriceEth && soldPriceEth > 0 ? (
-                  <div className="text-fluid-sm font-semibold leading-tight text-green-400">
+                  <div className="text-fluid-sm font-semibold leading-tight text-green-400 truncate">
                     {soldPriceEth} ETH
                   </div>
                 ) : null}
@@ -267,11 +269,12 @@ export default function NFTCard({
       {/* Text constrained to image width - image has p-1 (4px padding), visible image spans full width with 4px padding on each side */}
       {/* Drop shadow ~3px on left, so left padding = 4px + 3px = 7px to align with image */}
       {/* Right side: 4px padding to align with image edge (no drop shadow compensation) */}
-      <div className="pb-2 flex flex-col overflow-hidden" style={{ 
+      <div className="pb-2 flex flex-col overflow-hidden max-w-full" style={{ 
         paddingLeft: '7px', 
         paddingRight: '4px', 
         width: 'calc(100% - 4px)',
-        marginLeft: '4px'
+        marginLeft: '4px',
+        maxWidth: 'calc(100% - 4px)'
       }}>
         <div className="flex items-center justify-between mb-1 gap-2">
           <div className={`font-medium leading-tight ${smallText} ${isForSale ? 'text-blue-400' : 'text-green-400'} truncate flex-1 min-w-0`}>
@@ -292,45 +295,6 @@ export default function NFTCard({
             />
           </Button>
         </div>
-
-        {/* Buy/Sold Section - Price display with separate button */}
-        {isForSale ? (
-          <div className="mt-1 flex items-center justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <div className={`${smallText} font-medium text-blue-500`}>
-                Buy Now
-              </div>
-              <div className={`${smallText} font-semibold leading-tight text-blue-400`}>
-                {displayPrice} ETH
-              </div>
-            </div>
-            <Link
-              href={`/nft/${cardNumber}`}
-              className="px-2.5 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.75rem,0.5vw,0.85rem)] bg-blue-500/10 border-[1.75px] border-blue-500/30 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500/50"
-            >
-              BUY
-            </Link>
-          </div>
-        ) : (
-          <div className="mt-1 flex items-center justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <div className={`${smallText} font-medium text-green-500`}>
-                Sold
-              </div>
-              {soldPriceEth && soldPriceEth > 0 ? (
-                <div className={`${smallText} font-semibold leading-tight text-green-400`}>
-                  {soldPriceEth} ETH
-                </div>
-              ) : null}
-            </div>
-            <Link
-              href={`/nft/${cardNumber}`}
-              className="px-2.5 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.75rem,0.5vw,0.85rem)] bg-green-500/10 border-[1.5px] border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50"
-            >
-              Sold
-            </Link>
-          </div>
-        )}
       </div>
     </div>
   );
