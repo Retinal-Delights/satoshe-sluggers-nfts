@@ -11,6 +11,7 @@ import SimpleConnectButton from "@/components/simple-connect-button"
 import { NavLink } from "@/components/nav-link"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { createPortal } from "react-dom"
+import { colors } from "@/lib/design-system"
 
 interface MobileMenuProps {
   isWalletConnected?: boolean
@@ -118,7 +119,7 @@ export function MobileMenu({ isWalletConnected = false, hasUserActivity = false 
         isAnimating ? 'opacity-100' : 'opacity-0'
       }`}
       style={{
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: colors.background.overlay,
       }}
       onClick={handleClose}
       role="dialog"
@@ -135,7 +136,7 @@ export function MobileMenu({ isWalletConnected = false, hasUserActivity = false 
         style={{
           top: '76px', // Position below navbar (navbar height is ~76px)
           maxHeight: 'calc(100vh - 100px)', // Leave some margin
-          backgroundColor: '#0a0a0a',
+          backgroundColor: colors.background.dark,
         }}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
@@ -150,7 +151,7 @@ export function MobileMenu({ isWalletConnected = false, hasUserActivity = false 
                 onClick={handleClose}
                 aria-label="Close mobile menu"
               >
-                <X className="h-6 w-6 text-[#ff0099]" />
+                <X className="h-6 w-6 text-brand-pink" />
               </Button>
             </div>
             

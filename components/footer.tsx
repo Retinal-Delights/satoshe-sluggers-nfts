@@ -50,7 +50,7 @@ export default function Footer() {
                 <a
                   key={link.label}
                   href="#"
-                  className="termly-display-preferences hover:text-[#FFFBEB] transition-colors cursor-pointer"
+                  className="termly-display-preferences hover:text-off-white transition-colors cursor-pointer"
                   onClick={(e) => {
                     e.preventDefault();
                     if (typeof window !== 'undefined' && window.Termly?.displayPreferenceModal) {
@@ -66,7 +66,7 @@ export default function Footer() {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-[#FFFBEB] transition-colors"
+                  className="hover:text-off-white transition-colors"
                 >
                   {link.label}
                 </Link>
@@ -76,14 +76,14 @@ export default function Footer() {
 
         </div>
 
-        <Separator className="my-2 max-w-3xl mx-auto opacity-20 border-[#ff0099]" />
+        <Separator className="my-2 max-w-3xl mx-auto opacity-20 border-brand-pink" />
 
         <div className="flex flex-col items-center text-[10px] sm:text-xs text-neutral-400">
           <div className="mb-1">
-            Created with <Heart className="inline-block h-3 w-3 mx-1 text-[#ff0099] fill-[#ff0099]" /> in Los Angeles by{" "}
+            Created with <Heart className="inline-block h-3 w-3 mx-1 text-brand-pink fill-brand-pink" /> in Los Angeles by{" "}
             <a
               href="https://kristenwoerdeman.com"
-              className="text-[#ff0099] hover:text-[#ff0099]/80 transition-colors font-medium"
+              className="text-brand-pink hover:text-off-white transition-colors font-medium"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -95,7 +95,7 @@ export default function Footer() {
             2025 ©{" "}
             <a
               href="https://retinaldelights.io"
-              className="text-[#ff0099] hover:text-[#ff0099]/80 transition-colors font-medium"
+              className="text-brand-pink hover:text-off-white transition-colors font-medium"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -130,7 +130,7 @@ export default function Footer() {
               />
             </a>
           </TooltipTrigger>
-          <TooltipContent side="top" className="bg-neutral-800 text-[#FFFBEB] border-neutral-600">
+          <TooltipContent side="top" className="bg-neutral-800 text-off-white border-neutral-600">
             <p>Cookie Settings</p>
           </TooltipContent>
         </Tooltip>

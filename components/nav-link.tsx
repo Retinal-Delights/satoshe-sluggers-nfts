@@ -31,8 +31,8 @@ export function NavLink({
   }
   
   const colorClasses = isActive 
-    ? "text-[#ff0099]" 
-    : "text-neutral-400 hover:text-[#FFFBEB]"
+    ? "text-brand-pink" 
+    : "text-neutral-400 hover:text-off-white"
   
   const underlineClasses = variant === "desktop" 
     ? "absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out"
@@ -40,18 +40,18 @@ export function NavLink({
   
   const getUnderlineWidth = () => {
     if (variant === "desktop") {
-      return isActive ? "w-full bg-[#ff0099]" : "w-0 group-hover:w-full bg-[#FFFBEB]"
+      return isActive ? "w-full bg-brand-pink" : "w-0 group-hover:w-full bg-off-white"
     } else {
       // Mobile variant - different widths for different text lengths
       const text = children?.toString() || ""
       if (text === "HOME" || text === "ABOUT" || text === "NFTS") {
-        return isActive ? "w-16 bg-[#ff0099]" : "w-0 group-hover:w-16 bg-[#FFFBEB]"
+        return isActive ? "w-16 bg-brand-pink" : "w-0 group-hover:w-16 bg-off-white"
       } else if (text === "PROVENANCE") {
-        return isActive ? "w-28 bg-[#ff0099]" : "w-0 group-hover:w-28 bg-[#FFFBEB]"
+        return isActive ? "w-28 bg-brand-pink" : "w-0 group-hover:w-28 bg-off-white"
       } else if (text === "CONTACT" || text === "MY NFTS") {
-        return isActive ? "w-20 bg-[#ff0099]" : "w-0 group-hover:w-20 bg-[#FFFBEB]"
+        return isActive ? "w-20 bg-brand-pink" : "w-0 group-hover:w-20 bg-off-white"
       } else {
-        return isActive ? "w-28 bg-[#ff0099]" : "w-0 group-hover:w-28 bg-[#FFFBEB]"
+        return isActive ? "w-28 bg-brand-pink" : "w-0 group-hover:w-28 bg-off-white"
       }
     }
   }

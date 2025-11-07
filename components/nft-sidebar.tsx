@@ -6,8 +6,15 @@ import Image from "next/image"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { announceToScreenReader } from "@/lib/accessibility-utils"
+import { colors } from "@/lib/design-system"
 
-// Simple types
+/**
+ * Filter state interface for NFT sidebar
+ * 
+ * Represents selected filter values organized by trait category.
+ * Simple traits (rarity, background, etc.) use string arrays.
+ * Complex traits (hair, headwear) use nested objects with subcategories and colors.
+ */
 interface FilterState {
   rarity?: string[];
   background?: string[];
@@ -18,6 +25,18 @@ interface FilterState {
   headwear?: Record<string, string[]>;
 }
 
+/**
+ * Props interface for NFTSidebar component
+ * 
+ * @interface NFTSidebarProps
+ * @property {string} searchTerm - Current search query string
+ * @property {function} setSearchTerm - Callback to update search term
+ * @property {"exact" | "contains"} searchMode - Search matching mode
+ * @property {function} setSearchMode - Callback to update search mode
+ * @property {FilterState} selectedFilters - Currently selected filter values
+ * @property {function} setSelectedFilters - Callback to update selected filters
+ * @property {Record<string, Record<string, number>>} [traitCounts] - Optional trait counts for displaying availability
+ */
 interface NFTSidebarProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
@@ -28,7 +47,37 @@ interface NFTSidebarProps {
   traitCounts?: Record<string, Record<string, number>>;
 }
 
-// Simple filter section component
+/**
+ * FilterSection Component
+ * 
+ * A collapsible filter section for selecting NFT traits by category.
+ * Supports checkbox selection, trait count display, and optional sorting.
+ * Used throughout the sidebar for different trait categories (rarity, background, etc.).
+ * 
+ * @param {Object} props - Component props
+ * @param {string} props.title - Section title (e.g., "Background", "Skin Tone")
+ * @param {string} props.color - Color theme for the section (purple, blue, amber, red, green, cyan, orange)
+ * @param {string[] | Array<{value: string, display: string}>} props.options - Available filter options
+ * @param {string[]} [props.selected=[]] - Currently selected options
+ * @param {function} props.onChange - Callback when selection changes
+ * @param {Record<string, Record<string, number>>} [props.traitCounts={}] - Trait counts for displaying availability
+ * @param {React.ReactNode} [props.icon] - Optional icon to display next to title
+ * @param {boolean} [props.sortable=false] - Whether options can be sorted by count
+ * @returns {JSX.Element} Collapsible filter section component
+ * 
+ * @example
+ * ```tsx
+ * <FilterSection
+ *   title="Background"
+ *   color="blue"
+ *   options={["Blue", "Red", "Green"]}
+ *   selected={selectedFilters.background || []}
+ *   onChange={(selected) => setSelectedFilters({...selectedFilters, background: selected})}
+ *   traitCounts={traitCounts}
+ *   sortable={true}
+ * />
+ * ```
+ */
 function FilterSection({ 
   title, 
   color, 
@@ -99,12 +148,38 @@ function FilterSection({
 
   // Sort options based on sortOrder when sortable is true
   const sortedOptions = useMemo(() => {
-    if (!sortable || sortOrder === "commonToRare") {
+    if (!sortable) {
+      return options
+    }
+    
+    // For rarity tiers, use the defined order
+    if (title === "Rarity Tiers") {
+      const optionsArray = Array.isArray(options) ? options : []
+      const sorted = [...optionsArray].sort((a, b) => {
+        const valueA = typeof a === 'string' ? a : a.value || a.display || ''
+        const valueB = typeof b === 'string' ? b : b.value || b.display || ''
+        // Normalize tier names (remove " (Ultra-Legendary)" suffix)
+        const normalizedA = valueA.replace(' (Ultra-Legendary)', '')
+        const normalizedB = valueB.replace(' (Ultra-Legendary)', '')
+        const orderA = RARITY_TIER_ORDER[normalizedA] ?? 999
+        const orderB = RARITY_TIER_ORDER[normalizedB] ?? 999
+        
+        if (sortOrder === "commonToRare") {
+          return orderA - orderB
+        } else {
+          return orderB - orderA
+        }
+      })
+      return sorted
+    }
+    
+    // For other sortable options, use default behavior
+    if (sortOrder === "commonToRare") {
       return options
     }
     // Reverse the array for "Rare to Common" order
     return [...options].reverse()
-  }, [options, sortOrder, sortable])
+  }, [options, sortOrder, sortable, title])
 
   return (
     <div className={`${isOpen ? 'pt-3 pb-3' : 'pt-1'}`}>
@@ -114,24 +189,23 @@ function FilterSection({
       >
         <div className="flex items-center gap-2">
           {icon && <span className={colorClasses[color]}>{icon}</span>}
-          <h3 className={`font-normal ${isOpen ? colorClasses[color] : ''}`} style={{ 
-            ...(!isOpen ? { color: "#fffbeb" } : {}),
-            fontSize: 'clamp(0.9rem, 0.6vw, 1rem)'
-          }}>
+          <h3 className={`font-medium text-sm sm:text-base ${isOpen ? colorClasses[color] : 'text-off-white'}`}>
             {title}
           </h3>
           {/* Active filter indicator */}
           {selected && selected.length > 0 && (
             <div 
               className="w-2 h-2 rounded-full flex-shrink-0" 
-              style={{ backgroundColor: color === 'red' ? '#ef4444' : 
-                       color === 'blue' ? '#3b82f6' : 
-                       color === 'green' ? '#10b981' : 
-                       color === 'yellow' ? '#f59e0b' : 
-                       color === 'purple' ? '#8b5cf6' : 
-                       color === 'orange' ? '#f97316' : 
-                       color === 'cyan' ? '#06b6d4' : 
-                       color === 'amber' ? '#f59e0b' : '#6b7280' }}
+              style={{ backgroundColor: 
+                color === 'red' ? colors.filter.red : 
+                color === 'blue' ? colors.filter.blue : 
+                color === 'green' ? colors.filter.green : 
+                color === 'yellow' ? colors.filter.yellow : 
+                color === 'purple' ? colors.filter.purple : 
+                color === 'orange' ? colors.filter.orange : 
+                color === 'cyan' ? colors.filter.cyan : 
+                color === 'amber' ? colors.filter.yellow : colors.filter.neutral 
+              }}
             />
           )}
       </div>
@@ -146,11 +220,10 @@ function FilterSection({
         <div className="mt-2 space-y-1">
           {sortable && (
             <div className="mb-3 px-1">
-            <span className="text-neutral-400 block mb-1" style={{ fontSize: 'clamp(0.75rem, 0.45vw, 0.9rem)' }}>Sort by:</span>
+            <span className="text-neutral-400 block mb-1 text-xs sm:text-sm">Sort by:</span>
             <button
                 onClick={() => setSortOrder(sortOrder === "commonToRare" ? "rareToCommon" : "commonToRare")}
-              className="flex items-center gap-1 px-3 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition-colors w-full justify-between text-off-white"
-              style={{ fontSize: 'clamp(0.75rem, 0.5vw, 0.9rem)' }}
+              className="flex items-center gap-1 px-3 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition-colors w-full justify-between text-off-white text-xs sm:text-sm"
             >
               <span className={colorClasses[color]}>
                 {sortOrder === "commonToRare" ? "Common to Rare" : "Rare to Common"}
@@ -180,24 +253,23 @@ function FilterSection({
                       onChange={() => handleCheckboxChange(optValue)}
                     className="sidebar-checkbox mr-2 flex-shrink-0"
                     style={{
-                      '--checkbox-color': color === 'purple' ? '#8b5cf6' : 
-                                        color === 'blue' ? '#3b82f6' :
-                                        color === 'amber' ? '#f59e0b' :
-                                        color === 'red' ? '#ef4444' :
-                                        color === 'green' ? '#10b981' :
-                                        color === 'cyan' ? '#06b6d4' :
-                                        color === 'orange' ? '#f97316' : '#8b5cf6'
+                      '--checkbox-color': color === 'purple' ? colors.filter.purple : 
+                                        color === 'blue' ? colors.filter.blue :
+                                        color === 'amber' ? colors.filter.yellow :
+                                        color === 'red' ? colors.filter.red :
+                                        color === 'green' ? colors.filter.green :
+                                        color === 'cyan' ? colors.filter.cyan :
+                                        color === 'orange' ? colors.filter.orange : colors.filter.purple
                     } as React.CSSProperties}
                   />
                   <label
                       htmlFor={optValue}
-                      className="text-neutral-300 cursor-pointer flex-1 py-0.5 whitespace-pre-line leading-tight min-w-0"
-                      style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}
+                      className="text-neutral-300 cursor-pointer flex-1 py-0.5 whitespace-pre-line leading-tight min-w-0 text-fluid-xs"
                   >
                     <div className="flex items-center justify-between gap-1">
                         <span className="break-words min-w-0">{optDisplay.replace('\n', ' ')}</span>
                         {count && (
-                          <span className={`${colorClasses[color]} font-medium flex-shrink-0 ml-1`} style={{ fontSize: 'clamp(0.65rem, 0.35vw, 0.8rem)' }}>
+                          <span className={`${colorClasses[color]} font-medium flex-shrink-0 ml-1 text-fluid-xs`}>
                             ({count})
                           </span>
                         )}
@@ -286,23 +358,22 @@ function SubcategorySection({
       >
         <div className="flex items-center gap-2">
           {icon && <span className={colorClasses[color]}>{icon}</span>}
-          <h3 className={`font-normal ${isOpen ? colorClasses[color] : ''}`} style={{ 
-            ...(!isOpen ? { color: "#fffbeb" } : {}),
-            fontSize: 'clamp(0.9rem, 0.6vw, 1rem)'
-          }}>
+          <h3 className={`font-medium text-sm sm:text-base ${isOpen ? colorClasses[color] : 'text-off-white'}`}>
             {title}
           </h3>
           {/* Active filter indicator for subcategories */}
           {Object.values(selected).some(arr => arr && arr.length > 0) && (
             <div 
               className="w-2 h-2 rounded-full flex-shrink-0" 
-              style={{ backgroundColor: color === 'purple' ? '#8b5cf6' : 
-                       color === 'blue' ? '#3b82f6' : 
-                       color === 'green' ? '#10b981' : 
-                       color === 'yellow' ? '#f59e0b' : 
-                       color === 'red' ? '#ef4444' : 
-                       color === 'cyan' ? '#06b6d4' : 
-                       color === 'orange' ? '#f97316' : '#6b7280' }}
+              style={{ backgroundColor: 
+                color === 'purple' ? colors.filter.purple : 
+                color === 'blue' ? colors.filter.blue : 
+                color === 'green' ? colors.filter.green : 
+                color === 'yellow' ? colors.filter.yellow : 
+                color === 'red' ? colors.filter.red : 
+                color === 'cyan' ? colors.filter.cyan : 
+                color === 'orange' ? colors.filter.orange : colors.filter.neutral 
+              }}
             />
           )}
         </div>
@@ -339,26 +410,25 @@ function SubcategorySection({
                     onChange={() => handleSubcategoryToggle(subcategory.name)}
                     className="sidebar-checkbox mr-2"
                     style={{
-                      '--checkbox-color': color === 'purple' ? '#8b5cf6' : 
-                                        color === 'blue' ? '#3b82f6' :
-                                        color === 'amber' ? '#f59e0b' :
-                                        color === 'red' ? '#ef4444' :
-                                        color === 'green' ? '#10b981' :
-                                        color === 'cyan' ? '#06b6d4' :
-                                        color === 'orange' ? '#f97316' : '#8b5cf6'
+                      '--checkbox-color': color === 'purple' ? colors.filter.purple : 
+                                        color === 'blue' ? colors.filter.blue :
+                                        color === 'amber' ? colors.filter.yellow :
+                                        color === 'red' ? colors.filter.red :
+                                        color === 'green' ? colors.filter.green :
+                                        color === 'cyan' ? colors.filter.cyan :
+                                        color === 'orange' ? colors.filter.orange : colors.filter.purple
                     } as React.CSSProperties}
                     onClick={(e: React.MouseEvent) => e.stopPropagation()}
                   />
                   <label
                     htmlFor={`subcat-${subcategory.name}`}
-                    className={`cursor-pointer py-0.5 pr-2 block flex-1 ${isChecked ? `border-b ${borderClasses[color]} pb-1` : ''}`}
+                    className={`cursor-pointer py-0.5 pr-2 block flex-1 text-xs sm:text-sm ${isChecked ? `border-b ${borderClasses[color]} pb-1` : ''}`}
                     onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                    style={{ fontSize: 'clamp(0.8rem, 0.5vw, 0.95rem)' }}
                   >
                     <div className="flex items-center justify-between pb-1">
                       <span className={colorClasses[color]}>{subcategory.name}</span>
                       {totalCount > 0 && (
-                          <span className={`${colorClasses[color]} font-medium`} style={{ fontSize: 'clamp(0.65rem, 0.35vw, 0.8rem)' }}>
+                          <span className={`${colorClasses[color]} font-medium text-fluid-xs`}>
                             ({totalCount})
                           </span>
                       )}
@@ -381,24 +451,23 @@ function SubcategorySection({
                             onChange={() => handleColorToggle(subcategory.name, option)}
                           className="sidebar-checkbox mr-2 flex-shrink-0"
                           style={{
-                            '--checkbox-color': color === 'purple' ? '#8b5cf6' : 
-                                              color === 'blue' ? '#3b82f6' :
-                                              color === 'amber' ? '#f59e0b' :
-                                              color === 'red' ? '#ef4444' :
-                                              color === 'green' ? '#10b981' :
-                                              color === 'cyan' ? '#06b6d4' :
-                                              color === 'orange' ? '#f97316' : '#8b5cf6'
+                            '--checkbox-color': color === 'purple' ? colors.filter.purple : 
+                                              color === 'blue' ? colors.filter.blue :
+                                              color === 'amber' ? colors.filter.yellow :
+                                              color === 'red' ? colors.filter.red :
+                                              color === 'green' ? colors.filter.green :
+                                              color === 'cyan' ? colors.filter.cyan :
+                                              color === 'orange' ? colors.filter.orange : colors.filter.purple
                           } as React.CSSProperties}
                         />
                         <label
                           htmlFor={`${subcategory.name}-${option}`}
-                            className="text-neutral-300 cursor-pointer flex-1 py-0.5 min-w-0"
-                          style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}
+                          className="text-neutral-300 cursor-pointer flex-1 py-0.5 min-w-0 text-fluid-xs"
                         >
                           <div className="flex items-center justify-between gap-1">
                             <span className="break-words min-w-0">{option}</span>
                             {count && (
-                              <span className={`${colorClasses[color]} font-medium flex-shrink-0 ml-1`} style={{ fontSize: 'clamp(0.65rem, 0.35vw, 0.8rem)' }}>
+                              <span className={`${colorClasses[color]} font-medium flex-shrink-0 ml-1 text-fluid-xs`}>
                                 ({count})
                               </span>
                             )}
@@ -449,6 +518,22 @@ const FALLBACK_OPTIONS = {
   ]
 }
 
+// Rarity tier order (common to rare) - used for sorting
+const RARITY_TIER_ORDER: Record<string, number> = {
+  "Ground Ball": 1,
+  "Base Hit": 2,
+  "Double": 3,
+  "Stand-Up Double": 4,
+  "Line Drive": 5,
+  "Triple": 6,
+  "Pinch Hit Home Run": 7,
+  "Over-the-Fence Shot": 8,
+  "Home Run": 9,
+  "Walk-Off Home Run": 10,
+  "Grand Slam": 11,
+  "Grand Slam (Ultra-Legendary)": 11,
+};
+
 // Rarity tiers
 const RARITY_TIERS = [
   { value: "Ground Ball", display: "Ground Ball" },
@@ -458,12 +543,36 @@ const RARITY_TIERS = [
   { value: "Line Drive", display: "Line Drive" },
   { value: "Triple", display: "Triple" },
   { value: "Pinch Hit Home Run", display: "Pinch Hit Home Run" },
-  { value: "Home Run", display: "Home Run" },
   { value: "Over-the-Fence Shot", display: "Over-the-Fence Shot" },
+  { value: "Home Run", display: "Home Run" },
   { value: "Walk-Off Home Run", display: "Walk-Off Home Run" },
   { value: "Grand Slam (Ultra-Legendary)", display: "Grand Slam" },
 ]
 
+/**
+ * NFTSidebar Component
+ * 
+ * A comprehensive sidebar component for filtering and searching NFTs by traits.
+ * Provides search functionality (exact/contains modes), collapsible filter sections
+ * for various traits (rarity, background, skin tone, etc.), and blockchain information.
+ * Supports complex filtering for traits with subcategories (hair, headwear).
+ * 
+ * @example
+ * ```tsx
+ * <NFTSidebar
+ *   searchTerm={searchTerm}
+ *   setSearchTerm={setSearchTerm}
+ *   searchMode="contains"
+ *   setSearchMode={setSearchMode}
+ *   selectedFilters={selectedFilters}
+ *   setSelectedFilters={setSelectedFilters}
+ *   traitCounts={traitCounts}
+ * />
+ * ```
+ * 
+ * @param {NFTSidebarProps} props - Component props
+ * @returns {JSX.Element} Sidebar component with search and filter controls
+ */
 export default function NFTSidebar({ 
   searchTerm, 
   setSearchTerm, 
@@ -473,12 +582,14 @@ export default function NFTSidebar({
   setSelectedFilters, 
   traitCounts = {} 
 }: NFTSidebarProps) {
-
+  // Key to force remount of all filter sections when clearing filters
+  const [filterResetKey, setFilterResetKey] = useState(0)
 
   const clearAllFilters = () => {
     setSearchTerm("")
     setSearchMode("contains")
     setSelectedFilters({})
+    setFilterResetKey(prev => prev + 1) // Increment key to force all sections to remount closed
     announceToScreenReader("All filters cleared")
   }
 
@@ -559,63 +670,53 @@ export default function NFTSidebar({
       suppressHydrationWarning={true}
     >
       {/* Blockchain Info */}
-        <div className="space-y-1 mb-4 p-3 border border-neutral-700 rounded">
-          <div>
-          <div className="font-mono font-extralight text-off-white mb-0" style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}>Blockchain: Base</div>
-        </div>
-          <div>
-          <div className="font-mono font-extralight text-off-white mb-0" style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}>Chain ID: 8453</div>
-        </div>
-          <div>
-          <div className="font-mono font-extralight text-off-white mb-2" style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}>Token Standard: ERC-721</div>
-        </div>
+        <div className="mb-4 p-3 border border-neutral-700 rounded">
+          <div className="font-mono text-off-white leading-tight text-xs" style={{ fontWeight: '300' }}>Blockchain: Base</div>
+          <div className="font-mono text-off-white leading-tight text-xs" style={{ fontWeight: '300' }}>Chain ID: 8453</div>
+          <div className="font-mono text-off-white leading-tight text-xs" style={{ fontWeight: '300' }}>Token Standard: ERC-721</div>
 
         {/* Contract Links */}
         <div className="space-y-3 mt-3">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h4 className="font-mono font-extralight text-off-white" style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}>Marketplace</h4>
+              <h4 className="font-mono text-off-white text-xs" style={{ fontWeight: '300' }}>Marketplace</h4>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
                <button
                 onClick={() => window.open(`https://basescan.org/address/${process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer"
-                style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-xs w-full sm:w-auto"
               >
                 BaseScan
-                <ExternalLink className="h-3 w-3" style={{ color: "#fffbeb" }} />
+                <ExternalLink className="h-3 w-3 text-off-white" />
               </button>
               <button
                 onClick={() => window.open(`https://base.blockscout.com/address/${process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer"
-                style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-xs w-full sm:w-auto"
               >
                 Blockscout
-                <ExternalLink className="h-3 w-3" style={{ color: "#fffbeb" }} />
+                <ExternalLink className="h-3 w-3 text-off-white" />
               </button>
             </div>
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h4 className="font-mono font-extralight text-off-white" style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}>NFT Contract</h4>
+              <h4 className="font-mono text-off-white text-xs" style={{ fontWeight: '300' }}>NFT Contract</h4>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <button
                 onClick={() => window.open(`https://basescan.org/address/${process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer"
-                style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-xs w-full sm:w-auto"
               >
                 BaseScan
-                <ExternalLink className="h-3 w-3" style={{ color: "#fffbeb" }} />
+                <ExternalLink className="h-3 w-3 text-off-white" />
               </button>
               <button
                 onClick={() => window.open(`https://base.blockscout.com/address/${process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer"
-                style={{ fontSize: 'clamp(0.7rem, 0.4vw, 0.85rem)' }}
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-xs w-full sm:w-auto"
               >
                 Blockscout
-                <ExternalLink className="h-3 w-3" style={{ color: "#fffbeb" }} />
+                <ExternalLink className="h-3 w-3 text-off-white" />
               </button>
             </div>
           </div>
@@ -626,31 +727,29 @@ export default function NFTSidebar({
 
       {/* Search */}
       <div suppressHydrationWarning={true}>
-        <h3 className="font-normal mb-2" style={{ color: "#fffbeb", fontSize: 'clamp(0.9rem, 0.6vw, 1rem)' }}>Search</h3>
+        <h3 className="font-medium mb-2 text-off-white text-sm sm:text-base">Search</h3>
         
         <div className="mb-3">
           <div className="flex bg-neutral-700 rounded p-1">
             <button
               onClick={() => handleSearchModeChange("contains")}
-              className={`flex-1 px-3 py-1.5 rounded transition-colors ${
+              className={`flex-1 px-3 py-1.5 rounded transition-colors text-xs sm:text-sm font-normal ${
                 searchMode === "contains"
-                  ? "bg-[#ff0099] text-white"
+                  ? "bg-brand-pink text-white"
                   : "text-neutral-400 hover:text-white"
               }`}
               aria-pressed={searchMode === "contains"}
-              style={{ fontSize: 'clamp(0.75rem, 0.5vw, 0.9rem)' }}
             >
               Contains
             </button>
             <button
               onClick={() => handleSearchModeChange("exact")}
-              className={`flex-1 px-3 py-1.5 rounded transition-colors ${
+              className={`flex-1 px-3 py-1.5 rounded transition-colors text-xs sm:text-sm font-normal ${
                 searchMode === "exact"
-                  ? "bg-[#ff0099] text-white"
+                  ? "bg-brand-pink text-white"
                   : "text-neutral-200 hover:text-white"
               }`}
               aria-pressed={searchMode === "exact"}
-              style={{ fontSize: 'clamp(0.75rem, 0.5vw, 0.9rem)' }}
             >
               Exact
             </button>
@@ -661,8 +760,7 @@ export default function NFTSidebar({
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-500" />
           <Input
             placeholder="Search NFTs..."
-            className="pl-9 py-1.5 font-light h-8 rounded text-brand-pink border-neutral-600 focus:outline-none focus:ring-0 focus:border-brand-pink transition-colors placeholder:font-light"
-            style={{ fontSize: 'clamp(0.75rem, 0.5vw, 0.9rem)' }}
+            className="pl-9 py-1.5 font-light h-8 rounded text-brand-pink border-neutral-600 focus:outline-none focus:ring-0 focus:border-brand-pink transition-colors placeholder:font-light text-xs sm:text-sm"
             value={searchTerm}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setSearchTerm(e.target.value)
@@ -672,15 +770,12 @@ export default function NFTSidebar({
           />
         </div>
         
-        <Button
-          variant="outline"
-          size="sm"
-          className="font-medium flex items-center justify-center h-8 w-full mb-4 rounded border-[#ff0099] text-[#ff0099] bg-transparent hover:bg-[#ff0099] hover:text-white focus:outline-none focus:ring-0 focus:border-[#ff0099] transition-colors"
+        <button
+          className="font-light flex items-center justify-center h-8 w-full mb-4 rounded border border-brand-pink text-brand-pink bg-transparent focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-xs sm:text-sm cursor-pointer"
           aria-label="Search NFTs"
-          style={{ fontSize: 'clamp(0.75rem, 0.5vw, 0.9rem)' }}
         >
           Search
-        </Button>
+        </button>
         <div className="border-b border-neutral-700 mb-4"></div>
       </div>
 
@@ -690,8 +785,7 @@ export default function NFTSidebar({
           variant="outline" 
           size="sm" 
           onClick={clearAllFilters}
-          className="font-light flex items-center justify-center gap-1 h-9 w-full rounded border-neutral-500 text-neutral-300 hover:bg-neutral-700 hover:text-white hover:border-neutral-400 focus:outline-none focus:ring-0 focus:border-neutral-400 transition-colors"
-          style={{ fontSize: 'clamp(0.75rem, 0.5vw, 0.9rem)' }} 
+          className="font-light flex items-center justify-center gap-1 h-9 w-full rounded border-neutral-500 text-neutral-300 hover:bg-neutral-700 hover:text-white hover:border-neutral-400 focus:outline-none focus:ring-0 focus:border-neutral-400 transition-colors text-xs sm:text-sm"
           aria-label="Clear all filters and search"
         >
           <X className="h-4 w-4" /> Clear All Filters
@@ -700,6 +794,7 @@ export default function NFTSidebar({
 
       {/* Filter Sections */}
       <FilterSection
+          key={`rarity-${filterResetKey}`}
           title="Rarity Tiers"
           color="orange"
         options={RARITY_TIERS}
@@ -719,6 +814,7 @@ export default function NFTSidebar({
         />
 
       <FilterSection
+          key={`background-${filterResetKey}`}
           title="Background"
           color="blue"
         options={traitCounts["background"] ? Object.keys(traitCounts["background"]).sort().map(value => ({ value, display: value })) : FALLBACK_OPTIONS.background.map(value => ({ value, display: value }))}
@@ -737,6 +833,7 @@ export default function NFTSidebar({
         />
 
       <FilterSection
+          key={`skintone-${filterResetKey}`}
           title="Skin Tone"
           color="amber"
           options={traitCounts["skinTone"] ? Object.keys(traitCounts["skinTone"]).sort().map(value => ({ value, display: value })) : FALLBACK_OPTIONS.skinTone.map(value => ({ value, display: value }))}
@@ -749,6 +846,7 @@ export default function NFTSidebar({
         />
 
       <FilterSection
+          key={`shirt-${filterResetKey}`}
           title="Shirt"
           color="red"
           options={traitCounts["shirt"] ? Object.keys(traitCounts["shirt"]).sort().map(value => ({ value, display: value })) : FALLBACK_OPTIONS.shirt.map(value => ({ value, display: value }))}
@@ -759,6 +857,7 @@ export default function NFTSidebar({
         />
 
       <SubcategorySection
+          key={`hair-${filterResetKey}`}
           title="Hair"
           color="green"
         subcategories={FALLBACK_OPTIONS.hair}
@@ -769,6 +868,7 @@ export default function NFTSidebar({
         />
 
       <FilterSection
+          key={`eyewear-${filterResetKey}`}
           title="Eyewear"
           color="cyan"
         options={traitCounts["eyewear"] ? Object.keys(traitCounts["eyewear"]).sort().map(value => ({ value, display: formatEyewearDisplay(value) })) : FALLBACK_OPTIONS.eyewear.map(value => ({
@@ -782,6 +882,7 @@ export default function NFTSidebar({
         />
 
       <SubcategorySection
+          key={`headwear-${filterResetKey}`}
           title="Headwear"
           color="purple"
         subcategories={FALLBACK_OPTIONS.headwear}

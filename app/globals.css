@@ -13,8 +13,8 @@
   input:-webkit-autofill:focus,
   input:-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0 1000px #262626 inset !important;
-    -webkit-text-fill-color: #FFFBEB !important;
-    color: #FFFBEB !important;
+    -webkit-text-fill-color: var(--off-white) !important;
+    color: var(--off-white) !important;
   }
   
   :root {
@@ -54,6 +54,10 @@
     --fluid-md: clamp(0.9rem, 0.5vw + 0.8rem, 1.1rem);
     --fluid-lg: clamp(1rem, 0.6vw + 0.9rem, 1.25rem);
     --fluid-xl: clamp(1.25rem, 0.8vw + 1rem, 1.6rem);
+
+    /* Brand colors as CSS variables for consistent usage */
+    --brand-pink: #ff0099;
+    --off-white: #FFFBEB;
   }
 
   .dark {
@@ -88,7 +92,38 @@
 
   /* Custom off-white color for all white text */
   .text-off-white {
-    color: #FFFBEB;
+    color: var(--off-white);
+  }
+  
+  /* Brand color utility classes */
+  .text-brand-pink {
+    color: var(--brand-pink);
+  }
+  .bg-brand-pink {
+    background-color: var(--brand-pink);
+  }
+  
+  /* Force button hover styles to work */
+  button.border-brand-pink:hover,
+  .border-brand-pink:hover {
+    background-color: var(--brand-pink) !important;
+    color: var(--off-white) !important;
+    border-color: var(--brand-pink) !important;
+  }
+  .border-brand-pink {
+    border-color: var(--brand-pink);
+  }
+  .fill-brand-pink {
+    fill: var(--brand-pink);
+  }
+  .hover\:text-brand-pink:hover {
+    color: var(--brand-pink);
+  }
+  .hover\:bg-brand-pink:hover {
+    background-color: var(--brand-pink);
+  }
+  .hover\:fill-brand-pink:hover {
+    fill: var(--brand-pink);
   }
 }
 
@@ -162,8 +197,8 @@ input[type="checkbox"].sidebar-checkbox {
 }
 
 input[type="checkbox"].sidebar-checkbox:checked {
-  background-color: var(--checkbox-color, #ff0099);
-  border-color: var(--checkbox-color, #ff0099);
+  background-color: var(--checkbox-color, var(--brand-pink));
+  border-color: var(--checkbox-color, var(--brand-pink));
 }
 
 input[type="checkbox"].sidebar-checkbox:checked::after {
@@ -374,9 +409,6 @@ button[aria-label*="Execute buyFromListing"] * {
 }
 
 /* Font Variables */
-.font-inconsolata {
-  font-family: var(--font-inconsolata);
-}
 
 /* Universal Fluid Typography Utility Classes */
 .text-fluid-xs {
@@ -408,9 +440,9 @@ button[aria-label*="Execute buyFromListing"] * {
 
 /* NFT Meta Labels and Values - /nfts page only */
 .nft-meta-label {
-  font-size: clamp(0.7rem, 0.45vw, 0.85rem);
+  font-size: clamp(0.85rem, 0.6vw, 1rem);
 }
 
 .nft-meta-value {
-  font-size: clamp(0.75rem, 0.55vw, 0.95rem);
+  font-size: clamp(0.85rem, 0.6vw, 1rem);
 }

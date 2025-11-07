@@ -46,8 +46,8 @@ export async function GET(request: NextRequest) {
       response.cookies.delete(SESSION_COOKIE_NAME);
       return response;
     }
-  } catch (error) {
-    console.error('Error checking session:', error);
+  } catch {
+    // Error checking session - return not logged in
     return NextResponse.json({ isLoggedIn: false });
   }
 }

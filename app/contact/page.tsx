@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import Footer from "@/components/footer"
 import Navigation from "@/components/navigation"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
+import PageTransition from "@/components/page-transition"
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -74,12 +74,13 @@ export default function ContactPage() {
   }
 
   return (
-    <main id="main-content" className="min-h-screen bg-background text-[#FFFBEB] flex flex-col pt-24 sm:pt-28">
-      <Navigation activePage="contact" />
+    <PageTransition>
+      <main id="main-content" className="min-h-screen bg-background text-off-white flex flex-col pt-24 sm:pt-28">
+        <Navigation activePage="contact" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-6 sm:py-8 md:py-10 lg:py-12 flex-grow" role="main" aria-labelledby="contact-heading">
         <div className="text-center mb-5 sm:mb-6 md:mb-8">
-          <h1 id="contact-heading" className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-5 md:mb-6 text-[#FFFBEB]">
+          <h1 id="contact-heading" className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-5 md:mb-6 text-off-white">
             CONTACT US
           </h1>
           <p className="text-neutral-300 text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed px-2 sm:px-4 font-normal">
@@ -116,7 +117,7 @@ export default function ContactPage() {
               </p>
               <Button
                 asChild
-                className="px-6 py-2 border border-[#ff0099] bg-transparent text-[#ff0099] font-normal rounded-sm hover:bg-[#ff0099]/90 hover:text-white transition-all duration-200"
+                className="px-6 py-2 border border-brand-pink bg-transparent text-brand-pink font-normal rounded-sm hover:!bg-brand-pink hover:!text-off-white transition-all duration-200"
               >
                 <Link href="/">Return Home</Link>
               </Button>
@@ -128,9 +129,9 @@ export default function ContactPage() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
                 <div className="space-y-1.5 sm:space-y-2">
-                  <label htmlFor="name" className="block text-sm sm:text-base font-medium text-[#FFFBEB]">
+                  <label htmlFor="name" className="block text-sm sm:text-base font-medium text-off-white">
                     Name{" "}
-                    <span style={{ color: "#FF0099" }} aria-hidden="true">
+                    <span className="text-brand-pink" aria-hidden="true">
                       *
                     </span>
                     <span className="sr-only">(required)</span>
@@ -142,7 +143,7 @@ export default function ContactPage() {
                     onChange={handleChange}
                     required
                     placeholder="Satoshe Slugger"
-                    className="bg-neutral-800 border-neutral-700 font-normal placeholder:text-neutral-600 text-sm sm:text-base text-[#FFFBEB] focus:border-[#FF0099] autofill:bg-neutral-800 autofill:text-[#FFFBEB] autofill:border-neutral-700"
+                    className="bg-neutral-800 border-neutral-700 font-normal placeholder:text-neutral-600 text-sm sm:text-base text-off-white focus:border-brand-pink autofill:bg-neutral-800 autofill:text-off-white autofill:border-neutral-700"
                     aria-required="true"
                     aria-describedby="name-error"
                     spellCheck={false}
@@ -152,9 +153,9 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <div className="space-y-1.5 sm:space-y-2">
-                  <label htmlFor="email" className="block text-sm sm:text-base font-medium text-[#FFFBEB]">
+                  <label htmlFor="email" className="block text-sm sm:text-base font-medium text-off-white">
                     Email{" "}
-                    <span style={{ color: "#FF0099" }} aria-hidden="true">
+                    <span className="text-brand-pink" aria-hidden="true">
                       *
                     </span>
                     <span className="sr-only">(required)</span>
@@ -167,7 +168,7 @@ export default function ContactPage() {
                     onChange={handleChange}
                     required
                     placeholder="hello@satoshesluggers.com"
-                    className="bg-neutral-800 border-neutral-700 font-normal placeholder:text-neutral-600 text-sm sm:text-base text-[#FFFBEB] focus:border-[#FF0099] autofill:bg-neutral-800 autofill:text-[#FFFBEB] autofill:border-neutral-700"
+                    className="bg-neutral-800 border-neutral-700 font-normal placeholder:text-neutral-600 text-sm sm:text-base text-off-white focus:border-brand-pink autofill:bg-neutral-800 autofill:text-off-white autofill:border-neutral-700"
                     aria-required="true"
                     aria-describedby="email-error"
                     autoComplete="email"
@@ -179,9 +180,9 @@ export default function ContactPage() {
                 </div>
               </div>
               <div className="space-y-1.5 sm:space-y-2">
-                <label htmlFor="subject" className="block text-sm sm:text-base font-medium text-[#FFFBEB]">
+                <label htmlFor="subject" className="block text-sm sm:text-base font-medium text-off-white">
                   Subject{" "}
-                  <span style={{ color: "#FF0099" }} aria-hidden="true">
+                  <span className="text-brand-pink" aria-hidden="true">
                     *
                   </span>
                   <span className="sr-only">(required)</span>
@@ -193,7 +194,7 @@ export default function ContactPage() {
                   onChange={handleChange}
                   required
                   placeholder="What is this regarding?"
-                  className="bg-neutral-800 border-neutral-700 font-normal placeholder:text-neutral-600 text-sm sm:text-base text-[#FFFBEB] focus:border-[#FF0099] autofill:bg-neutral-800 autofill:text-[#FFFBEB] autofill:border-neutral-700"
+                  className="bg-neutral-800 border-neutral-700 font-normal placeholder:text-neutral-600 text-sm sm:text-base text-off-white focus:border-brand-pink autofill:bg-neutral-800 autofill:text-off-white autofill:border-neutral-700"
                   aria-required="true"
                   aria-describedby="subject-error"
                   spellCheck={false}
@@ -203,9 +204,9 @@ export default function ContactPage() {
                 </div>
               </div>
               <div className="space-y-1.5 sm:space-y-2">
-                <label htmlFor="message" className="block text-sm sm:text-base font-medium text-[#FFFBEB]">
+                <label htmlFor="message" className="block text-sm sm:text-base font-medium text-off-white">
                   Message{" "}
-                  <span style={{ color: "#FF0099" }} aria-hidden="true">
+                  <span className="text-brand-pink" aria-hidden="true">
                     *
                   </span>
                   <span className="sr-only">(required)</span>
@@ -216,7 +217,7 @@ export default function ContactPage() {
                   value={formData.message}
                   onChange={handleChange}
                   required
-                  className="min-h-[120px] sm:min-h-[140px] md:min-h-[150px] bg-neutral-800 border-neutral-700 font-normal placeholder:text-neutral-600 text-sm sm:text-base text-[#FFFBEB] focus:border-[#FF0099] autofill:bg-neutral-800 autofill:text-[#FFFBEB] autofill:border-neutral-700"
+                  className="min-h-[120px] sm:min-h-[140px] md:min-h-[150px] bg-neutral-800 border-neutral-700 font-normal placeholder:text-neutral-600 text-sm sm:text-base text-off-white focus:border-brand-pink autofill:bg-neutral-800 autofill:text-off-white autofill:border-neutral-700"
                   placeholder="How can we help you?"
                   aria-required="true"
                   aria-describedby="message-error"
@@ -228,50 +229,51 @@ export default function ContactPage() {
               </div>
 
               <div className="flex items-center gap-2 pt-2 sm:pt-3 md:pt-4">
-                <Checkbox
+                <input
+                  type="checkbox"
                   id="terms"
                   checked={consentChecked}
-                  onCheckedChange={(checked) => setConsentChecked(checked === true)}
-                  className="h-4 w-4 sm:h-5 sm:w-5 shrink-0"
+                  onChange={(e) => setConsentChecked(e.target.checked)}
+                  className="sidebar-checkbox shrink-0"
+                  style={{
+                    '--checkbox-color': '#ff0099'
+                  } as React.CSSProperties}
                   aria-describedby="terms-desc"
                   required
                   aria-required="true"
                 />
-                <Label htmlFor="terms" className="cursor-pointer text-xs sm:text-sm font-normal text-[#FFFBEB] leading-tight" id="terms-desc">
+                <Label htmlFor="terms" className="cursor-pointer text-xs sm:text-sm font-normal text-off-white leading-tight" id="terms-desc">
                   I accept the{" "}
                   <a
                     href="https://retinaldelights.io/privacy"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="underline hover:opacity-80 focus:outline-2"
-                    style={{ color: "#FF0099" }}
+                    className="underline hover:opacity-80 focus:outline-2 text-brand-pink"
                     aria-label="Privacy Policy (opens in a new window)"
                   >
                     Privacy Policy
                   </a>{" "}
-                  and{" "}
+                  <span className="text-brand-pink">and{" "}</span>
                   <a
                     href="https://retinaldelights.io/terms"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="underline hover:opacity-80 focus:outline-2"
-                    style={{ color: "#FF0099" }}
+                    className="underline hover:opacity-80 focus:outline-2 text-brand-pink"
                     aria-label="Terms of Service (opens in a new window)"
                   >
-                    Terms</a><span style={{ color: "#FF0099" }} aria-hidden="true">.*</span>
-                  <span className="sr-only">(required)</span>
+                    Terms</a><span className="text-brand-pink no-underline">.*</span><span className="sr-only">(required)</span>
                 </Label>
               </div>
 
               <div className="text-neutral-300 text-xs sm:text-sm pt-1">
-                <span style={{ color: "#FF0099" }}>*</span> Required fields
+                <span className="text-brand-pink">*</span> Required fields
               </div>
 
               <div className="flex justify-end pt-4 sm:pt-5 md:pt-6 pb-4 sm:pb-5 md:pb-6">
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-1.5 sm:px-5 sm:py-2 md:px-6 md:py-2 text-sm sm:text-base border border-[#ff0099] bg-transparent text-[#ff0099] font-normal rounded-sm hover:bg-[#ff0099]/90 hover:text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-1.5 sm:px-5 sm:py-2 md:px-6 md:py-2 text-sm sm:text-base border border-brand-pink bg-transparent text-brand-pink font-normal rounded-sm hover:!bg-brand-pink hover:!text-off-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-live="polite"
                 >
                   {isSubmitting ? (
@@ -311,6 +313,7 @@ export default function ContactPage() {
 
       <Footer />
     </main>
+    </PageTransition>
   )
 }
 

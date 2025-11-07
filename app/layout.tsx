@@ -1,6 +1,6 @@
 // app/layout.tsx
 import type { Metadata } from "next"
-import { Inter, JetBrains_Mono, Inconsolata } from "next/font/google"
+import { Inter, JetBrains_Mono } from "next/font/google"
 import "./globals.css"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -18,12 +18,6 @@ const inter = Inter({
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
-  display: "swap"
-})
-
-const inconsolata = Inconsolata({
-  subsets: ["latin"],
-  variable: "--font-inconsolata",
   display: "swap"
 })
 
@@ -94,7 +88,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${jetbrainsMono.variable} ${inconsolata.variable} overflow-x-hidden`} suppressHydrationWarning>
+    <html lang="en" className={`dark ${inter.variable} ${jetbrainsMono.variable} overflow-x-hidden`} suppressHydrationWarning>
       <head>
         {/* Termly CMP: must be first to block unapproved resources */}
         <TermlyScript />
@@ -159,13 +153,13 @@ export default function RootLayout({
         {/* Skip Navigation Links */}
         <a 
           href="#main-content" 
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-[#ff0099] text-white px-4 py-2 rounded-sm z-50"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-brand-pink text-white px-4 py-2 rounded-sm z-50"
         >
           Skip to main content
         </a>
         <a 
           href="#navigation" 
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-32 bg-[#ff0099] text-white px-4 py-2 rounded-sm z-50"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-32 bg-brand-pink text-white px-4 py-2 rounded-sm z-50"
         >
           Skip to navigation
         </a>

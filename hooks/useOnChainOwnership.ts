@@ -1,221 +1,205 @@
-// hooks/useOnChainOwnership.ts
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { ownerOf } from "thirdweb/extensions/erc721";
-import { getContract } from "thirdweb";
-import { base } from "thirdweb/chains";
-import { client } from "@/lib/thirdweb";
+/**
+ * useOnChainOwnership React Hook
+ *
+ * Instantly returns LIVE and SOLD NFT counts, using:
+ * - Your efficient backend API (/api/nft/aggregate-counts).
+ * - LocalStorage for snappy reloads.
+ * - Automatic updates when window.nftPurchased is fired (after any purchase).
+ */
 
-const CREATOR_ADDRESS = process.env.NEXT_PUBLIC_CREATOR_ADDRESS?.toLowerCase();
-const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS;
-const CACHE_KEY = "nft_ownership_cache";
-const CACHE_EXPIRY = 5 * 60 * 1000; // 5 minutes
-const BATCH_SIZE = 50; // Check 50 NFTs at a time to avoid rate limits
+import { useState, useEffect, useCallback } from "react";
 
-interface OwnershipCache {
-  data: Record<number, boolean>; // tokenId -> isSold
+// Use the same key and expiry as backend route
+const CACHE_KEY = "nft_aggregate_counts_cache";
+const CACHE_EXPIRY = 1 * 60 * 1000; // 1 minute (reduced from 10 for faster updates)
+
+interface CountsCache {
+  liveCount: number;
+  soldCount: number;
   timestamp: number;
 }
 
 /**
- * Hook to compute Live/Sold counts using on-chain ownership data
- * Uses batched checking and caching for performance
+ * Returns:
+ *   { liveCount, soldCount, isChecking }
+ * - liveCount: number available for mint/sale
+ * - soldCount: number sold
+ * - isChecking: whether loading values from API
  */
 export function useOnChainOwnership(totalNFTs: number = 7777) {
-  const [soldTokens, setSoldTokens] = useState<Set<number>>(new Set());
+  const [liveCount, setLiveCount] = useState(totalNFTs);
+  const [soldCount, setSoldCount] = useState(0);
   const [isChecking, setIsChecking] = useState(false);
-  const [checkedCount, setCheckedCount] = useState(0);
-  const isProcessingRef = useRef(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Load cached ownership data
-  const loadCache = useCallback((): OwnershipCache | null => {
-    if (typeof window === "undefined") return null;
+  // Try to load cached counts (valid if less than CACHE_EXPIRY ms old)
+  const loadCache = useCallback((): CountsCache | null => {
+    if (typeof window === "undefined" || typeof localStorage === "undefined")
+      return null;
+
     try {
       const cached = localStorage.getItem(CACHE_KEY);
       if (!cached) return null;
-      const parsed: OwnershipCache = JSON.parse(cached);
-      const now = Date.now();
-      if (now - parsed.timestamp < CACHE_EXPIRY) {
+
+      const parsed: CountsCache = JSON.parse(cached);
+
+      if (Date.now() - parsed.timestamp < CACHE_EXPIRY) {
         return parsed;
       }
+
       localStorage.removeItem(CACHE_KEY);
       return null;
     } catch {
+      // Corrupt or missing localStorage: ignore and fallback
       return null;
     }
   }, []);
 
-  // Save ownership data to cache
-  const saveCache = useCallback((data: Record<number, boolean>) => {
-    if (typeof window === "undefined") return;
+  // Save fresh counts for future page reloads
+  const saveCache = useCallback((liveCount: number, soldCount: number) => {
+    if (typeof window === "undefined" || typeof localStorage === "undefined")
+      return;
+
     try {
-      const cache: OwnershipCache = {
-        data,
+      const cache: CountsCache = {
+        liveCount,
+        soldCount,
         timestamp: Date.now(),
       };
+
       localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
     } catch {
-      // Ignore localStorage errors
+      // Ignore quota/localStorage errors
     }
   }, []);
 
-  // Check ownership for a batch of token IDs
-  const checkBatch = useCallback(
-    async (tokenIds: number[]): Promise<Record<number, boolean>> => {
-      if (!CONTRACT_ADDRESS || !CREATOR_ADDRESS) return {};
+  // Fetch from API (calls your /api/nft/aggregate-counts route)
+  const fetchAggregateCounts = useCallback(async () => {
+    try {
+      const response = await fetch("/api/nft/aggregate-counts");
 
-      const contract = getContract({
-        client,
-        chain: base,
-        address: CONTRACT_ADDRESS,
-      });
+      if (!response.ok) throw new Error("Aggregate counts API failed");
 
-      const results = await Promise.allSettled(
-        tokenIds.map(async (tokenId) => {
-          try {
-            const owner = (await ownerOf({
-              contract,
-              tokenId: BigInt(tokenId),
-            })) as string;
-            const isSold = owner.toLowerCase() !== CREATOR_ADDRESS;
-            return { tokenId, isSold };
-          } catch {
-            // If ownerOf fails, assume not sold (conservative)
-            return { tokenId, isSold: false };
-          }
-        })
-      );
+      const data = await response.json();
 
-      const batchResults: Record<number, boolean> = {};
-      results.forEach((result, idx) => {
-        if (result.status === "fulfilled") {
-          batchResults[result.value.tokenId] = result.value.isSold;
-        }
-      });
+      return {
+        liveCount:
+          typeof data.liveCount === "number" ? data.liveCount : totalNFTs,
+        soldCount: typeof data.soldCount === "number" ? data.soldCount : 0,
+      };
+    } catch {
+      return {
+        liveCount: totalNFTs,
+        soldCount: 0,
+      };
+    }
+  }, [totalNFTs]);
 
-      return batchResults;
-    },
-    []
-  );
-
-  // Initialize: Load cache or start checking
+  // On mount: fill from cache or refresh from API
   useEffect(() => {
-    if (!CONTRACT_ADDRESS || !CREATOR_ADDRESS || totalNFTs === 0) {
-      return;
+    if (!totalNFTs) return;
+
+    const cached = loadCache();
+    if (cached) {
+      // Use cached data but still fetch fresh data in background
+      setLiveCount(cached.liveCount);
+      setSoldCount(cached.soldCount);
     }
 
-    // Prevent multiple simultaneous processing loops
-    if (isProcessingRef.current) {
-      return;
-    }
-
-    const cache = loadCache();
-    if (cache) {
-      // Load from cache
-      const soldSet = new Set<number>();
-      Object.entries(cache.data).forEach(([tokenId, isSold]) => {
-        if (isSold) soldSet.add(parseInt(tokenId));
-      });
-      setSoldTokens(soldSet);
-      setCheckedCount(Object.keys(cache.data).length);
-      return;
-    }
-
-    // Mark as processing to prevent re-runs
-    isProcessingRef.current = true;
-
-    // Start checking from scratch
+    let cancelled = false;
     setIsChecking(true);
-    setCheckedCount(0);
-    setSoldTokens(new Set());
-
-    let currentBatch: number[] = [];
-    let allResults: Record<number, boolean> = {};
-    let currentTokenId = 0;
-    let isCancelled = false;
-
-    const processNextBatch = async () => {
-      // Check if cancelled before processing
-      if (isCancelled) {
-        return;
-      }
-
-      // Build batch
-      while (currentBatch.length < BATCH_SIZE && currentTokenId < totalNFTs) {
-        currentBatch.push(currentTokenId);
-        currentTokenId++;
-      }
-
-      if (currentBatch.length === 0) {
-        // Done checking all NFTs
-        if (!isCancelled) {
+    // Always fetch fresh data from API (ignores cache)
+    fetch("/api/nft/aggregate-counts?forceRefresh=true")
+      .then((response) => {
+        if (!response.ok) throw new Error("Aggregate counts API failed");
+        return response.json();
+      })
+      .then((data) => {
+        if (!cancelled) {
+          const liveCount = typeof data.liveCount === "number" ? data.liveCount : totalNFTs;
+          const soldCount = typeof data.soldCount === "number" ? data.soldCount : 0;
+          setLiveCount(liveCount);
+          setSoldCount(soldCount);
+          saveCache(liveCount, soldCount);
           setIsChecking(false);
-          saveCache(allResults);
         }
-        isProcessingRef.current = false;
-        return;
-      }
-
-      // Check batch
-      const batchResults = await checkBatch(currentBatch);
-      
-      // Check again if cancelled after async operation
-      if (isCancelled) {
-        isProcessingRef.current = false;
-        return;
-      }
-      
-      allResults = { ...allResults, ...batchResults };
-
-      // Update state
-      setCheckedCount((prev) => prev + currentBatch.length);
-      setSoldTokens((prev) => {
-        const newSet = new Set(prev);
-        Object.entries(batchResults).forEach(([tokenId, isSold]) => {
-          if (isSold) newSet.add(parseInt(tokenId));
-          else newSet.delete(parseInt(tokenId));
-        });
-        return newSet;
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setIsChecking(false);
+        }
       });
 
-      // Clear batch and continue
-      currentBatch = [];
-      
-      // Small delay to avoid rate limits - store timeout ref for cleanup
-      if (!isCancelled) {
-        timeoutRef.current = setTimeout(() => {
-          timeoutRef.current = null;
-          processNextBatch();
-        }, 100);
-      }
-    };
-
-    processNextBatch();
-
-    // Cleanup function to cancel processing
     return () => {
-      isCancelled = true;
-      isProcessingRef.current = false;
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
+      cancelled = true;
     };
-  }, [totalNFTs, loadCache, saveCache, checkBatch]);
+  }, [totalNFTs, loadCache, saveCache]);
 
-  // Compute counts
-  const liveCount = totalNFTs - soldTokens.size;
-  const soldCount = soldTokens.size;
+  // Periodically refresh counts (every 30 seconds) to catch any purchases
+  useEffect(() => {
+    if (!totalNFTs) return;
 
+    const interval = setInterval(() => {
+      fetchAggregateCounts().then(({ liveCount, soldCount }) => {
+        setLiveCount(liveCount);
+        setSoldCount(soldCount);
+        saveCache(liveCount, soldCount);
+      }).catch(() => {
+        // Silently fail on refresh
+      });
+    }, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [totalNFTs, fetchAggregateCounts, saveCache]);
+
+  // Listen for window "nftPurchased" events; update instantly and expire cache
+  useEffect(() => {
+    const handler = () => {
+      // Immediately update counts optimistically
+      setSoldCount((prev) => prev + 1);
+      setLiveCount((prev) => Math.max(0, prev - 1));
+
+      // Clear localStorage cache
+      if (
+        typeof window !== "undefined" &&
+        typeof localStorage !== "undefined"
+      ) {
+        localStorage.removeItem(CACHE_KEY);
+      }
+
+      // Force a fresh API call to get accurate counts from blockchain (bypass cache)
+      setIsChecking(true);
+      fetch("/api/nft/aggregate-counts?forceRefresh=true")
+        .then((response) => {
+          if (!response.ok) throw new Error("Aggregate counts API failed");
+          return response.json();
+        })
+        .then((data) => {
+          const liveCount = typeof data.liveCount === "number" ? data.liveCount : totalNFTs;
+          const soldCount = typeof data.soldCount === "number" ? data.soldCount : 0;
+          setLiveCount(liveCount);
+          setSoldCount(soldCount);
+          saveCache(liveCount, soldCount);
+          setIsChecking(false);
+        })
+        .catch(() => {
+          setIsChecking(false);
+        });
+    };
+
+    window.addEventListener("nftPurchased", handler as EventListener);
+    return () =>
+      window.removeEventListener("nftPurchased", handler as EventListener);
+  }, [fetchAggregateCounts, saveCache]);
+
+  // Return API: compatible with existing code
   return {
     liveCount,
     soldCount,
     isChecking,
-    checkedCount,
+    checkedCount: totalNFTs,
     totalToCheck: totalNFTs,
-    soldTokens, // Expose sold token set for component use
+    soldTokens: new Set<number>(), // always empty (compat)
   };
 }
-

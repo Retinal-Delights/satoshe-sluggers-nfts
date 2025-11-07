@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       success: true,
       favorites: formattedFavorites,
     });
-  } catch (error) {
+  } catch {
     // Internal server error - return error response
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
         addedAt: data.added_at,
       },
     });
-  } catch (error) {
+  } catch {
     // Internal server error - return error response
     return NextResponse.json(
       { success: false, error: 'Internal server error' },

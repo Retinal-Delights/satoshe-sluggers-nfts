@@ -100,7 +100,6 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "JetBrains Mono", "monospace"],
-        inconsolata: ["var(--font-inconsolata)", "Inconsolata", "monospace"],
       },
       keyframes: {
         "accordion-down": {

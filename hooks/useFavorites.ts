@@ -13,6 +13,24 @@ export interface FavoriteNFT {
   addedAt: number;
 }
 
+/**
+ * React hook for managing user's favorite NFTs
+ * Handles loading, adding, removing, and toggling favorites with API sync and localStorage fallback
+ * 
+ * @returns Object containing:
+ *   - favorites: Array of favorited NFTs
+ *   - isLoading: Boolean indicating if favorites are being loaded
+ *   - error: Error message string or null
+ *   - addToFavorites: Function to add an NFT to favorites
+ *   - removeFromFavorites: Function to remove an NFT from favorites
+ *   - isFavorited: Function to check if an NFT is favorited
+ *   - toggleFavorite: Function to toggle favorite status
+ *   - isConnected: Boolean indicating if wallet is connected
+ * 
+ * @example
+ * const { favorites, addToFavorites, isFavorited } = useFavorites()
+ * await addToFavorites({ tokenId: "1234", name: "NFT Name", ... })
+ */
 export function useFavorites() {
   const account = useActiveAccount();
   const [favorites, setFavorites] = useState<FavoriteNFT[]>([]);

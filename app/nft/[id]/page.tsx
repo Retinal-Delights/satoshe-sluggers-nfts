@@ -19,7 +19,10 @@ import { TOTAL_COLLECTION_SIZE } from "@/lib/contracts";
 import confetti from 'canvas-confetti';
 import { Separator } from "@/components/ui/separator";
 import { convertIpfsUrl } from "@/lib/utils";
-import { CONTRACT_ADDRESS } from "@/lib/constants";
+import { getContractAddress } from "@/lib/constants";
+import { rpcRateLimiter } from "@/lib/rpc-rate-limiter";
+import PageTransition from "@/components/page-transition";
+import { colors } from "@/lib/design-system";
 
 // Type definitions
 interface NFTAttribute {
@@ -30,43 +33,27 @@ interface NFTAttribute {
   percentage?: number;
 }
 
-// Consistent color scheme based on the radial chart
-const COLORS = {
-  background: "#3B82F6", // blue
-  skinTone: "#F59E0B", // yellow/orange
-  shirt: "#EF4444", // red
-  hair: "#10B981", // green
-  eyewear: "#06B6D4", // teal/cyan
-  headwear: "#A855F7", // purple
-  // Keep the hot pink as requested
-  accent: "#EC4899", // hot pink
-  // UI colors
-  neutral: {
-    100: "#F5F5F5",
-    400: "#A3A3A3",
-    600: "#525252",
-    700: "#404040",
-    800: "#262626",
-    900: "#171717",
-  }
-};
-
-// Helper to get color for attribute
+// Helper to get color for attribute using design system
 function getColorForAttribute(attributeName: string) {
   const colorMap: { [key: string]: string } = {
-    "Background": COLORS.background,
-    "Skin Tone": COLORS.skinTone,
-    "Shirt": COLORS.shirt,
-    "Hair": COLORS.hair,
-    "Eyewear": COLORS.eyewear,
-    "Headwear": COLORS.headwear,
+    "Background": colors.filter.blue,
+    "Skin Tone": colors.filter.yellow,
+    "Shirt": colors.filter.red,
+    "Hair": colors.filter.green,
+    "Eyewear": colors.filter.cyan,
+    "Headwear": colors.filter.violet,
   };
-  return colorMap[attributeName] || COLORS.background;
+  return colorMap[attributeName] || colors.filter.blue;
 }
 
 export default function NFTDetailPage() {
   const params = useParams<{ id: string }>();
+  
+  // TOKEN ID HANDLING:
+  // Route param (from URL) is 1-based (display/NFT #), but all on-chain and array lookups are 0-based.
+  // Always treat tokenId from the route as 1-based (display number)
   const tokenId = params.id;
+  
   const [metadata, setMetadata] = useState<NFTData | null>(null);
   const [imageUrl, setImageUrl] = useState<string>("/nfts/placeholder-nft.webp");
   const [isLoading, setIsLoading] = useState(true);
@@ -78,10 +65,29 @@ export default function NFTDetailPage() {
   const [pricingData, setPricingData] = useState<{ price_eth: number; listing_id?: number } | null>(null);
   const [ownerAddress, setOwnerAddress] = useState<string | null>(null);
   const [ownerCheckComplete, setOwnerCheckComplete] = useState(false);
+  const [confettiTriggered, setConfettiTriggered] = useState(false); // Prevent confetti from running twice
+  const [hasActiveListing, setHasActiveListing] = useState<boolean | null>(null); // null = not checked yet
+  const [listingCheckComplete, setListingCheckComplete] = useState(false);
+
+  // Always reset all significant state when the token changes (prevents UI bleed when flipping NFTs)
+  // This ensures a clean state for each NFT viewed and prevents stale data from previous NFT
+  useEffect(() => {
+    setIsPurchased(false);
+    setShowSuccess(false);
+    setTransactionState('idle');
+    setTransactionError(null);
+    setOwnerAddress(null);
+    setOwnerCheckComplete(false);
+    setPricingData(null);
+    setConfettiTriggered(false); // Reset confetti trigger when navigating between NFTs
+    setHasActiveListing(null);
+    setListingCheckComplete(false);
+  }, [tokenId]);
   
   const { isFavorited, toggleFavorite, isConnected } = useFavorites();
 
-  // Display-friendly NFT number: prefer metadata token_id (0-based), fallback to route param (0-based)
+  // The display number is always 1-based for user context
+  // Convert: route param (1-based) -> metadata token_id (0-based) -> display number (1-based)
   const displayNftNumber = (metadata?.token_id ?? parseInt(tokenId)) + 1;
 
   // Calculate navigation tokens (previous and next)
@@ -98,56 +104,58 @@ export default function NFTDetailPage() {
     });
   }, [tokenId]);
 
-  // Load NFT metadata
+  // LOAD METADATA
+  // Fetch NFT metadata from data service with proper error handling and timeout
   useEffect(() => {
     setIsLoading(true);
-
-    // Set a timeout to prevent infinite loading
+    
+    // Set a timeout to prevent infinite loading state
     const timeoutId = setTimeout(() => {
       setIsLoading(false);
-    }, 10000); // 10 second timeout
+    }, 10000);
 
+    // Convert route param (1-based display number) to 0-based token ID for array/on-chain lookups
     const tokenIdNum = parseInt(tokenId);
+    const actualTokenId = tokenIdNum - 1; // Convert display number to token ID
     
-    // Load NFT data using data service
-    // Note: token IDs in metadata start from 0, but URLs use human-friendly numbers (1-based)
-    const actualTokenId = tokenIdNum - 1;
-      getNFTByTokenId(actualTokenId)
-            .then((nftData: NFTData | null) => {
-            
-            if (nftData) {
-              setMetadata(nftData);
-              
-              // Set image URL from metadata - try multiple sources
-              const mediaUrl = nftData.merged_data?.media_url || nftData.image || null;
-              if (mediaUrl) {
-                setImageUrl(convertIpfsUrl(mediaUrl));
-              } else {
-                setImageUrl("/nfts/placeholder-nft.webp");
-              }
-            } else {
-              setMetadata(null);
-              setImageUrl("/nfts/placeholder-nft.webp");
-            }
-            clearTimeout(timeoutId);
-            setIsLoading(false);
-          })
-          .catch(() => {
-            setMetadata(null);
-            setImageUrl("/nfts/placeholder-nft.webp");
-            clearTimeout(timeoutId);
-            setIsLoading(false);
-          });
+    getNFTByTokenId(actualTokenId)
+      .then((nftData: NFTData | null) => {
+        if (nftData) {
+          setMetadata(nftData);
+          
+          // Set image URL from metadata - try multiple sources with fallback
+          const mediaUrl = nftData.merged_data?.media_url || nftData.image || null;
+          setImageUrl(
+            mediaUrl ? convertIpfsUrl(mediaUrl) : "/nfts/placeholder-nft.webp"
+          );
+        } else {
+          // NFT not found in metadata - set fallback state
+          setMetadata(null);
+          setImageUrl("/nfts/placeholder-nft.webp");
+        }
+        
+        clearTimeout(timeoutId);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        // Error loading metadata - set fallback state
+        setMetadata(null);
+        setImageUrl("/nfts/placeholder-nft.webp");
+        clearTimeout(timeoutId);
+        setIsLoading(false);
+      });
 
-    // Cleanup timeout on unmount
+    // Cleanup timeout on unmount or tokenId change
     return () => clearTimeout(timeoutId);
   }, [tokenId]);
 
 
-  // Load pricing data
+  // LOAD PRICING DATA
+  // Fetch pricing information from static JSON files with proper error handling
   useEffect(() => {
     const loadPricingData = async () => {
       try {
+        // Convert route param (1-based) to 0-based token ID for pricing lookup
         const tokenIdNum = parseInt(tokenId) - 1;
         
         // Load token pricing mappings first (has updated listing IDs from CSV)
@@ -164,7 +172,7 @@ export default function NFTDetailPage() {
               price_eth: pricing.price_eth,
               listing_id: listingId
             });
-            return;
+            return; // Success, exit early
           }
         }
         
@@ -180,85 +188,270 @@ export default function NFTDetailPage() {
             });
           }
         }
-      } catch (error) {
+      } catch {
         // Error loading pricing data - continue without pricing
+        // NFT will show as "not for sale"
       }
     };
     
     loadPricingData();
   }, [tokenId]);
 
-  // Load current owner from chain (ERC-721 ownerOf)
+  // Get listing ID from pricing data or metadata (needed for listing status check)
+  const listingId = pricingData?.listing_id || metadata?.merged_data?.listing_id || 0;
+
+  // CHECK LISTING STATUS ON MARKETPLACE
+  // This is the CORRECT way to determine if an NFT is for sale:
+  // If there's an ACTIVE listing on the marketplace → FOR SALE
+  // If there's NO active listing → SOLD (or not listed)
   useEffect(() => {
-    const fetchOwner = async () => {
-      setOwnerCheckComplete(false);
+    const checkListingStatus = async () => {
+      // Reset state when tokenId changes
+      setHasActiveListing(null);
+      setListingCheckComplete(false);
+
       try {
-        const contract = getContract({ client, chain: base, address: CONTRACT_ADDRESS });
-        const actualTokenId = BigInt(parseInt(tokenId) - 1);
-        const result = await readContract({
-          contract,
-          method: "function ownerOf(uint256 tokenId) view returns (address)",
-          params: [actualTokenId],
+        const marketplaceAddress = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS;
+        if (!marketplaceAddress || !listingId || listingId === 0) {
+          // No listing ID means no listing exists
+          setHasActiveListing(false);
+          setListingCheckComplete(true);
+          return;
+        }
+
+        // Get the marketplace contract
+        const marketplace = getContract({ 
+          client, 
+          chain: base, 
+          address: marketplaceAddress 
         });
-        if (typeof result === "string") {
-          setOwnerAddress(result);
-        } else if (result && typeof result === "object" && "_value" in result) {
-          setOwnerAddress(String((result as { _value: unknown })._value));
+
+        // Check if the listing exists and is active
+        // Use readContract to call the marketplace's getListing function directly
+        try {
+          const listing = await readContract({
+            contract: marketplace,
+            method: "function getListing(uint256 _listingId) view returns ((uint256 listingId, uint256 tokenId, uint256 quantity, uint256 pricePerToken, uint128 startTimestamp, uint128 endTimestamp, address listingCreator, address assetContract, address currency, uint8 tokenType, uint8 status, bool reserved))",
+            params: [BigInt(listingId)],
+          });
+
+          // Check if listing is active (status === 1 means ACTIVE)
+          const listingData = listing as {
+            status: number | string;
+            endTimestamp?: bigint;
+            quantity?: bigint;
+          };
+          
+          const isActive = listingData.status === 1 || listingData.status === "ACTIVE";
+          
+          // Also check if it's not expired
+          const now = Math.floor(Date.now() / 1000);
+          const endTime = listingData.endTimestamp ? Number(listingData.endTimestamp) : 0;
+          const notExpired = endTime === 0 || endTime > now;
+          
+          // Check if quantity available > 0
+          const quantity = listingData.quantity ? Number(listingData.quantity) : 0;
+          const hasQuantity = quantity > 0;
+
+          setHasActiveListing(isActive && notExpired && hasQuantity);
+        } catch {
+          // Listing doesn't exist or error fetching → no active listing
+          setHasActiveListing(false);
         }
       } catch {
+        // Error checking listing → assume no active listing (safer default)
+        setHasActiveListing(false);
+      } finally {
+        setListingCheckComplete(true);
+      }
+    };
+
+    // Only check if we have a listing ID
+    if (listingId && listingId > 0) {
+      checkListingStatus();
+    } else {
+      // No listing ID → no active listing
+      setHasActiveListing(false);
+      setListingCheckComplete(true);
+    }
+  }, [tokenId, listingId, pricingData, metadata]);
+
+  // LOAD OWNER ADDRESS
+  // Fetch current owner from chain (ERC-721 ownerOf) with rate limiting
+  // Also re-check periodically to catch any ownership changes
+  useEffect(() => {
+    // Reset state immediately when tokenId changes
+    setOwnerAddress(null);
+    setOwnerCheckComplete(false);
+    
+    const fetchOwner = async () => {
+      try {
+        const contract = getContract({ client, chain: base, address: getContractAddress() });
+        // Convert route param (1-based) to 0-based token ID for on-chain lookup
+        const actualTokenId = BigInt(parseInt(tokenId) - 1);
+        
+        const result = await rpcRateLimiter.execute(async () => {
+          return await readContract({
+            contract,
+            method: "function ownerOf(uint256 tokenId) view returns (address)",
+            params: [actualTokenId],
+          });
+        });
+        
+        // Normalize owner address to lowercase for consistent comparison
+        // Only set owner address if it's a valid non-empty string
+        let normalizedOwner: string | null = null;
+        if (typeof result === "string" && result.trim() !== "") {
+          normalizedOwner = result.toLowerCase().trim();
+        } else if (result && typeof result === "object" && "_value" in result) {
+          const value = String((result as { _value: unknown })._value).trim();
+          if (value !== "") {
+            normalizedOwner = value.toLowerCase();
+          }
+        }
+        setOwnerAddress(normalizedOwner);
+      } catch {
+        // Error fetching owner - set null (will show as "not for sale" by default)
         setOwnerAddress(null);
       } finally {
+        // Always mark check as complete, even on error (prevents infinite loading state)
         setOwnerCheckComplete(true);
       }
     };
+    
+    // Fetch owner immediately on mount/tokenId change
     fetchOwner();
+    
+    // Re-check ownership every 60 seconds to catch any changes (reduced frequency to prevent flashing)
+    const interval = setInterval(fetchOwner, 60000);
+    return () => clearInterval(interval);
   }, [tokenId]);
 
+  // LISTEN FOR PURCHASE EVENTS
+  // Handle purchase events from other components (e.g., grid view) to update immediately
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const custom = e as CustomEvent<{ tokenId: number; priceEth?: number }>;
+      const tokenIdNum = custom.detail?.tokenId;
+      // Convert route param (1-based) to 0-based token ID for comparison
+      const actualTokenId = parseInt(tokenId) - 1;
+      
+      // Only process if this event is for the current NFT
+      if (typeof tokenIdNum === 'number' && !Number.isNaN(tokenIdNum) && tokenIdNum === actualTokenId) {
+        setIsPurchased(true);
+        
+        // Refetch owner immediately with rate limiting (after delay to allow transaction to confirm)
+        const fetchOwner = async () => {
+          try {
+            const contract = getContract({ client, chain: base, address: getContractAddress() });
+            const actualTokenIdBigInt = BigInt(actualTokenId);
+            const result = await rpcRateLimiter.execute(async () => {
+              return await readContract({
+                contract,
+                method: "function ownerOf(uint256 tokenId) view returns (address)",
+                params: [actualTokenIdBigInt],
+              });
+            });
+            
+            // Normalize owner address to lowercase - only set if valid
+            let normalizedOwner: string | null = null;
+            if (typeof result === "string" && result.trim() !== "") {
+              normalizedOwner = result.toLowerCase().trim();
+            } else if (result && typeof result === "object" && "_value" in result) {
+              const value = String((result as { _value: unknown })._value).trim();
+              if (value !== "") {
+                normalizedOwner = value.toLowerCase();
+              }
+            }
+            setOwnerAddress(normalizedOwner);
+            setOwnerCheckComplete(true);
+          } catch {
+            // Error fetching owner - still mark as complete to prevent infinite loading
+            setOwnerCheckComplete(true);
+          }
+        };
+        
+        // Wait 5 seconds for transaction to confirm on-chain before checking owner
+        setTimeout(fetchOwner, 5000);
+      }
+    };
+    
+    window.addEventListener('nftPurchased', handler as EventListener);
+    return () => window.removeEventListener('nftPurchased', handler as EventListener);
+  }, [tokenId]);
+
+  // ATTRIBUTE LIST GENERATION (robust)
+  // Generate attribute list from metadata with fallback percentage calculation
   const attributes = useMemo(() => {
-    // Use real attributes from complete metadata
     if (metadata && metadata.attributes) {
-      const mappedAttributes = metadata.attributes.map((attr: NFTAttribute) => {
-        // Generate a simple percentage based on attribute value if not provided
+      return metadata.attributes.map((attr: NFTAttribute) => {
+        // Use provided percentage/rarity, or generate fallback if missing
         let percentage = attr.percentage || attr.rarity || 0;
         
-        // If no percentage data, create a simple distribution
         if (percentage === 0) {
-          // Simple hash-based percentage for demo purposes
-          const hash = attr.value.split('').reduce((a, b) => {
-            a = ((a << 5) - a) + b.charCodeAt(0);
+          // Generate fallback percentage based on attribute value hash
+          const hash = attr.value.split("").reduce((a, b) => {
+            a = (a << 5) - a + b.charCodeAt(0);
             return a & a;
           }, 0);
-          percentage = Math.abs(hash) % 50 + 1; // 1-50% range
+          percentage = (Math.abs(hash) % 50) + 1; // 1-50% range
         }
         
         return {
           name: attr.trait_type,
           value: attr.value,
-          percentage: percentage,
-          occurrence: attr.occurrence
+          percentage,
+          occurrence: attr.occurrence,
         };
       });
-      return mappedAttributes;
     }
     return [];
   }, [metadata]);
 
   // Get pricing data from loaded pricing data or metadata fallback
   const priceEth = pricingData?.price_eth || metadata?.merged_data?.price_eth || 0;
-  const listingId = pricingData?.listing_id || metadata?.merged_data?.listing_id || 0;
-  const creatorAddress = process.env.NEXT_PUBLIC_CREATOR_ADDRESS?.toLowerCase();
-  const isSoldOnChain = ownerAddress && creatorAddress ? ownerAddress.toLowerCase() !== creatorAddress : false;
-  // Only show "Buy Now" if owner check is complete AND NFT is confirmed for sale
-  const isForSale = ownerCheckComplete && priceEth > 0 && !isPurchased && !isSoldOnChain;
+  const marketplaceAddress = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase()?.trim();
+  
+  // CORRECT LOGIC: Check marketplace listing status, not just ownership
+  // The CORRECT way to determine if an NFT is for sale:
+  // 1. If there's an ACTIVE listing on the marketplace → FOR SALE
+  // 2. If there's NO active listing → SOLD (or not listed)
+  // 
+  // Ownership alone is not sufficient because:
+  // - NFTs can be owned by marketplace wallet but still be for sale (if listed)
+  // - NFTs can be owned by buyer's wallet (which might be marketplace-controlled) but still be for sale
+  // - The ONLY reliable indicator is: Does an ACTIVE listing exist?
+  //
+  // Fallback to ownership check only if listing check fails or is incomplete
+  const isForSale = Boolean(
+    (listingCheckComplete && hasActiveListing === true) || // Has active listing = FOR SALE
+    (!listingCheckComplete && priceEth > 0 && !isPurchased) // Fallback: if listing check not done yet, default to for sale if has price
+  );
+  
+  // NFT is confirmed as SOLD if:
+  // 1. Listing check is complete AND there's NO active listing AND has a price (was listed but no longer active = sold)
+  // 2. OR manually marked as purchased
+  // 3. OR (fallback) owner check shows owner is NOT marketplace (but only if listing check failed)
+  const isConfirmedSold = Boolean(
+    isPurchased ||
+    (listingCheckComplete && hasActiveListing === false && priceEth > 0) || // Had price but no active listing = sold
+    (!listingCheckComplete && ownerCheckComplete && ownerAddress && ownerAddress.trim() !== '' && 
+     marketplaceAddress && marketplaceAddress.trim() !== '' && marketplaceAddress.length >= 42 &&
+     ownerAddress.toLowerCase() !== marketplaceAddress.toLowerCase()) // Fallback: owner is not marketplace
+  );
 
-  // Confetti celebration function
+  // CONFETTI CELEBRATION FUNCTION
+  // Trigger confetti safely - only once per purchase to prevent double-triggering
   const triggerConfetti = () => {
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#ff0099', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
-    });
+    if (!confettiTriggered) {
+      setConfettiTriggered(true);
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#ff0099', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
+      });
+    }
   };
 
   // Handle transaction state changes
@@ -271,47 +464,71 @@ export default function NFTDetailPage() {
     setTransactionState('success');
     setIsPurchased(true);
     setShowSuccess(true);
+    
+    // Trigger confetti celebration (safely, only once)
     triggerConfetti();
+    
+    // Track successful purchase
     track('NFT Purchase Success', { 
       tokenId: tokenId,
       transactionHash: receipt.transactionHash,
       blockNumber: Number(receipt.blockNumber)
     });
+    
     // Broadcast to update other views (grid, owned tab)
+    // Convert route param (1-based) to 0-based token ID for event
     try {
       const purchasedActualTokenId = parseInt(tokenId) - 1;
       const priceEthNumber = typeof priceEth === 'number' ? priceEth : Number(priceEth);
-      window.dispatchEvent(new CustomEvent('nftPurchased', { detail: { tokenId: purchasedActualTokenId, priceEth: priceEthNumber } }));
-    } catch {}
-    
-    // Refetch owner address to update sold state
-    try {
-      const contract = getContract({ client, chain: base, address: CONTRACT_ADDRESS });
-      const actualTokenId = BigInt(parseInt(tokenId) - 1);
-      const result = await readContract({
-        contract,
-        method: "function ownerOf(uint256 tokenId) view returns (address)",
-        params: [actualTokenId],
-      });
-      if (typeof result === "string") {
-        setOwnerAddress(result);
-      } else if (result && typeof result === "object" && "_value" in result) {
-        setOwnerAddress(String((result as { _value: unknown })._value));
-      }
-      setOwnerCheckComplete(true);
+      window.dispatchEvent(new CustomEvent('nftPurchased', { 
+        detail: { tokenId: purchasedActualTokenId, priceEth: priceEthNumber } 
+      }));
     } catch {
-      // Ignore errors, owner will be fetched on next load
-      setOwnerCheckComplete(true);
+      // Error broadcasting purchase event - silently fail
     }
     
-    // Hide success message after 5 seconds
-    setTimeout(() => {
+    // Refetch owner address to update sold state
+    // Wait 5 seconds for transaction to confirm on-chain before checking owner
+    const ownerCheckTimeout = setTimeout(async () => {
+      try {
+        const contract = getContract({ client, chain: base, address: getContractAddress() });
+        // Convert route param (1-based) to 0-based token ID for on-chain lookup
+        const actualTokenId = BigInt(parseInt(tokenId) - 1);
+        const result = await rpcRateLimiter.execute(async () => {
+          return await readContract({
+            contract,
+            method: "function ownerOf(uint256 tokenId) view returns (address)",
+            params: [actualTokenId],
+          });
+        });
+        
+        // Normalize owner address to lowercase
+        if (typeof result === "string") {
+          setOwnerAddress(result.toLowerCase());
+        } else if (result && typeof result === "object" && "_value" in result) {
+          setOwnerAddress(String((result as { _value: unknown })._value).toLowerCase());
+        }
+        setOwnerCheckComplete(true);
+      } catch {
+        // Error fetching owner - still mark as complete (prevents infinite loading)
+        setOwnerCheckComplete(true);
+      }
+    }, 5000);
+    
+    // Hide success message after 5 seconds (ensures overlay doesn't get stuck)
+    const successHideTimeout = setTimeout(() => {
       setShowSuccess(false);
     }, 5000);
+    
+    // Store timeouts for cleanup (though component unmount will handle cleanup)
+    return () => {
+      clearTimeout(ownerCheckTimeout);
+      clearTimeout(successHideTimeout);
+    };
   };
 
   const handleTransactionError = (error: Error) => {
-    // Transaction failed - error handled by UI
+    // Transaction failed - set error state
     setTransactionState('error');
     
     // Parse error message for user-friendly display
@@ -332,16 +549,21 @@ export default function NFTDetailPage() {
     }
     
     setTransactionError(errorMessage);
+    
+    // Track failed purchase
     track('NFT Purchase Failed', { 
       tokenId: tokenId,
       error: errorMessage
     });
     
-    // Clear error after 10 seconds
-    setTimeout(() => {
+    // Clear error after 10 seconds (ensures error overlay doesn't get stuck)
+    const errorClearTimeout = setTimeout(() => {
       setTransactionState('idle');
       setTransactionError(null);
     }, 10000);
+    
+    // Store timeout for cleanup
+    return () => clearTimeout(errorClearTimeout);
   };
   
 
@@ -387,7 +609,7 @@ export default function NFTDetailPage() {
       <main className="min-h-screen bg-background text-foreground flex flex-col">
         <Navigation activePage="nfts" />
         <div className="flex-grow flex flex-col items-center justify-center pt-24 sm:pt-28">
-          <p className="text-xl" style={{ color: COLORS.shirt }}>NFT not found in local metadata.</p>
+          <p className="text-xl" style={{ color: colors.filter.red }}>NFT not found in local metadata.</p>
         </div>
         <Footer />
       </main>
@@ -397,9 +619,10 @@ export default function NFTDetailPage() {
   const isFav = isFavorited((parseInt(tokenId) - 1).toString());
 
   return (
-    <main id="main-content" className="min-h-screen bg-background text-foreground flex flex-col">
-      <Navigation activePage="nfts" />
-      <div className="max-w-7xl mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-6 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24">
+    <PageTransition>
+      <main id="main-content" className="min-h-screen bg-background text-foreground flex flex-col">
+        <Navigation activePage="nfts" />
+      <div className="max-w-7xl mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-4 sm:px-6 md:px-12 lg:px-16">
         <div className="flex items-center justify-between mb-8 sm:mb-10">
           {(() => {
             // Prefer returning to the exact filtered collection URL when provided
@@ -412,9 +635,9 @@ export default function NFTDetailPage() {
             return (
               <Link
                 href={backTo}
-                className="inline-flex items-center text-neutral-400 hover:text-[#ff0099] text-sm transition-colors"
+                className="inline-flex items-center text-neutral-400 hover:text-off-white text-sm transition-colors group"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
+                <ArrowLeft className="h-4 w-4 mr-2 transition-all group-hover:-translate-x-1 group-hover:text-off-white" />
                 Back to collection
               </Link>
             );
@@ -425,40 +648,40 @@ export default function NFTDetailPage() {
             {navigationTokens.prev !== null && (
               <Link
                 href={`/nft/${navigationTokens.prev}`}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800 hover:bg-[#171717] text-neutral-400 hover:text-[#ff0099] transition-colors border border-neutral-700 hover:border-[#ff0099]"
-                title={`Previous NFT #${navigationTokens.prev + 1}`}
+                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800 hover:bg-neutral-900 text-neutral-400 transition-all border border-neutral-700 hover:border-brand-pink group"
+                title={`Previous NFT #${navigationTokens.prev}`}
               >
-                <ChevronLeft className="h-5 w-5" />
+                <ChevronLeft className="h-5 w-5 transition-colors group-hover:text-brand-pink" />
               </Link>
             )}
             
             <span className="text-sm text-neutral-500 px-2">
-              {parseInt(tokenId) + 1} of {TOTAL_COLLECTION_SIZE}
+              {parseInt(tokenId)} of {TOTAL_COLLECTION_SIZE}
             </span>
             
             {navigationTokens.next !== null && (
               <Link
                 href={`/nft/${navigationTokens.next}`}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800 hover:bg-[#171717] text-neutral-400 hover:text-[#ff0099] transition-colors border border-neutral-700 hover:border-[#ff0099]"
-                title={`Next NFT #${navigationTokens.next + 1}`}
+                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800 hover:bg-neutral-900 text-neutral-400 transition-all border border-neutral-700 hover:border-brand-pink group"
+                title={`Next NFT #${navigationTokens.next}`}
               >
-                <ChevronRight className="h-5 w-5" />
+                <ChevronRight className="h-5 w-5 transition-colors group-hover:text-brand-pink" />
               </Link>
             )}
           </div>
         </div>
 
-        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16">
-          {/* Left Column - Image and metadata links */}
-          <div className="space-y-6 order-1 lg:order-1">
+        <div className="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-8">
+          {/* Left Column - Image and metadata links - 1/3 width */}
+          <div className="space-y-4 order-1 lg:order-1 w-full lg:w-1/3 lg:flex-shrink-0">
             {/* NFT Image Card */}
-            <div className="relative" style={{ aspectRatio: "2700/3000" }}>
+            <div className="relative w-full" style={{ aspectRatio: "2700/3000", maxWidth: "100%" }}>
               <div className="relative w-full h-full">
                 <Image
                   src={imageUrl || "/nfts/placeholder-nft.webp"}
                   alt={metadata?.name || `SATOSHE SLUGGER #${parseInt(tokenId) + 1}`}
                   fill
-                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  sizes="(max-width: 1024px) 100vw, 400px"
                   className="object-contain"
                   onError={() => setImageUrl("/nfts/placeholder-nft.webp")}
                   unoptimized={Boolean(imageUrl && typeof imageUrl === 'string' && (imageUrl.includes('/ipfs/') || imageUrl.includes('cloudflare-ipfs') || imageUrl.includes('ipfs.io')))}
@@ -466,13 +689,13 @@ export default function NFTDetailPage() {
               </div>
             </div>
 
-            {/* Artist and Platform - Two Column Layout - Mobile order-6 */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 order-6 lg:order-none">
+            {/* Artist and Platform - Moved to right column after Collection Details - Mobile order-5 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 order-5 lg:order-none hidden lg:grid">
               <a
                 href="https://kristenwoerdeman.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group cursor-pointer"
+                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded transition-all group cursor-pointer"
                 aria-label="Visit Kristen Woerdeman's website"
               >
                 <div className="flex items-center gap-3">
@@ -485,8 +708,8 @@ export default function NFTDetailPage() {
                     sizes="26px"
                   />
                   <div>
-                    <p className="text-sm font-medium text-off-white">Artist</p>
-                    <p className="text-xs text-neutral-400">Kristen Woerdeman</p>
+                    <p className="text-sm font-medium text-off-white group-hover:text-off-white transition-colors">Artist</p>
+                    <p className="text-xs text-neutral-400 group-hover:text-off-white transition-colors">Kristen Woerdeman</p>
                   </div>
                 </div>
                 <svg
@@ -499,7 +722,7 @@ export default function NFTDetailPage() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="text-neutral-400 group-hover:text-[#ff0099] transition-colors"
+                  className="text-neutral-400 group-hover:text-brand-pink transition-colors"
                   aria-hidden="true"
                 >
                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -512,7 +735,7 @@ export default function NFTDetailPage() {
                 href="https://retinaldelights.io"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group cursor-pointer"
+                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded transition-all group cursor-pointer"
                 aria-label="Visit Retinal Delights website"
               >
                 <div className="flex items-center gap-3">
@@ -525,8 +748,8 @@ export default function NFTDetailPage() {
                     sizes="26px"
                   />
                   <div>
-                    <p className="text-sm font-medium text-off-white">Platform</p>
-                    <p className="text-xs text-neutral-400">Retinal Delights</p>
+                    <p className="text-sm font-medium text-off-white group-hover:text-off-white transition-colors">Platform</p>
+                    <p className="text-xs text-neutral-400 group-hover:text-off-white transition-colors">Retinal Delights</p>
                   </div>
                 </div>
                 <svg
@@ -539,7 +762,7 @@ export default function NFTDetailPage() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="text-neutral-400 group-hover:text-[#ff0099] transition-colors"
+                  className="text-neutral-400 group-hover:text-brand-pink transition-colors"
                   aria-hidden="true"
                 >
                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -549,8 +772,8 @@ export default function NFTDetailPage() {
               </a>
             </div>
 
-            {/* IPFS Links - CID Information - Mobile order-7 */}
-            <div className="space-y-3 order-7 lg:order-none">
+            {/* IPFS Links - Moved to right column after Collection Details - Mobile order-6 */}
+            <div className="space-y-3 order-6 lg:order-none hidden lg:block">
                 <a
                   href={metadata?.merged_data?.metadata_url}
                   target="_blank"
@@ -559,7 +782,7 @@ export default function NFTDetailPage() {
                   aria-label="View token metadata on IPFS"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: COLORS.hair + '20' }}>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: colors.filter.green + '20' }}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
@@ -570,7 +793,7 @@ export default function NFTDetailPage() {
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        style={{ color: COLORS.hair }}
+                        style={{ color: colors.filter.green }}
                         aria-hidden="true"
                       >
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -581,7 +804,7 @@ export default function NFTDetailPage() {
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm font-medium" style={{ color: COLORS.hair }}>Token URI</p>
+                      <p className="text-sm font-medium" style={{ color: colors.filter.green }}>Token URI</p>
                       <p className="text-xs text-neutral-400">View metadata on IPFS</p>
                     </div>
                   </div>
@@ -612,7 +835,7 @@ export default function NFTDetailPage() {
                   aria-label="View NFT image on IPFS"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: COLORS.background + '20' }}>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: colors.filter.blue + '20' }}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
@@ -623,7 +846,7 @@ export default function NFTDetailPage() {
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        style={{ color: COLORS.background }}
+                        style={{ color: colors.filter.blue }}
                         aria-hidden="true"
                       >
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -632,7 +855,7 @@ export default function NFTDetailPage() {
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm font-medium" style={{ color: COLORS.background }}>Media URI</p>
+                      <p className="text-sm font-medium" style={{ color: colors.filter.blue }}>Media URI</p>
                       <p className="text-xs text-neutral-400">View image on IPFS</p>
                     </div>
                   </div>
@@ -656,8 +879,8 @@ export default function NFTDetailPage() {
                 </a>
               </div>
 
-            {/* Attributes - 3 rows, 2 columns - Mobile order-9 */}
-            <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-9 lg:order-none">
+            {/* Attributes - Moved to right column after Collection Details - Mobile order-7 */}
+            <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-7 lg:order-none hidden lg:block">
               <h3 className="text-lg font-semibold mb-4 text-off-white">Attributes</h3>
               <div className="grid grid-cols-2 gap-3">
                 {attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }, index: number) => (
@@ -667,10 +890,10 @@ export default function NFTDetailPage() {
                         className="w-3 h-3 rounded-full mr-2"
                         style={{ backgroundColor: getColorForAttribute(attr.name) }}
                       ></div>
-                      <span className="text-sm md:text-xs text-neutral-400">{attr.name}</span>
+                      <span className="text-xs text-neutral-400">{attr.name}</span>
                     </div>
                     <div className="text-base md:text-sm font-medium text-off-white mb-1">{attr.value}</div>
-                    <div className="text-sm md:text-xs text-neutral-400">
+                    <div className="text-xs text-neutral-400">
                       {attr.percentage}% • {attr.occurrence} of {TOTAL_COLLECTION_SIZE}
                     </div>
                   </div>
@@ -680,8 +903,8 @@ export default function NFTDetailPage() {
 
           </div>
 
-          {/* Right Column - NFT Details */}
-          <div className="space-y-6 order-2 lg:order-2 flex flex-col">
+          {/* Right Column - NFT Details - 2/3 width */}
+          <div className="space-y-6 order-2 lg:order-2 flex flex-col w-full lg:w-2/3 lg:flex-shrink-0 lg:pl-4">
             {/* NFT Name with Heart Icon - Mobile order-2 (after image) */}
             <div className="flex items-start justify-between gap-4 order-2 lg:order-none">
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold leading-tight text-off-white">
@@ -699,8 +922,8 @@ export default function NFTDetailPage() {
                 <Heart
                   className={`w-6 h-6 transition-colors cursor-pointer ${
                     isFav
-                      ? "text-[#ff0099] fill-[#ff0099]"
-                      : "text-neutral-400 hover:text-[#ff0099]"
+                      ? "text-brand-pink fill-brand-pink"
+                      : "text-neutral-400 hover:text-brand-pink"
                   }`}
                 />
               </button>
@@ -717,7 +940,7 @@ export default function NFTDetailPage() {
 
             {/* Buy Now Section - Simplified - Mobile order-3 */}
             {isForSale ? (
-              <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-3 lg:order-none">
+              <div className="bg-neutral-800 p-6 rounded border border-neutral-700 order-3 lg:order-none">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                   <div className="flex-1">
                     <p className="text-sm md:text-base text-blue-500 mb-1">Buy Now Price</p>
@@ -751,24 +974,34 @@ export default function NFTDetailPage() {
                   </BuyDirectListingButton>
                 </div>
               </div>
-            ) : isPurchased || isSoldOnChain ? (
-              <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-3 lg:order-none">
-                <div>
-                  <p className="text-sm md:text-base mb-1" style={{ color: "#10B981" }}>Purchased for</p>
-                  <p className="text-2xl sm:text-3xl md:text-2xl font-bold mb-3" style={{ color: "#10B981" }}>
-                    {priceEth > 0 ? `${priceEth} ETH` : '—'}
-                  </p>
-                  {ownerAddress && (
-                    <p className="text-sm text-neutral-400 mt-2">
-                      Owner: <a href={`https://basescan.org/address/${ownerAddress}`} target="_blank" rel="noopener noreferrer" className="text-[#10B981] underline hover:text-green-400">{ownerAddress.slice(0,6)}...{ownerAddress.slice(-4)}</a>
-                    </p>
-                  )}
-                  <div className="mt-4">
+            ) : isConfirmedSold ? (
+              <div className="bg-neutral-800 p-6 rounded border border-green-500/30 order-3 lg:order-none">
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <p className="text-sm md:text-base text-green-400 mb-1">Purchased for</p>
+                      <p className="text-2xl sm:text-3xl md:text-2xl font-bold text-green-500">
+                        {priceEth > 0 ? `${priceEth} ETH` : '—'}
+                      </p>
+                    </div>
+                    <button
+                      disabled
+                      className="px-4 py-2 sm:px-6 sm:py-3 rounded-sm text-sm sm:text-base font-bold bg-green-500/10 border border-green-500/30 text-green-400 cursor-not-allowed opacity-75"
+                    >
+                      Sold
+                    </button>
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-neutral-700">
+                    {ownerAddress && (
+                      <p className="text-xs sm:text-sm text-neutral-400">
+                        Owner: <a href={`https://basescan.org/address/${ownerAddress}`} target="_blank" rel="noopener noreferrer" className="text-green-400 underline hover:text-green-300">{ownerAddress.slice(0,6)}...{ownerAddress.slice(-4)}</a>
+                      </p>
+                    )}
                     <Link
-                      href={`https://opensea.io/assets/base/${CONTRACT_ADDRESS}/${parseInt(tokenId) - 1}`}
+                      href={`https://opensea.io/assets/base/${getContractAddress()}/${parseInt(tokenId) - 1}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm text-[#10B981] hover:text-green-400 underline transition-colors"
+                      className="inline-flex items-center gap-2 text-sm text-green-400 hover:text-green-300 underline transition-colors whitespace-nowrap"
                     >
                       View on OpenSea
                       <ExternalLink className="w-4 h-4" />
@@ -819,10 +1052,10 @@ export default function NFTDetailPage() {
 
 
 
-            {/* Additional Details - Mobile order-4 */}
-            <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-4 lg:order-none">
-              <h3 className="text-lg font-semibold mb-4 text-off-white">Collection Details</h3>
-              <div className="grid grid-cols-2 gap-4 text-base md:text-sm">
+            {/* Collection Details - Mobile order-4 */}
+            <div className="bg-neutral-800 p-6 rounded border border-neutral-700 order-4 lg:order-none">
+              <h3 className="text-lg font-semibold mb-5 text-off-white">Collection Details</h3>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-5 text-base md:text-sm">
                 <div>
                   <p className="text-neutral-400 mb-1 text-sm md:text-xs">NFT Number</p>
                   <p className="font-normal text-off-white">{metadata?.card_number ?? parseInt(tokenId) + 1}</p>
@@ -865,17 +1098,229 @@ export default function NFTDetailPage() {
             </div>
 
 
-            {/* Contract Details - Mobile order-5 */}
-            <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-5 lg:order-none">
-              <h3 className="text-lg font-semibold mb-4 text-off-white">Contract Details</h3>
-                <div className="space-y-3 text-sm">
+            {/* Artist and Platform - Mobile order-5 (after Collection Details) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 order-5 lg:order-none lg:hidden">
+              <a
+                href="https://kristenwoerdeman.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded transition-all group cursor-pointer"
+                aria-label="Visit Kristen Woerdeman's website"
+              >
+                <div className="flex items-center gap-3">
+                  <Image
+                    src="/brands/kristen-woerdeman/kwoerd-circular-offwhite-32.png"
+                    alt="Kristen Woerdeman"
+                    width={26}
+                    height={26}
+                    className="w-6 h-6"
+                    sizes="26px"
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-off-white group-hover:text-off-white transition-colors">Artist</p>
+                    <p className="text-xs text-neutral-400 group-hover:text-off-white transition-colors">Kristen Woerdeman</p>
+                  </div>
+                </div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-neutral-400 group-hover:text-brand-pink transition-colors"
+                  aria-hidden="true"
+                >
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+              </a>
+
+              <a
+                href="https://retinaldelights.io"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded transition-all group cursor-pointer"
+                aria-label="Visit Retinal Delights website"
+              >
+                <div className="flex items-center gap-3">
+                  <Image
+                    src="/brands/retinal-delights/retinal-delights-cicular-offwhite-32.png"
+                    alt="Retinal Delights"
+                    width={26}
+                    height={26}
+                    className="w-6 h-6"
+                    sizes="26px"
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-off-white group-hover:text-off-white transition-colors">Platform</p>
+                    <p className="text-xs text-neutral-400 group-hover:text-off-white transition-colors">Retinal Delights</p>
+                  </div>
+                </div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-neutral-400 group-hover:text-brand-pink transition-colors"
+                  aria-hidden="true"
+                >
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+              </a>
+            </div>
+
+            {/* IPFS Links - Mobile order-6 (after Collection Details) */}
+            <div className="space-y-3 order-6 lg:order-none lg:hidden">
+                <a
+                  href={metadata?.merged_data?.metadata_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none"
+                  aria-label="View token metadata on IPFS"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: colors.filter.green + '20' }}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ color: colors.filter.green }}
+                        aria-hidden="true"
+                      >
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14,2 14,8 20,8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10,9 9,9 8,9"></polyline>
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium" style={{ color: colors.filter.green }}>Token URI</p>
+                      <p className="text-xs text-neutral-400">View metadata on IPFS</p>
+                    </div>
+                  </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-neutral-400 group-hover:text-green-500 transition-colors"
+                    aria-hidden="true"
+                  >
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                  </svg>
+                </a>
+
+                <a
+                  href={metadata?.merged_data?.media_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  aria-label="View NFT image on IPFS"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: colors.filter.blue + '20' }}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ color: colors.filter.blue }}
+                        aria-hidden="true"
+                      >
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21,15 16,10 5,21"></polyline>
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium" style={{ color: colors.filter.blue }}>Media URI</p>
+                      <p className="text-xs text-neutral-400">View image on IPFS</p>
+                    </div>
+                  </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-neutral-400 group-hover:text-blue-500 transition-colors"
+                    aria-hidden="true"
+                  >
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                  </svg>
+                </a>
+              </div>
+
+            {/* Attributes - Mobile order-7 (after Collection Details) */}
+            <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-7 lg:order-none lg:hidden">
+              <h3 className="text-lg font-semibold mb-4 text-off-white">Attributes</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }, index: number) => (
+                  <div key={index} className="bg-neutral-800 p-3 rounded border border-neutral-700">
+                    <div className="flex items-center mb-2">
+                      <div
+                        className="w-3 h-3 rounded-full mr-2"
+                        style={{ backgroundColor: getColorForAttribute(attr.name) }}
+                      ></div>
+                      <span className="text-xs text-neutral-400">{attr.name}</span>
+                    </div>
+                    <div className="text-base md:text-sm font-medium text-off-white mb-1">{attr.value}</div>
+                    <div className="text-xs text-neutral-400">
+                      {attr.percentage}% • {attr.occurrence} of {TOTAL_COLLECTION_SIZE}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Contract Details - Mobile order-8 */}
+            <div className="bg-neutral-800 p-6 rounded border border-neutral-700 order-8 lg:order-none">
+              <h3 className="text-lg font-semibold mb-5 text-off-white">Contract Details</h3>
+                <div className="space-y-4 text-sm">
                   <div className="flex justify-between items-center">
                     <span className="text-neutral-400">Contract Address</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-off-white">{CONTRACT_ADDRESS.slice(0, 6)}...{CONTRACT_ADDRESS.slice(-4)}</span>
+                      <span className="text-off-white">{getContractAddress().slice(0, 6)}...{getContractAddress().slice(-4)}</span>
                       <button
                         onClick={() => {
-                          navigator.clipboard.writeText(CONTRACT_ADDRESS);
+                          navigator.clipboard.writeText(getContractAddress());
                           // You could add a toast notification here if desired
                         }}
                         className="p-1 hover:bg-neutral-700 rounded transition-colors group"
@@ -918,8 +1363,8 @@ export default function NFTDetailPage() {
                 </div>
             </div>
 
-            {/* Rarity Distribution - Mobile order-10 */}
-            <div className="order-10 lg:order-none">
+            {/* Rarity Distribution - Mobile order-8 */}
+            <div className="order-8 lg:order-none">
               <h3 className="text-lg font-semibold mb-4 text-off-white">Rarity Distribution</h3>
             {attributes.length > 0 ? (
               <AttributeRarityChart
@@ -950,5 +1395,6 @@ export default function NFTDetailPage() {
 
       <Footer />
     </main>
+    </PageTransition>
   );
 }

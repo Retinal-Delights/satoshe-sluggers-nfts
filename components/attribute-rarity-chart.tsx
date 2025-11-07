@@ -13,16 +13,17 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { colors } from "@/lib/design-system"
 
-// Consistent color scheme
+// Consistent color scheme using design system
 const COLORS = {
-  background: "#3B82F6", // blue
-  skinTone: "#F59E0B", // yellow/orange
-  shirt: "#EF4444", // red
-  hair: "#10B981", // green
-  eyewear: "#06B6D4", // teal/cyan
-  headwear: "#A855F7", // purple
-  neutral: "#9CA3AF", // default gray
+  background: colors.filter.blue,
+  skinTone: colors.filter.yellow,
+  shirt: colors.filter.red,
+  hair: colors.filter.green,
+  eyewear: colors.filter.cyan,
+  headwear: colors.filter.violet,
+  neutral: colors.filter.neutral,
 };
 
 interface AttributeRarityProps {
@@ -93,11 +94,11 @@ export default function AttributeRarityChart({ attributes, overallRarity }: Attr
           cursor={false}
           content={<ChartTooltipContent
             hideLabel
-            className="bg-neutral-900 border-neutral-600 text-[#FFFBEB]"
+            className="bg-neutral-900 border-neutral-600 text-off-white"
             formatter={(value, name) => {
               const item = chartData.find(d => d.name === name);
               return [
-                <span key={name} className="text-[#FFFBEB] font-medium">
+                <span key={name} className="text-off-white font-medium">
                   {name}: {item?.value} ({value}%)
                 </span>,
                 ""
@@ -112,7 +113,7 @@ export default function AttributeRarityChart({ attributes, overallRarity }: Attr
           innerRadius={80}
           outerRadius={140}
           strokeWidth={2}
-          stroke="#262626"
+          stroke={colors.background.stroke}
           animationBegin={0}
           animationDuration={1200}
           animationEasing="ease-out"

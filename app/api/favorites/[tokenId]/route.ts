@@ -67,7 +67,7 @@ export async function DELETE(
       success: true,
       message: 'Favorite removed successfully',
     });
-  } catch (error) {
+  } catch {
     // Internal server error - return error response
     return NextResponse.json(
       { success: false, error: 'Internal server error' },

@@ -76,6 +76,26 @@ export const colors = {
     infoBorder: '#3B82F6/30',
   },
   
+  // Filter/Trait Colors (for sidebar filters and charts)
+  filter: {
+    red: '#EF4444',           // Red
+    blue: '#3B82F6',          // Blue
+    green: '#10B981',         // Green
+    yellow: '#F59E0B',        // Yellow/Amber
+    purple: '#8B5CF6',        // Purple
+    cyan: '#06B6D4',          // Cyan/Teal
+    orange: '#F97316',        // Orange
+    neutral: '#6B7280',       // Gray
+    violet: '#A855F7',        // Violet (for charts)
+  },
+  
+  // Background Colors
+  background: {
+    dark: '#0a0a0a',          // Very dark background
+    overlay: 'rgba(0, 0, 0, 0.5)', // Overlay
+    stroke: '#262626',        // Stroke/border dark
+  },
+  
   // Neutral Colors (from style guide)
   neutral: {
     white: 'text-white',
@@ -160,7 +180,7 @@ export const buttons = {
   primary: 'px-6 py-2 bg-[#ff0099] text-white font-normal rounded-sm hover:bg-[#ff0099]/90 transition-all duration-200',
   
   // Outline Button (from style guide)
-  outline: 'px-6 py-2 border border-[#ff0099] bg-transparent text-[#ff0099] font-normal rounded-sm hover:bg-[#ff0099]/90 hover:text-white transition-all duration-200',
+  outline: 'px-6 py-2 border border-[#ff0099] bg-transparent text-[#ff0099] font-normal rounded-sm hover:bg-[#ff0099] hover:text-off-white transition-all duration-200',
   
   // Buy Button (Blue - for purchasable items)
   buy: 'px-6 py-2 border border-[#3B82F6] bg-blue-500/10 text-blue-400 font-normal rounded-sm hover:bg-blue-500/30 hover:border-blue-500/60 hover:text-blue-300 transition-all duration-200',
