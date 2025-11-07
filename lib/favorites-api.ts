@@ -10,7 +10,9 @@ const requestCache = new Map<string, { data: FavoriteNFT[]; timestamp: number }>
 const CACHE_TTL = 10000; // 10 seconds cache
 
 /**
- * Invalidate cache for a wallet address (call after add/remove operations)
+ * Invalidates the cache for a specific wallet address
+ * Should be called after add/remove operations to ensure fresh data on next fetch
+ * @param walletAddress - The wallet address whose cache should be invalidated
  */
 export function invalidateCache(walletAddress: string) {
   const normalizedAddress = walletAddress.toLowerCase();
@@ -18,7 +20,11 @@ export function invalidateCache(walletAddress: string) {
 }
 
 /**
- * Get all favorites for wallet address (with request deduplication and caching)
+ * Fetches all favorite NFTs for a wallet address
+ * Includes request deduplication (prevents duplicate simultaneous requests) and caching (10s TTL)
+ * @param walletAddress - The wallet address to fetch favorites for
+ * @returns Promise resolving to array of favorite NFTs
+ * @throws Error if wallet address is missing or API request fails
  */
 export async function getFavorites(walletAddress: string): Promise<FavoriteNFT[]> {
   if (!walletAddress) {
@@ -91,7 +97,11 @@ export async function getFavorites(walletAddress: string): Promise<FavoriteNFT[]
 }
 
 /**
- * Add a favorite (requires wallet address)
+ * Adds an NFT to the user's favorites list
+ * @param walletAddress - The wallet address of the user
+ * @param nft - NFT data to add (without addedAt timestamp, which is set server-side)
+ * @returns Promise resolving to the created favorite NFT with server-assigned addedAt
+ * @throws Error if wallet address is missing or API request fails
  */
 export async function addFavorite(
   walletAddress: string,
@@ -145,7 +155,11 @@ export async function addFavorite(
 }
 
 /**
- * Remove a favorite (requires wallet address)
+ * Removes an NFT from the user's favorites list
+ * @param walletAddress - The wallet address of the user
+ * @param tokenId - The token ID of the NFT to remove
+ * @returns Promise that resolves when removal is complete
+ * @throws Error if wallet address is missing or API request fails
  */
 export async function removeFavorite(walletAddress: string, tokenId: string): Promise<void> {
   if (!walletAddress) {

@@ -112,7 +112,7 @@ function NFTsPageContent() {
     <main id="main-content" className="min-h-screen bg-background text-off-white pt-24 sm:pt-28 overflow-x-hidden w-full max-w-full">
       <Navigation activePage="nfts" />
 
-      <section className="w-full max-w-full mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-6 sm:py-8 lg:py-10 overflow-x-hidden">
+      <section className="w-full max-w-full mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-6 sm:py-8 lg:py-10">
         <div className="mb-8 lg:mb-12">
           <h1 id="collection-heading" className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-center mb-3 text-off-white tracking-tight">
             SATO<span className="text-brand-pink">SHE</span> SLUGGERS
@@ -129,7 +129,7 @@ function NFTsPageContent() {
         </div>
 
         <div className="flex flex-col xl:flex-row gap-6 lg:gap-8" suppressHydrationWarning>
-          <div className="xl:sticky xl:top-[76px] xl:self-start z-10 w-full xl:w-[21rem] 2xl:w-[28rem]">
+          <div className="xl:sticky xl:top-[112px] xl:self-start z-10 w-full xl:w-[21rem] 2xl:w-[28rem]">
             <NFTSidebar
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
@@ -140,7 +140,7 @@ function NFTsPageContent() {
               traitCounts={traitCounts}
             />
           </div>
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 overflow-x-hidden">
             {isInitialized ? (
               <NFTGrid
                 searchTerm={searchTerm}

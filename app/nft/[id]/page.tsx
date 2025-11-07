@@ -85,6 +85,8 @@ export default function NFTDetailPage() {
   const [ownerAddress, setOwnerAddress] = useState<string | null>(null);
   const [ownerCheckComplete, setOwnerCheckComplete] = useState(false);
   const [confettiTriggered, setConfettiTriggered] = useState(false); // Prevent confetti from running twice
+  const [hasActiveListing, setHasActiveListing] = useState<boolean | null>(null); // null = not checked yet
+  const [listingCheckComplete, setListingCheckComplete] = useState(false);
 
   // Always reset all significant state when the token changes (prevents UI bleed when flipping NFTs)
   // This ensures a clean state for each NFT viewed and prevents stale data from previous NFT
@@ -97,6 +99,8 @@ export default function NFTDetailPage() {
     setOwnerCheckComplete(false);
     setPricingData(null);
     setConfettiTriggered(false); // Reset confetti trigger when navigating between NFTs
+    setHasActiveListing(null);
+    setListingCheckComplete(false);
   }, [tokenId]);
   
   const { isFavorited, toggleFavorite, isConnected } = useFavorites();
@@ -212,6 +216,75 @@ export default function NFTDetailPage() {
     loadPricingData();
   }, [tokenId]);
 
+  // CHECK LISTING STATUS ON MARKETPLACE
+  // This is the CORRECT way to determine if an NFT is for sale:
+  // If there's an ACTIVE listing on the marketplace → FOR SALE
+  // If there's NO active listing → SOLD (or not listed)
+  useEffect(() => {
+    const checkListingStatus = async () => {
+      // Reset state when tokenId changes
+      setHasActiveListing(null);
+      setListingCheckComplete(false);
+
+      try {
+        const marketplaceAddress = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS;
+        if (!marketplaceAddress || !listingId || listingId === 0) {
+          // No listing ID means no listing exists
+          setHasActiveListing(false);
+          setListingCheckComplete(true);
+          return;
+        }
+
+        // Get the marketplace contract
+        const marketplace = getContract({ 
+          client, 
+          chain: base, 
+          address: marketplaceAddress 
+        });
+
+        // Check if the listing exists and is active
+        // Use the getDirectListing function from thirdweb
+        const { getDirectListing } = await import("thirdweb/extensions/marketplace");
+        
+        try {
+          const listing = await getDirectListing({
+            contract: marketplace,
+            listingId: BigInt(listingId),
+          });
+
+          // Check if listing is active (status === 1 means ACTIVE)
+          const isActive = listing.status === 1 || listing.status === "ACTIVE";
+          
+          // Also check if it's not expired
+          const now = Math.floor(Date.now() / 1000);
+          const notExpired = !listing.endTimeInSeconds || Number(listing.endTimeInSeconds) > now;
+          
+          // Check if quantity available > 0
+          const hasQuantity = (listing.quantity || 0) > 0;
+
+          setHasActiveListing(isActive && notExpired && hasQuantity);
+        } catch (error) {
+          // Listing doesn't exist or error fetching → no active listing
+          setHasActiveListing(false);
+        }
+      } catch (error) {
+        // Error checking listing → assume no active listing (safer default)
+        setHasActiveListing(false);
+      } finally {
+        setListingCheckComplete(true);
+      }
+    };
+
+    // Only check if we have a listing ID
+    if (listingId && listingId > 0) {
+      checkListingStatus();
+    } else {
+      // No listing ID → no active listing
+      setHasActiveListing(false);
+      setListingCheckComplete(true);
+    }
+  }, [tokenId, listingId]);
+
   // LOAD OWNER ADDRESS
   // Fetch current owner from chain (ERC-721 ownerOf) with rate limiting
   // Also re-check periodically to catch any ownership changes
@@ -235,13 +308,17 @@ export default function NFTDetailPage() {
         });
         
         // Normalize owner address to lowercase for consistent comparison
-        if (typeof result === "string") {
-          setOwnerAddress(result.toLowerCase());
+        // Only set owner address if it's a valid non-empty string
+        let normalizedOwner: string | null = null;
+        if (typeof result === "string" && result.trim() !== "") {
+          normalizedOwner = result.toLowerCase().trim();
         } else if (result && typeof result === "object" && "_value" in result) {
-          setOwnerAddress(String((result as { _value: unknown })._value).toLowerCase());
-        } else {
-          setOwnerAddress(null);
+          const value = String((result as { _value: unknown })._value).trim();
+          if (value !== "") {
+            normalizedOwner = value.toLowerCase();
+          }
         }
+        setOwnerAddress(normalizedOwner);
       } catch (error) {
         // Error fetching owner - set null (will show as "not for sale" by default)
         setOwnerAddress(null);
@@ -285,12 +362,17 @@ export default function NFTDetailPage() {
               });
             });
             
-            // Normalize owner address to lowercase
-            if (typeof result === "string") {
-              setOwnerAddress(result.toLowerCase());
+            // Normalize owner address to lowercase - only set if valid
+            let normalizedOwner: string | null = null;
+            if (typeof result === "string" && result.trim() !== "") {
+              normalizedOwner = result.toLowerCase().trim();
             } else if (result && typeof result === "object" && "_value" in result) {
-              setOwnerAddress(String((result as { _value: unknown })._value).toLowerCase());
+              const value = String((result as { _value: unknown })._value).trim();
+              if (value !== "") {
+                normalizedOwner = value.toLowerCase();
+              }
             }
+            setOwnerAddress(normalizedOwner);
             setOwnerCheckComplete(true);
           } catch (error) {
             // Error fetching owner - still mark as complete to prevent infinite loading
@@ -338,27 +420,35 @@ export default function NFTDetailPage() {
   // Get pricing data from loaded pricing data or metadata fallback
   const priceEth = pricingData?.price_eth || metadata?.merged_data?.price_eth || 0;
   const listingId = pricingData?.listing_id || metadata?.merged_data?.listing_id || 0;
-  const marketplaceAddress = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
+  const marketplaceAddress = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase()?.trim();
   
-  // CRITICAL: Default to FOR SALE (blue) unless definitively confirmed as SOLD
-  // Only mark as sold if ALL conditions are met:
-  // 1. Owner check is complete
-  // 2. Owner address exists and is valid
-  // 3. Marketplace address exists and is valid
-  // 4. Owner address is NOT the marketplace address (meaning it's owned by someone else)
-  // OR manually marked as purchased
-  const isConfirmedSold = (ownerCheckComplete && 
-    ownerAddress && 
-    marketplaceAddress && 
-    ownerAddress.toLowerCase() !== marketplaceAddress.toLowerCase()) || 
-    isPurchased;
+  // CORRECT LOGIC: Check marketplace listing status, not just ownership
+  // The CORRECT way to determine if an NFT is for sale:
+  // 1. If there's an ACTIVE listing on the marketplace → FOR SALE
+  // 2. If there's NO active listing → SOLD (or not listed)
+  // 
+  // Ownership alone is not sufficient because:
+  // - NFTs can be owned by marketplace wallet but still be for sale (if listed)
+  // - NFTs can be owned by buyer's wallet (which might be marketplace-controlled) but still be for sale
+  // - The ONLY reliable indicator is: Does an ACTIVE listing exist?
+  //
+  // Fallback to ownership check only if listing check fails or is incomplete
+  const isForSale = Boolean(
+    (listingCheckComplete && hasActiveListing === true) || // Has active listing = FOR SALE
+    (!listingCheckComplete && priceEth > 0 && !isPurchased) // Fallback: if listing check not done yet, default to for sale if has price
+  );
   
-  // NFT is for sale if:
-  // 1. Has a price AND
-  // 2. Not manually purchased AND
-  // 3. NOT confirmed as sold
-  // DEFAULT: If price exists and not confirmed sold, show as FOR SALE
-  const isForSale = priceEth > 0 && !isPurchased && !isConfirmedSold;
+  // NFT is confirmed as SOLD if:
+  // 1. Listing check is complete AND there's NO active listing AND has a price (was listed but no longer active = sold)
+  // 2. OR manually marked as purchased
+  // 3. OR (fallback) owner check shows owner is NOT marketplace (but only if listing check failed)
+  const isConfirmedSold = Boolean(
+    isPurchased ||
+    (listingCheckComplete && hasActiveListing === false && priceEth > 0) || // Had price but no active listing = sold
+    (!listingCheckComplete && ownerCheckComplete && ownerAddress && ownerAddress.trim() !== '' && 
+     marketplaceAddress && marketplaceAddress.trim() !== '' && marketplaceAddress.length >= 42 &&
+     ownerAddress.toLowerCase() !== marketplaceAddress.toLowerCase()) // Fallback: owner is not marketplace
+  );
 
   // CONFETTI CELEBRATION FUNCTION
   // Trigger confetti safely - only once per purchase to prevent double-triggering

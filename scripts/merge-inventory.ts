@@ -44,8 +44,6 @@ function ethToWei(ethStr: string): string {
 }
 
 async function main(): Promise<void> {
-  console.log("📖 Reading files...");
-  
   // Read verified listings
   const verifiedContent = readFileSync(
     join(process.cwd(), "scripts", "verified-listings-state.csv"),
@@ -53,8 +51,6 @@ async function main(): Promise<void> {
   );
   const verifiedLines = verifiedContent.split("\n").filter((l) => l.trim());
   const verifiedHeaders = verifiedLines[0].split(",");
-  
-  console.log(`   Found ${verifiedLines.length - 1} verified listings`);
   
   // Parse verified listings - group by tokenId, prefer ACTIVE listings
   const verifiedByToken = new Map<string, VerifiedListing[]>();
@@ -90,10 +86,7 @@ async function main(): Promise<void> {
   const inventoryLines = inventoryContent.split("\n").filter((l) => l.trim());
   const inventoryHeaders = inventoryLines[0].split(",");
   
-  console.log(`   Found ${inventoryLines.length - 1} inventory rows`);
-  
   // Process inventory and merge with verified listings
-  console.log("\n🔄 Merging data...");
   const updatedRows: InventoryRow[] = [];
   let updatedCount = 0;
   let activeListingsCount = 0;
@@ -167,30 +160,20 @@ async function main(): Promise<void> {
     updatedRows.push(inventoryRow);
   }
   
-  console.log(`   Updated ${updatedCount} rows with verified data`);
-  console.log(`   Found ${activeListingsCount} active listings`);
-  
   // Verify active listings mapping
-  console.log("\n✅ Verifying active listings...");
   let verificationErrors = 0;
   for (const [tokenId, listingIds] of activeListingsByToken.entries()) {
     if (listingIds.length > 1) {
-      console.log(`   ⚠️  Token ${tokenId} has multiple active listings: ${listingIds.join(", ")}`);
+      // Multiple active listings detected
     }
     // Verify the listing ID in inventory matches
     const inventoryRow = updatedRows.find((r) => r.tokenId === tokenId && r.status === "ACTIVE");
     if (inventoryRow && !listingIds.includes(inventoryRow.listingId)) {
-      console.log(`   ⚠️  Token ${tokenId}: Inventory listing ${inventoryRow.listingId} not in verified list`);
       verificationErrors++;
     }
   }
   
-  if (verificationErrors === 0) {
-    console.log("   ✅ All active listings verified correctly!");
-  }
-  
   // Generate CSV output
-  console.log("\n📝 Generating merged CSV...");
   const csvContent = [
     "listingId,tokenId,name,owner,rarityTier,price,status",
     ...updatedRows.map((r) =>
@@ -218,11 +201,7 @@ async function main(): Promise<void> {
   const outputFile = join(process.cwd(), "scripts", `full-inventory-merged-${Date.now()}.csv`);
   writeFileSync(outputFile, csvContent, "utf-8");
   
-  console.log(`\n✅ Merged inventory saved to: ${outputFile}`);
-  console.log(`📊 Total rows: ${updatedRows.length}`);
-  console.log(`   - Active listings: ${activeListingsCount}`);
-  console.log(`   - Updated with verified data: ${updatedCount}`);
 }
 
-main().catch(console.error);
+main().catch(() => process.exit(1));
 

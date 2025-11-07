@@ -90,8 +90,10 @@ export async function getBatchOwnership(
 }
 
 /**
- * Fallback: Use individual RPC calls if Insight API is unavailable
- * This maintains functionality but is slower
+ * Fallback function: Uses individual RPC calls if Insight API is unavailable
+ * This maintains functionality but is slower than batch API calls
+ * @param tokenIds - Array of token IDs to check ownership for
+ * @returns Promise resolving to array of ownership results
  */
 async function getBatchOwnershipFallback(
   tokenIds: number[]
@@ -135,8 +137,12 @@ async function getBatchOwnershipFallback(
 }
 
 /**
- * Get ownership for all NFTs in the collection using Insight API
- * This replaces the 7,777 individual RPC calls with batch API calls
+ * Gets ownership status for all NFTs in the collection using Insight API
+ * Replaces 7,777 individual RPC calls with efficient batch API calls
+ * @returns Promise resolving to a map of tokenId -> isSold boolean
+ * @example
+ * const ownership = await getAllOwnership()
+ * const isToken1234Sold = ownership[1234] // true if sold, false if still available
  */
 export async function getAllOwnership(): Promise<Record<number, boolean>> {
   const totalNFTs = 7777;

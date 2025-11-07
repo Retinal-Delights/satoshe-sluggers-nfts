@@ -164,11 +164,9 @@ import {
 
     const outputFile = join(process.cwd(), "scripts", `full-inventory-${Date.now()}.csv`);
     writeFileSync(outputFile, csvContent, "utf-8");
-    console.log(`\n✅ Inventory exported to: ${outputFile}`);
-    console.log(`📊 Total NFTs: ${rows.length}`);
   }
   
-  main().catch(console.error);
+  main().catch(() => process.exit(1));
   
   // Run with:
   //   pnpm add thirdweb

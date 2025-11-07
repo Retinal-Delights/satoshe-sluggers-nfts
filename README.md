@@ -162,7 +162,7 @@ satoshe-sluggers/
 
 The project uses a comprehensive design system with:
 
-- **Typography**: Inter (primary), JetBrains Mono (code), Inconsolata (values)
+- **Typography**: Inter (primary), JetBrains Mono (code/monospace)
 - **Colors**: Dark theme with pink accents (#ff0099)
 - **Spacing**: Consistent 8px grid system
 - **Components**: ShadCN/ui with custom modifications

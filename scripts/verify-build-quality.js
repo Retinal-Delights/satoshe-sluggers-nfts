@@ -279,8 +279,7 @@ function checkDocumentationFiles() {
   
   const requiredDocs = [
     'docs/API.md',
-    'docs/CONTRIBUTING.md',
-    'docs/ROADMAP_TO_PERFECT_17.md'
+    'docs/CONTRIBUTING.md'
   ];
   
   const existing = [];

@@ -41,11 +41,8 @@ function parseCSV(content) {
 }
 
 try {
-  console.log('Reading CSV file...');
   const csvContent = fs.readFileSync(csvPath, 'utf-8');
   const csvData = parseCSV(csvContent);
-  
-  console.log(`Parsed ${csvData.length} rows from CSV`);
   
   // Convert to the format expected by the application
   // Format: Array of { token_id, price_eth, listing_id }
@@ -59,8 +56,6 @@ try {
       listing_id: parseInt(row.listingId) || null
     }))
     .sort((a, b) => a.token_id - b.token_id);
-  
-  console.log(`Created ${pricingMappings.length} pricing mappings`);
   
   // Also create a lookup map keyed by token_id for faster access
   const lookupMap = {};
@@ -82,12 +77,7 @@ try {
   }
   
   fs.writeFileSync(outputPath, JSON.stringify(output, null, 2));
-  console.log(`✓ Written pricing mappings to ${outputPath}`);
-  console.log(`  Total entries: ${output.length}`);
-  console.log(`  Token IDs range: ${Math.min(...pricingMappings.map(p => p.token_id))} to ${Math.max(...pricingMappings.map(p => p.token_id))}`);
-  console.log(`  Listings with IDs: ${pricingMappings.filter(p => p.listing_id !== null).length}`);
   
 } catch (error) {
-  console.error('Error converting CSV to JSON:', error);
   process.exit(1);
 }

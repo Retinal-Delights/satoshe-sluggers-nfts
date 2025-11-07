@@ -46,7 +46,6 @@ async function getAllListingsPaginated() {
   let consecutiveEmptyPages = 0;
   const maxEmptyPages = 5;
 
-  console.log("🔍 Fetching all listings from marketplace...");
   while (consecutiveEmptyPages < maxEmptyPages) {
     try {
       const listings = await getAllListings({ contract: marketplace, start, count: limit });
@@ -55,7 +54,6 @@ async function getAllListingsPaginated() {
       } else {
         consecutiveEmptyPages = 0;
         allListings.push(...listings);
-        console.log(`   Fetched ${allListings.length} listings so far...`);
       }
       start += limit;
       if (allListings.length > 12000) break;
@@ -68,9 +66,6 @@ async function getAllListingsPaginated() {
 }
 
 async function main() {
-  console.log("📄 Creating Complete Listings Database\n");
-  console.log("=".repeat(80));
-
   // Load rarity mapping
   const pricingCsv = fs.readFileSync("scripts/files/token_pricing_mappings.csv", "utf-8");
   const lines = pricingCsv.split("\n").filter(l => l.trim());
@@ -83,10 +78,8 @@ async function main() {
     const tid = parseInt(row.token_id);
     if (!isNaN(tid)) rarityMap.set(tid, row.rarity_tier || "Unknown");
   }
-  console.log(`✅ Loaded ${rarityMap.size} rarity mappings\n`);
 
   const allListings = await getAllListingsPaginated();
-  console.log(`✅ Fetched ${allListings.length} total listings\n`);
 
   const rows = [];
   rows.push("Listing ID,Token ID,NFT Number,NFT Name,Price (ETH),Rarity Tier,Status,Owner Wallet,Expiration Date");
@@ -160,19 +153,9 @@ async function main() {
   const activeListings = dataRows.filter(r => r.split(",")[6] === "ACTIVE").length;
   const cancelledListings = dataRows.filter(r => r.split(",")[6] === "CANCELLED").length;
 
-  console.log("=".repeat(80));
-  console.log("📊 DATABASE CREATED");
-  console.log("=".repeat(80));
-  console.log(`\n✅ Total Listings: ${dataRows.length}`);
-  console.log(`✅ Valid Token IDs (0-${MAX_TOKEN_ID}): ${validListings.length}`);
-  console.log(`🟢 Active: ${activeListings}`);
-  console.log(`🔴 Cancelled: ${cancelledListings}`);
-  console.log(`\n📄 File: ${csvFile}\n`);
-  console.log("Columns: Listing ID, Token ID, NFT Number, NFT Name, Price (ETH), Rarity Tier, Status, Owner Wallet, Expiration Date");
 }
 
-main().catch(err => {
-  console.error("💥 Script failed:", err);
+main().catch(() => {
   process.exit(1);
 });
 

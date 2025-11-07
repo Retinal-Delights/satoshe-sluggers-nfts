@@ -11,7 +11,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const CHUNK_SIZE = 1000; // NFTs per chunk
+const CHUNK_SIZE = 250; // NFTs per chunk (optimized to match max page size)
 const TOTAL_NFTS = 7777;
 
 // Paths
@@ -28,21 +28,16 @@ const COMBINED_METADATA_OPTIMIZED = path.join(DATA_DIR, 'combined_metadata_optim
  * Split a metadata file into chunks
  */
 function splitMetadataFile(inputPath, outputDir, isOptimized = false) {
-  console.log(`\n📦 Splitting ${path.basename(inputPath)}...`);
-  
   if (!fs.existsSync(inputPath)) {
-    console.error(`❌ File not found: ${inputPath}`);
     return;
   }
 
   // Create output directory
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
-    console.log(`✅ Created directory: ${outputDir}`);
   }
 
   // Read the input file
-  console.log(`📖 Reading ${path.basename(inputPath)}...`);
   const fileContent = fs.readFileSync(inputPath, 'utf-8');
   const data = JSON.parse(fileContent);
 
@@ -63,8 +58,6 @@ function splitMetadataFile(inputPath, outputDir, isOptimized = false) {
     tokens = Array.isArray(data) ? data : (data.tokens || []);
   }
 
-  console.log(`📊 Found ${tokens.length} NFTs`);
-
   // Split into chunks
   const chunks = [];
   for (let i = 0; i < tokens.length; i += CHUNK_SIZE) {
@@ -78,8 +71,6 @@ function splitMetadataFile(inputPath, outputDir, isOptimized = false) {
       tokens: chunkTokens,
     });
   }
-
-  console.log(`✂️  Creating ${chunks.length} chunks...`);
 
   // Write each chunk
   let totalSize = 0;
@@ -101,14 +92,7 @@ function splitMetadataFile(inputPath, outputDir, isOptimized = false) {
     
     const sizeKB = (Buffer.byteLength(jsonContent, 'utf-8') / 1024).toFixed(1);
     totalSize += parseFloat(sizeKB);
-    
-    console.log(`  ✅ ${filename} (${chunk.tokens.length} NFTs, ${sizeKB} KB)`);
   });
-
-  console.log(`\n📊 Summary:`);
-  console.log(`   Total chunks: ${chunks.length}`);
-  console.log(`   Total size: ${totalSize.toFixed(1)} KB (${(totalSize / 1024).toFixed(2)} MB)`);
-  console.log(`   Average chunk size: ${(totalSize / chunks.length).toFixed(1)} KB`);
 }
 
 /**
@@ -130,37 +114,22 @@ function createIndexFile(outputDir) {
 
   const indexPath = path.join(outputDir, 'index.json');
   fs.writeFileSync(indexPath, JSON.stringify(index, null, 0), 'utf-8');
-  console.log(`\n✅ Created index file: ${indexPath}`);
 }
 
 /**
  * Main function
  */
 function main() {
-  console.log('🚀 Starting metadata splitting process...\n');
-  console.log('='.repeat(60));
-
   // Split regular metadata
   if (fs.existsSync(COMBINED_METADATA)) {
     splitMetadataFile(COMBINED_METADATA, METADATA_DIR, false);
-  } else {
-    console.log(`⚠️  File not found: ${COMBINED_METADATA}`);
   }
 
   // Split optimized metadata
   if (fs.existsSync(COMBINED_METADATA_OPTIMIZED)) {
     splitMetadataFile(COMBINED_METADATA_OPTIMIZED, OPTIMIZED_METADATA_DIR, true);
     createIndexFile(OPTIMIZED_METADATA_DIR);
-  } else {
-    console.log(`⚠️  File not found: ${COMBINED_METADATA_OPTIMIZED}`);
   }
-
-  console.log('\n' + '='.repeat(60));
-  console.log('✅ Metadata splitting complete!');
-  console.log('\n📝 Next steps:');
-  console.log('   1. Update lib/simple-data-service.ts to use chunked loading');
-  console.log('   2. Test that NFTs load correctly');
-  console.log('   3. Deploy to Vercel');
 }
 
 main();

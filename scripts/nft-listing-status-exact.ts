@@ -154,15 +154,7 @@ function isValidListing(listing: any): boolean {
 async function main() {
 
   if (!THIRDWEB_SECRET_KEY && !CLIENT_ID) {
-
-    console.error(
-
-      "❌ ERROR: Please set either THIRDWEB_SECRET_KEY or NEXT_PUBLIC_THIRDWEB_CLIENT_ID in your .env.local file"
-
-    );
-
     process.exit(1);
-
   }
 
   const client = THIRDWEB_SECRET_KEY
@@ -223,15 +215,7 @@ async function main() {
 
       start += BigInt(pageSize);
 
-      if (allListings.length % 1000 === 0 && allListings.length > 0) {
-
-        console.log(`   Fetched ${allListings.length} listings so far...`);
-
-      }
-
     } catch (err) {
-
-      console.error(`   Error fetching page at start ${start}:`, err);
 
       keepGoing = false;
 
@@ -391,7 +375,6 @@ async function main() {
 
     if ((tokenId - TOKEN_ID_START) % 50 === 0)
 
-      console.log(`Checked tokenId ${tokenId}/${TOKEN_ID_END}`);
 
   }
 
@@ -435,15 +418,9 @@ async function main() {
 
   );
 
-  console.log(`JSON: ${OUTPUT_JSON}`);
-
-  console.log(`CSV: ${OUTPUT_CSV}`);
-
-  console.log("Summary:", summary);
-
 }
 
 
 
-main().catch(console.error);
+main().catch(() => process.exit(1));
 

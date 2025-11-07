@@ -451,13 +451,13 @@ function SubcategorySection({
                             onChange={() => handleColorToggle(subcategory.name, option)}
                           className="sidebar-checkbox mr-2 flex-shrink-0"
                           style={{
-                            '--checkbox-color': color === 'purple' ? '#8b5cf6' : 
-                                              color === 'blue' ? '#3b82f6' :
-                                              color === 'amber' ? '#f59e0b' :
-                                              color === 'red' ? '#ef4444' :
-                                              color === 'green' ? '#10b981' :
-                                              color === 'cyan' ? '#06b6d4' :
-                                              color === 'orange' ? '#f97316' : '#8b5cf6'
+                            '--checkbox-color': color === 'purple' ? colors.filter.purple : 
+                                              color === 'blue' ? colors.filter.blue :
+                                              color === 'amber' ? colors.filter.yellow :
+                                              color === 'red' ? colors.filter.red :
+                                              color === 'green' ? colors.filter.green :
+                                              color === 'cyan' ? colors.filter.cyan :
+                                              color === 'orange' ? colors.filter.orange : colors.filter.purple
                           } as React.CSSProperties}
                         />
                         <label
@@ -671,15 +671,15 @@ export default function NFTSidebar({
     >
       {/* Blockchain Info */}
         <div className="mb-4 p-3 border border-neutral-700 rounded">
-          <div className="font-inconsolata text-off-white leading-tight text-xs" style={{ fontWeight: '300' }}>Blockchain: Base</div>
-          <div className="font-inconsolata text-off-white leading-tight text-xs" style={{ fontWeight: '300' }}>Chain ID: 8453</div>
-          <div className="font-inconsolata text-off-white leading-tight text-xs" style={{ fontWeight: '300' }}>Token Standard: ERC-721</div>
+          <div className="font-mono text-off-white leading-tight text-xs" style={{ fontWeight: '300' }}>Blockchain: Base</div>
+          <div className="font-mono text-off-white leading-tight text-xs" style={{ fontWeight: '300' }}>Chain ID: 8453</div>
+          <div className="font-mono text-off-white leading-tight text-xs" style={{ fontWeight: '300' }}>Token Standard: ERC-721</div>
 
         {/* Contract Links */}
         <div className="space-y-3 mt-3">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h4 className="font-inconsolata text-off-white text-xs" style={{ fontWeight: '300' }}>Marketplace</h4>
+              <h4 className="font-mono text-off-white text-xs" style={{ fontWeight: '300' }}>Marketplace</h4>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
                <button
@@ -701,7 +701,7 @@ export default function NFTSidebar({
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h4 className="font-inconsolata text-off-white text-xs" style={{ fontWeight: '300' }}>NFT Contract</h4>
+              <h4 className="font-mono text-off-white text-xs" style={{ fontWeight: '300' }}>NFT Contract</h4>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
               <button
@@ -771,7 +771,7 @@ export default function NFTSidebar({
         </div>
         
         <button
-          className="font-light flex items-center justify-center h-8 w-full mb-4 rounded border border-brand-pink text-brand-pink bg-transparent hover:bg-brand-pink hover:text-white hover:border-brand-pink focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-xs sm:text-sm"
+          className="font-light flex items-center justify-center h-8 w-full mb-4 rounded border border-brand-pink text-brand-pink bg-transparent focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-xs sm:text-sm cursor-pointer"
           aria-label="Search NFTs"
         >
           Search

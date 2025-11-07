@@ -180,7 +180,7 @@ export const buttons = {
   primary: 'px-6 py-2 bg-[#ff0099] text-white font-normal rounded-sm hover:bg-[#ff0099]/90 transition-all duration-200',
   
   // Outline Button (from style guide)
-  outline: 'px-6 py-2 border border-[#ff0099] bg-transparent text-[#ff0099] font-normal rounded-sm hover:bg-[#ff0099]/90 hover:text-white transition-all duration-200',
+  outline: 'px-6 py-2 border border-[#ff0099] bg-transparent text-[#ff0099] font-normal rounded-sm hover:bg-[#ff0099] hover:text-off-white transition-all duration-200',
   
   // Buy Button (Blue - for purchasable items)
   buy: 'px-6 py-2 border border-[#3B82F6] bg-blue-500/10 text-blue-400 font-normal rounded-sm hover:bg-blue-500/30 hover:border-blue-500/60 hover:text-blue-300 transition-all duration-200',

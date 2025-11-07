@@ -2,6 +2,15 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
+/**
+ * Utility function to merge Tailwind CSS classes with clsx
+ * Combines multiple class values and resolves conflicts using tailwind-merge
+ * @param inputs - Variable number of class values (strings, objects, arrays, etc.)
+ * @returns Merged class string with Tailwind conflicts resolved
+ * @example
+ * cn("px-2 py-1", "px-4") // Returns "py-1 px-4" (px-2 overridden by px-4)
+ * cn({ "bg-red": true, "bg-blue": false }) // Returns "bg-red"
+ */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }

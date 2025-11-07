@@ -3,7 +3,12 @@ import { getContract } from "thirdweb";
 import { base } from "thirdweb/chains";
 import { client } from "./thirdweb";
 
-// Validate environment variables ONLY at runtime, never at module top-level
+/**
+ * Gets the NFT collection contract instance
+ * Validates environment variables at runtime (not module load time)
+ * @returns Thirdweb contract instance for the NFT collection
+ * @throws Error if NEXT_PUBLIC_NFT_COLLECTION_ADDRESS is not set
+ */
 export const getNftCollection = () =>
   getContract({
     address: process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS!,
@@ -11,6 +16,12 @@ export const getNftCollection = () =>
     client,
   });
 
+/**
+ * Gets the marketplace contract instance
+ * Validates environment variables at runtime (not module load time)
+ * @returns Thirdweb contract instance for the marketplace
+ * @throws Error if NEXT_PUBLIC_MARKETPLACE_ADDRESS is not set
+ */
 export const getMarketplace = () =>
   getContract({
     address: process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS!,

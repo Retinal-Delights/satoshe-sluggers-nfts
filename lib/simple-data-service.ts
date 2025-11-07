@@ -40,7 +40,7 @@ export interface NFTData {
   };
 }
 
-const CHUNK_SIZE = 1000; // NFTs per chunk
+const CHUNK_SIZE = 250; // NFTs per chunk (optimized to match max page size)
 const TOTAL_NFTS = 7777;
 
 // Cache for loaded chunks (chunk index -> NFTData[])
@@ -284,18 +284,13 @@ async function loadAllNFTsLegacy(): Promise<NFTData[]> {
 }
 
 /**
- * Check if chunked files exist
+ * Check if chunked files exist (250-size optimized chunks only)
  */
 async function checkChunkedFilesExist(): Promise<boolean> {
   try {
-    // Check if first chunk exists
-    const response = await fetch("/data/metadata-optimized/chunk-0-999.json", { method: "HEAD" });
-    if (response.ok) {
-      return true;
-    }
-    // Try regular chunked format
-    const response2 = await fetch("/data/metadata/chunk-0-999.json", { method: "HEAD" });
-    return response2.ok;
+    // Check for 250-size optimized chunks only
+    const response = await fetch("/data/metadata-optimized/chunk-0-249.json", { method: "HEAD" });
+    return response.ok;
   } catch {
     return false;
   }

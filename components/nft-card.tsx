@@ -210,8 +210,7 @@ export default function NFTCard({
               </div>
               <Link
                 href={`/nft/${cardNumber}`}
-                className="px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.75rem,0.5vw,0.85rem)] bg-blue-500/10 border text-blue-400 hover:bg-blue-500/20 hover:border-blue-500/50"
-                style={{ borderColor: 'rgba(59, 130, 246, 0.3)', borderWidth: '1px', borderStyle: 'solid' }}
+                className="px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.75rem,0.5vw,0.85rem)] bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500"
               >
                 BUY
               </Link>

@@ -110,9 +110,6 @@ function isActiveListing(listing: any): boolean {
 
 async function main() {
   if (!THIRDWEB_SECRET_KEY && !CLIENT_ID) {
-    console.error(
-      "❌ ERROR: Please set either THIRDWEB_SECRET_KEY or NEXT_PUBLIC_THIRDWEB_CLIENT_ID in your .env.local file"
-    );
     process.exit(1);
   }
 
@@ -132,12 +129,6 @@ async function main() {
     address: NFT_COLLECTION_ADDRESS,
   });
 
-  console.log(`🔍 Fetching all listings from marketplace...`);
-  console.log(`   Marketplace: ${MARKETPLACE_ADDRESS}`);
-  console.log(`   NFT Collection: ${NFT_COLLECTION_ADDRESS}`);
-  console.log(`   Token ID Range: ${TOKEN_ID_START} - ${TOKEN_ID_END}`);
-  console.log("");
-
   // Fetch all listings with pagination
   const allListings: any[] = [];
   let start: bigint = 0n;
@@ -154,24 +145,14 @@ async function main() {
       allListings.push(...page);
       keepGoing = page.length === pageSize;
       start += BigInt(pageSize);
-      if (allListings.length % 1000 === 0 && allListings.length > 0) {
-        console.log(`   Fetched ${allListings.length} listings so far...`);
-      }
     } catch (err) {
-      console.error(`   Error fetching page at start ${start}:`, err);
       keepGoing = false;
     }
   }
 
-  console.log(`✅ Fetched ${allListings.length} total listings`);
-
   // Filter listings
   const activeListings = allListings.filter(isActiveListing);
   const validListings = allListings.filter(isValidListing);
-
-  console.log(`✅ Found ${activeListings.length} active direct listings`);
-  console.log(`✅ Found ${validListings.length} valid direct listings`);
-  console.log("");
 
   // Map for tokenId lookups
   const byActiveToken: Record<number, any> = {};
@@ -237,8 +218,6 @@ async function main() {
       }
     }
 
-    if ((tokenId - TOKEN_ID_START) % 50 === 0)
-      console.log(`Checked tokenId ${tokenId}/${TOKEN_ID_END}`);
   }
 
   // Write out JSON and CSV
@@ -262,10 +241,7 @@ async function main() {
     {} as Record<string, number>
   );
 
-  console.log(`\n✅ JSON: ${OUTPUT_JSON}`);
-  console.log(`✅ CSV: ${OUTPUT_CSV}`);
-  console.log("📊 Summary:", summary);
 }
 
-main().catch(console.error);
+main().catch(() => process.exit(1));
 

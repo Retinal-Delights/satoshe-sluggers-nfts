@@ -102,6 +102,14 @@
   .bg-brand-pink {
     background-color: var(--brand-pink);
   }
+  
+  /* Force button hover styles to work */
+  button.border-brand-pink:hover,
+  .border-brand-pink:hover {
+    background-color: var(--brand-pink) !important;
+    color: var(--off-white) !important;
+    border-color: var(--brand-pink) !important;
+  }
   .border-brand-pink {
     border-color: var(--brand-pink);
   }
@@ -401,9 +409,6 @@ button[aria-label*="Execute buyFromListing"] * {
 }
 
 /* Font Variables */
-.font-inconsolata {
-  font-family: var(--font-inconsolata);
-}
 
 /* Universal Fluid Typography Utility Classes */
 .text-fluid-xs {
@@ -435,7 +440,7 @@ button[aria-label*="Execute buyFromListing"] * {
 
 /* NFT Meta Labels and Values - /nfts page only */
 .nft-meta-label {
-  font-size: clamp(0.75rem, 0.5vw, 0.9rem);
+  font-size: clamp(0.85rem, 0.6vw, 1rem);
 }
 
 .nft-meta-value {
