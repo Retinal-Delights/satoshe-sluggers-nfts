@@ -11,8 +11,17 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 // ========== USER SETTINGS ==========
-const MARKETPLACE_ADDRESS = "0x187A56dDfCcc96AA9f4FaAA8C0fE57388820A817";
-const NFT_COLLECTION_ADDRESS = "0x53b062474eF48FD1aE6798f9982c58Ec0267c2Fc";
+// SECURITY: No fallbacks - fail hard if env vars are missing
+const MARKETPLACE_ADDRESS = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS;
+const NFT_COLLECTION_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS;
+
+if (!MARKETPLACE_ADDRESS || !NFT_COLLECTION_ADDRESS) {
+  throw new Error(
+    "SECURITY ERROR: Missing required environment variables. " +
+    "Please set NEXT_PUBLIC_MARKETPLACE_ADDRESS and NEXT_PUBLIC_NFT_COLLECTION_ADDRESS. " +
+    "No fallbacks allowed."
+  );
+}
 
 const THIRDWEB_SECRET_KEY = process.env.THIRDWEB_SECRET_KEY;
 const CLIENT_ID = process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID;

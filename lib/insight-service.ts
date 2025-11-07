@@ -61,7 +61,6 @@ export async function getBatchOwnership(
 
       if (!response.ok) {
         // Fallback to individual RPC calls if Insight API fails
-        console.warn('Insight API failed, falling back to individual calls');
         return await getBatchOwnershipFallback(tokenIds);
       }
 
@@ -82,7 +81,6 @@ export async function getBatchOwnership(
         });
       }
     } catch (error) {
-      console.error('Error fetching batch ownership:', error);
       // Fallback to individual calls if batch fails
       return await getBatchOwnershipFallback(batch);
     }

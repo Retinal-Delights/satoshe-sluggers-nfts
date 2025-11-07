@@ -153,8 +153,7 @@ export default function NFTDetailPage() {
         setIsLoading(false);
       })
       .catch((error) => {
-        // Error loading metadata - log and set fallback state
-        console.error(`Error loading NFT metadata for token ${tokenId}:`, error);
+        // Error loading metadata - set fallback state
         setMetadata(null);
         setImageUrl("/nfts/placeholder-nft.webp");
         clearTimeout(timeoutId);
@@ -205,9 +204,8 @@ export default function NFTDetailPage() {
           }
         }
       } catch (error) {
-        // Error loading pricing data - log and continue without pricing
-        console.error(`Error loading pricing data for token ${tokenId}:`, error);
-        // Continue without pricing - NFT will show as "not for sale"
+        // Error loading pricing data - continue without pricing
+        // NFT will show as "not for sale"
       }
     };
     
@@ -245,8 +243,7 @@ export default function NFTDetailPage() {
           setOwnerAddress(null);
         }
       } catch (error) {
-        // Error fetching owner - log and set null (will show as "not for sale" by default)
-        console.error(`Error fetching owner for token ${tokenId}:`, error);
+        // Error fetching owner - set null (will show as "not for sale" by default)
         setOwnerAddress(null);
       } finally {
         // Always mark check as complete, even on error (prevents infinite loading state)
@@ -297,7 +294,6 @@ export default function NFTDetailPage() {
             setOwnerCheckComplete(true);
           } catch (error) {
             // Error fetching owner - still mark as complete to prevent infinite loading
-            console.error(`Error fetching owner after purchase event for token ${tokenId}:`, error);
             setOwnerCheckComplete(true);
           }
         };
@@ -408,7 +404,7 @@ export default function NFTDetailPage() {
         detail: { tokenId: purchasedActualTokenId, priceEth: priceEthNumber } 
       }));
     } catch (error) {
-      console.error('Error broadcasting purchase event:', error);
+      // Error broadcasting purchase event - silently fail
     }
     
     // Refetch owner address to update sold state
@@ -435,7 +431,6 @@ export default function NFTDetailPage() {
         setOwnerCheckComplete(true);
       } catch (error) {
         // Error fetching owner - still mark as complete (prevents infinite loading)
-        console.error(`Error fetching owner after purchase for token ${tokenId}:`, error);
         setOwnerCheckComplete(true);
       }
     }, 5000);

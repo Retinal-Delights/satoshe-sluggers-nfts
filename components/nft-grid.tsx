@@ -38,7 +38,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useFavorites } from "@/hooks/useFavorites";
 import Link from "next/link";
 import Image from "next/image";
-import { loadAllNFTs } from "@/lib/simple-data-service";
+import { loadAllNFTs, loadNFTsRange } from "@/lib/simple-data-service";
 import { announceToScreenReader } from "@/lib/accessibility-utils";
 import { convertIpfsUrl, cn } from "@/lib/utils";
 import { useOnChainOwnership } from "@/hooks/useOnChainOwnership";
@@ -672,25 +672,49 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
     }
   }, [paginatedNFTs.length, viewMode]);
 
-  // Load metadata
+  // Load metadata progressively (chunked loading)
   useEffect(() => {
     const loadMetadata = async () => {
       try {
         setIsLoading(true);
         
-        // Load main collection using simple data service
-        const mainMetadata = await loadAllNFTs();
+        // Check if chunked files exist
+        const checkChunked = await fetch("/data/metadata-optimized/chunk-0-999.json", { method: "HEAD" }).then(r => r.ok).catch(() => false);
         
-        // Set metadata directly
-        setAllMetadata(mainMetadata || []);
-        
-        // Debug: Log metadata count
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`[NFTGrid] Loaded ${mainMetadata.length} metadata items`);
+        if (checkChunked) {
+          // PROGRESSIVE LOADING: Load first chunk immediately, then load rest in background
+          // This shows the first 1000 NFTs quickly while loading the rest
+          
+          // Load first chunk (0-999) - this is what user sees first
+          const firstChunk = await loadNFTsRange(0, 999);
+          setAllMetadata(firstChunk);
+          setIsLoading(false); // Show first page immediately
+          
+          // Load remaining chunks in background (for filtering/searching)
+          // User can interact with first 1000 NFTs while this loads
+          const totalChunks = Math.ceil(7777 / 1000);
+          const remainingChunks: Promise<unknown[]>[] = [];
+          
+          for (let i = 1; i < totalChunks; i++) {
+            const chunkStart = i * 1000;
+            const chunkEnd = Math.min(chunkStart + 999, 7776);
+            remainingChunks.push(loadNFTsRange(chunkStart, chunkEnd));
+          }
+          
+          // Load all remaining chunks in parallel
+          const remaining = await Promise.all(remainingChunks);
+          const allRemaining = remaining.flat();
+          
+          // Update with complete dataset (now filtering/searching works fully)
+          setAllMetadata([...firstChunk, ...allRemaining]);
+        } else {
+          // Fallback: Load all at once (legacy mode)
+          const mainMetadata = await loadAllNFTs();
+          setAllMetadata(mainMetadata || []);
+          setIsLoading(false);
         }
 
       } catch {
-      } finally {
         setIsLoading(false);
       }
     };
@@ -740,11 +764,6 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
                 listingId = (pricing.listing_id !== null && pricing.listing_id !== undefined) 
                   ? pricing.listing_id 
                   : (tokenIdNum + 10000);
-              } else {
-                // Warn when pricing mapping is missing (helps debug incomplete mapping files)
-                if (process.env.NODE_ENV === 'development') {
-                  console.warn(`[NFTGrid] No pricing mapping for token_id ${tokenIdNum}`);
-                }
               }
               
               const isForSale = priceEth > 0;
@@ -775,10 +794,6 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
         );
 
         setNfts(mappedNFTs);
-        // Debug: Log count to verify all NFTs are loaded
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`[NFTGrid] Loaded ${mappedNFTs.length} NFTs from ${allMetadata.length} metadata items`);
-        }
       };
 
       processNFTs();
@@ -895,7 +910,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, showL
             return; // Success, exit early
           }
         } catch (error) {
-          console.warn('Ownership API failed, falling back to individual RPC calls:', error);
+          // Ownership API failed, falling back to individual RPC calls
         }
 
         // Fallback to individual RPC calls if API fails

@@ -1,6 +1,6 @@
 // lib/simple-data-service.ts
 
-// Core NFT data-loading and filtering service
+// Core NFT data-loading and filtering service with chunked loading support
 
 // Data type representing a single NFT (metadata, attributes, merged IPFS/media fields)
 export interface NFTData {
@@ -40,40 +40,196 @@ export interface NFTData {
   };
 }
 
-// Local cache for NFT metadata, kept in-memory only. Always reloaded from disk/API for freshness.
-let metadataCache: NFTData[] | null = null;
+const CHUNK_SIZE = 1000; // NFTs per chunk
+const TOTAL_NFTS = 7777;
 
-// Loads all NFTs and their metadata. Used by most features.
-// This version logs errors for diagnosis, never fails silently.
-export async function loadAllNFTs(): Promise<NFTData[]> {
-  // Reset cache for fresh loads every time
-  metadataCache = null;
+// Cache for loaded chunks (chunk index -> NFTData[])
+const chunkCache = new Map<number, NFTData[]>();
+
+// Cache for URL mappings
+let urlMapCache: Map<number, { media_url: string; metadata_url: string }> | null = null;
+
+/**
+ * Get chunk index for a token ID
+ */
+function getChunkIndex(tokenId: number): number {
+  return Math.floor(tokenId / CHUNK_SIZE);
+}
+
+/**
+ * Get chunk filename for a token ID range
+ */
+function getChunkFilename(start: number, end: number): string {
+  return `chunk-${start}-${end}.json`;
+}
+
+/**
+ * Load a specific chunk of metadata
+ */
+async function loadChunk(chunkIndex: number): Promise<NFTData[]> {
+  // Check cache first
+  if (chunkCache.has(chunkIndex)) {
+    return chunkCache.get(chunkIndex)!;
+  }
+
+  const chunkStart = chunkIndex * CHUNK_SIZE;
+  const chunkEnd = Math.min(chunkStart + CHUNK_SIZE - 1, TOTAL_NFTS - 1);
+  const filename = getChunkFilename(chunkStart, chunkEnd);
 
   try {
-    // Simultaneously load both metadata (main details) and IPFS URLs (media links)
+    // Try optimized chunked format first
+    const response = await fetch(`/data/metadata-optimized/${filename}`);
+    
+    if (response.ok) {
+      const chunkData = await response.json();
+      const tokens = chunkData.tokens || [];
+      
+      // Merge with URL mappings
+      const urlMap = await getUrlMap();
+      const processedTokens = tokens.map((nft: Record<string, unknown>) => {
+        const tokenId = typeof nft.token_id === "number" ? nft.token_id : null;
+        const urls = tokenId !== null ? urlMap.get(tokenId) : undefined;
+        const image = typeof nft.image === "string" ? nft.image : null;
+
+        const mergedData =
+          nft.merged_data && typeof nft.merged_data === "object"
+            ? (nft.merged_data as Record<string, unknown>)
+            : null;
+        const mergedMediaUrl =
+          mergedData && typeof mergedData.media_url === "string"
+            ? mergedData.media_url
+            : null;
+        const mergedMetadataUrl =
+          mergedData && typeof mergedData.metadata_url === "string"
+            ? mergedData.metadata_url
+            : null;
+
+        return {
+          ...nft,
+          image: image || mergedMediaUrl || null,
+          merged_data: {
+            ...(mergedData || {}),
+            media_url: urls?.media_url || image || mergedMediaUrl || null,
+            metadata_url: urls?.metadata_url || mergedMetadataUrl || null,
+          },
+        } as NFTData;
+      });
+
+      chunkCache.set(chunkIndex, processedTokens);
+      return processedTokens;
+    }
+  } catch (error) {
+    // Fall through to try regular chunked format
+  }
+
+  // Try regular chunked format
+  try {
+    const response = await fetch(`/data/metadata/${filename}`);
+    if (response.ok) {
+      const tokens = await response.json();
+      
+      // Merge with URL mappings
+      const urlMap = await getUrlMap();
+      const processedTokens = tokens.map((nft: Record<string, unknown>) => {
+        const tokenId = typeof nft.token_id === "number" ? nft.token_id : null;
+        const urls = tokenId !== null ? urlMap.get(tokenId) : undefined;
+        const image = typeof nft.image === "string" ? nft.image : null;
+
+        const mergedData =
+          nft.merged_data && typeof nft.merged_data === "object"
+            ? (nft.merged_data as Record<string, unknown>)
+            : null;
+        const mergedMediaUrl =
+          mergedData && typeof mergedData.media_url === "string"
+            ? mergedData.media_url
+            : null;
+        const mergedMetadataUrl =
+          mergedData && typeof mergedData.metadata_url === "string"
+            ? mergedData.metadata_url
+            : null;
+
+        return {
+          ...nft,
+          image: image || mergedMediaUrl || null,
+          merged_data: {
+            ...(mergedData || {}),
+            media_url: urls?.media_url || image || mergedMediaUrl || null,
+            metadata_url: urls?.metadata_url || mergedMetadataUrl || null,
+          },
+        } as NFTData;
+      });
+
+      chunkCache.set(chunkIndex, processedTokens);
+      return processedTokens;
+    }
+  } catch (error) {
+    // Fall through to legacy format
+  }
+
+  // If chunks don't exist, return empty array (will fall back to legacy loading)
+  return [];
+}
+
+/**
+ * Load URL mappings (cached)
+ */
+async function getUrlMap(): Promise<Map<number, { media_url: string; metadata_url: string }>> {
+  if (urlMapCache) {
+    return urlMapCache;
+  }
+
+  urlMapCache = new Map();
+  
+  try {
+    const urlResponse = await fetch("/data/urls/ipfs_urls.json");
+    if (urlResponse.ok) {
+      const urlData = await urlResponse.json();
+      urlData.forEach((item: Record<string, unknown>) => {
+        const tokenId =
+          typeof item.TokenID === "number"
+            ? item.TokenID
+            : typeof item.TokenID === "string"
+              ? parseInt(item.TokenID)
+              : null;
+        const mediaUrl =
+          typeof item["Media URL"] === "string" ? item["Media URL"] : "";
+        const metadataUrl =
+          typeof item["Metadata URL"] === "string" ? item["Metadata URL"] : "";
+        if (tokenId !== null) {
+          urlMapCache!.set(tokenId, {
+            media_url: mediaUrl,
+            metadata_url: metadataUrl,
+          });
+        }
+      });
+    }
+  } catch (error) {
+    // Continue with empty map
+  }
+
+  return urlMapCache;
+}
+
+/**
+ * Legacy loading: Load all NFTs from single file (fallback)
+ */
+async function loadAllNFTsLegacy(): Promise<NFTData[]> {
+  try {
+    // Fallback: Load from original combined_metadata.json (chunks not available)
     const [metadataResponse, urlResponse] = await Promise.all([
       fetch("/data/combined_metadata.json"),
       fetch("/data/urls/ipfs_urls.json"),
     ]);
 
     if (!metadataResponse.ok) {
-      // (CHANGE: better error logging)
-      console.error(`Failed to load metadata: ${metadataResponse.statusText}`);
-      throw new Error(
-        `Failed to load metadata: ${metadataResponse.statusText}`,
-      );
+      return [];
     }
-
+    
     const metadataData = await metadataResponse.json();
     const urlData = urlResponse.ok ? await urlResponse.json() : [];
 
-    // Map from tokenId to {media_url, metadata_url} for easy lookups
-    const urlMap = new Map<
-      number,
-      { media_url: string; metadata_url: string }
-    >();
+    const urlMap = new Map<number, { media_url: string; metadata_url: string }>();
     urlData.forEach((item: Record<string, unknown>) => {
-      // Accept both number and string token IDs
       const tokenId =
         typeof item.TokenID === "number"
           ? item.TokenID
@@ -92,13 +248,13 @@ export async function loadAllNFTs(): Promise<NFTData[]> {
       }
     });
 
-    // For each NFT, merge its main metadata and optionally URL/media info
-    metadataCache = metadataData.map((nft: Record<string, unknown>) => {
+    // Handle both array format and object with tokens property
+    const tokens = Array.isArray(metadataData) ? metadataData : (metadataData.tokens || []);
+    return tokens.map((nft: Record<string, unknown>) => {
       const tokenId = typeof nft.token_id === "number" ? nft.token_id : null;
       const urls = tokenId !== null ? urlMap.get(tokenId) : undefined;
       const image = typeof nft.image === "string" ? nft.image : null;
 
-      // TypeScript safe access to merged_data
       const mergedData =
         nft.merged_data && typeof nft.merged_data === "object"
           ? (nft.merged_data as Record<string, unknown>)
@@ -114,36 +270,125 @@ export async function loadAllNFTs(): Promise<NFTData[]> {
 
       return {
         ...nft,
-        // IMAGE LOGIC: Prefer explicit image, else fallback to merged info
         image: image || mergedMediaUrl || null,
         merged_data: {
           ...(mergedData || {}),
-          // MEDIA/METADATA URL LOGIC: Prefer derived ipfs_urls.json value, fallback to what's in merged_data/image
           media_url: urls?.media_url || image || mergedMediaUrl || null,
           metadata_url: urls?.metadata_url || mergedMetadataUrl || null,
         },
-      };
+      } as NFTData;
     });
-
-    return metadataCache || [];
   } catch (error) {
-    // (CHANGE: error logging for admins, visible in browser/dev console)
-    console.error("Error loading NFT data:", error);
     return [];
   }
 }
 
-// Get a single NFT by token ID.
-// If not found, returns null.
+/**
+ * Check if chunked files exist
+ */
+async function checkChunkedFilesExist(): Promise<boolean> {
+  try {
+    // Check if first chunk exists
+    const response = await fetch("/data/metadata-optimized/chunk-0-999.json", { method: "HEAD" });
+    if (response.ok) {
+      return true;
+    }
+    // Try regular chunked format
+    const response2 = await fetch("/data/metadata/chunk-0-999.json", { method: "HEAD" });
+    return response2.ok;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Loads all NFTs and their metadata.
+ * Uses chunked loading if available, falls back to legacy single-file loading.
+ * 
+ * NOTE: This loads ALL chunks. For better performance, use loadNFTsRange() 
+ * or getNFTByTokenId() when possible.
+ */
+export async function loadAllNFTs(): Promise<NFTData[]> {
+  // Check if chunked files exist
+  const useChunks = await checkChunkedFilesExist();
+  
+  if (!useChunks) {
+    // Fall back to legacy loading
+    return await loadAllNFTsLegacy();
+  }
+
+  // Load all chunks in parallel (needed for filtering/searching)
+  // This is still faster than loading a single 11MB file
+  const totalChunks = Math.ceil(TOTAL_NFTS / CHUNK_SIZE);
+  const chunkPromises: Promise<NFTData[]>[] = [];
+  
+  for (let i = 0; i < totalChunks; i++) {
+    chunkPromises.push(loadChunk(i));
+  }
+
+  try {
+    const chunks = await Promise.all(chunkPromises);
+    // Flatten all chunks into single array
+    const allNFTs = chunks.flat();
+    return allNFTs;
+  } catch (error) {
+    // If chunked loading fails, fall back to legacy
+    return await loadAllNFTsLegacy();
+  }
+}
+
+/**
+ * Load NFTs for a specific range (optimized for pagination)
+ */
+export async function loadNFTsRange(startTokenId: number, endTokenId: number): Promise<NFTData[]> {
+  const useChunks = await checkChunkedFilesExist();
+  
+  if (!useChunks) {
+    // Fall back: load all and slice
+    const allNFTs = await loadAllNFTsLegacy();
+    return allNFTs.filter(nft => nft.token_id >= startTokenId && nft.token_id <= endTokenId);
+  }
+
+  const startChunk = getChunkIndex(startTokenId);
+  const endChunk = getChunkIndex(endTokenId);
+  
+  const chunkPromises: Promise<NFTData[]>[] = [];
+  for (let i = startChunk; i <= endChunk; i++) {
+    chunkPromises.push(loadChunk(i));
+  }
+
+  const chunks = await Promise.all(chunkPromises);
+  const allNFTs = chunks.flat();
+  
+  // Filter to exact range
+  return allNFTs.filter(nft => nft.token_id >= startTokenId && nft.token_id <= endTokenId);
+}
+
+/**
+ * Get a single NFT by token ID.
+ * Only loads the specific chunk needed (much faster).
+ */
 export async function getNFTByTokenId(
   tokenId: number,
 ): Promise<NFTData | null> {
-  const allNFTs = await loadAllNFTs();
-  const foundNFT = allNFTs.find((nft) => nft.token_id === tokenId);
-  return foundNFT || null;
+  const useChunks = await checkChunkedFilesExist();
+  
+  if (!useChunks) {
+    // Fall back to legacy
+    const allNFTs = await loadAllNFTsLegacy();
+    return allNFTs.find((nft) => nft.token_id === tokenId) || null;
+  }
+
+  // Load only the chunk containing this token ID
+  const chunkIndex = getChunkIndex(tokenId);
+  const chunk = await loadChunk(chunkIndex);
+  return chunk.find((nft) => nft.token_id === tokenId) || null;
 }
 
-// Get a page of NFTs for display, with total/page counts.
+/**
+ * Get a page of NFTs for display, with total/page counts.
+ * Optimized to load only needed chunks.
+ */
 export async function getNFTs(
   page: number = 1,
   limit: number = 50,
@@ -153,19 +398,43 @@ export async function getNFTs(
   page: number;
   totalPages: number;
 }> {
-  const allNFTs = await loadAllNFTs();
+  const useChunks = await checkChunkedFilesExist();
+  
+  if (!useChunks) {
+    // Fall back to legacy
+    const allNFTs = await loadAllNFTsLegacy();
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+
+    return {
+      nfts: allNFTs.slice(startIndex, endIndex),
+      total: allNFTs.length,
+      page,
+      totalPages: Math.ceil(allNFTs.length / limit),
+    };
+  }
+
+  // Calculate which chunks we need
   const startIndex = (page - 1) * limit;
   const endIndex = startIndex + limit;
+  const startTokenId = startIndex;
+  const endTokenId = Math.min(endIndex - 1, TOTAL_NFTS - 1);
+
+  const nfts = await loadNFTsRange(startTokenId, endTokenId);
 
   return {
-    nfts: allNFTs.slice(startIndex, endIndex),
-    total: allNFTs.length,
+    nfts: nfts.slice(0, limit),
+    total: TOTAL_NFTS,
     page,
-    totalPages: Math.ceil(allNFTs.length / limit),
+    totalPages: Math.ceil(TOTAL_NFTS / limit),
   };
 }
 
-// Find NFTs by search query (matches name, description, or series).
+/**
+ * Find NFTs by search query (matches name, description, or series).
+ * Note: This still requires loading all chunks for full search.
+ * For better performance, consider implementing server-side search.
+ */
 export async function searchNFTs(
   query: string,
   mode: "exact" | "contains" = "contains",
@@ -189,8 +458,11 @@ export async function searchNFTs(
   });
 }
 
-// Filter NFTs based on trait/attribute selections.
-// Complex filters: rarity tier, trait subcategories for hair and headwear.
+/**
+ * Filter NFTs based on trait/attribute selections.
+ * Note: This requires loading all chunks for full filtering.
+ * For better performance, consider implementing server-side filtering.
+ */
 export async function filterNFTs(filters: {
   rarity?: string[];
   background?: string[];
@@ -248,7 +520,9 @@ export async function filterNFTs(filters: {
   });
 }
 
-// Get trait/attribute statistics for a group of NFTs (for filter sidebars).
+/**
+ * Get trait/attribute statistics for a group of NFTs (for filter sidebars).
+ */
 export function getTraitCounts(
   nfts: NFTData[],
 ): Record<string, Record<string, number>> {
@@ -284,7 +558,10 @@ export function getTraitCounts(
   return counts;
 }
 
-// Clear the metadata cache. Only needed for development or admin use.
+/**
+ * Clear the metadata cache. Only needed for development or admin use.
+ */
 export function clearCache(): void {
-  metadataCache = null;
+  chunkCache.clear();
+  urlMapCache = null;
 }
