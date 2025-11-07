@@ -7,6 +7,7 @@ import Navigation from "@/components/navigation"
 import NFTSidebar from "@/components/nft-sidebar"
 import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import PageTransition from "@/components/page-transition"
 
 function NFTsPageContent() {
   const router = useRouter()
@@ -24,8 +25,6 @@ function NFTsPageContent() {
     eyewear?: string[];
   }>({})
   const [traitCounts, setTraitCounts] = useState<Record<string, Record<string, number>>>({})
-  const [showLive, setShowLive] = useState(true)
-  const [showSold, setShowSold] = useState(true)
   const [isInitialized, setIsInitialized] = useState(false)
 
   // Initialize state from URL parameters
@@ -109,8 +108,9 @@ function NFTsPageContent() {
   }, [searchTerm, searchMode, selectedFilters, isInitialized, router])
 
   return (
-    <main id="main-content" className="min-h-screen bg-background text-off-white pt-24 sm:pt-28 overflow-x-hidden w-full max-w-full">
-      <Navigation activePage="nfts" />
+    <PageTransition>
+      <main id="main-content" className="min-h-screen bg-background text-off-white pt-24 sm:pt-28 w-full max-w-full">
+        <Navigation activePage="nfts" />
 
       <section className="w-full max-w-full mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-6 sm:py-8 lg:py-10">
         <div className="mb-8 lg:mb-12">
@@ -140,16 +140,12 @@ function NFTsPageContent() {
               traitCounts={traitCounts}
             />
           </div>
-          <div className="flex-1 min-w-0 overflow-x-hidden">
+          <div className="flex-1 min-w-0">
             {isInitialized ? (
               <NFTGrid
                 searchTerm={searchTerm}
                 searchMode={searchMode}
                 selectedFilters={selectedFilters}
-                showLive={showLive}
-                setShowLive={setShowLive}
-                showSold={showSold}
-                setShowSold={setShowSold}
                 onFilteredCountChange={() => {}} // Empty callback since we don't use the count
                 onTraitCountsChange={setTraitCounts} // Pass trait counts to sidebar
               />
@@ -164,6 +160,7 @@ function NFTsPageContent() {
 
       <Footer />
     </main>
+    </PageTransition>
   )
 }
 

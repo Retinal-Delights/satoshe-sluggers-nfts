@@ -5,7 +5,6 @@
  * Reduces RPC calls from 200 individual calls to 1 batch API call
  */
 
-import { createThirdwebClient } from "thirdweb";
 import { base } from "thirdweb/chains";
 
 const CLIENT_ID = process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID;
@@ -15,8 +14,6 @@ const CREATOR_ADDRESS = process.env.NEXT_PUBLIC_CREATOR_ADDRESS?.toLowerCase();
 if (!CLIENT_ID || !CONTRACT_ADDRESS) {
   throw new Error("Missing required environment variables for Insight service");
 }
-
-const client = createThirdwebClient({ clientId: CLIENT_ID });
 
 export interface OwnershipResult {
   tokenId: number;
@@ -68,8 +65,13 @@ export async function getBatchOwnership(
       
       // Process results
       if (data.data && Array.isArray(data.data)) {
-        data.data.forEach((nft: any) => {
-          const tokenId = parseInt(nft.tokenId) || parseInt(nft.token_id);
+        interface NFTData {
+          tokenId?: string;
+          token_id?: string;
+          owner?: string;
+        }
+        data.data.forEach((nft: NFTData) => {
+          const tokenId = parseInt(nft.tokenId || nft.token_id || '0');
           const owner = (nft.owner || '').toLowerCase();
           const isSold = owner !== '' && owner !== CREATOR_ADDRESS;
           
@@ -80,7 +82,7 @@ export async function getBatchOwnership(
           });
         });
       }
-    } catch (error) {
+    } catch {
       // Fallback to individual calls if batch fails
       return await getBatchOwnershipFallback(batch);
     }

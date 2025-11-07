@@ -291,9 +291,90 @@ className="hover:border-[#ff0099]/50"
 
 ---
 
-## 🗂️ Tabs
+## 🗂️ Tabs & Toggle Groups
 
-### Tab List & Triggers
+### NFT Collection Tabs (All/Live/Sold)
+These tabs use the ToggleGroup component with consistent styling:
+
+```tsx
+<ToggleGroup type="single" variant="outline" size="sm" className="h-7">
+  {/* All Tab */}
+  <ToggleGroupItem
+    value="all"
+    className="h-7 px-3 rounded-sm 
+      data-[state=on]:bg-[#ff0099]/20 
+      data-[state=on]:text-[#ff0099] 
+      data-[state=on]:border-[#ff0099] 
+      text-neutral-400 
+      border-neutral-600 
+      hover:bg-neutral-800 
+      hover:text-[#ff0099] 
+      flex items-center justify-center 
+      leading-none text-fluid-sm font-normal"
+  >
+    All
+  </ToggleGroupItem>
+
+  {/* Live Tab */}
+  <ToggleGroupItem
+    value="live"
+    className="h-7 px-3 rounded-sm 
+      data-[state=on]:bg-blue-500/20 
+      data-[state=on]:text-blue-400 
+      data-[state=on]:border-blue-500 
+      text-neutral-400 
+      border-neutral-600 
+      hover:bg-neutral-800 
+      hover:text-blue-400 
+      flex items-center justify-center 
+      leading-none text-fluid-sm font-normal"
+  >
+    Live
+  </ToggleGroupItem>
+
+  {/* Sold Tab */}
+  <ToggleGroupItem
+    value="sold"
+    className="h-7 px-3 rounded-sm 
+      data-[state=on]:bg-green-500/20 
+      data-[state=on]:text-green-400 
+      data-[state=on]:border-green-500 
+      text-neutral-400 
+      border-neutral-600 
+      hover:bg-neutral-800 
+      hover:text-green-400 
+      flex items-center justify-center 
+      leading-none text-fluid-sm font-normal"
+  >
+    Sold
+  </ToggleGroupItem>
+</ToggleGroup>
+```
+
+**Tab Styling Pattern (Consistent Across All Tabs):**
+- **Selected State (`data-[state=on]`):**
+  - Background: `bg-[color]/20` (20% opacity of the color)
+  - Text: `text-[color]` (same color as border)
+  - Border: `border-[color]` (solid 1px border)
+- **Unselected State:**
+  - Background: Transparent
+  - Text: `text-neutral-400` (gray)
+  - Border: `border-neutral-600` (gray border)
+- **Hover State:**
+  - Background: `hover:bg-neutral-800` (dark gray)
+  - Text: `hover:text-[color]` (color of the tab)
+- **Common:**
+  - Height: `h-7` (28px)
+  - Padding: `px-3`
+  - Border radius: `rounded-sm` (2px)
+  - Font: `text-fluid-sm font-normal`
+
+**Color Mapping:**
+- **All Tab:** Pink (`#ff0099`)
+- **Live Tab:** Blue (`blue-500` / `#3B82F6`)
+- **Sold Tab:** Green (`green-500` / `#10B981`)
+
+### Standard Tabs (TabsList/TabsTrigger)
 ```tsx
 <TabsList className="grid w-full grid-cols-2 bg-neutral-800/50 p-1 rounded-sm border border-neutral-700">
   <TabsTrigger 

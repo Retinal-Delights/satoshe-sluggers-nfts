@@ -9,8 +9,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type ViewMode = 'grid-large' | 'grid-medium' | 'grid-small' | 'compact';
-
 interface NFTGridControlsProps {
   sortBy: string;
   onSortChange: (value: string) => void;

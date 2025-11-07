@@ -118,7 +118,7 @@ async function loadChunk(chunkIndex: number): Promise<NFTData[]> {
       chunkCache.set(chunkIndex, processedTokens);
       return processedTokens;
     }
-  } catch (error) {
+  } catch {
     // Fall through to try regular chunked format
   }
 
@@ -162,7 +162,7 @@ async function loadChunk(chunkIndex: number): Promise<NFTData[]> {
       chunkCache.set(chunkIndex, processedTokens);
       return processedTokens;
     }
-  } catch (error) {
+  } catch {
     // Fall through to legacy format
   }
 
@@ -203,7 +203,7 @@ async function getUrlMap(): Promise<Map<number, { media_url: string; metadata_ur
         }
       });
     }
-  } catch (error) {
+  } catch {
     // Continue with empty map
   }
 
@@ -278,7 +278,7 @@ async function loadAllNFTsLegacy(): Promise<NFTData[]> {
         },
       } as NFTData;
     });
-  } catch (error) {
+  } catch {
     return [];
   }
 }
@@ -326,7 +326,7 @@ export async function loadAllNFTs(): Promise<NFTData[]> {
     // Flatten all chunks into single array
     const allNFTs = chunks.flat();
     return allNFTs;
-  } catch (error) {
+  } catch {
     // If chunked loading fails, fall back to legacy
     return await loadAllNFTsLegacy();
   }

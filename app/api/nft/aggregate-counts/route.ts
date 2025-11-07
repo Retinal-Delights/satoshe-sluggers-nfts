@@ -70,7 +70,11 @@ export async function GET(request: NextRequest) {
       soldCount = data.aggregations[0].count;
     } else if (data.data && Array.isArray(data.data)) {
       const tokenSet = new Set<string>();
-      data.data.forEach((event: any) => {
+      interface EventData {
+        args?: { tokenId?: string | number };
+        token_id?: string | number;
+      }
+      data.data.forEach((event: EventData) => {
         const tokenId = event.args?.tokenId || event.token_id;
         if (tokenId !== undefined) tokenSet.add(tokenId.toString());
       });

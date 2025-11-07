@@ -21,6 +21,8 @@ import { Separator } from "@/components/ui/separator";
 import { convertIpfsUrl } from "@/lib/utils";
 import { getContractAddress } from "@/lib/constants";
 import { rpcRateLimiter } from "@/lib/rpc-rate-limiter";
+import PageTransition from "@/components/page-transition";
+import { colors } from "@/lib/design-system";
 
 // Type definitions
 interface NFTAttribute {
@@ -31,38 +33,17 @@ interface NFTAttribute {
   percentage?: number;
 }
 
-// Consistent color scheme based on the radial chart
-const COLORS = {
-  background: "#3B82F6", // blue
-  skinTone: "#F59E0B", // yellow/orange
-  shirt: "#EF4444", // red
-  hair: "#10B981", // green
-  eyewear: "#06B6D4", // teal/cyan
-  headwear: "#A855F7", // purple
-  // Keep the hot pink as requested
-  accent: "#EC4899", // hot pink
-  // UI colors
-  neutral: {
-    100: "#F5F5F5",
-    400: "#A3A3A3",
-    600: "#525252",
-    700: "#404040",
-    800: "#262626",
-    900: "#171717",
-  }
-};
-
-// Helper to get color for attribute
+// Helper to get color for attribute using design system
 function getColorForAttribute(attributeName: string) {
   const colorMap: { [key: string]: string } = {
-    "Background": COLORS.background,
-    "Skin Tone": COLORS.skinTone,
-    "Shirt": COLORS.shirt,
-    "Hair": COLORS.hair,
-    "Eyewear": COLORS.eyewear,
-    "Headwear": COLORS.headwear,
+    "Background": colors.filter.blue,
+    "Skin Tone": colors.filter.yellow,
+    "Shirt": colors.filter.red,
+    "Hair": colors.filter.green,
+    "Eyewear": colors.filter.cyan,
+    "Headwear": colors.filter.violet,
   };
-  return colorMap[attributeName] || COLORS.background;
+  return colorMap[attributeName] || colors.filter.blue;
 }
 
 export default function NFTDetailPage() {
@@ -156,7 +137,7 @@ export default function NFTDetailPage() {
         clearTimeout(timeoutId);
         setIsLoading(false);
       })
-      .catch((error) => {
+      .catch(() => {
         // Error loading metadata - set fallback state
         setMetadata(null);
         setImageUrl("/nfts/placeholder-nft.webp");
@@ -207,7 +188,7 @@ export default function NFTDetailPage() {
             });
           }
         }
-      } catch (error) {
+      } catch {
         // Error loading pricing data - continue without pricing
         // NFT will show as "not for sale"
       }
@@ -215,6 +196,9 @@ export default function NFTDetailPage() {
     
     loadPricingData();
   }, [tokenId]);
+
+  // Get listing ID from pricing data or metadata (needed for listing status check)
+  const listingId = pricingData?.listing_id || metadata?.merged_data?.listing_id || 0;
 
   // CHECK LISTING STATUS ON MARKETPLACE
   // This is the CORRECT way to determine if an NFT is for sale:
@@ -243,31 +227,38 @@ export default function NFTDetailPage() {
         });
 
         // Check if the listing exists and is active
-        // Use the getDirectListing function from thirdweb
-        const { getDirectListing } = await import("thirdweb/extensions/marketplace");
-        
+        // Use readContract to call the marketplace's getListing function directly
         try {
-          const listing = await getDirectListing({
+          const listing = await readContract({
             contract: marketplace,
-            listingId: BigInt(listingId),
+            method: "function getListing(uint256 _listingId) view returns ((uint256 listingId, uint256 tokenId, uint256 quantity, uint256 pricePerToken, uint128 startTimestamp, uint128 endTimestamp, address listingCreator, address assetContract, address currency, uint8 tokenType, uint8 status, bool reserved))",
+            params: [BigInt(listingId)],
           });
 
           // Check if listing is active (status === 1 means ACTIVE)
-          const isActive = listing.status === 1 || listing.status === "ACTIVE";
+          const listingData = listing as {
+            status: number | string;
+            endTimestamp?: bigint;
+            quantity?: bigint;
+          };
+          
+          const isActive = listingData.status === 1 || listingData.status === "ACTIVE";
           
           // Also check if it's not expired
           const now = Math.floor(Date.now() / 1000);
-          const notExpired = !listing.endTimeInSeconds || Number(listing.endTimeInSeconds) > now;
+          const endTime = listingData.endTimestamp ? Number(listingData.endTimestamp) : 0;
+          const notExpired = endTime === 0 || endTime > now;
           
           // Check if quantity available > 0
-          const hasQuantity = (listing.quantity || 0) > 0;
+          const quantity = listingData.quantity ? Number(listingData.quantity) : 0;
+          const hasQuantity = quantity > 0;
 
           setHasActiveListing(isActive && notExpired && hasQuantity);
-        } catch (error) {
+        } catch {
           // Listing doesn't exist or error fetching → no active listing
           setHasActiveListing(false);
         }
-      } catch (error) {
+      } catch {
         // Error checking listing → assume no active listing (safer default)
         setHasActiveListing(false);
       } finally {
@@ -283,7 +274,7 @@ export default function NFTDetailPage() {
       setHasActiveListing(false);
       setListingCheckComplete(true);
     }
-  }, [tokenId, listingId]);
+  }, [tokenId, listingId, pricingData, metadata]);
 
   // LOAD OWNER ADDRESS
   // Fetch current owner from chain (ERC-721 ownerOf) with rate limiting
@@ -319,7 +310,7 @@ export default function NFTDetailPage() {
           }
         }
         setOwnerAddress(normalizedOwner);
-      } catch (error) {
+      } catch {
         // Error fetching owner - set null (will show as "not for sale" by default)
         setOwnerAddress(null);
       } finally {
@@ -374,7 +365,7 @@ export default function NFTDetailPage() {
             }
             setOwnerAddress(normalizedOwner);
             setOwnerCheckComplete(true);
-          } catch (error) {
+          } catch {
             // Error fetching owner - still mark as complete to prevent infinite loading
             setOwnerCheckComplete(true);
           }
@@ -419,7 +410,6 @@ export default function NFTDetailPage() {
 
   // Get pricing data from loaded pricing data or metadata fallback
   const priceEth = pricingData?.price_eth || metadata?.merged_data?.price_eth || 0;
-  const listingId = pricingData?.listing_id || metadata?.merged_data?.listing_id || 0;
   const marketplaceAddress = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase()?.trim();
   
   // CORRECT LOGIC: Check marketplace listing status, not just ownership
@@ -493,7 +483,7 @@ export default function NFTDetailPage() {
       window.dispatchEvent(new CustomEvent('nftPurchased', { 
         detail: { tokenId: purchasedActualTokenId, priceEth: priceEthNumber } 
       }));
-    } catch (error) {
+    } catch {
       // Error broadcasting purchase event - silently fail
     }
     
@@ -519,7 +509,7 @@ export default function NFTDetailPage() {
           setOwnerAddress(String((result as { _value: unknown })._value).toLowerCase());
         }
         setOwnerCheckComplete(true);
-      } catch (error) {
+      } catch {
         // Error fetching owner - still mark as complete (prevents infinite loading)
         setOwnerCheckComplete(true);
       }
@@ -619,7 +609,7 @@ export default function NFTDetailPage() {
       <main className="min-h-screen bg-background text-foreground flex flex-col">
         <Navigation activePage="nfts" />
         <div className="flex-grow flex flex-col items-center justify-center pt-24 sm:pt-28">
-          <p className="text-xl" style={{ color: COLORS.shirt }}>NFT not found in local metadata.</p>
+          <p className="text-xl" style={{ color: colors.filter.red }}>NFT not found in local metadata.</p>
         </div>
         <Footer />
       </main>
@@ -629,8 +619,9 @@ export default function NFTDetailPage() {
   const isFav = isFavorited((parseInt(tokenId) - 1).toString());
 
   return (
-    <main id="main-content" className="min-h-screen bg-background text-foreground flex flex-col">
-      <Navigation activePage="nfts" />
+    <PageTransition>
+      <main id="main-content" className="min-h-screen bg-background text-foreground flex flex-col">
+        <Navigation activePage="nfts" />
       <div className="max-w-7xl mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-4 sm:px-6 md:px-12 lg:px-16">
         <div className="flex items-center justify-between mb-8 sm:mb-10">
           {(() => {
@@ -791,7 +782,7 @@ export default function NFTDetailPage() {
                   aria-label="View token metadata on IPFS"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: COLORS.hair + '20' }}>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: colors.filter.green + '20' }}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
@@ -802,7 +793,7 @@ export default function NFTDetailPage() {
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        style={{ color: COLORS.hair }}
+                        style={{ color: colors.filter.green }}
                         aria-hidden="true"
                       >
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -813,7 +804,7 @@ export default function NFTDetailPage() {
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm font-medium" style={{ color: COLORS.hair }}>Token URI</p>
+                      <p className="text-sm font-medium" style={{ color: colors.filter.green }}>Token URI</p>
                       <p className="text-xs text-neutral-400">View metadata on IPFS</p>
                     </div>
                   </div>
@@ -844,7 +835,7 @@ export default function NFTDetailPage() {
                   aria-label="View NFT image on IPFS"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: COLORS.background + '20' }}>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: colors.filter.blue + '20' }}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
@@ -855,7 +846,7 @@ export default function NFTDetailPage() {
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        style={{ color: COLORS.background }}
+                        style={{ color: colors.filter.blue }}
                         aria-hidden="true"
                       >
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -864,7 +855,7 @@ export default function NFTDetailPage() {
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm font-medium" style={{ color: COLORS.background }}>Media URI</p>
+                      <p className="text-sm font-medium" style={{ color: colors.filter.blue }}>Media URI</p>
                       <p className="text-xs text-neutral-400">View image on IPFS</p>
                     </div>
                   </div>
@@ -1200,7 +1191,7 @@ export default function NFTDetailPage() {
                   aria-label="View token metadata on IPFS"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: COLORS.hair + '20' }}>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: colors.filter.green + '20' }}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
@@ -1211,7 +1202,7 @@ export default function NFTDetailPage() {
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        style={{ color: COLORS.hair }}
+                        style={{ color: colors.filter.green }}
                         aria-hidden="true"
                       >
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -1222,7 +1213,7 @@ export default function NFTDetailPage() {
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm font-medium" style={{ color: COLORS.hair }}>Token URI</p>
+                      <p className="text-sm font-medium" style={{ color: colors.filter.green }}>Token URI</p>
                       <p className="text-xs text-neutral-400">View metadata on IPFS</p>
                     </div>
                   </div>
@@ -1253,7 +1244,7 @@ export default function NFTDetailPage() {
                   aria-label="View NFT image on IPFS"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: COLORS.background + '20' }}>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: colors.filter.blue + '20' }}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
@@ -1264,7 +1255,7 @@ export default function NFTDetailPage() {
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        style={{ color: COLORS.background }}
+                        style={{ color: colors.filter.blue }}
                         aria-hidden="true"
                       >
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -1273,7 +1264,7 @@ export default function NFTDetailPage() {
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm font-medium" style={{ color: COLORS.background }}>Media URI</p>
+                      <p className="text-sm font-medium" style={{ color: colors.filter.blue }}>Media URI</p>
                       <p className="text-xs text-neutral-400">View image on IPFS</p>
                     </div>
                   </div>
@@ -1404,5 +1395,6 @@ export default function NFTDetailPage() {
 
       <Footer />
     </main>
+    </PageTransition>
   );
 }

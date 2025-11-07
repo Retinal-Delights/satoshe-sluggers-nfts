@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import Footer from "@/components/footer"
 import Navigation from "@/components/navigation"
 import { Label } from "@/components/ui/label"
+import PageTransition from "@/components/page-transition"
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -73,8 +74,9 @@ export default function ContactPage() {
   }
 
   return (
-    <main id="main-content" className="min-h-screen bg-background text-off-white flex flex-col pt-24 sm:pt-28">
-      <Navigation activePage="contact" />
+    <PageTransition>
+      <main id="main-content" className="min-h-screen bg-background text-off-white flex flex-col pt-24 sm:pt-28">
+        <Navigation activePage="contact" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-6 sm:py-8 md:py-10 lg:py-12 flex-grow" role="main" aria-labelledby="contact-heading">
         <div className="text-center mb-5 sm:mb-6 md:mb-8">
@@ -311,6 +313,7 @@ export default function ContactPage() {
 
       <Footer />
     </main>
+    </PageTransition>
   )
 }
 

@@ -8,7 +8,6 @@ import { ethers } from 'ethers';
 // Session management using cookies
 // SESSION_SECRET should be set in production for enhanced security
 // If not set, uses simple base64 encoding (works but less secure)
-const SESSION_SECRET = process.env.SESSION_SECRET;
 const SESSION_COOKIE_NAME = 'siwe-session';
 const SESSION_MAX_AGE = 7 * 24 * 60 * 60; // 7 days
 
@@ -71,7 +70,7 @@ Issued At: ${issuedAt}
 Expiration Time: ${expirationTime}`;
 
     return NextResponse.json({ payload: message });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Failed to generate login payload' },
       { status: 500 }
@@ -153,14 +152,14 @@ export async function POST(request: NextRequest) {
       });
 
       return response;
-    } catch (error) {
+    } catch {
       // Signature verification failed - invalid signature
       return NextResponse.json(
         { error: 'Invalid signature format' },
         { status: 401 }
       );
     }
-  } catch (error) {
+  } catch {
     // Error in SIWE login - return error response
     return NextResponse.json(
       { error: 'Internal server error' },
