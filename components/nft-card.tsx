@@ -95,13 +95,13 @@ export default function NFTCard({
   if (viewMode === "grid-small") {
     return (
       <div className="overflow-visible w-full rounded-lg flex flex-col h-full bg-neutral-900 relative">
-        <Link
-          href={`/nft/${cardNumber}`}
-          className="block w-full"
+        <div
+          className="relative w-full overflow-visible"
+          style={{ aspectRatio: "1/1" }}
         >
-          <div
-            className="relative w-full overflow-visible"
-            style={{ aspectRatio: "1/1" }}
+          <Link
+            href={`/nft/${cardNumber}`}
+            className="block w-full h-full relative"
           >
             <Image
               src={showPlaceholder ? placeholder : image}
@@ -118,8 +118,8 @@ export default function NFTCard({
               sizes="(max-width:768px)100vw,(max-width:1200px)50vw,33vw"
               unoptimized={Boolean(image && (image.includes('/ipfs/') || image.includes('cloudflare-ipfs') || image.includes('ipfs.io')))}
             />
-          </div>
-        </Link>
+          </Link>
+        </div>
       </div>
     );
   }
@@ -130,7 +130,7 @@ export default function NFTCard({
       <div className="w-full flex flex-col min-w-0 max-w-full">
         {/* Row 1: Image Container - Just the image, transparent background */}
         <div className="relative w-full min-w-0 max-w-full" style={{ aspectRatio: "0.9/1", maxHeight: "var(--nft-image-height)" }}>
-          <Link href={`/nft/${cardNumber}`} className="block w-full h-full">
+          <Link href={`/nft/${cardNumber}`} className="block w-full h-full relative">
             <Image
               src={showPlaceholder ? placeholder : image}
               alt={`${name} - NFT #${cardNumber}`}
@@ -232,7 +232,7 @@ export default function NFTCard({
     <div className="w-full min-w-0 max-w-full">
       {/* Image Container */}
       <div className="relative w-full min-w-0 max-w-full" style={{ aspectRatio: "0.85/1" }}>
-        <Link href={`/nft/${cardNumber}`} className="block w-full h-full">
+        <Link href={`/nft/${cardNumber}`} className="block w-full h-full relative">
           <Image
             src={showPlaceholder ? placeholder : image}
             alt={name}
