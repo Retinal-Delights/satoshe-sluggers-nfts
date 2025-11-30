@@ -219,7 +219,7 @@ className="hover:border-[#ff0099]/50"
 
 ### Outline Button (Pink Outline)
 ```tsx
-<button className="px-6 py-2 border border-[#ff0099] bg-transparent text-[#ff0099] font-normal rounded-sm hover:bg-[#ff0099] hover:text-off-white transition-all duration-200">
+<button className="px-4 py-2 border border-[#ff0099] bg-transparent text-[#ff0099] font-normal rounded-sm hover:bg-[#ff0099] hover:text-off-white transition-all duration-200">
   Contact
 </button>
 ```

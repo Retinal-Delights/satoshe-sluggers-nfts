@@ -1,0 +1,47 @@
+/* Design Tokens - Responsive Design System */
+
+:root {
+  /* Typography Tokens - Clamp-Based */
+  /* Headings */
+  --font-h1: clamp(32px, 4vw + 12px, 72px);
+  --font-h2: clamp(20px, 1.6vw + 10px, 32px);
+  --font-h3: clamp(16px, 1vw + 6px, 22px);
+
+  /* Body Text */
+  --font-body-lg: clamp(16px, 1.1vw + 6px, 22px);
+  --font-body: clamp(14px, 0.9vw + 6px, 20px);
+  --font-body-sm: clamp(13px, 0.6vw + 6px, 18px);
+  --font-body-xs: clamp(12px, 0.5vw + 5px, 16px);
+
+  /* NFT-Specific Tokens */
+  --font-nft-title: clamp(15px, 0.8vw + 8px, 22px);
+  --font-nft-stat: clamp(13px, 0.5vw + 6px, 18px);
+  --font-nft-price: clamp(14px, 0.6vw + 6px, 20px);
+  --font-nft-button: clamp(13px, 0.7vw + 5px, 18px);
+  --font-sidebar: clamp(13px, 0.5vw + 6px, 16px);
+  --font-nav: clamp(14px, 0.6vw + 6px, 18px);
+
+  /* Spacing Tokens */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Layout Tokens */
+  --container-max: 1600px;
+  --sidebar-width-xl: 21rem;
+  --sidebar-width-2xl: 28rem;
+
+  /* Card & Image Tokens */
+  --card-padding: clamp(10px, 1vw + 4px, 20px);
+  --card-radius: 6px;
+  --card-gap: 16px;
+  --nft-image-height: clamp(220px, 40vw, 420px);
+}
+
