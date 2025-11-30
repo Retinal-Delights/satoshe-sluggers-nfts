@@ -46,6 +46,7 @@ interface NFTCardProps {
   isForSale: boolean;
   soldPriceEth?: number;
   viewMode?: "grid-large" | "grid-medium" | "grid-small" | "compact";
+  priority?: boolean;
 }
 
 export default function NFTCard({
@@ -60,6 +61,7 @@ export default function NFTCard({
   isForSale,
   soldPriceEth,
   viewMode = "grid-medium",
+  priority = false,
 }: NFTCardProps) {
   // Use soldPriceEth if available and not for sale, otherwise use priceEth
   const displayPrice = (!isForSale && soldPriceEth) ? soldPriceEth : priceEth;
@@ -107,7 +109,8 @@ export default function NFTCard({
               src={showPlaceholder ? placeholder : image}
               alt={name}
               fill
-              loading="lazy"
+              priority={priority}
+              loading={priority ? undefined : "lazy"}
               className={`object-contain p-2 hover:scale-[1.02] hover:rotate-[5deg] transition-transform duration-300 ease-out ${showPlaceholder ? "animate-pulse" : ""}`}
               onLoad={() => {
                 setImgLoaded(true);
@@ -135,7 +138,8 @@ export default function NFTCard({
               src={showPlaceholder ? placeholder : image}
               alt={`${name} - NFT #${cardNumber}`}
               fill
-              loading="lazy"
+              priority={priority}
+              loading={priority ? undefined : "lazy"}
               className="object-contain transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg] hover:-translate-y-1"
               sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
               onLoad={() => { setImgLoaded(true); }}
@@ -237,7 +241,8 @@ export default function NFTCard({
             src={showPlaceholder ? placeholder : image}
             alt={name}
             fill
-            loading="lazy"
+            priority={priority}
+            loading={priority ? undefined : "lazy"}
             className={`object-contain transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg] ${showPlaceholder ? "animate-pulse" : ""}`}
             onLoad={() => {
               setImgLoaded(true);

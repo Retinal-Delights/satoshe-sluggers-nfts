@@ -925,6 +925,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                       isForSale={nft.isForSale}
                       soldPriceEth={nft.soldPriceEth}
                       viewMode={viewMode}
+                      priority={currentPage === 1 && index === 0}
                     />
                   </div>
               ))}
