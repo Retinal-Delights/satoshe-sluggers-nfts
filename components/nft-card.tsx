@@ -112,7 +112,6 @@ export default function NFTCard({
               priority={priority}
               loading={priority ? undefined : "lazy"}
               className={`object-contain p-2 hover:scale-[1.02] hover:rotate-[5deg] transition-transform duration-300 ease-out ${showPlaceholder ? "animate-pulse" : ""}`}
-              style={{ width: "auto", height: "auto" }}
               onLoad={() => {
                 setImgLoaded(true);
               }}
@@ -142,7 +141,6 @@ export default function NFTCard({
               priority={priority}
               loading={priority ? undefined : "lazy"}
               className="object-contain transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg] hover:-translate-y-1"
-              style={{ width: "auto", height: "auto" }}
               sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
               onLoad={() => { setImgLoaded(true); }}
               onError={() => { setImgError(true); }}
@@ -246,7 +244,6 @@ export default function NFTCard({
             priority={priority}
             loading={priority ? undefined : "lazy"}
             className={`object-contain transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg] ${showPlaceholder ? "animate-pulse" : ""}`}
-            style={{ width: "auto", height: "auto" }}
             onLoad={() => {
               setImgLoaded(true);
             }}
