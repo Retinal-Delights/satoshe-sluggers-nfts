@@ -3,7 +3,7 @@
 :root {
   /* Typography Tokens - Clamp-Based */
   /* Headings */
-  --font-h1: clamp(32px, 4vw + 12px, 72px);
+  --font-h1: clamp(32px, 4vw + 12px, 79px);
   --font-h2: clamp(20px, 1.6vw + 10px, 32px);
   --font-h3: clamp(16px, 1vw + 6px, 22px);
 
@@ -42,6 +42,6 @@
   --card-padding: clamp(10px, 1vw + 4px, 20px);
   --card-radius: 6px;
   --card-gap: 16px;
-  --nft-image-height: clamp(220px, 40vw, 420px);
+  --nft-image-height: clamp(220px, 40vw, 378px);
 }
 

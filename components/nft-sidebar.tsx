@@ -195,7 +195,7 @@ function FilterSection({
       >
         <div className="flex items-center gap-2">
           {icon && <span className={colorClasses[color]}>{icon}</span>}
-          <h3 className={`font-medium text-sidebar ${isOpen ? colorClasses[color] : 'text-off-white'}`}>
+          <h3 className={`font-medium text-body-sm ${isOpen ? colorClasses[color] : 'text-off-white'}`}>
             {title}
           </h3>
           {/* Active filter indicator */}
@@ -275,7 +275,7 @@ function FilterSection({
                     <div className="flex items-center justify-between gap-1">
                         <span className="break-words min-w-0">{optDisplay.replace('\n', ' ')}</span>
                         {count && (
-                          <span className={`${colorClasses[color]} font-medium flex-shrink-0 ml-1 text-sidebar`}>
+                          <span className={`${colorClasses[color]} font-medium flex-shrink-0 ml-1 text-body-xs`}>
                             ({count})
                           </span>
                         )}
@@ -498,7 +498,7 @@ function SubcategorySection({
       >
         <div className="flex items-center gap-2">
           {icon && <span className={colorClasses[color]}>{icon}</span>}
-          <h3 className={`font-medium text-sidebar ${isOpen ? colorClasses[color] : 'text-off-white'}`}>
+          <h3 className={`font-medium text-body-sm ${isOpen ? colorClasses[color] : 'text-off-white'}`}>
             {title}
           </h3>
           {/* Active filter indicator for subcategories - show when any subcategory is selected (even if no colors selected) */}
@@ -568,7 +568,7 @@ function SubcategorySection({
                     <div className="flex items-center justify-between pb-1">
                       <span className={colorClasses[color]}>{subcategory.name}</span>
                       {totalCount > 0 && (
-                          <span className={`${colorClasses[color]} font-medium text-sidebar`}>
+                          <span className={`${colorClasses[color]} font-medium text-body-xs`}>
                             ({totalCount})
                           </span>
                       )}
@@ -813,15 +813,15 @@ export default function NFTSidebar({
     >
       {/* Blockchain Info */}
         <div className="mb-4 p-3 border border-neutral-700 rounded">
-          <div className="font-mono text-neutral-400 leading-tight text-sidebar" style={{ fontWeight: '300' }}>Blockchain: <span className="text-off-white">Base</span></div>
-          <div className="font-mono text-neutral-400 leading-tight text-sidebar" style={{ fontWeight: '300' }}>Chain ID: <span className="text-off-white">8453</span></div>
-          <div className="font-mono text-neutral-400 leading-tight text-sidebar" style={{ fontWeight: '300' }}>Token Standard: <span className="text-off-white">ERC-721</span></div>
+          <div className="font-mono text-neutral-400 leading-tight text-body-xs" style={{ fontWeight: '300', marginBottom: '2px' }}>Blockchain: <span className="text-off-white">Base</span></div>
+          <div className="font-mono text-neutral-400 leading-tight text-body-xs" style={{ fontWeight: '300', marginBottom: '2px' }}>Chain ID: <span className="text-off-white">8453</span></div>
+          <div className="font-mono text-neutral-400 leading-tight text-body-xs" style={{ fontWeight: '300' }}>Token Standard: <span className="text-off-white">ERC-721</span></div>
 
         {/* Contract Links */}
-        <div className="space-y-3 mt-3">
+        <div className="space-y-2 mt-2">
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="font-mono text-neutral-400 text-sidebar" style={{ fontWeight: '300' }}>Marketplace</h4>
+            <div className="flex items-center justify-between mb-1.5">
+              <h4 className="font-mono text-neutral-400 text-body-xs" style={{ fontWeight: '300' }}>Marketplace</h4>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
                <button
@@ -842,8 +842,8 @@ export default function NFTSidebar({
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="font-mono text-neutral-400 text-sidebar" style={{ fontWeight: '300' }}>NFT Contract</h4>
+            <div className="flex items-center justify-between mb-1.5">
+              <h4 className="font-mono text-neutral-400 text-body-xs" style={{ fontWeight: '300' }}>NFT Contract</h4>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
               <button
