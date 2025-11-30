@@ -20,74 +20,76 @@
 ### Font Weights (Hierarchy)
 ```
 font-semibold (600)  → Primary headings, NFT names, prices
-font-normal (400)    → Section headers, labels, categories
-font-light (300)     → Values, body text, descriptions
+font-medium (500)    → Section headers, labels, categories
+font-normal (400)    → Body text, buttons
+font-light (300)     → Values, descriptions
 ```
 
-### Font Sizes
+### Typography Tokens (Design System)
 
-#### Standard Sizes (Fixed)
-```
-text-3xl (30px)     → Page titles (desktop)
-text-2xl (24px)     → NFT names, prices
-text-xl (20px)      → Page titles (mobile)
-text-lg (18px)      → Section headers (Attributes, Details)
-text-base (16px)    → Navigation, attribute values
-text-[15px] (15px)  → NFT card details
-text-sm (14px)      → Body text, descriptions, labels
-text-xs (12px)      → Footer, small metadata
-```
+**CRITICAL: All typography must use design system tokens. Never use Tailwind `text-*` utilities for font sizing.**
 
-#### Fluid Typography (Responsive with clamp())
-For responsive typography that scales smoothly with viewport width, use CSS `clamp()`:
+All typography uses clamp-based responsive tokens defined in `app/design-tokens.css`:
 
-**NFT Cards & Grid:**
-- NFT Name: `text-[clamp(0.9rem, 0.7vw, 1.1rem)]` (scales 14.4px → 17.6px)
-- Stats (Rank/Rarity/Tier): `text-[clamp(0.7rem, 0.45vw, 0.85rem)]` (scales 11.2px → 13.6px)
-- Price: `text-[clamp(0.75rem, 0.6vw, 1rem)]` (scales 12px → 16px)
-- Buy Button: `text-[clamp(0.6rem, 0.5vw, 0.85rem)]` (scales 9.6px → 13.6px)
+#### Headings
+- `.text-h1` → `clamp(32px, 4vw + 12px, 72px)` - Page titles, hero headings
+- `.text-h2` → `clamp(20px, 1.6vw + 10px, 32px)` - Section headers
+- `.text-h3` → `clamp(16px, 1vw + 6px, 22px)` - Subsection headers
 
-**Sidebar:**
-- Category Titles: `text-[clamp(0.9rem, 0.6vw, 1rem)]` (scales 14.4px → 16px)
-- Filter Labels: `text-[clamp(0.75rem, 0.45vw, 0.9rem)]` (scales 12px → 14.4px)
-- Search/Buttons: `text-[clamp(0.75rem, 0.5vw, 0.9rem)]` (scales 12px → 14.4px)
+#### Body Text
+- `.text-body-lg` → `clamp(16px, 1.1vw + 6px, 22px)` - Large body text
+- `.text-body` → `clamp(14px, 0.9vw + 6px, 20px)` - Standard body text
+- `.text-body-sm` → `clamp(13px, 0.6vw + 6px, 18px)` - Small body text
+- `.text-body-xs` → `clamp(12px, 0.5vw + 5px, 16px)` - Extra small text
 
-**Collection Stats:**
-- Labels: `text-[clamp(0.75rem, 0.5vw, 0.9rem)]` (scales 12px → 14.4px)
-- Numbers: `text-[clamp(1rem, 0.8vw, 1.3rem)]` (scales 16px → 20.8px)
+#### NFT-Specific Tokens
+- `.text-nft-title` → `clamp(15px, 0.8vw + 8px, 22px)` - NFT card titles, names
+- `.text-nft-stat` → `clamp(13px, 0.5vw + 6px, 18px)` - Rank, rarity, tier stats
+- `.text-nft-price` → `clamp(14px, 0.6vw + 6px, 20px)` - Price displays
+- `.text-nft-button` → `clamp(13px, 0.7vw + 5px, 18px)` - Buy/Sold buttons
 
-**Dropdowns & Tabs:**
-- Tab Buttons: `text-[clamp(0.8rem, 0.55vw, 1rem)]` (scales 12.8px → 16px)
+#### Component-Specific Tokens
+- `.text-sidebar` → `clamp(13px, 0.5vw + 6px, 16px)` - Sidebar filters, labels, search
+- `.text-nav` → `clamp(14px, 0.6vw + 6px, 18px)` - Navigation links
 
-**Global CSS Variables:**
-Available in `app/globals.css`:
-- `--fluid-xs`: `clamp(0.65rem, 0.25vw + 0.6rem, 0.8rem)`
-- `--fluid-sm`: `clamp(0.75rem, 0.3vw + 0.7rem, 0.9rem)`
-- `--fluid-md`: `clamp(0.9rem, 0.5vw + 0.8rem, 1.1rem)`
-- `--fluid-lg`: `clamp(1rem, 0.6vw + 0.9rem, 1.25rem)`
-- `--fluid-xl`: `clamp(1.25rem, 0.8vw + 1rem, 1.6rem)`
-
-Use utility classes: `.text-fluid-xs`, `.text-fluid-sm`, `.text-fluid-md`, `.text-fluid-lg`, `.text-fluid-xl`
-
-**Benefits of clamp():**
-- Scales smoothly between min and max without breakpoints
-- Better UX across all device sizes
-- Reduces need for multiple responsive classes
+**Benefits of Design System Tokens:**
+- Consistent typography across all components
+- Fluid scaling with viewport width (no breakpoint jumps)
+- Single source of truth in `design-tokens.css`
+- Better accessibility and readability
 
 ### Usage Examples
 ```tsx
+// Page Title
+<h1 className="text-h1 font-bold text-off-white">SATO<span className="text-brand-pink">SHE</span> SLUGGERS</h1>
+
 // Section Header
-<h2 className="text-lg font-normal text-neutral-100">Attributes</h2>
+<h2 className="text-h3 font-medium text-off-white">NFT Collection</h2>
 
-// Category Label
-<p className="text-sm text-neutral-400">Collection</p>
+// Body Text
+<p className="text-body text-neutral-300">Description text</p>
 
-// Value
-<p className="text-sm font-light text-neutral-100">Retinal Delights - Collection 11</p>
+// NFT Card Title
+<h3 className="text-nft-title font-semibold text-off-white">#{cardNumber}</h3>
 
-// NFT Name
-<h1 className="text-2xl font-semibold text-neutral-100">Satoshe Slugger #1</h1>
+// NFT Stats
+<span className="text-nft-stat text-neutral-400">Rank: {rank}</span>
+
+// Price Display
+<div className="text-nft-price font-semibold text-blue-400">{price} ETH</div>
+
+// Sidebar Label
+<label className="text-sidebar text-neutral-300">Filter Label</label>
+
+// Navigation Link
+<Link className="text-nav text-neutral-400 hover:text-brand-pink">NFTs</Link>
 ```
+
+**Rules:**
+- ❌ **NEVER** use Tailwind `text-xs`, `text-sm`, `text-base`, `text-lg`, `text-xl`, etc. for font sizing
+- ✅ **ALWAYS** use design system tokens (`.text-h1`, `.text-body`, `.text-nft-title`, etc.)
+- ✅ Typography scales fluidly via clamp() - no breakpoint-specific font sizes needed
+- ✅ Breakpoints control layout only, not typography
 
 ---
 
@@ -139,8 +141,39 @@ neutral-950     → Darkest backgrounds, inputs
 
 ## 📏 Spacing
 
-### Gaps (Between Elements)
+### Spacing Tokens (Design System)
+
+All spacing uses tokens defined in `app/design-tokens.css`:
+
 ```
+--space-1:  4px   → Extra tight spacing
+--space-2:  8px   → Tight spacing (icon + text)
+--space-3:  12px  → Small spacing
+--space-4:  16px  → Default spacing
+--space-5:  20px  → Medium spacing
+--space-6:  24px  → Large spacing
+--space-8:  32px  → Extra large spacing
+--space-10: 40px  → Very large spacing
+--space-12: 48px  → Huge spacing
+--space-16: 64px  → Maximum spacing
+```
+
+### Page Container Padding
+
+Page containers use responsive padding based on breakpoints:
+
+```
+default: 16px  (--space-4)
+sm:      24px  (--space-6)
+md:      32px  (--space-8)
+lg:      48px  (--space-12)
+xl:      64px  (--space-16)
+2xl:     80px  (custom)
+```
+
+### Gaps (Between Elements)
+```tsx
+// Use Tailwind gap utilities (they map to spacing tokens)
 gap-2 (8px)     → Tight spacing (icon + text)
 gap-3 (12px)    → Small spacing (attribute columns)
 gap-4 (16px)    → Default spacing
@@ -151,7 +184,9 @@ gap-8 (32px)    → Extra large spacing (NFT cards vertical)
 ### Specific Grid Gaps
 ```tsx
 // NFT Card Grid
-className="gap-x-6 gap-y-8"
+className="gap-x-4 gap-y-6"  // Large grid
+className="gap-x-3 gap-y-5"  // Medium grid
+className="gap-x-2 gap-y-4"  // Small grid
 
 // Details Grid (2 columns)
 className="gap-x-6 gap-y-4"
@@ -472,37 +507,57 @@ Same as Token URI, but use:
 
 ### Card Structure
 ```tsx
-<div className="group mb-8">
-  {/* Image */}
-  <Link href={`/nft/${tokenId}`} className="block mb-4">
-    <img
-      src={image}
-      alt={name}
-      className="w-full transition-transform duration-300 group-hover:rotate-[5deg]"
-      style={{ aspectRatio: '27/30' }}
-    />
-  </Link>
+<div className="w-full flex flex-col min-w-0 max-w-full">
+  {/* Image Container */}
+  <div className="relative w-full min-w-0 max-w-full" style={{ aspectRatio: "0.9/1", maxHeight: "var(--nft-image-height)" }}>
+    <Link href={`/nft/${cardNumber}`} className="block w-full h-full">
+      <Image
+        src={image}
+        alt={name}
+        fill
+        className="object-contain transition-transform duration-300 hover:scale-[1.02] hover:rotate-[5deg]"
+      />
+    </Link>
+  </div>
 
   {/* Details Section */}
-  <div className="space-y-2 px-2">
+  <div className="w-full min-w-0 max-w-full space-y-1 pt-2 px-2 overflow-hidden">
     {/* Title and Heart */}
-    <div className="flex items-start justify-between gap-2">
-      <Link href={`/nft/${tokenId}`}>
-        <h3 className="font-normal text-[15px] text-neutral-100 hover:text-[#ff0099] transition-colors">
-          {name}
-        </h3>
-      </Link>
-      <Button variant="ghost">
+    <div className="flex items-start justify-between gap-2 w-full min-w-0">
+      <h3 className="font-semibold text-off-white text-nft-title leading-snug break-words flex-1 min-w-0 truncate">
+        #{cardNumber}
+      </h3>
+      <Button variant="ghost" size="sm">
         <Heart className="w-4 h-4" />
       </Button>
     </div>
 
     {/* Stats */}
-    <div className="text-sm text-neutral-400 space-y-2">
-      <div className="flex justify-between">
-        <span>Rank:</span>
-        <span className="text-neutral-300">7272 of 7777</span>
+    <div className="text-neutral-400 space-y-0.5 w-full min-w-0">
+      <div className="flex justify-between w-full gap-2 min-w-0">
+        <span className="text-nft-stat flex-shrink-0">Rank:</span>
+        <span className="text-nft-stat text-right truncate min-w-0">{rank} of {total}</span>
       </div>
+      <div className="flex justify-between w-full gap-2 min-w-0">
+        <span className="text-nft-stat flex-shrink-0">Rarity:</span>
+        <span className="text-nft-stat text-right truncate min-w-0">{rarityPercent}%</span>
+      </div>
+    </div>
+
+    {/* Price Section */}
+    <div className="pt-1 flex items-center justify-between gap-2 w-full min-w-0">
+      <div className="flex-1 min-w-0 overflow-hidden">
+        <div className="text-body-xs font-medium text-blue-500 truncate">Buy Now</div>
+        <div className="text-nft-price font-semibold leading-tight text-blue-400 truncate min-w-0">
+          {price} ETH
+        </div>
+      </div>
+      <Link
+        href={`/nft/${cardNumber}`}
+        className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-nft-button bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20"
+      >
+        BUY
+      </Link>
     </div>
   </div>
 </div>
@@ -510,33 +565,81 @@ Same as Token URI, but use:
 
 **NFT Card Rules:**
 - NO border or background around image
-- Image rotates 5° on hover (NOT scale)
-- Details are narrower than image (`px-2`)
-- Title: `text-[15px] font-normal`
-- Details: `text-sm text-neutral-400 space-y-2`
-- Vertical spacing between cards: `mb-8`
+- Image rotates 5° and scales slightly on hover
+- Details use design system typography tokens:
+  - Title: `.text-nft-title`
+  - Stats: `.text-nft-stat`
+  - Price: `.text-nft-price`
+  - Buttons: `.text-nft-button`
+- Image height uses `var(--nft-image-height)` token: `clamp(220px, 40vw, 420px)`
+- Card padding uses `var(--card-padding)` token: `clamp(10px, 1vw + 4px, 20px)`
+- Card gap uses `var(--card-gap)`: 16px
+- Card radius uses `var(--card-radius)`: 6px
 
 ---
 
 ## 📱 Responsive Design
 
 ### Breakpoints
+
+Breakpoints control **layout only** (grids, padding, visibility). Typography remains fluid via clamp tokens.
+
 ```
-sm:  640px
-md:  768px
-lg:  1024px
-xl:  1280px
-2xl: 1536px
+xs:   475px
+sm:   640px
+md:   768px
+lg:   1024px
+xl:   1280px
+2xl:  1536px
+3xl:  1920px
+4xl:  2560px
 ```
 
 ### NFT Grid Responsive
+
+Grid columns follow exact specification:
+
+**Grid Large:**
 ```tsx
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-6 gap-y-8">
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-x-4 gap-y-6">
 ```
 
-### Text Responsive
+**Grid Medium:**
 ```tsx
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-x-3 gap-y-5">
+```
+
+**Grid Small:**
+```tsx
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-x-2 gap-y-4">
+```
+
+**Column Counts by Breakpoint:**
+- default: 1 column
+- sm: 2 columns
+- md: 3 columns
+- lg: 4 columns
+- xl: 4-5 columns (varies by view mode)
+- 2xl: 5 columns
+
+### Typography Responsive
+
+**Typography does NOT use breakpoints.** All text sizes use clamp() tokens that scale fluidly:
+
+```tsx
+// ✅ CORRECT - Uses design system token
+<h1 className="text-h1 font-bold">Title</h1>
+
+// ❌ WRONG - Don't use breakpoint-based typography
 <h1 className="text-xl sm:text-2xl lg:text-3xl">Title</h1>
+```
+
+### Layout Tokens
+
+```
+--container-max: 1600px
+--sidebar-width-xl: 21rem
+--sidebar-width-2xl: 28rem
 ```
 
 ---
@@ -614,9 +717,13 @@ className="transition-transform duration-300 group-hover:rotate-[5deg]"
 ## 🚫 Don'ts (Common Mistakes)
 
 ### Typography
-- ❌ Don't use `font-bold` (700) anywhere
+- ❌ **NEVER** use Tailwind `text-xs`, `text-sm`, `text-base`, `text-lg`, `text-xl`, `text-2xl`, etc. for font sizing
+- ❌ **NEVER** use inline `style={{ fontSize: ... }}` for typography
+- ❌ **NEVER** mix Tailwind text utilities with design system tokens
+- ❌ Don't use `font-bold` (700) anywhere (use `font-semibold` or `font-medium`)
 - ❌ Don't use inconsistent font sizes
 - ❌ Don't make values thicker than labels
+- ❌ Don't use breakpoint-based typography (e.g., `text-xl sm:text-2xl`)
 
 ### Spacing
 - ❌ Don't use random gaps (`gap-5`, `gap-7`)
@@ -677,27 +784,35 @@ import { designSystem, cn, getSectionHeader, getLabel, getValue } from '@/lib/de
 
 ---
 
-**Last Updated:** October 2024  
-**Version:** 3.0.0
+**Last Updated:** January 2025  
+**Version:** 4.0.0 - Responsive Design System
 
 ## 🎨 **COMPREHENSIVE DESIGN SYSTEM (v3.0)**
 
-### **Typography Hierarchy**
-```
-Huge (3rem/48px)     → Hero titles, main banners
-H1 (2.5rem/40px)     → Page titles
-H2 (2rem/32px)       → Section headers
-H3 (1.5rem/24px)     → Subsection headers
-H4 (1.25rem/20px)    → Card titles
-H5 (1.125rem/18px)   → Small headers
-H6 (1rem/16px)       → Micro headers
-Paragraph (1rem/16px) → Body text
-Large (1.125rem/18px) → Large body text
-Default (0.875rem/14px) → Default text
-Small (0.75rem/12px) → Small text
-Extra Small (0.6875rem/11px) → Extra small
-Micro (0.625rem/10px) → Micro text
-```
+### **Typography Hierarchy (Design System v4.0)**
+
+All typography uses clamp-based responsive tokens. See Typography section above for full details.
+
+**Headings:**
+- `.text-h1` → `clamp(32px, 4vw + 12px, 72px)` - Page titles, hero headings
+- `.text-h2` → `clamp(20px, 1.6vw + 10px, 32px)` - Section headers
+- `.text-h3` → `clamp(16px, 1vw + 6px, 22px)` - Subsection headers
+
+**Body Text:**
+- `.text-body-lg` → `clamp(16px, 1.1vw + 6px, 22px)` - Large body text
+- `.text-body` → `clamp(14px, 0.9vw + 6px, 20px)` - Standard body text
+- `.text-body-sm` → `clamp(13px, 0.6vw + 6px, 18px)` - Small body text
+- `.text-body-xs` → `clamp(12px, 0.5vw + 5px, 16px)` - Extra small text
+
+**NFT-Specific:**
+- `.text-nft-title` → `clamp(15px, 0.8vw + 8px, 22px)` - NFT card titles
+- `.text-nft-stat` → `clamp(13px, 0.5vw + 6px, 18px)` - Stats (rank, rarity)
+- `.text-nft-price` → `clamp(14px, 0.6vw + 6px, 20px)` - Price displays
+- `.text-nft-button` → `clamp(13px, 0.7vw + 5px, 18px)` - Buy/Sold buttons
+
+**Component-Specific:**
+- `.text-sidebar` → `clamp(13px, 0.5vw + 6px, 16px)` - Sidebar filters
+- `.text-nav` → `clamp(14px, 0.6vw + 6px, 18px)` - Navigation links
 
 ### **Font Families**
 - **Primary**: Inter (sans-serif) - All UI text, headings, body
@@ -735,18 +850,29 @@ Neutral Grayscale:
 ```
 
 ### **Spacing System (Tokenized)**
-```
-Gaps:
-- Extra Extra Small: 0.25rem (4px)
-- Extra Small: 0.5rem (8px)
-- Small: 0.75rem (12px)
-- Medium: 1rem (16px)
-- Large: 1.5rem (24px)
-- Extra Large: 2rem (32px)
-- Extra Extra Large: 3rem (48px)
 
-Padding & Margins: Same scale as gaps
+All spacing uses CSS variables from `app/design-tokens.css`:
+
 ```
+--space-1:  4px   → Extra tight spacing
+--space-2:  8px   → Tight spacing
+--space-3:  12px  → Small spacing
+--space-4:  16px  → Default spacing
+--space-5:  20px  → Medium spacing
+--space-6:  24px  → Large spacing
+--space-8:  32px  → Extra large spacing
+--space-10: 40px  → Very large spacing
+--space-12: 48px  → Huge spacing
+--space-16: 64px  → Maximum spacing
+```
+
+**Page Container Padding (Responsive):**
+- default: 16px (--space-4)
+- sm: 24px (--space-6)
+- md: 32px (--space-8)
+- lg: 48px (--space-12)
+- xl: 64px (--space-16)
+- 2xl: 80px (custom)
 
 ### **Border Radius (Consistent)**
 - **Standard**: `rounded-sm` (2px) - Used everywhere
@@ -796,14 +922,17 @@ import { typography, components } from '@/lib/design-system';
 
 ### **Implementation Notes**
 - **Consistent corner radius**: Only `rounded-sm` (2px) throughout
-- **Typography hierarchy**: Clear size and weight relationships
+- **Typography hierarchy**: All typography uses design system tokens (`.text-h1`, `.text-body`, `.text-nft-title`, etc.)
+- **NO Tailwind text utilities**: Never use `text-xs`, `text-sm`, `text-base`, etc. for font sizing
+- **Fluid typography**: All text scales via clamp() tokens - no breakpoint-based font sizes
 - **Tokenized colors**: Design system tokens preferred, some hardcoded colors remain (migration in progress)
-- **Consistent spacing**: Use design tokens for all gaps/padding
+- **Consistent spacing**: Use design tokens (--space-*) for all gaps/padding
 - **Font usage**: Inter for UI, JetBrains Mono for values/data
 - **Component variants**: Standardized button and card styles
 - **Dark mode only**: No light mode toggle
 - **Frosted glass effects**: `backdrop-blur-md` for overlays
-- **Design System**: Consolidated in `lib/design-system.ts` (60% adoption rate, migration ongoing)
+- **Design System**: Typography tokens in `app/design-tokens.css`, colors in `lib/design-system.ts`
+- **Breakpoints**: Control layout only, not typography
 
 ### **Using the Design System**
 
@@ -849,8 +978,15 @@ import { typography, colors, spacing, buttons, containers } from '@/lib/design-s
 - ✅ **Accessibility**: ARIA attributes implemented throughout
 - ✅ **Security**: No hardcoded secrets, proper env var usage
 - ✅ **Dependencies**: No critical vulnerabilities
-- ✅ **Design System**: 85%+ adoption, hardcoded colors migrated to tokens
-- ✅ **Documentation**: Style guide updated to match current implementation
+- ✅ **Design System v4.0**: Responsive design system fully implemented
+  - ✅ Typography tokens in `app/design-tokens.css`
+  - ✅ All components use design system typography tokens
+  - ✅ Spacing tokens defined and used
+  - ✅ Layout tokens (container, sidebar widths) defined
+  - ✅ Card & image tokens (padding, radius, gap, NFT image height) defined
+  - ✅ Grid columns follow exact specification
+  - ✅ Breakpoints match specification
+- ✅ **Documentation**: Style guide updated to match v4.0 implementation
 
 ### **Design System Color Tokens**
 
