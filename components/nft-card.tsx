@@ -91,37 +91,37 @@ export default function NFTCard({
     });
   };
 
-  // Using design system typography tokens
-
   // --- View: Small grid ---
   if (viewMode === "grid-small") {
     return (
-      <div className="overflow-visible w-full rounded-lg flex flex-col h-full bg-neutral-900 relative">
-        <div
-          className="relative w-full overflow-visible"
-          style={{ aspectRatio: "1/1" }}
-        >
-          <Link
-            href={`/nft/${cardNumber}`}
-            className="block w-full h-full relative"
+      <div className="nft-card-wrapper">
+        <div className="nft-card-image">
+          <div
+            className="relative overflow-visible"
+            style={{ aspectRatio: "1/1" }}
           >
-            <Image
-              src={showPlaceholder ? placeholder : image}
-              alt={name}
-              fill
-              priority={priority}
-              loading={priority ? undefined : "lazy"}
-              className={`object-contain p-2 hover:scale-[1.02] hover:rotate-[5deg] transition-transform duration-300 ease-out ${showPlaceholder ? "animate-pulse" : ""}`}
-              onLoad={() => {
-                setImgLoaded(true);
-              }}
-              onError={() => {
-                setImgError(true);
-              }}
-              sizes="(max-width:768px)100vw,(max-width:1200px)50vw,33vw"
-              unoptimized={Boolean(image && (image.includes('/ipfs/') || image.includes('cloudflare-ipfs') || image.includes('ipfs.io')))}
-            />
-          </Link>
+            <Link
+              href={`/nft/${cardNumber}`}
+              className="block w-full h-full relative"
+            >
+              <Image
+                src={showPlaceholder ? placeholder : image}
+                alt={name}
+                fill
+                priority={priority}
+                loading={priority ? undefined : "lazy"}
+                className={`object-contain p-2 hover:scale-[1.02] hover:rotate-[5deg] transition-transform duration-300 ease-out ${showPlaceholder ? "animate-pulse" : ""}`}
+                onLoad={() => {
+                  setImgLoaded(true);
+                }}
+                onError={() => {
+                  setImgError(true);
+                }}
+                sizes="(max-width:768px)100vw,(max-width:1200px)50vw,33vw"
+                unoptimized={Boolean(image && (image.includes('/ipfs/') || image.includes('cloudflare-ipfs') || image.includes('ipfs.io')))}
+              />
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -130,29 +130,29 @@ export default function NFTCard({
   // --- View: Large grid ---
   if (viewMode === "grid-large") {
     return (
-      <div className="w-full flex flex-col min-w-0 max-w-full">
-        {/* Row 1: Image Container - Just the image, transparent background */}
-        <div className="relative w-full min-w-0 max-w-full" style={{ aspectRatio: "0.9/1", maxHeight: "var(--nft-image-height)" }}>
-          <Link href={`/nft/${cardNumber}`} className="block w-full h-full relative">
-            <Image
-              src={showPlaceholder ? placeholder : image}
-              alt={`${name} - NFT #${cardNumber}`}
-              fill
-              priority={priority}
-              loading={priority ? undefined : "lazy"}
-              className="object-contain transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg] hover:-translate-y-1"
-              sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
-              onLoad={() => { setImgLoaded(true); }}
-              onError={() => { setImgError(true); }}
-              unoptimized={Boolean(image && (image.includes('/ipfs/') || image.includes('cloudflare-ipfs') || image.includes('ipfs.io')))}
-            />
-          </Link>
+      <div className="nft-card-wrapper">
+        <div className="nft-card-image">
+          <div className="relative" style={{ aspectRatio: "0.9/1", maxHeight: "var(--nft-image-height)" }}>
+            <Link href={`/nft/${cardNumber}`} className="block w-full h-full relative">
+              <Image
+                src={showPlaceholder ? placeholder : image}
+                alt={`${name} - NFT #${cardNumber}`}
+                fill
+                priority={priority}
+                loading={priority ? undefined : "lazy"}
+                className="object-contain transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg] hover:-translate-y-1"
+                sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
+                onLoad={() => { setImgLoaded(true); }}
+                onError={() => { setImgError(true); }}
+                unoptimized={Boolean(image && (image.includes('/ipfs/') || image.includes('cloudflare-ipfs') || image.includes('ipfs.io')))}
+              />
+            </Link>
+          </div>
         </div>
 
-        {/* Row 2: Details Container - Constrained to image width */}
-        <div className="w-full min-w-0 max-w-full space-y-1 pt-2 px-2 overflow-hidden">
-          <div className="flex items-start justify-between gap-2 w-full min-w-0">
-            <h3 className="font-semibold text-off-white text-nft-title leading-snug break-words flex-1 min-w-0 truncate">
+        <div className="nft-card-content">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="font-semibold text-off-white text-nft-title leading-snug break-words truncate">
               #{cardNumber}
             </h3>
             <Button
@@ -172,30 +172,28 @@ export default function NFTCard({
             </Button>
           </div>
 
-          {/* Stats block */}
-          <div className="text-neutral-400 space-y-0.5 w-full min-w-0">
-            <div className="flex justify-between w-full gap-2 min-w-0">
+          <div className="text-neutral-400 space-y-0.5">
+            <div className="flex justify-between gap-2">
               <span className="text-nft-stat flex-shrink-0">Rank:</span>
-              <span className="text-nft-stat text-right truncate min-w-0">{rank} of {TOTAL_COLLECTION_SIZE}</span>
+              <span className="text-nft-stat text-right truncate">{rank} of {TOTAL_COLLECTION_SIZE}</span>
             </div>
-            <div className="flex justify-between w-full gap-2 min-w-0">
+            <div className="flex justify-between gap-2">
               <span className="text-nft-stat flex-shrink-0">Rarity:</span>
-              <span className="text-nft-stat text-right truncate min-w-0">{rarityPercent}%</span>
+              <span className="text-nft-stat text-right truncate">{rarityPercent}%</span>
             </div>
-            <div className="flex justify-between w-full gap-2 min-w-0">
+            <div className="flex justify-between gap-2">
               <span className="text-nft-stat flex-shrink-0">Tier:</span>
-              <span className="text-nft-stat text-right truncate min-w-0">{rarity}</span>
+              <span className="text-nft-stat text-right truncate">{rarity}</span>
             </div>
           </div>
 
-          {/* Buy/Sold Section - Price display with separate button */}
           {isForSale ? (
-            <div className="pt-1 flex items-center justify-between gap-2 w-full min-w-0">
-              <div className="flex-1 min-w-0 overflow-hidden">
+            <div className="pt-1 flex items-center justify-between gap-2">
+              <div className="overflow-hidden">
                 <div className="text-body-xs font-medium text-blue-500 truncate">
                   Buy Now
                 </div>
-                <div className="text-nft-price font-semibold leading-tight text-blue-400 truncate min-w-0">
+                <div className="text-nft-price font-semibold leading-tight text-blue-400 truncate">
                   {displayPrice} ETH
                 </div>
               </div>
@@ -207,13 +205,13 @@ export default function NFTCard({
               </Link>
             </div>
           ) : (
-            <div className="pt-1 flex items-center justify-between gap-2 w-full min-w-0">
-              <div className="flex-1 min-w-0 overflow-hidden">
+            <div className="pt-1 flex items-center justify-between gap-2">
+              <div className="overflow-hidden">
                 <div className="text-body-xs font-medium text-green-500 truncate">
                   Sold
                 </div>
                 {soldPriceEth && soldPriceEth > 0 ? (
-                  <div className="text-nft-price font-semibold leading-tight text-green-400 truncate min-w-0">
+                  <div className="text-nft-price font-semibold leading-tight text-green-400 truncate">
                     {soldPriceEth} ETH
                   </div>
                 ) : null}
@@ -233,32 +231,32 @@ export default function NFTCard({
 
   // --- View: Medium grid ---
   return (
-    <div className="w-full min-w-0 max-w-full">
-      {/* Image Container */}
-      <div className="relative w-full min-w-0 max-w-full" style={{ aspectRatio: "0.85/1" }}>
-        <Link href={`/nft/${cardNumber}`} className="block w-full h-full relative">
-          <Image
-            src={showPlaceholder ? placeholder : image}
-            alt={name}
-            fill
-            priority={priority}
-            loading={priority ? undefined : "lazy"}
-            className={`object-contain transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg] ${showPlaceholder ? "animate-pulse" : ""}`}
-            onLoad={() => {
-              setImgLoaded(true);
-            }}
-            onError={() => {
-              setImgError(true);
-            }}
-            sizes="(max-width:768px)100vw,(max-width:1200px)50vw,33vw"
-          />
-        </Link>
+    <div className="nft-card-wrapper">
+      <div className="nft-card-image">
+        <div className="relative" style={{ aspectRatio: "0.85/1" }}>
+          <Link href={`/nft/${cardNumber}`} className="block w-full h-full relative">
+            <Image
+              src={showPlaceholder ? placeholder : image}
+              alt={name}
+              fill
+              priority={priority}
+              loading={priority ? undefined : "lazy"}
+              className={`object-contain transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg] ${showPlaceholder ? "animate-pulse" : ""}`}
+              onLoad={() => {
+                setImgLoaded(true);
+              }}
+              onError={() => {
+                setImgError(true);
+              }}
+              sizes="(max-width:768px)100vw,(max-width:1200px)50vw,33vw"
+            />
+          </Link>
+        </div>
       </div>
 
-      {/* NFT Number and Heart - Minimal space below image */}
-      <div className="w-full min-w-0 max-w-full pt-1.5 px-3 overflow-hidden">
+      <div className="nft-card-content">
         <div className="flex items-center justify-between gap-2">
-          <div className={`font-medium leading-tight text-nft-title ${isForSale ? 'text-blue-400' : 'text-green-400'} flex-1 min-w-0`}>
+          <div className={`font-medium leading-tight text-nft-title ${isForSale ? 'text-blue-400' : 'text-green-400'} truncate`}>
             NFT — #{cardNumber}
           </div>
           <Button

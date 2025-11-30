@@ -713,7 +713,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           <h2 className="text-h3 font-medium">NFT Collection</h2>
           <div className="text-body-sm font-medium text-pink-500 mt-1">Loading...</div>
         </div>
-        <div className="mt-8 mb-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-x-3 gap-y-5">
+        <div className="mt-8 mb-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-6 gap-y-8">
           {Array.from({ length: 12 }).map((_, index) => (
             <div key={index} className="bg-neutral-800 rounded-lg p-4 animate-pulse">
               <div className="aspect-square bg-neutral-700 rounded-lg mb-3"></div>
@@ -899,11 +899,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         <>
           {/* Grid Views */}
           {(viewMode === 'grid-large' || viewMode === 'grid-medium' || viewMode === 'grid-small') && (
-            <div ref={gridRef} className={`mt-4 mb-8 grid ${
-              viewMode === 'grid-large' ? 'gap-x-4 gap-y-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5' :
-              viewMode === 'grid-medium' ? 'gap-x-3 gap-y-5 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5' :
-              'gap-x-2 gap-y-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5'
-            }`}>
+            <div ref={gridRef} className="mt-4 mb-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-6 gap-y-8">
               {paginatedNFTs.map((nft, index) => (
                   <div
                     key={nft.id}
