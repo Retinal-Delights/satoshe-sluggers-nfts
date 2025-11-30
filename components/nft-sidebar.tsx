@@ -45,6 +45,12 @@ interface NFTSidebarProps {
   selectedFilters: FilterState;
   setSelectedFilters: (val: FilterState) => void;
   traitCounts?: Record<string, Record<string, number>>;
+  listingStatus: {
+    live: boolean;
+    sold: boolean;
+    secondary: boolean;
+  };
+  setListingStatus: (status: { live: boolean; sold: boolean; secondary: boolean }) => void;
 }
 
 /**
@@ -185,7 +191,7 @@ function FilterSection({
     <div className={`${isOpen ? 'pt-3 pb-3' : 'pt-1'}`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center justify-between py-1.5 focus:outline-none text-off-white ${isOpen ? `border-b ${borderClasses[color]} pb-1.5` : ''}`}
+        className={`w-full flex items-center justify-between py-1.5 focus:outline-none text-off-white cursor-pointer ${isOpen ? `border-b ${borderClasses[color]} pb-1.5` : ''}`}
       >
         <div className="flex items-center gap-2">
           {icon && <span className={colorClasses[color]}>{icon}</span>}
@@ -223,7 +229,7 @@ function FilterSection({
             <span className="text-neutral-400 block mb-1 text-xs sm:text-sm">Sort by:</span>
             <button
                 onClick={() => setSortOrder(sortOrder === "commonToRare" ? "rareToCommon" : "commonToRare")}
-              className="flex items-center gap-1 px-3 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition-colors w-full justify-between text-off-white text-xs sm:text-sm"
+              className="flex items-center gap-1 px-3 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition-colors w-full justify-between text-off-white text-xs sm:text-sm cursor-pointer"
             >
               <span className={colorClasses[color]}>
                 {sortOrder === "commonToRare" ? "Common to Rare" : "Rare to Common"}
@@ -281,6 +287,140 @@ function FilterSection({
             })}
           </div>
       </div>
+      )}
+    </div>
+  )
+}
+
+// Listing Status Section Component
+function ListingStatusSection({
+  listingStatus,
+  setListingStatus
+}: {
+  listingStatus: {
+    live: boolean;
+    sold: boolean;
+    secondary: boolean;
+  };
+  setListingStatus: (status: { live: boolean; sold: boolean; secondary: boolean }) => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+
+  // Only show dot when user has changed from default (live: true, sold: true, secondary: false)
+  const hasActiveFilters = !(listingStatus.live && listingStatus.sold && !listingStatus.secondary)
+
+  const colorClasses: Record<string, string> = {
+    pink: "text-[#ff0099]",
+  }
+
+  const borderClasses: Record<string, string> = {
+    pink: "border-[#ff0099]",
+  }
+
+  const handleCheckboxChange = (field: 'live' | 'sold' | 'secondary') => {
+    setListingStatus({ ...listingStatus, [field]: !listingStatus[field] })
+  }
+
+  const options = [
+    { value: 'live', display: 'Live' },
+    { value: 'sold', display: 'Sold' },
+    { value: 'secondary', display: 'Secondary Market' }
+  ]
+
+  return (
+    <div className={`${isOpen ? 'pt-3 pb-3' : 'pt-1'}`}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full flex items-center justify-between py-1.5 focus:outline-none text-off-white cursor-pointer ${isOpen ? `border-b ${borderClasses.pink} pb-1.5` : ''}`}
+      >
+        <div className="flex items-center gap-2">
+          <Image
+            src="/icons/nft-sidebar-categories/checkmark-pink.svg"
+            alt="Listing Status"
+            width={18}
+            height={18}
+            className={colorClasses.pink}
+          />
+          <h3 className={`font-medium text-sm sm:text-base ${isOpen ? colorClasses.pink : 'text-off-white'}`}>
+            Listing Status
+          </h3>
+          {/* Active filter indicator */}
+          {hasActiveFilters && (
+            <div 
+              className="w-2 h-2 rounded-full flex-shrink-0" 
+              style={{ backgroundColor: colors.brand.pink }}
+            />
+          )}
+        </div>
+        {isOpen ? (
+          <ChevronDown className={`h-5 w-5 ${colorClasses.pink}`} />
+        ) : (
+          <ChevronRight className={`h-5 w-5 ${colorClasses.pink}`} />
+        )}
+      </button>
+
+      {isOpen && (
+        <div className="mt-2 space-y-2">
+          {/* Live and Sold - on same line */}
+          <div className="flex items-center gap-2">
+            {options.filter(opt => opt.value !== 'secondary').map((option) => {
+              const isChecked = listingStatus[option.value as 'live' | 'sold' | 'secondary']
+              
+              return (
+                <div key={option.value} className="flex items-center group hover:bg-neutral-800/50 rounded px-1 py-0.5 transition-colors flex-shrink-0">
+                  <div className="relative flex items-center min-w-0">
+                    <input
+                      type="checkbox"
+                      id={`listing-status-${option.value}`}
+                      checked={isChecked}
+                      onChange={() => handleCheckboxChange(option.value as 'live' | 'sold' | 'secondary')}
+                      className="sidebar-checkbox mr-1.5 flex-shrink-0"
+                      style={{
+                        '--checkbox-color': colors.brand.pink
+                      } as React.CSSProperties}
+                    />
+                    <label
+                      htmlFor={`listing-status-${option.value}`}
+                      className="text-neutral-300 cursor-pointer py-0.5 leading-tight min-w-0 text-fluid-xs whitespace-nowrap"
+                    >
+                      {option.display}
+                    </label>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          
+          {/* Secondary Market - on its own line */}
+          {options.filter(opt => opt.value === 'secondary').map((option) => {
+            const isChecked = listingStatus[option.value as 'live' | 'sold' | 'secondary']
+            const isDisabled = true
+            
+            return (
+              <div key={option.value} className="flex items-center group rounded px-1 py-0.5 transition-colors w-full">
+                <div className="relative flex items-center min-w-0 w-full">
+                  <input
+                    type="checkbox"
+                    id={`listing-status-${option.value}`}
+                    checked={isChecked}
+                    onChange={() => handleCheckboxChange(option.value as 'live' | 'sold' | 'secondary')}
+                    disabled={isDisabled}
+                    className="sidebar-checkbox mr-1.5 flex-shrink-0"
+                    style={{
+                      '--checkbox-color': colors.brand.pink
+                    } as React.CSSProperties}
+                  />
+                  <label
+                    htmlFor={`listing-status-${option.value}`}
+                    className="text-neutral-300 cursor-default opacity-60 py-0.5 leading-tight min-w-0 text-fluid-xs"
+                  >
+                    {option.display} <span className="text-neutral-500 text-xs ml-1">(Coming Soon)</span>
+                  </label>
+                </div>
+              </div>
+            )
+          })}
+        </div>
       )}
     </div>
   )
@@ -354,15 +494,15 @@ function SubcategorySection({
     <div className={`${isOpen ? 'pt-3 pb-3' : 'pt-1'}`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center justify-between py-1.5 focus:outline-none text-off-white ${isOpen ? `border-b ${borderClasses[color]} pb-1.5` : ''}`}
+        className={`w-full flex items-center justify-between py-1.5 focus:outline-none text-off-white cursor-pointer ${isOpen ? `border-b ${borderClasses[color]} pb-1.5` : ''}`}
       >
         <div className="flex items-center gap-2">
           {icon && <span className={colorClasses[color]}>{icon}</span>}
           <h3 className={`font-medium text-sm sm:text-base ${isOpen ? colorClasses[color] : 'text-off-white'}`}>
             {title}
           </h3>
-          {/* Active filter indicator for subcategories */}
-          {Object.values(selected).some(arr => arr && arr.length > 0) && (
+          {/* Active filter indicator for subcategories - show when any subcategory is selected (even if no colors selected) */}
+          {Object.keys(selected).length > 0 && (
             <div 
               className="w-2 h-2 rounded-full flex-shrink-0" 
               style={{ backgroundColor: 
@@ -580,7 +720,9 @@ export default function NFTSidebar({
   setSearchMode, 
   selectedFilters, 
   setSelectedFilters, 
-  traitCounts = {} 
+  traitCounts = {},
+  listingStatus,
+  setListingStatus
 }: NFTSidebarProps) {
   // Key to force remount of all filter sections when clearing filters
   const [filterResetKey, setFilterResetKey] = useState(0)
@@ -671,15 +813,15 @@ export default function NFTSidebar({
     >
       {/* Blockchain Info */}
         <div className="mb-4 p-3 border border-neutral-700 rounded">
-          <div className="font-mono text-off-white leading-tight text-xs" style={{ fontWeight: '300' }}>Blockchain: Base</div>
-          <div className="font-mono text-off-white leading-tight text-xs" style={{ fontWeight: '300' }}>Chain ID: 8453</div>
-          <div className="font-mono text-off-white leading-tight text-xs" style={{ fontWeight: '300' }}>Token Standard: ERC-721</div>
+          <div className="font-mono text-neutral-400 leading-tight text-xs" style={{ fontWeight: '300' }}>Blockchain: <span className="text-off-white">Base</span></div>
+          <div className="font-mono text-neutral-400 leading-tight text-xs" style={{ fontWeight: '300' }}>Chain ID: <span className="text-off-white">8453</span></div>
+          <div className="font-mono text-neutral-400 leading-tight text-xs" style={{ fontWeight: '300' }}>Token Standard: <span className="text-off-white">ERC-721</span></div>
 
         {/* Contract Links */}
         <div className="space-y-3 mt-3">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h4 className="font-mono text-off-white text-xs" style={{ fontWeight: '300' }}>Marketplace</h4>
+              <h4 className="font-mono text-neutral-400 text-xs" style={{ fontWeight: '300' }}>Marketplace</h4>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
                <button
@@ -701,7 +843,7 @@ export default function NFTSidebar({
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h4 className="font-mono text-off-white text-xs" style={{ fontWeight: '300' }}>NFT Contract</h4>
+              <h4 className="font-mono text-neutral-400 text-xs" style={{ fontWeight: '300' }}>NFT Contract</h4>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
               <button
@@ -733,7 +875,7 @@ export default function NFTSidebar({
           <div className="flex bg-neutral-700 rounded p-1">
             <button
               onClick={() => handleSearchModeChange("contains")}
-              className={`flex-1 px-3 py-1.5 rounded transition-colors text-xs sm:text-sm font-normal ${
+              className={`flex-1 px-3 py-1.5 rounded transition-colors text-xs sm:text-sm font-normal cursor-pointer ${
                 searchMode === "contains"
                   ? "bg-brand-pink text-white"
                   : "text-neutral-400 hover:text-white"
@@ -744,7 +886,7 @@ export default function NFTSidebar({
             </button>
             <button
               onClick={() => handleSearchModeChange("exact")}
-              className={`flex-1 px-3 py-1.5 rounded transition-colors text-xs sm:text-sm font-normal ${
+              className={`flex-1 px-3 py-1.5 rounded transition-colors text-xs sm:text-sm font-normal cursor-pointer ${
                 searchMode === "exact"
                   ? "bg-brand-pink text-white"
                   : "text-neutral-200 hover:text-white"
@@ -785,12 +927,20 @@ export default function NFTSidebar({
           variant="outline" 
           size="sm" 
           onClick={clearAllFilters}
-          className="font-light flex items-center justify-center gap-1 h-9 w-full rounded border-neutral-500 text-neutral-300 hover:bg-neutral-700 hover:text-white hover:border-neutral-400 focus:outline-none focus:ring-0 focus:border-neutral-400 transition-colors text-xs sm:text-sm"
+          className="font-light flex items-center justify-center gap-1 h-9 w-full rounded border-neutral-500 text-neutral-300 hover:bg-neutral-700 hover:text-white hover:border-neutral-400 focus:outline-none focus:ring-0 focus:border-neutral-400 transition-colors text-xs sm:text-sm cursor-pointer"
           aria-label="Clear all filters and search"
         >
           <X className="h-4 w-4" /> Clear All Filters
         </Button>
       </div>
+
+      <div className="border-b border-neutral-700 mb-4"></div>
+
+      {/* Listing Status Filter Section */}
+      <ListingStatusSection
+        listingStatus={listingStatus}
+        setListingStatus={setListingStatus}
+      />
 
       {/* Filter Sections */}
       <FilterSection

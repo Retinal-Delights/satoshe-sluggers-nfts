@@ -138,8 +138,9 @@ satoshe-sluggers/
 ├── public/                      # Static assets
 │   ├── data/                    # Runtime data files
 │   │   ├── complete_metadata.json    # NFT metadata
-│   │   ├── optimized_pricing.json    # Pricing data
-│   │   ├── token_pricing_mappings.json # Fallback pricing
+│   │   └── nft-mapping/              # NFT mapping data
+│   │       ├── nft-mapping.csv       # Pricing and listing data
+│   │       └── full-inventory.csv    # Complete inventory with ownership
 │   │   ├── merkle_tree.txt           # Merkle tree data
 │   │   └── sha256_hashes.txt         # Hash verification
 │   ├── docs/                    # Documentation files

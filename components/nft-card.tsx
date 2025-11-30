@@ -128,44 +128,29 @@ export default function NFTCard({
   // --- View: Large grid ---
   if (viewMode === "grid-large") {
     return (
-      <div className="overflow-visible w-full rounded-lg flex flex-col h-full bg-neutral-900 relative">
-        {/* NFT Image */}
-        <Link href={`/nft/${cardNumber}`} className="block w-full">
-          <div
-            className="relative w-full overflow-visible"
-            style={{ aspectRatio: "0.9/1", maxHeight: "clamp(200px, 38vw, 400px)" }}
-          >
+      <div className="w-full flex flex-col min-w-0 max-w-full">
+        {/* Row 1: Image Container - Just the image, transparent background */}
+        <div className="relative w-full min-w-0 max-w-full" style={{ aspectRatio: "0.9/1", maxHeight: "clamp(200px, 38vw, 400px)" }}>
+          <Link href={`/nft/${cardNumber}`} className="block w-full h-full">
             <Image
               src={showPlaceholder ? placeholder : image}
               alt={`${name} - NFT #${cardNumber}`}
               fill
               loading="lazy"
-              className="object-contain p-2 rounded-lg transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg] hover:-translate-y-1"
+              className="object-contain transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg] hover:-translate-y-1"
               sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
               onLoad={() => { setImgLoaded(true); }}
               onError={() => { setImgError(true); }}
               unoptimized={Boolean(image && (image.includes('/ipfs/') || image.includes('cloudflare-ipfs') || image.includes('ipfs.io')))}
             />
-          </div>
-        </Link>
+          </Link>
+        </div>
 
-        {/* NFT Details - constrained to image width, accounting for drop shadow */}
-        {/* Image has p-2 (8px padding all around), visible image spans full width with 8px padding on each side */}
-        {/* Drop shadow ~3px on left, so left padding = 8px + 3px = 11px to align with image */}
-        {/* Right side: 8px padding to align with image edge (no drop shadow compensation) */}
-        <div className="space-y-1 pb-2 box-border overflow-hidden max-w-full" style={{ 
-          paddingLeft: '11px', 
-          paddingRight: '8px', 
-          width: 'calc(100% - 8px)',
-          marginLeft: '8px',
-          maxWidth: 'calc(100% - 8px)'
-        }}>
-          <div className="flex items-start justify-between gap-2 flex-wrap w-full">
-            <h3
-              className="font-semibold text-off-white text-fluid-md
-                         leading-snug break-words flex-1 min-w-0 max-w-full overflow-hidden"
-            >
-              {name}
+        {/* Row 2: Details Container - Constrained to image width */}
+        <div className="w-full min-w-0 max-w-full space-y-1 pt-2 px-2 overflow-hidden">
+          <div className="flex items-start justify-between gap-2 w-full min-w-0">
+            <h3 className="font-semibold text-off-white text-fluid-md leading-snug break-words flex-1 min-w-0 truncate">
+              #{cardNumber}
             </h3>
             <Button
               variant="ghost"
@@ -185,51 +170,54 @@ export default function NFTCard({
           </div>
 
           {/* Stats block */}
-          <div className="text-neutral-400 space-y-0.5 w-full max-w-full overflow-hidden">
-            <div className="flex justify-between w-full">
-              <span className="nft-meta-label truncate">Rank:</span><span className="nft-meta-value truncate">{rank} of {TOTAL_COLLECTION_SIZE}</span>
+          <div className="text-neutral-400 space-y-0.5 w-full min-w-0">
+            <div className="flex justify-between w-full gap-2 min-w-0">
+              <span className="nft-meta-label flex-shrink-0">Rank:</span>
+              <span className="nft-meta-value text-right truncate min-w-0">{rank} of {TOTAL_COLLECTION_SIZE}</span>
             </div>
-            <div className="flex justify-between w-full">
-              <span className="nft-meta-label truncate">Rarity:</span><span className="nft-meta-value truncate">{rarityPercent}%</span>
+            <div className="flex justify-between w-full gap-2 min-w-0">
+              <span className="nft-meta-label flex-shrink-0">Rarity:</span>
+              <span className="nft-meta-value text-right truncate min-w-0">{rarityPercent}%</span>
             </div>
-            <div className="flex justify-between w-full">
-              <span className="nft-meta-label truncate">Tier:</span><span className="nft-meta-value truncate">{rarity}</span>
+            <div className="flex justify-between w-full gap-2 min-w-0">
+              <span className="nft-meta-label flex-shrink-0">Tier:</span>
+              <span className="nft-meta-value text-right truncate min-w-0">{rarity}</span>
             </div>
           </div>
 
           {/* Buy/Sold Section - Price display with separate button */}
           {isForSale ? (
-            <div className="pt-1 flex items-center justify-between gap-2 w-full max-w-full">
-              <div className="flex-1 min-w-0 max-w-full overflow-hidden">
+            <div className="pt-1 flex items-center justify-between gap-2 w-full min-w-0">
+              <div className="flex-1 min-w-0 overflow-hidden">
                 <div className="text-fluid-xs font-medium text-blue-500 truncate">
                   Buy Now
                 </div>
-                <div className="text-fluid-sm font-semibold leading-tight text-blue-400 truncate">
+                <div className="text-fluid-sm font-semibold leading-tight text-blue-400 truncate min-w-0">
                   {displayPrice} ETH
                 </div>
               </div>
               <Link
                 href={`/nft/${cardNumber}`}
-                className="px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.75rem,0.5vw,0.85rem)] bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500"
+                className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.7rem,0.5vw,0.85rem)] bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500"
               >
                 BUY
               </Link>
             </div>
           ) : (
-            <div className="pt-1 flex items-center justify-between gap-2 w-full max-w-full">
-              <div className="flex-1 min-w-0 max-w-full overflow-hidden">
+            <div className="pt-1 flex items-center justify-between gap-2 w-full min-w-0">
+              <div className="flex-1 min-w-0 overflow-hidden">
                 <div className="text-fluid-xs font-medium text-green-500 truncate">
                   Sold
                 </div>
                 {soldPriceEth && soldPriceEth > 0 ? (
-                  <div className="text-fluid-sm font-semibold leading-tight text-green-400 truncate">
+                  <div className="text-fluid-sm font-semibold leading-tight text-green-400 truncate min-w-0">
                     {soldPriceEth} ETH
                   </div>
                 ) : null}
               </div>
               <Link
                 href={`/nft/${cardNumber}`}
-                className="px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.75rem,0.5vw,0.85rem)] bg-green-500/10 border-[1.5px] border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50"
+                className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.7rem,0.5vw,0.85rem)] bg-green-500/10 border-[1.5px] border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50"
               >
                 Sold
               </Link>
@@ -242,18 +230,16 @@ export default function NFTCard({
 
   // --- View: Medium grid ---
   return (
-    <div className="overflow-visible w-full rounded-lg flex flex-col h-full bg-neutral-900 relative">
-      <Link href={`/nft/${cardNumber}`} className="block w-full">
-        <div
-          className="relative w-full overflow-visible"
-          style={{ aspectRatio: "0.85/1" }}
-        >
+    <div className="w-full min-w-0 max-w-full">
+      {/* Image Container */}
+      <div className="relative w-full min-w-0 max-w-full" style={{ aspectRatio: "0.85/1" }}>
+        <Link href={`/nft/${cardNumber}`} className="block w-full h-full">
           <Image
             src={showPlaceholder ? placeholder : image}
             alt={name}
             fill
             loading="lazy"
-            className={`object-contain p-1 hover:scale-[1.02] hover:rotate-[5deg] transition-transform duration-300 ease-out ${showPlaceholder ? "animate-pulse" : ""}`}
+            className={`object-contain transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg] ${showPlaceholder ? "animate-pulse" : ""}`}
             onLoad={() => {
               setImgLoaded(true);
             }}
@@ -262,21 +248,13 @@ export default function NFTCard({
             }}
             sizes="(max-width:768px)100vw,(max-width:1200px)50vw,33vw"
           />
-        </div>
-      </Link>
+        </Link>
+      </div>
 
-      {/* Text constrained to image width - image has p-1 (4px padding), visible image spans full width with 4px padding on each side */}
-      {/* Drop shadow ~3px on left, so left padding = 4px + 3px = 7px to align with image */}
-      {/* Right side: 4px padding to align with image edge (no drop shadow compensation) */}
-      <div className="pb-2 flex flex-col overflow-hidden max-w-full" style={{ 
-        paddingLeft: '7px', 
-        paddingRight: '4px', 
-        width: 'calc(100% - 4px)',
-        marginLeft: '4px',
-        maxWidth: 'calc(100% - 4px)'
-      }}>
-        <div className="flex items-center justify-between mb-1 gap-2">
-          <div className={`font-medium leading-tight ${smallText} ${isForSale ? 'text-blue-400' : 'text-green-400'} truncate flex-1 min-w-0`}>
+      {/* NFT Number and Heart - Minimal space below image */}
+      <div className="w-full min-w-0 max-w-full pt-1.5 px-3 overflow-hidden">
+        <div className="flex items-center justify-between gap-2">
+          <div className={`font-medium leading-tight ${smallText} ${isForSale ? 'text-blue-400' : 'text-green-400'} flex-1 min-w-0`}>
             NFT — #{cardNumber}
           </div>
           <Button

@@ -8,6 +8,8 @@ import NFTSidebar from "@/components/nft-sidebar"
 import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import PageTransition from "@/components/page-transition"
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose, DrawerTrigger } from "@/components/ui/drawer"
+import { Filter, X } from "lucide-react"
 
 function NFTsPageContent() {
   const router = useRouter()
@@ -26,6 +28,16 @@ function NFTsPageContent() {
   }>({})
   const [traitCounts, setTraitCounts] = useState<Record<string, Record<string, number>>>({})
   const [isInitialized, setIsInitialized] = useState(false)
+  const [listingStatus, setListingStatus] = useState<{
+    live: boolean;
+    sold: boolean;
+    secondary: boolean;
+  }>({
+    live: true, // Default to showing all listing statuses
+    sold: true,
+    secondary: false,
+  })
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   // Initialize state from URL parameters
   useEffect(() => {
@@ -129,7 +141,8 @@ function NFTsPageContent() {
         </div>
 
         <div className="flex flex-col xl:flex-row gap-6 lg:gap-8" suppressHydrationWarning>
-          <div className="xl:sticky xl:top-[112px] xl:self-start z-10 w-full xl:w-[21rem] 2xl:w-[28rem]">
+          {/* Desktop Sidebar - Hidden on mobile/tablet */}
+          <div className="hidden xl:block xl:sticky xl:top-[112px] xl:self-start z-10 w-full xl:w-[21rem] 2xl:w-[28rem]">
             <NFTSidebar
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
@@ -138,14 +151,53 @@ function NFTsPageContent() {
               selectedFilters={selectedFilters}
               setSelectedFilters={setSelectedFilters}
               traitCounts={traitCounts}
+              listingStatus={listingStatus}
+              setListingStatus={setListingStatus}
             />
           </div>
+
+          {/* Mobile/Tablet Drawer */}
+          <div className="xl:hidden mb-4">
+            <Drawer direction="left" open={drawerOpen} onOpenChange={setDrawerOpen} shouldScaleBackground={false}>
+              <DrawerTrigger asChild>
+                <button className="flex items-center gap-2 px-4 py-2 bg-[#ff0099] hover:bg-[#ff0099]/90 text-white rounded-sm transition-colors font-medium text-sm">
+                  <Filter className="w-4 h-4" />
+                  Filters
+                </button>
+              </DrawerTrigger>
+              <DrawerContent className="h-full w-[85vw] max-w-[400px] bg-neutral-900 border-r border-neutral-700 left-0 top-0 bottom-0">
+                <DrawerHeader className="flex flex-row items-center justify-between border-b border-neutral-700 pb-4">
+                  <DrawerTitle className="text-lg font-semibold text-off-white">Filters</DrawerTitle>
+                  <DrawerClose asChild>
+                    <button className="text-[#ff0099] hover:text-[#ff0099]/80 transition-colors p-1" aria-label="Close filters">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </DrawerClose>
+                </DrawerHeader>
+                <div className="overflow-y-auto flex-1 p-4">
+                  <NFTSidebar
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    searchMode={searchMode}
+                    setSearchMode={setSearchMode}
+                    selectedFilters={selectedFilters}
+                    setSelectedFilters={setSelectedFilters}
+                    traitCounts={traitCounts}
+                    listingStatus={listingStatus}
+                    setListingStatus={setListingStatus}
+                  />
+                </div>
+              </DrawerContent>
+            </Drawer>
+          </div>
+
           <div className="flex-1 min-w-0">
             {isInitialized ? (
               <NFTGrid
                 searchTerm={searchTerm}
                 searchMode={searchMode}
                 selectedFilters={selectedFilters}
+                listingStatus={listingStatus}
                 onFilteredCountChange={() => {}} // Empty callback since we don't use the count
                 onTraitCountsChange={setTraitCounts} // Pass trait counts to sidebar
               />

@@ -284,7 +284,7 @@ export default function ProvenancePage() {
                     {copiedHash === 'contract' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </button>
                 </div>
-                <div className="text-sm font-mono break-all" style={{ fontWeight: '300' }}>{getContractAddress()}</div>
+                <div className="text-xs font-mono break-all" style={{ fontWeight: '300' }}>{getContractAddress()}</div>
               </div>
 
               <div className="bg-card border border-neutral-700 p-4 rounded">
@@ -298,7 +298,7 @@ export default function ProvenancePage() {
                     {copiedProof ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </button>
                 </div>
-                <div className="text-sm font-mono break-all" style={{ fontWeight: '300' }}>{FINAL_PROOF_HASH}</div>
+                <div className="text-xs font-mono break-all" style={{ fontWeight: '300' }}>{FINAL_PROOF_HASH}</div>
               </div>
 
               <div className="bg-card border border-neutral-700 p-4 rounded">
@@ -312,7 +312,7 @@ export default function ProvenancePage() {
                     {copiedMerkle ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </button>
                 </div>
-                <div className="text-sm font-mono break-all" style={{ fontWeight: '300' }}>{MERKLE_ROOT}</div>
+                <div className="text-xs font-mono break-all" style={{ fontWeight: '300' }}>{MERKLE_ROOT}</div>
               </div>
 
             </div>
@@ -359,13 +359,13 @@ export default function ProvenancePage() {
                   
                   {/* Bottom row - Values */}
                   <div className="flex flex-col items-center text-center">
-                    <span className="font-mono text-brand-pink text-lg" style={{ fontWeight: '400' }}>7,777</span>
+                    <span className="font-mono text-brand-pink text-xs" style={{ fontWeight: '300' }}>7,777</span>
                   </div>
                   <div className="flex flex-col items-center text-center">
-                    <span className="font-mono text-brand-pink text-lg" style={{ fontWeight: '400' }}>BASE</span>
+                    <span className="font-mono text-brand-pink text-xs" style={{ fontWeight: '300' }}>BASE</span>
                   </div>
                   <div className="flex flex-col items-center text-center">
-                    <span className="font-mono text-brand-pink text-lg" style={{ fontWeight: '400' }}>8453</span>
+                    <span className="font-mono text-brand-pink text-xs" style={{ fontWeight: '300' }}>8453</span>
                   </div>
                 </div>
               </div>
@@ -392,7 +392,7 @@ export default function ProvenancePage() {
             <textarea
               readOnly
               value={concatenatedHash}
-              className="w-full h-32 bg-transparent text-sm font-mono text-off-white resize-none border-none outline-none pr-6"
+              className="w-full h-32 bg-transparent text-xs font-mono text-off-white resize-none border-none outline-none pr-6"
               style={{ fontWeight: '300' }}
             />
           </div>
@@ -541,11 +541,11 @@ export default function ProvenancePage() {
                     <div className="flex items-center gap-4">
                       <div>
                         <span className="text-xs text-neutral-400 uppercase tracking-wider">Token ID</span>
-                        <p className="text-sm font-mono" style={{ fontWeight: '300' }}>{record.token_id}</p>
+                        <p className="text-xs font-mono" style={{ fontWeight: '300' }}>{record.token_id}</p>
                       </div>
                       <div>
                         <span className="text-xs text-neutral-400 uppercase tracking-wider">NFT #</span>
-                        <p className="text-sm font-mono" style={{ fontWeight: '300' }}>{record.nft_number}</p>
+                        <p className="text-xs font-mono" style={{ fontWeight: '300' }}>{record.nft_number}</p>
                       </div>
                     </div>
                   </div>

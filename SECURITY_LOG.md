@@ -1,7 +1,7 @@
 # Satoshe Sluggers - Security & Development Log
 
-**Created:** October 2024  
-**Purpose:** Track security audits, changes, questions, and concerns for a $10M+ NFT collection
+**Created:** November 2025
+**Purpose:** Track security audits, changes, questions, and concerns for the NFT collection
 
 ---
 
@@ -9,7 +9,7 @@
 
 **Zero Tolerance for Security Vulnerabilities**
 
-This is a high-value collection ($10M+). Security standards must be:
+This is a high-value collection. Security standards must be:
 - No hardcoded secrets, addresses, or credentials
 - No fallback values that could be exploited
 - Fail-hard approach: If env vars missing, app crashes (don't silently degrade)

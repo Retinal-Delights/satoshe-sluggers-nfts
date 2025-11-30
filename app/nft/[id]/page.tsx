@@ -63,6 +63,7 @@ export default function NFTDetailPage() {
   const [transactionState, setTransactionState] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
   const [transactionError, setTransactionError] = useState<string | null>(null);
   const [pricingData, setPricingData] = useState<{ price_eth: number; listing_id?: number } | null>(null);
+  const [inventoryData, setInventoryData] = useState<{ owner: string; status: string; price?: number } | null>(null);
   const [ownerAddress, setOwnerAddress] = useState<string | null>(null);
   const [ownerCheckComplete, setOwnerCheckComplete] = useState(false);
   const [confettiTriggered, setConfettiTriggered] = useState(false); // Prevent confetti from running twice
@@ -158,34 +159,59 @@ export default function NFTDetailPage() {
         // Convert route param (1-based) to 0-based token ID for pricing lookup
         const tokenIdNum = parseInt(tokenId) - 1;
         
-        // Load token pricing mappings first (has updated listing IDs from CSV)
-        let response = await fetch('/data/pricing/token_pricing_mappings.json');
+        // Load pricing data from CSV file
+        const response = await fetch('/data/nft-mapping/nft-mapping.csv');
         if (response.ok) {
-          const data = await response.json();
-          const pricing = data.find((item: { token_id: number }) => item.token_id === tokenIdNum);
-          if (pricing) {
-            // Use listing_id from mappings if available, otherwise fallback to generated ID
-            const listingId = pricing.listing_id !== null && pricing.listing_id !== undefined 
-              ? pricing.listing_id 
-              : (tokenIdNum + 10000);
-            setPricingData({
-              price_eth: pricing.price_eth,
-              listing_id: listingId
-            });
-            return; // Success, exit early
-          }
-        }
-        
-        // Fallback to optimized pricing (may not have listing IDs)
-        response = await fetch('/data/pricing/optimized_pricing.json');
-        if (response.ok) {
-          const data = await response.json();
-          const pricing = data[tokenIdNum];
-          if (pricing) {
-            setPricingData({
-              price_eth: pricing.price_eth,
-              listing_id: pricing.listing_id || (tokenIdNum + 10000)
-            });
+          const csvText = await response.text();
+          const lines = csvText.trim().split('\n');
+          
+          // Skip header row
+          const dataLines = lines.slice(1);
+          
+          // Find the row matching this token ID
+          for (const line of dataLines) {
+            if (!line.trim()) continue; // Skip empty lines
+            
+            // Parse CSV line properly - handle quoted fields
+            const parts: string[] = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+              const char = line[i];
+              if (char === '"') {
+                inQuotes = !inQuotes;
+              } else if (char === ',' && !inQuotes) {
+                parts.push(current.trim());
+                current = '';
+              } else {
+                current += char;
+              }
+            }
+            parts.push(current.trim()); // Add last part
+            
+            // Expected format: listingId,tokenId,name,rarityTier,price
+            if (parts.length >= 5) {
+              const listingId = parts[0];
+              const tokenId = parts[1];
+              const price = parts[4]; // Last field is price
+              
+              const tokenIdFromCsv = parseInt(tokenId);
+              
+              if (tokenIdFromCsv === tokenIdNum) {
+                const listingIdNum = parseInt(listingId);
+                const priceNum = parseFloat(price);
+                
+                if (!isNaN(priceNum)) {
+                  const listingId = !isNaN(listingIdNum) ? listingIdNum : (tokenIdNum + 10000);
+                  setPricingData({
+                    price_eth: priceNum,
+                    listing_id: listingId
+                  });
+                  return; // Success, exit early
+                }
+              }
+            }
           }
         }
       } catch {
@@ -412,27 +438,33 @@ export default function NFTDetailPage() {
   const priceEth = pricingData?.price_eth || metadata?.merged_data?.price_eth || 0;
   const marketplaceAddress = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase()?.trim();
   
-  // CORRECT LOGIC: Check marketplace listing status, not just ownership
-  // The CORRECT way to determine if an NFT is for sale:
-  // 1. If there's an ACTIVE listing on the marketplace → FOR SALE
-  // 2. If there's NO active listing → SOLD (or not listed)
-  // 
-  // Ownership alone is not sufficient because:
-  // - NFTs can be owned by marketplace wallet but still be for sale (if listed)
-  // - NFTs can be owned by buyer's wallet (which might be marketplace-controlled) but still be for sale
-  // - The ONLY reliable indicator is: Does an ACTIVE listing exist?
-  //
-  // Fallback to ownership check only if listing check fails or is incomplete
+  // CORRECT LOGIC: Check inventory status first (from CSV), then marketplace listing status
+  // Priority: 1. Inventory CSV status (most reliable), 2. Marketplace listing check, 3. Fallback
+  const isSoldFromInventory = inventoryData?.status === 'SOLD';
+  const isActiveFromInventory = inventoryData?.status === 'ACTIVE';
+  
+  // Determine if for sale:
+  // 1. If inventory says SOLD → not for sale
+  // 2. If inventory says ACTIVE → for sale
+  // 3. Otherwise, check marketplace listing status
   const isForSale = Boolean(
-    (listingCheckComplete && hasActiveListing === true) || // Has active listing = FOR SALE
-    (!listingCheckComplete && priceEth > 0 && !isPurchased) // Fallback: if listing check not done yet, default to for sale if has price
+    (!isSoldFromInventory && (
+      isActiveFromInventory || // Inventory says ACTIVE
+      (listingCheckComplete && hasActiveListing === true) || // Has active listing on marketplace
+      (!listingCheckComplete && !isSoldFromInventory && priceEth > 0 && !isPurchased) // Fallback: has price and not sold
+    ))
   );
   
+  // Get sold price from inventory if sold
+  const soldPriceEth = isSoldFromInventory ? (inventoryData?.price || priceEth) : undefined;
+  
   // NFT is confirmed as SOLD if:
-  // 1. Listing check is complete AND there's NO active listing AND has a price (was listed but no longer active = sold)
+  // 1. Inventory status is SOLD (most reliable)
   // 2. OR manually marked as purchased
-  // 3. OR (fallback) owner check shows owner is NOT marketplace (but only if listing check failed)
+  // 3. OR listing check is complete AND there's NO active listing AND has a price (was listed but no longer active = sold)
+  // 4. OR (fallback) owner check shows owner is NOT marketplace (but only if listing check failed)
   const isConfirmedSold = Boolean(
+    isSoldFromInventory || // Inventory CSV says SOLD (most reliable)
     isPurchased ||
     (listingCheckComplete && hasActiveListing === false && priceEth > 0) || // Had price but no active listing = sold
     (!listingCheckComplete && ownerCheckComplete && ownerAddress && ownerAddress.trim() !== '' && 
@@ -622,8 +654,8 @@ export default function NFTDetailPage() {
     <PageTransition>
       <main id="main-content" className="min-h-screen bg-background text-foreground flex flex-col">
         <Navigation activePage="nfts" />
-      <div className="max-w-7xl mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-4 sm:px-6 md:px-12 lg:px-16">
-        <div className="flex items-center justify-between mb-8 sm:mb-10">
+      <div className="max-w-7xl mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-4 sm:px-6 md:px-6 lg:px-16">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-8 sm:mb-10">
           {(() => {
             // Prefer returning to the exact filtered collection URL when provided
             let backTo = "/nfts";
@@ -635,7 +667,7 @@ export default function NFTDetailPage() {
             return (
               <Link
                 href={backTo}
-                className="inline-flex items-center text-neutral-400 hover:text-off-white text-sm transition-colors group"
+                className="inline-flex items-center text-neutral-400 hover:text-off-white text-sm transition-colors group flex-shrink-0"
               >
                 <ArrowLeft className="h-4 w-4 mr-2 transition-all group-hover:-translate-x-1 group-hover:text-off-white" />
                 Back to collection
@@ -644,36 +676,36 @@ export default function NFTDetailPage() {
           })()}
 
           {/* Navigation Arrows */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             {navigationTokens.prev !== null && (
               <Link
                 href={`/nft/${navigationTokens.prev}`}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800 hover:bg-neutral-900 text-neutral-400 transition-all border border-neutral-700 hover:border-brand-pink group"
+                className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-neutral-800 hover:bg-neutral-900 text-neutral-400 transition-all border border-neutral-700 hover:border-brand-pink group flex-shrink-0"
                 title={`Previous NFT #${navigationTokens.prev}`}
               >
-                <ChevronLeft className="h-5 w-5 transition-colors group-hover:text-brand-pink" />
+                <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 transition-colors group-hover:text-brand-pink" />
               </Link>
             )}
             
-            <span className="text-sm text-neutral-500 px-2">
+            <span className="text-xs sm:text-sm text-neutral-500 px-1 sm:px-2 whitespace-nowrap">
               {parseInt(tokenId)} of {TOTAL_COLLECTION_SIZE}
             </span>
             
             {navigationTokens.next !== null && (
               <Link
                 href={`/nft/${navigationTokens.next}`}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800 hover:bg-neutral-900 text-neutral-400 transition-all border border-neutral-700 hover:border-brand-pink group"
+                className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-neutral-800 hover:bg-neutral-900 text-neutral-400 transition-all border border-neutral-700 hover:border-brand-pink group flex-shrink-0"
                 title={`Next NFT #${navigationTokens.next}`}
               >
-                <ChevronRight className="h-5 w-5 transition-colors group-hover:text-brand-pink" />
+                <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 transition-colors group-hover:text-brand-pink" />
               </Link>
             )}
           </div>
         </div>
 
         <div className="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-8">
-          {/* Left Column - Image and metadata links - 1/3 width */}
-          <div className="space-y-4 order-1 lg:order-1 w-full lg:w-1/3 lg:flex-shrink-0">
+          {/* Left Column - Image and metadata links - 50% width */}
+          <div className="space-y-4 order-1 lg:order-1 w-full lg:w-1/2 lg:flex-shrink-0 lg:pr-4 min-w-0">
             {/* NFT Image Card */}
             <div className="relative w-full" style={{ aspectRatio: "2700/3000", maxWidth: "100%" }}>
               <div className="relative w-full h-full">
@@ -882,7 +914,7 @@ export default function NFTDetailPage() {
             {/* Attributes - Moved to right column after Collection Details - Mobile order-7 */}
             <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-7 lg:order-none hidden lg:block">
               <h3 className="text-lg font-semibold mb-4 text-off-white">Attributes</h3>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }, index: number) => (
                   <div key={index} className="bg-neutral-800 p-3 rounded border border-neutral-700">
                     <div className="flex items-center mb-2">
@@ -903,11 +935,11 @@ export default function NFTDetailPage() {
 
           </div>
 
-          {/* Right Column - NFT Details - 2/3 width */}
-          <div className="space-y-6 order-2 lg:order-2 flex flex-col w-full lg:w-2/3 lg:flex-shrink-0 lg:pl-4">
+          {/* Right Column - NFT Details - 50% width */}
+          <div className="space-y-6 order-2 lg:order-2 flex flex-col w-full lg:w-1/2 lg:flex-shrink-0 lg:pl-4 min-w-0">
             {/* NFT Name with Heart Icon - Mobile order-2 (after image) */}
-            <div className="flex items-start justify-between gap-4 order-2 lg:order-none">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold leading-tight text-off-white">
+            <div className="flex items-start justify-between gap-4 order-2 lg:order-none min-w-0">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold leading-tight text-off-white break-words min-w-0 flex-1">
                 {metadata?.name || `Satoshe Slugger #${displayNftNumber}`}
               </h1>
               <button
@@ -981,7 +1013,7 @@ export default function NFTDetailPage() {
                     <div className="flex-1">
                       <p className="text-sm md:text-base text-green-400 mb-1">Purchased for</p>
                       <p className="text-2xl sm:text-3xl md:text-2xl font-bold text-green-500">
-                        {priceEth > 0 ? `${priceEth} ETH` : '—'}
+                        {soldPriceEth && soldPriceEth > 0 ? `${soldPriceEth} ETH` : (priceEth > 0 ? `${priceEth} ETH` : '—')}
                       </p>
                     </div>
                     <button
@@ -1050,56 +1082,106 @@ export default function NFTDetailPage() {
               </div>
             )}
 
-
-
-            {/* Collection Details - Mobile order-4 */}
-            <div className="bg-neutral-800 p-6 rounded border border-neutral-700 order-4 lg:order-none">
+            {/* Collection Details - Mobile order-5 */}
+            <div className="bg-neutral-800 p-6 rounded border border-neutral-700 order-5 lg:order-none">
               <h3 className="text-lg font-semibold mb-5 text-off-white">Collection Details</h3>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-5 text-base md:text-sm">
-                <div>
-                  <p className="text-neutral-400 mb-1 text-sm md:text-xs">NFT Number</p>
-                  <p className="font-normal text-off-white">{metadata?.card_number ?? parseInt(tokenId) + 1}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-4 sm:gap-y-5 text-sm">
+                <div className="min-w-0">
+                  <p className="text-neutral-400 mb-1 text-xs sm:text-sm">NFT Number</p>
+                  <p className="font-normal text-off-white break-words">{metadata?.card_number ?? parseInt(tokenId) + 1}</p>
                 </div>
-                <div>
-                  <p className="text-neutral-400 mb-1 text-sm md:text-xs">Token ID</p>
-                  <p className="font-normal text-off-white">{metadata?.token_id ?? parseInt(tokenId) - 1}</p>
+                <div className="min-w-0">
+                  <p className="text-neutral-400 mb-1 text-xs sm:text-sm">Token ID</p>
+                  <p className="font-normal text-off-white break-words">{metadata?.token_id ?? parseInt(tokenId) - 1}</p>
                 </div>
-                <div>
-                  <p className="text-neutral-400 mb-1 text-sm md:text-xs">Collection</p>
-                  <p className="font-normal text-off-white">
+                <div className="min-w-0">
+                  <p className="text-neutral-400 mb-1 text-xs sm:text-sm">Collection</p>
+                  <p className="font-normal text-off-white break-words">
                     {metadata?.collection_number ?? "—"}
                   </p>
                 </div>
-                <div>
-                  <p className="text-neutral-400 mb-1 text-sm md:text-xs">Edition</p>
-                  <p className="font-normal text-off-white">{metadata?.edition ?? "—"}</p>
+                <div className="min-w-0">
+                  <p className="text-neutral-400 mb-1 text-xs sm:text-sm">Edition</p>
+                  <p className="font-normal text-off-white break-words">{metadata?.edition ?? "—"}</p>
                 </div>
-                <div>
-                  <p className="text-neutral-400 mb-1 text-sm md:text-xs">Series</p>
-                  <p className="font-normal text-off-white">{metadata?.series ?? "—"}</p>
+                <div className="min-w-0">
+                  <p className="text-neutral-400 mb-1 text-xs sm:text-sm">Series</p>
+                  <p className="font-normal text-off-white break-words">{metadata?.series ?? "—"}</p>
                 </div>
-                <div>
-                  <p className="text-neutral-400 mb-1 text-sm md:text-xs">Rarity Tier</p>
-                  <p className="font-normal text-off-white">{metadata?.rarity_tier ?? "Unknown"}</p>
+                <div className="min-w-0">
+                  <p className="text-neutral-400 mb-1 text-xs sm:text-sm">Rarity Tier</p>
+                  <p className="font-normal text-off-white break-words">{metadata?.rarity_tier ?? "Unknown"}</p>
                 </div>
-                <div>
-                  <p className="text-neutral-400 mb-1 text-sm md:text-xs">Rarity Score</p>
-                  <p className="font-normal text-off-white">{metadata?.rarity_score ?? "—"}</p>
+                <div className="min-w-0">
+                  <p className="text-neutral-400 mb-1 text-xs sm:text-sm">Rarity Score</p>
+                  <p className="font-normal text-off-white break-words">{metadata?.rarity_score ?? "—"}</p>
                 </div>
-                <div>
-                  <p className="text-neutral-400 mb-1 text-sm md:text-xs">Rank</p>
-                  <p className="font-normal text-off-white">{metadata?.rank ?? "—"} of {TOTAL_COLLECTION_SIZE}</p>
+                <div className="min-w-0">
+                  <p className="text-neutral-400 mb-1 text-xs sm:text-sm">Rank</p>
+                  <p className="font-normal text-off-white break-words">{metadata?.rank ?? "—"} of {TOTAL_COLLECTION_SIZE}</p>
                 </div>
-                <div>
-                  <p className="text-neutral-400 mb-1 text-sm md:text-xs">Rarity Percentage</p>
-                  <p className="font-normal text-off-white">{metadata?.rarity_percent ?? "—"}%</p>
+                <div className="min-w-0">
+                  <p className="text-neutral-400 mb-1 text-xs sm:text-sm">Rarity Percentage</p>
+                  <p className="font-normal text-off-white break-words">{metadata?.rarity_percent ?? "—"}%</p>
                 </div>
               </div>
             </div>
 
+            {/* Contract Details - Mobile order-6 (moved below Collection Details) */}
+            <div className="bg-neutral-800 p-6 rounded border border-neutral-700 order-6 lg:order-none">
+              <h3 className="text-lg font-semibold mb-5 text-off-white">Contract Details</h3>
+                <div className="space-y-4 text-sm">
+                  <div className="flex justify-between items-center gap-2 min-w-0">
+                    <span className="text-neutral-400 flex-shrink-0">Contract Address</span>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-off-white truncate">{getContractAddress().slice(0, 6)}...{getContractAddress().slice(-4)}</span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(getContractAddress());
+                          // You could add a toast notification here if desired
+                        }}
+                        className="p-1 hover:bg-neutral-700 rounded transition-colors group"
+                        aria-label="Copy contract address"
+                        title="Copy contract address"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-neutral-400 group-hover:text-green-500 transition-colors"
+                        >
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <Separator className="bg-neutral-600" />
+                  <div className="flex justify-between items-center gap-2 min-w-0">
+                    <span className="text-neutral-400 flex-shrink-0">Token ID</span>
+                    <span className="text-off-white truncate">{metadata?.token_id ?? tokenId}</span>
+                  </div>
+                  <Separator className="bg-neutral-600" />
+                  <div className="flex justify-between items-center gap-2 min-w-0">
+                    <span className="text-neutral-400 flex-shrink-0">Token Standard</span>
+                    <span className="text-off-white truncate">ERC-721</span>
+                  </div>
+                  <Separator className="bg-neutral-600" />
+                  <div className="flex justify-between items-center gap-2 min-w-0">
+                    <span className="text-neutral-400 flex-shrink-0">Blockchain</span>
+                    <span className="text-off-white truncate">Base</span>
+                  </div>
+                </div>
+            </div>
 
-            {/* Artist and Platform - Mobile order-5 (after Collection Details) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 order-5 lg:order-none lg:hidden">
+            {/* Artist and Platform - Mobile order-7 (after Collection Details) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 order-7 lg:order-none lg:hidden">
               <a
                 href="https://kristenwoerdeman.com"
                 target="_blank"
@@ -1181,8 +1263,8 @@ export default function NFTDetailPage() {
               </a>
             </div>
 
-            {/* IPFS Links - Mobile order-6 (after Collection Details) */}
-            <div className="space-y-3 order-6 lg:order-none lg:hidden">
+            {/* IPFS Links - Mobile order-8 (after Collection Details) */}
+            <div className="space-y-3 order-8 lg:order-none lg:hidden">
                 <a
                   href={metadata?.merged_data?.metadata_url}
                   target="_blank"
@@ -1288,21 +1370,21 @@ export default function NFTDetailPage() {
                 </a>
               </div>
 
-            {/* Attributes - Mobile order-7 (after Collection Details) */}
-            <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-7 lg:order-none lg:hidden">
+            {/* Attributes - Mobile order-9 (after Collection Details) */}
+            <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-9 lg:order-none lg:hidden">
               <h3 className="text-lg font-semibold mb-4 text-off-white">Attributes</h3>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }, index: number) => (
-                  <div key={index} className="bg-neutral-800 p-3 rounded border border-neutral-700">
-                    <div className="flex items-center mb-2">
+                  <div key={index} className="bg-neutral-800 p-3 rounded border border-neutral-700 min-w-0">
+                    <div className="flex items-center mb-2 min-w-0">
                       <div
-                        className="w-3 h-3 rounded-full mr-2"
+                        className="w-3 h-3 rounded-full mr-2 flex-shrink-0"
                         style={{ backgroundColor: getColorForAttribute(attr.name) }}
                       ></div>
-                      <span className="text-xs text-neutral-400">{attr.name}</span>
+                      <span className="text-xs text-neutral-400 truncate">{attr.name}</span>
                     </div>
-                    <div className="text-base md:text-sm font-medium text-off-white mb-1">{attr.value}</div>
-                    <div className="text-xs text-neutral-400">
+                    <div className="text-sm font-medium text-off-white mb-1 break-words">{attr.value}</div>
+                    <div className="text-xs text-neutral-400 break-words">
                       {attr.percentage}% • {attr.occurrence} of {TOTAL_COLLECTION_SIZE}
                     </div>
                   </div>
@@ -1310,61 +1392,8 @@ export default function NFTDetailPage() {
               </div>
             </div>
 
-            {/* Contract Details - Mobile order-8 */}
-            <div className="bg-neutral-800 p-6 rounded border border-neutral-700 order-8 lg:order-none">
-              <h3 className="text-lg font-semibold mb-5 text-off-white">Contract Details</h3>
-                <div className="space-y-4 text-sm">
-                  <div className="flex justify-between items-center">
-                    <span className="text-neutral-400">Contract Address</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-off-white">{getContractAddress().slice(0, 6)}...{getContractAddress().slice(-4)}</span>
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(getContractAddress());
-                          // You could add a toast notification here if desired
-                        }}
-                        className="p-1 hover:bg-neutral-700 rounded transition-colors group"
-                        aria-label="Copy contract address"
-                        title="Copy contract address"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="text-neutral-400 group-hover:text-green-500 transition-colors"
-                        >
-                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                  <Separator className="bg-neutral-600" />
-                  <div className="flex justify-between items-center">
-                    <span className="text-neutral-400">Token ID</span>
-                    <span className="text-off-white">{metadata?.token_id ?? tokenId}</span>
-                  </div>
-                  <Separator className="bg-neutral-600" />
-                  <div className="flex justify-between items-center">
-                    <span className="text-neutral-400">Token Standard</span>
-                    <span className="text-off-white">ERC-721</span>
-                  </div>
-                  <Separator className="bg-neutral-600" />
-                  <div className="flex justify-between items-center">
-                    <span className="text-neutral-400">Blockchain</span>
-                    <span className="text-off-white">Base</span>
-                  </div>
-                </div>
-            </div>
-
-            {/* Rarity Distribution - Mobile order-8 */}
-            <div className="order-8 lg:order-none">
+            {/* Rarity Distribution - Mobile order-10 */}
+            <div className="order-10 lg:order-none">
               <h3 className="text-lg font-semibold mb-4 text-off-white">Rarity Distribution</h3>
             {attributes.length > 0 ? (
               <AttributeRarityChart

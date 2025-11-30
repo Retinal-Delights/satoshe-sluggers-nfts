@@ -37,6 +37,9 @@ build-output.log
 # env files (can opt-in for committing if needed)
 .env*
 
+# security and sensitive logs
+SECURITY_LOG.md
+
 # vercel
 .vercel
 
