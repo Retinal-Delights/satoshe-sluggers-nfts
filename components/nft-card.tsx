@@ -172,58 +172,60 @@ export default function NFTCard({
             </Button>
           </div>
 
-          <div className="text-neutral-400 space-y-0.5">
-            <div className="flex justify-between gap-2">
-              <span className="text-nft-stat flex-shrink-0">Rank:</span>
-              <span className="text-nft-stat text-right truncate">{rank} of {TOTAL_COLLECTION_SIZE}</span>
+          <div className="flex flex-col w-full gap-1">
+            <div className="text-neutral-400 space-y-0.5">
+              <div className="flex justify-between gap-2">
+                <span className="text-nft-stat flex-shrink-0">Rank:</span>
+                <span className="text-nft-stat text-right truncate">{rank} of {TOTAL_COLLECTION_SIZE}</span>
+              </div>
+              <div className="flex justify-between gap-2">
+                <span className="text-nft-stat flex-shrink-0">Rarity:</span>
+                <span className="text-nft-stat text-right truncate">{rarityPercent}%</span>
+              </div>
+              <div className="flex justify-between gap-2">
+                <span className="text-nft-stat flex-shrink-0">Tier:</span>
+                <span className="text-nft-stat text-right truncate">{rarity}</span>
+              </div>
             </div>
-            <div className="flex justify-between gap-2">
-              <span className="text-nft-stat flex-shrink-0">Rarity:</span>
-              <span className="text-nft-stat text-right truncate">{rarityPercent}%</span>
-            </div>
-            <div className="flex justify-between gap-2">
-              <span className="text-nft-stat flex-shrink-0">Tier:</span>
-              <span className="text-nft-stat text-right truncate">{rarity}</span>
-            </div>
-          </div>
 
-          {isForSale ? (
-            <div className="pt-1 flex items-center justify-between gap-2">
-              <div className="overflow-hidden">
-                <div className="text-body-xs font-medium text-blue-500 truncate">
-                  Buy Now
-                </div>
-                <div className="text-nft-price font-semibold leading-tight text-blue-400 truncate">
-                  {displayPrice} ETH
-                </div>
-              </div>
-              <Link
-                href={`/nft/${cardNumber}`}
-                className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-nft-button bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500"
-              >
-                BUY
-              </Link>
-            </div>
-          ) : (
-            <div className="pt-1 flex items-center justify-between gap-2">
-              <div className="overflow-hidden">
-                <div className="text-body-xs font-medium text-green-500 truncate">
-                  Sold
-                </div>
-                {soldPriceEth && soldPriceEth > 0 ? (
-                  <div className="text-nft-price font-semibold leading-tight text-green-400 truncate">
-                    {soldPriceEth} ETH
+            {isForSale ? (
+              <div className="pt-1 flex items-center justify-between gap-2">
+                <div className="overflow-hidden">
+                  <div className="text-body-xs font-medium text-blue-500 truncate">
+                    Buy Now
                   </div>
-                ) : null}
+                  <div className="text-nft-price font-semibold leading-tight text-blue-400 truncate">
+                    {displayPrice} ETH
+                  </div>
+                </div>
+                <Link
+                  href={`/nft/${cardNumber}`}
+                  className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-nft-button bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500"
+                >
+                  BUY
+                </Link>
               </div>
-              <Link
-                href={`/nft/${cardNumber}`}
-                className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-nft-button bg-green-500/10 border-[1.5px] border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50"
-              >
-                Sold
-              </Link>
-            </div>
-          )}
+            ) : (
+              <div className="pt-1 flex items-center justify-between gap-2">
+                <div className="overflow-hidden">
+                  <div className="text-body-xs font-medium text-green-500 truncate">
+                    Sold
+                  </div>
+                  {soldPriceEth && soldPriceEth > 0 ? (
+                    <div className="text-nft-price font-semibold leading-tight text-green-400 truncate">
+                      {soldPriceEth} ETH
+                    </div>
+                  ) : null}
+                </div>
+                <Link
+                  href={`/nft/${cardNumber}`}
+                  className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-nft-button bg-green-500/10 border-[1.5px] border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50"
+                >
+                  Sold
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );

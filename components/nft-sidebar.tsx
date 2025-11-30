@@ -243,14 +243,14 @@ function FilterSection({
           </div>
           )}
 
-      <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-1">
             {sortedOptions.map((option) => {
               const optValue = typeof option === 'string' ? option : option.value
               const optDisplay = typeof option === 'string' ? option : option.display
               const count = getCount(optValue)
               
               return (
-                <div key={optValue} className="flex items-center group hover:bg-neutral-800/50 rounded px-1 py-0.5 transition-colors">
+                <div key={optValue} className="flex items-center group hover:bg-neutral-800/50 rounded px-1 py-0 transition-colors">
                 <div className="relative flex items-center w-full">
                   <input
                     type="checkbox"
@@ -270,7 +270,7 @@ function FilterSection({
                   />
                   <label
                       htmlFor={optValue}
-                      className="text-neutral-300 cursor-pointer flex-1 py-0.5 whitespace-pre-line leading-tight min-w-0 text-sidebar"
+                      className="text-neutral-300 cursor-pointer flex-1 py-0 whitespace-pre-line leading-none min-w-0 text-body-xs font-light"
                   >
                     <div className="flex items-center justify-between gap-1">
                         <span className="break-words min-w-0">{optDisplay.replace('\n', ' ')}</span>
@@ -341,7 +341,7 @@ function ListingStatusSection({
             height={18}
             className={colorClasses.pink}
           />
-          <h3 className={`font-medium text-sm sm:text-base ${isOpen ? colorClasses.pink : 'text-off-white'}`}>
+          <h3 className={`font-medium text-body-sm ${isOpen ? colorClasses.pink : 'text-off-white'}`}>
             Listing Status
           </h3>
           {/* Active filter indicator */}
@@ -577,13 +577,13 @@ function SubcategorySection({
                 </div>
 
                 {isChecked && (
-                  <div className="ml-7 mt-1 grid grid-cols-2 gap-x-2 gap-y-0.5">
+                  <div className="ml-7 mt-1 grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-1">
                     {subcategory.options.map((option) => {
                       const fullValue = `${subcategory.name} ${option}`
                       const count = traitCounts[key]?.[fullValue]
                       
                       return (
-                        <div key={option} className="flex items-center group hover:bg-neutral-800/50 rounded px-1 py-0.5 transition-colors">
+                        <div key={option} className="flex items-center group hover:bg-neutral-800/50 rounded px-1 py-0 transition-colors">
                         <input
                           type="checkbox"
                           id={`${subcategory.name}-${option}`}
@@ -602,12 +602,12 @@ function SubcategorySection({
                         />
                         <label
                           htmlFor={`${subcategory.name}-${option}`}
-                          className="text-neutral-300 cursor-pointer flex-1 py-0.5 min-w-0 text-sidebar"
+                          className="text-neutral-300 cursor-pointer flex-1 py-0 min-w-0 text-body-xs font-light"
                         >
                           <div className="flex items-center justify-between gap-1">
                             <span className="break-words min-w-0">{option}</span>
                             {count && (
-                              <span className={`${colorClasses[color]} font-medium flex-shrink-0 ml-1 text-sidebar`}>
+                              <span className={`${colorClasses[color]} font-medium flex-shrink-0 ml-1 text-body-xs`}>
                                 ({count})
                               </span>
                             )}
