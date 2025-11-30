@@ -1022,7 +1022,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <Link href={`/nft/${nft.tokenId}`} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-                            <Image src={nft.image} alt={`${nft.name} - NFT #${nft.cardNumber}, Rank ${nft.rank}, ${nft.rarity} rarity, Tier ${nft.tier}`} width={40} height={40} className="rounded object-contain" />
+                            <Image src={nft.image} alt={`${nft.name} - NFT #${nft.cardNumber}, Rank ${nft.rank}, ${nft.rarity} rarity, Tier ${nft.tier}`} width={40} height={40} className="rounded object-contain" style={{ width: "auto", height: "40px" }} />
                             <div>
                               <p className="text-body-xs font-normal text-[#FFFBEB] truncate">{nft.name}</p>
                               <p className="text-body-xs text-neutral-500 truncate">Token ID: {nft.tokenId}</p>
