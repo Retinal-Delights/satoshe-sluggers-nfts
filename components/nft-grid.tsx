@@ -713,7 +713,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           <h2 className="text-lg font-medium">NFT Collection</h2>
           <div className="text-sm font-medium text-pink-500 mt-1">Loading...</div>
         </div>
-        <div className="mt-8 mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
+        <div className="mt-8 mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-3 gap-y-5">
           {Array.from({ length: 12 }).map((_, index) => (
             <div key={index} className="bg-neutral-800 rounded-lg p-4 animate-pulse">
               <div className="aspect-square bg-neutral-700 rounded-lg mb-3"></div>
@@ -783,7 +783,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                         setViewMode('grid-large')
                         announceToScreenReader('Switched to large grid view')
                       }}
-                      className={`p-2 rounded-sm transition-colors ${viewMode === 'grid-large' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                      className={`p-2 rounded-[2px] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ff0099] focus:ring-offset-2 focus:ring-offset-neutral-900 focus:rounded-[2px] ${viewMode === 'grid-large' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
                       aria-label="Switch to large grid view"
                       aria-pressed={viewMode === 'grid-large'}
                     >
@@ -801,7 +801,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                         setViewMode('grid-medium')
                         announceToScreenReader('Switched to medium grid view')
                       }}
-                      className={`p-2 rounded-sm transition-colors ${viewMode === 'grid-medium' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                      className={`p-2 rounded-[2px] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ff0099] focus:ring-offset-2 focus:ring-offset-neutral-900 focus:rounded-[2px] ${viewMode === 'grid-medium' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
                       aria-label="Switch to medium grid view"
                       aria-pressed={viewMode === 'grid-medium'}
                     >
@@ -819,7 +819,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                         setViewMode('grid-small')
                         announceToScreenReader('Switched to small grid view')
                       }}
-                      className={`p-2 rounded-sm transition-colors ${viewMode === 'grid-small' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                      className={`p-2 rounded-[2px] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ff0099] focus:ring-offset-2 focus:ring-offset-neutral-900 focus:rounded-[2px] ${viewMode === 'grid-small' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
                       aria-label="Switch to small grid view"
                       aria-pressed={viewMode === 'grid-small'}
                     >
@@ -837,7 +837,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                         setViewMode('compact')
                         announceToScreenReader('Switched to compact table view')
                       }}
-                      className={`p-2 rounded-sm transition-colors ${viewMode === 'compact' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                      className={`p-2 rounded-[2px] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ff0099] focus:ring-offset-2 focus:ring-offset-neutral-900 focus:rounded-[2px] ${viewMode === 'compact' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
                       aria-label="Switch to compact table view"
                       aria-pressed={viewMode === 'compact'}
                     >
@@ -859,14 +859,14 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                   setSortBy(value);
                   setColumnSort(null); // Clear column sort when using dropdown
                 }}>
-                  <SelectTrigger className="w-[220px] bg-neutral-900 border-neutral-700 rounded-sm text-[#FFFBEB] text-sm font-normal">
+                  <SelectTrigger className="w-[180px] bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900">
                     <SelectValue placeholder="Default" />
                   </SelectTrigger>
-                  <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-sm">
+                  <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
                     <SelectItem value="default">Default</SelectItem>
                     <SelectItem value="favorites">Favorites</SelectItem>
-                    <SelectItem value="price-desc">Price: High to Low</SelectItem>
                     <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                    <SelectItem value="price-desc">Price: High to Low</SelectItem>
                     <SelectItem value="rank-desc">Rank: High to Low</SelectItem>
                     <SelectItem value="rank-asc">Rank: Low to High</SelectItem>
                     <SelectItem value="rarity-desc">Rarity: High to Low</SelectItem>
@@ -878,10 +878,10 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
               <div className="flex items-center gap-2">
                 <span className="text-sm text-neutral-500">Show:</span>
                 <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
-                  <SelectTrigger className="w-[150px] bg-neutral-900 border-neutral-700 rounded-sm text-[#FFFBEB] text-sm font-normal">
+                  <SelectTrigger className="w-[150px] bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900">
                     <SelectValue placeholder="15 items" />
                   </SelectTrigger>
-                  <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-sm">
+                  <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
                     <SelectItem value="15">15 items</SelectItem>
                     <SelectItem value="25">25 items</SelectItem>
                     <SelectItem value="50">50 items</SelectItem>
@@ -900,16 +900,16 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           {/* Grid Views */}
           {(viewMode === 'grid-large' || viewMode === 'grid-medium' || viewMode === 'grid-small') && (
             <div ref={gridRef} className={`mt-4 mb-8 grid ${
-              viewMode === 'grid-large' ? 'gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' :
-              viewMode === 'grid-medium' ? 'gap-3 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6' :
-              'gap-2 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8'
+              viewMode === 'grid-large' ? 'gap-x-4 gap-y-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' :
+              viewMode === 'grid-medium' ? 'gap-x-3 gap-y-5 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6' :
+              'gap-x-2 gap-y-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8'
             }`}>
               {paginatedNFTs.map((nft, index) => (
                   <div
                     key={nft.id}
                     tabIndex={0}
                     onKeyDown={(e) => handleKeyDown(e, index)}
-                    className={`focus:outline-none focus:ring-2 focus:ring-[#ff0099] focus:ring-offset-2 focus:ring-offset-neutral-900 rounded-sm ${
+                    className={`focus:outline-none focus:ring-2 focus:ring-[#ff0099] focus:ring-offset-2 focus:ring-offset-neutral-900 rounded-[2px] ${
                       focusedIndex === index ? 'ring-2 ring-[#ff0099] ring-offset-2 ring-offset-neutral-900' : ''
                     }`}
                   >
