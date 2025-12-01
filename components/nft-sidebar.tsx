@@ -270,7 +270,7 @@ function FilterSection({
                   />
                   <label
                       htmlFor={optValue}
-                      className="text-neutral-300 cursor-pointer flex-1 py-0 whitespace-pre-line leading-none min-w-0 text-body-xs font-light"
+                      className={`cursor-pointer flex-1 py-0 whitespace-pre-line leading-none min-w-0 text-body-xs font-light ${selected.includes(optValue) ? colorClasses[color] : 'text-neutral-300'}`}
                   >
                     <div className="flex items-center justify-between gap-1">
                         <span className="break-words min-w-0">{optDisplay.replace('\n', ' ')}</span>
@@ -602,7 +602,7 @@ function SubcategorySection({
                         />
                         <label
                           htmlFor={`${subcategory.name}-${option}`}
-                          className="text-neutral-300 cursor-pointer flex-1 py-0 min-w-0 text-body-xs font-light"
+                          className={`cursor-pointer flex-1 py-0 min-w-0 text-body-xs font-light ${selected[subcategory.name]?.includes(option) ? colorClasses[color] : 'text-neutral-300'}`}
                         >
                           <div className="flex items-center justify-between gap-1">
                             <span className="break-words min-w-0">{option}</span>
