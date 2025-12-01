@@ -487,10 +487,13 @@ button[aria-label*="Execute buyFromListing"] * {
   flex-direction: column;
   width: 100%;
   margin: 0;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .nft-card-image {
   width: 100%;
+  overflow: hidden;
 }
 
 .nft-card-content {
@@ -499,4 +502,6 @@ button[aria-label*="Execute buyFromListing"] * {
   flex-direction: column;
   gap: 0.75rem;
   padding: 0.5rem 0.75rem 0;
+  overflow: hidden;
+  min-width: 0;
 }
