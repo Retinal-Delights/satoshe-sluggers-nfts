@@ -126,56 +126,68 @@ async function fetchInsightOwnership(
   }
 }
 
-// On-chain direct fallback (slower but always accurate)
+// On-chain direct fallback using Multicall3 (batches multiple calls into 1 RPC call)
 async function fetchRPCOwnership(
   tokenIds: number[],
 ): Promise<Record<number, { owner: string; isSold: boolean }>> {
-  const contract = getContract({
-    client,
-    chain: base,
-    address: CONTRACT_ADDRESS!,
-  });
-
+  const { batchCheckOwnership } = await import("@/lib/multicall3");
+  
   const results: Record<number, { owner: string; isSold: boolean }> = {};
-  const BATCH_SIZE = 10;
-  const DELAY_MS = 50;
 
-  for (let i = 0; i < tokenIds.length; i += BATCH_SIZE) {
-    const batch = tokenIds.slice(i, i + BATCH_SIZE);
-
-    const batchResults = await Promise.allSettled(
-      batch.map(async (tokenId) => {
-        try {
-          const owner = (await readContract({
-            contract,
-            method: "function ownerOf(uint256 tokenId) view returns (address)",
-            params: [BigInt(tokenId)],
-          })) as string;
-          const ownerLower = owner.toLowerCase();
-          return {
-            tokenId,
-            owner: ownerLower,
-            isSold: ownerLower !== MARKETPLACE_ADDRESS,
-          };
-        } catch {
-          return {
-            tokenId,
-            owner: "",
-            isSold: false,
-          };
-        }
-      }),
-    );
-
-    batchResults.forEach((result) => {
-      if (result.status === "fulfilled") {
-        const { tokenId, owner, isSold } = result.value;
-        results[tokenId] = { owner, isSold };
-      }
+  try {
+    // Use Multicall3 to batch all ownership checks into a single RPC call
+    const ownershipResults = await batchCheckOwnership(CONTRACT_ADDRESS!, tokenIds);
+    
+    ownershipResults.forEach(({ tokenId, owner }) => {
+      const ownerLower = owner.toLowerCase();
+      results[tokenId] = {
+        owner: ownerLower,
+        isSold: ownerLower !== "" && ownerLower !== MARKETPLACE_ADDRESS,
+      };
+    });
+  } catch (error) {
+    console.error("Multicall3 ownership check failed, falling back to individual calls:", error);
+    // Fallback to individual calls if multicall fails
+    const contract = getContract({
+      client,
+      chain: base,
+      address: CONTRACT_ADDRESS!,
     });
 
-    if (i + BATCH_SIZE < tokenIds.length) {
-      await new Promise((resolve) => setTimeout(resolve, DELAY_MS));
+    const BATCH_SIZE = 10;
+    for (let i = 0; i < tokenIds.length; i += BATCH_SIZE) {
+      const batch = tokenIds.slice(i, i + BATCH_SIZE);
+
+      const batchResults = await Promise.allSettled(
+        batch.map(async (tokenId) => {
+          try {
+            const owner = (await readContract({
+              contract,
+              method: "function ownerOf(uint256 tokenId) view returns (address)",
+              params: [BigInt(tokenId)],
+            })) as string;
+            const ownerLower = owner.toLowerCase();
+            return {
+              tokenId,
+              owner: ownerLower,
+              isSold: ownerLower !== MARKETPLACE_ADDRESS,
+            };
+          } catch {
+            return {
+              tokenId,
+              owner: "",
+              isSold: false,
+            };
+          }
+        }),
+      );
+
+      batchResults.forEach((result) => {
+        if (result.status === "fulfilled") {
+          const { tokenId, owner, isSold } = result.value;
+          results[tokenId] = { owner, isSold };
+        }
+      });
     }
   }
 
