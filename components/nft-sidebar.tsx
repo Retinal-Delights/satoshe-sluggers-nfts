@@ -402,19 +402,21 @@ function ListingStatusSection({
                   <input
                     type="checkbox"
                     id={`listing-status-${option.value}`}
-                    checked={isChecked}
+                    checked={true}
                     onChange={() => handleCheckboxChange(option.value as 'live' | 'sold' | 'secondary')}
                     disabled={isDisabled}
                     className="sidebar-checkbox mr-1.5 flex-shrink-0"
                     style={{
-                      '--checkbox-color': colors.brand.pink
+                      '--checkbox-color': '#525252',
+                      borderColor: '#525252',
+                      backgroundColor: 'transparent'
                     } as React.CSSProperties}
                   />
                   <label
                     htmlFor={`listing-status-${option.value}`}
-                    className="text-neutral-300 cursor-default opacity-60 py-0.5 leading-tight min-w-0 text-sidebar"
+                    className="text-[#525252] cursor-default py-0.5 leading-tight min-w-0 text-sidebar"
                   >
-                    {option.display} <span className="text-neutral-500 text-body-xs ml-1">(Coming Soon)</span>
+                    {option.display} <span className="text-[#525252] text-body-xs ml-1">(Coming Soon)</span>
                   </label>
                 </div>
               </div>

@@ -182,15 +182,15 @@ export const buttons = {
   // Outline Button (from style guide)
   outline: 'px-6 py-2 border border-[#ff0099] bg-transparent text-[#ff0099] font-normal rounded-sm hover:bg-[#ff0099] hover:text-off-white transition-all duration-200',
   
-  // Buy Button (Blue - for purchasable items)
-  buy: 'px-6 py-2 border border-[#3B82F6] bg-blue-500/10 text-blue-400 font-normal rounded-sm hover:bg-blue-500/30 hover:border-blue-500/60 hover:text-blue-300 transition-all duration-200',
+  // Buy Button (Green - for purchasable items)
+  buy: 'px-6 py-2 border border-[#10B981] bg-green-500/10 text-green-400 font-normal rounded-sm hover:bg-green-500/30 hover:border-green-500/60 hover:text-green-300 transition-all duration-200',
   
-  // Sold Button (Green - for sold items)
-  sold: 'px-6 py-2 border border-[#10B981] bg-green-500/10 text-green-400 font-normal rounded-sm hover:bg-green-500/30 hover:border-green-500/60 hover:text-green-300 transition-all duration-200',
+  // Sold Button (Blue - for sold items)
+  sold: 'px-6 py-2 border border-[#3B82F6] bg-blue-500/10 text-blue-400 font-normal rounded-sm hover:bg-blue-500/30 hover:border-blue-500/60 hover:text-blue-300 transition-all duration-200',
   
   // Small Buy/Sold Buttons
-  buySmall: 'px-3 py-1 border border-[#3B82F6] bg-blue-500/10 text-blue-400 text-xs font-normal rounded-sm hover:bg-blue-500/30 hover:border-blue-500/60 hover:text-blue-300 transition-all duration-200',
-  soldSmall: 'px-3 py-1 border border-[#10B981] bg-green-500/10 text-green-400 text-xs font-normal rounded-sm hover:bg-green-500/30 hover:border-green-500/60 hover:text-green-300 transition-all duration-200',
+  buySmall: 'px-3 py-1 border border-[#10B981] bg-green-500/10 text-green-400 text-xs font-normal rounded-sm hover:bg-green-500/30 hover:border-green-500/60 hover:text-green-300 transition-all duration-200',
+  soldSmall: 'px-3 py-1 border border-[#3B82F6] bg-blue-500/10 text-blue-400 text-xs font-normal rounded-sm hover:bg-blue-500/30 hover:border-blue-500/60 hover:text-blue-300 transition-all duration-200',
   
   // Disabled State
   disabled: 'disabled:opacity-50 disabled:cursor-not-allowed',

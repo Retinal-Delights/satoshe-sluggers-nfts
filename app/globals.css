@@ -202,6 +202,10 @@ input[type="checkbox"].sidebar-checkbox:checked::after {
   font-weight: bold;
 }
 
+input[type="checkbox"].sidebar-checkbox:checked:disabled::after {
+  color: #525252;
+}
+
 /* Animation for mobile menu */
 @keyframes slideDown {
   from {
