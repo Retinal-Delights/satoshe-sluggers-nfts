@@ -37,6 +37,8 @@ function NFTsPageContent() {
     sold: true,
     secondary: false,
   })
+  const [sortBy, setSortBy] = useState("default")
+  const [itemsPerPage, setItemsPerPage] = useState(25)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   // Initialize state from URL parameters
@@ -44,6 +46,16 @@ function NFTsPageContent() {
     if (!isInitialized) {
       const urlSearchTerm = searchParams.get('search') || ""
       const urlSearchMode = (searchParams.get('mode') as "contains" | "exact") || "contains"
+      const urlSortBy = searchParams.get('sortBy') || "default"
+      const urlItemsPerPage = searchParams.get('itemsPerPage')
+      const itemsPerPageNum = urlItemsPerPage ? parseInt(urlItemsPerPage, 10) : 25
+      
+      // Parse listing status from URL
+      const urlListingStatus = {
+        live: searchParams.get('live') !== 'false', // Default to true
+        sold: searchParams.get('sold') !== 'false', // Default to true
+        secondary: searchParams.get('secondary') === 'true', // Default to false
+      }
       
       // Parse filters from URL
           const urlFilters: {
@@ -86,6 +98,9 @@ function NFTsPageContent() {
       setSearchTerm(urlSearchTerm)
       setSearchMode(urlSearchMode)
       setSelectedFilters(urlFilters)
+      setSortBy(urlSortBy)
+      setItemsPerPage(itemsPerPageNum)
+      setListingStatus(urlListingStatus)
       setIsInitialized(true)
     }
   }, [searchParams, isInitialized])
@@ -97,6 +112,11 @@ function NFTsPageContent() {
       
       if (searchTerm) params.set('search', searchTerm)
       if (searchMode !== 'contains') params.set('mode', searchMode)
+      if (sortBy !== 'default') params.set('sortBy', sortBy)
+      if (itemsPerPage !== 25) params.set('itemsPerPage', itemsPerPage.toString())
+      if (!listingStatus.live) params.set('live', 'false')
+      if (!listingStatus.sold) params.set('sold', 'false')
+      if (listingStatus.secondary) params.set('secondary', 'true')
       
       Object.entries(selectedFilters).forEach(([key, value]) => {
         if (value) {
@@ -117,7 +137,7 @@ function NFTsPageContent() {
       const newUrl = params.toString() ? `?${params.toString()}` : '/nfts'
       router.replace(newUrl, { scroll: false })
     }
-  }, [searchTerm, searchMode, selectedFilters, isInitialized, router])
+  }, [searchTerm, searchMode, selectedFilters, sortBy, itemsPerPage, listingStatus, isInitialized, router])
 
   return (
     <PageTransition>
@@ -198,6 +218,10 @@ function NFTsPageContent() {
                 searchMode={searchMode}
                 selectedFilters={selectedFilters}
                 listingStatus={listingStatus}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                itemsPerPage={itemsPerPage}
+                setItemsPerPage={setItemsPerPage}
                 onFilteredCountChange={() => {}} // Empty callback since we don't use the count
                 onTraitCountsChange={setTraitCounts} // Pass trait counts to sidebar
               />

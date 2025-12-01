@@ -47,6 +47,7 @@ interface NFTCardProps {
   soldPriceEth?: number;
   viewMode?: "grid-large" | "grid-medium" | "grid-small" | "compact";
   priority?: boolean;
+  returnToUrl?: string;
 }
 
 export default function NFTCard({
@@ -62,6 +63,7 @@ export default function NFTCard({
   soldPriceEth,
   viewMode = "grid-medium",
   priority = false,
+  returnToUrl,
 }: NFTCardProps) {
   // Use soldPriceEth if available and not for sale, otherwise use priceEth
   const displayPrice = (!isForSale && soldPriceEth) ? soldPriceEth : priceEth;
@@ -101,7 +103,7 @@ export default function NFTCard({
             style={{ aspectRatio: "1/1" }}
           >
             <Link
-              href={`/nft/${cardNumber}`}
+              href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
               className="block w-full h-full relative"
             >
               <Image
@@ -133,7 +135,7 @@ export default function NFTCard({
       <div className="nft-card-wrapper">
         <div className="nft-card-image">
           <div className="relative" style={{ aspectRatio: "0.9/1", maxHeight: "var(--nft-image-height)" }}>
-            <Link href={`/nft/${cardNumber}`} className="block w-full h-full relative">
+            <Link href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`} className="block w-full h-full relative">
               <Image
                 src={showPlaceholder ? placeholder : image}
                 alt={`${name} - NFT #${cardNumber}`}
@@ -199,7 +201,7 @@ export default function NFTCard({
                   </div>
                 </div>
                 <Link
-                  href={`/nft/${cardNumber}`}
+                  href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
                   className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500"
                 >
                   BUY
@@ -218,7 +220,7 @@ export default function NFTCard({
                   ) : null}
                 </div>
                 <Link
-                  href={`/nft/${cardNumber}`}
+                  href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
                   className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-green-500/10 border-[1.5px] border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50"
                 >
                   Sold
@@ -236,7 +238,7 @@ export default function NFTCard({
     <div className="nft-card-wrapper">
       <div className="nft-card-image">
         <div className="relative" style={{ aspectRatio: "0.85/1" }}>
-          <Link href={`/nft/${cardNumber}`} className="block w-full h-full relative">
+          <Link href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`} className="block w-full h-full relative">
             <Image
               src={showPlaceholder ? placeholder : image}
               alt={name}

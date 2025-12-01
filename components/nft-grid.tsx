@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { TOTAL_COLLECTION_SIZE } from "@/lib/contracts";
 import {
   Select,
@@ -91,6 +92,10 @@ interface NFTGridProps {
     sold: boolean;
     secondary: boolean;
   };
+  sortBy: string;
+  setSortBy: (value: string) => void;
+  itemsPerPage: number;
+  setItemsPerPage: (value: number) => void;
   onFilteredCountChange?: (count: number) => void;
   onTraitCountsChange?: (counts: Record<string, Record<string, number>>) => void;
 }
@@ -138,10 +143,20 @@ function computeTraitCounts(nfts: NFTGridItem[], categories: string[]) {
   return counts;
 }
 
-export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listingStatus, onFilteredCountChange, onTraitCountsChange }: NFTGridProps) {
+export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listingStatus, sortBy, setSortBy, itemsPerPage, setItemsPerPage, onFilteredCountChange, onTraitCountsChange }: NFTGridProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(25);
-  const [sortBy, setSortBy] = useState("default");
+  
+  // Get current URL params for returnTo navigation
+  const getReturnToUrl = useMemo(() => {
+    const params = new URLSearchParams();
+    searchParams.forEach((value, key) => {
+      params.set(key, value);
+    });
+    return `/nfts${params.toString() ? `?${params.toString()}` : ''}`;
+  }, [searchParams]);
   const [columnSort, setColumnSort] = useState<{ field: string; direction: 'asc' | 'desc' } | null>({ field: 'nft', direction: 'asc' });
   const [nfts, setNfts] = useState<NFTGridItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -926,6 +941,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                       soldPriceEth={nft.soldPriceEth}
                       viewMode={viewMode}
                       priority={currentPage === 1 && index === 0}
+                      returnToUrl={getReturnToUrl}
                     />
                   </div>
               ))}
@@ -1021,7 +1037,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <Link href={`/nft/${nft.cardNumber}`} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+                          <Link href={`/nft/${nft.cardNumber}${getReturnToUrl !== '/nfts' ? `?returnTo=${encodeURIComponent(getReturnToUrl)}` : ''}`} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
                             <Image src={nft.image} alt={`${nft.name} - NFT #${nft.cardNumber}, Rank ${nft.rank}, ${nft.rarity} rarity, Tier ${nft.tier}`} width={40} height={40} className="rounded object-contain" style={{ width: "auto", height: "40px" }} />
                             <div>
                               <p className="text-body-xs font-normal text-[#FFFBEB] truncate">{nft.name}</p>
@@ -1057,7 +1073,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                         <div className="flex items-center gap-2 justify-end">
                             {nft.isForSale ? (
                               <Link
-                                href={`/nft/${nft.cardNumber}`}
+                                href={`/nft/${nft.cardNumber}${getReturnToUrl !== '/nfts' ? `?returnTo=${encodeURIComponent(getReturnToUrl)}` : ''}`}
                                 className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 rounded-sm text-blue-400 text-[clamp(11px,0.5vw+5px,15px)] font-medium hover:bg-blue-500/20 hover:border-blue-500/50 transition-colors whitespace-nowrap"
                               >
                                 Buy
