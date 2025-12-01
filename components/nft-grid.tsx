@@ -288,12 +288,23 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   
   // Refresh inventory when page becomes visible (user returns from detail page)
   useEffect(() => {
+    let lastRefreshTime = 0;
+    const REFRESH_COOLDOWN = 5000; // Don't refresh more than once every 5 seconds
+    
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        // Refresh inventory for currently displayed NFTs
-        if (nfts.length > 0) {
-          const tokenIds = nfts.map(nft => parseInt(nft.tokenId));
-          refreshInventoryData(tokenIds);
+        const now = Date.now();
+        // Throttle refreshes to avoid excessive API calls
+        if (now - lastRefreshTime > REFRESH_COOLDOWN) {
+          lastRefreshTime = now;
+          // Refresh inventory for currently displayed NFTs
+          if (nfts.length > 0) {
+            const tokenIds = nfts.map(nft => parseInt(nft.tokenId));
+            refreshInventoryData(tokenIds);
+          } else {
+            // If no NFTs loaded yet, refresh from CSV
+            refreshInventoryData();
+          }
         }
       }
     };
