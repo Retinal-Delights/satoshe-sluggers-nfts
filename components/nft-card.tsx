@@ -190,36 +190,36 @@ export default function NFTCard({
 
             {isForSale ? (
               <div className="pt-1 flex items-center justify-between gap-2">
-                <div className="overflow-hidden">
-                  <div className="text-body-xs font-medium text-blue-500 truncate">
+                <div className="overflow-hidden min-w-0 flex-1">
+                  <div className="text-[clamp(11px,0.4vw+5px,14px)] font-medium text-blue-500 truncate">
                     Buy Now
                   </div>
-                  <div className="text-nft-price font-semibold leading-tight text-blue-400 truncate">
+                  <div className="text-[clamp(12px,0.5vw+6px,18px)] font-semibold leading-tight text-blue-400 break-words">
                     {displayPrice} ETH
                   </div>
                 </div>
                 <Link
                   href={`/nft/${cardNumber}`}
-                  className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-nft-button bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500"
+                  className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500"
                 >
                   BUY
                 </Link>
               </div>
             ) : (
               <div className="pt-1 flex items-center justify-between gap-2">
-                <div className="overflow-hidden">
-                  <div className="text-body-xs font-medium text-green-500 truncate">
+                <div className="overflow-hidden min-w-0 flex-1">
+                  <div className="text-[clamp(11px,0.4vw+5px,14px)] font-medium text-green-500 truncate">
                     Sold
                   </div>
                   {soldPriceEth && soldPriceEth > 0 ? (
-                    <div className="text-nft-price font-semibold leading-tight text-green-400 truncate">
+                    <div className="text-[clamp(12px,0.5vw+6px,18px)] font-semibold leading-tight text-green-400 break-words">
                       {soldPriceEth} ETH
                     </div>
                   ) : null}
                 </div>
                 <Link
                   href={`/nft/${cardNumber}`}
-                  className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-nft-button bg-green-500/10 border-[1.5px] border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50"
+                  className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-green-500/10 border-[1.5px] border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50"
                 >
                   Sold
                 </Link>

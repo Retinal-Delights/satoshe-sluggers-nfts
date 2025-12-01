@@ -642,7 +642,7 @@ export default function NFTDetailPage() {
     <PageTransition>
       <main id="main-content" className="min-h-screen bg-background text-foreground flex flex-col">
         <Navigation activePage="nfts" />
-      <div className="max-w-7xl mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-4 sm:px-6 md:px-6 lg:px-16">
+      <div className="max-w-[90rem] mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-4 sm:px-6 md:px-6 lg:px-12">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-8 sm:mb-10">
           {(() => {
             // Prefer returning to the exact filtered collection URL when provided

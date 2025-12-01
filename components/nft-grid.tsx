@@ -732,13 +732,13 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   }
 
   return (
-    <div className="w-full max-w-full">
-      <div className="flex flex-col gap-2 mb-4 pl-2">
-        {/* Header section: Title, stats, and controls all together */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          {/* Left side: Title and stats */}
-          <div className="flex-shrink-0">
-            <h2 className="text-h3 font-medium">NFT Collection</h2>
+      <div className="w-full max-w-full">
+        <div className="flex flex-col gap-3 mb-6 pl-2">
+          {/* Header section: Title, stats, and controls all together */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            {/* Left side: Title and stats */}
+            <div className="flex-shrink-0 min-w-0">
+              <h2 className="text-h3 font-medium mb-2">NFT Collection</h2>
             {filteredNFTs.length > 0 && (
               <>
                 <div className="text-body-sm font-medium mt-1">
@@ -768,7 +768,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                     </>
                   )}
                 </div>
-                <div className="text-body-xs text-neutral-500 mt-1">
+                <div className="text-[clamp(11px,0.4vw+5px,14px)] text-neutral-500 mt-1.5">
                   {startIndex + 1}-{Math.min(endIndex, filteredNFTs.length)} of {filteredNFTs.length} NFTs
                 </div>
               </>
@@ -776,7 +776,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           </div>
 
           {/* Right side: View toggles and dropdowns */}
-          <div className="flex flex-col items-end gap-2 ml-auto">
+          <div className="flex flex-col items-end gap-3 ml-auto">
             {/* View Mode Toggles */}
             <TooltipProvider>
               <div className="flex items-center gap-1 border border-neutral-700 rounded-sm p-1 bg-neutral-900 flex-shrink-0">
@@ -858,12 +858,12 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
             {/* Dropdowns - Below view toggles */}
             <div className="flex items-center gap-3 flex-shrink-0">
               <div className="flex items-center gap-2">
-                <span className="text-body-sm text-neutral-500">Sort by:</span>
+                <span className="text-body-sm text-neutral-500 whitespace-nowrap">Sort by:</span>
                 <Select value={sortBy} onValueChange={(value) => {
                   setSortBy(value);
                   setColumnSort(null); // Clear column sort when using dropdown
                 }}>
-                  <SelectTrigger className="w-[180px] bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900">
+                  <SelectTrigger className="min-w-[200px] w-[200px] sm:min-w-[220px] sm:w-[220px] bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900">
                     <SelectValue placeholder="Default" />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
@@ -1030,10 +1030,10 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                           </Link>
                         </div>
                       </td>
-                      <td className="px-6 py-3 text-body-xs text-neutral-300 truncate font-normal pl-8">{nft.rank} / {TOTAL_COLLECTION_SIZE}</td>
-                      <td className="px-4 py-3 text-body-xs text-neutral-300 truncate font-normal">{nft.rarityPercent}%</td>
-                      <td className="px-4 py-3 text-body-xs text-neutral-300 truncate font-normal">{nft.rarity}</td>
-                      <td className="px-4 py-3 text-body-xs font-normal text-blue-500 whitespace-nowrap">{nft.priceEth} ETH</td>
+                      <td className="px-6 py-3 text-[clamp(11px,0.4vw+5px,14px)] text-neutral-300 truncate font-normal pl-8">{nft.rank} / {TOTAL_COLLECTION_SIZE}</td>
+                      <td className="px-4 py-3 text-[clamp(11px,0.4vw+5px,14px)] text-neutral-300 truncate font-normal">{nft.rarityPercent}%</td>
+                      <td className="px-4 py-3 text-[clamp(11px,0.4vw+5px,14px)] text-neutral-300 truncate font-normal">{nft.rarity}</td>
+                      <td className="px-4 py-3 text-[clamp(12px,0.5vw+6px,16px)] font-normal text-blue-500 break-words min-w-[80px]">{nft.priceEth} ETH</td>
                       <td className="px-4 py-3 text-center">
                         <button
                           onClick={(e) => {
@@ -1058,12 +1058,12 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                             {nft.isForSale ? (
                               <Link
                                 href={`/nft/${nft.cardNumber}`}
-                                className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 rounded-sm text-blue-400 text-nft-button font-medium hover:bg-blue-500/20 hover:border-blue-500/50 transition-colors"
+                                className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 rounded-sm text-blue-400 text-[clamp(11px,0.5vw+5px,15px)] font-medium hover:bg-blue-500/20 hover:border-blue-500/50 transition-colors whitespace-nowrap"
                               >
                                 Buy
                               </Link>
                             ) : (
-                              <span className="px-2.5 py-1 bg-green-500/10 border border-green-500/30 rounded-sm text-green-400 text-nft-button font-medium">
+                              <span className="px-2.5 py-1 bg-green-500/10 border border-green-500/30 rounded-sm text-green-400 text-[clamp(11px,0.5vw+5px,15px)] font-medium whitespace-nowrap">
                                 Sold
                               </span>
                             )}
