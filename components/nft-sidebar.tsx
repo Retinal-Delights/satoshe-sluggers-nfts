@@ -808,7 +808,7 @@ export default function NFTSidebar({
 
   return (
     <div
-      className="w-full max-w-[95vw] sm:max-w-3xl lg:max-w-4xl xl:max-w-full 2xl:max-w-full space-y-2 bg-card p-3 lg:p-4 pt-6 rounded border border-neutral-700 shadow-sm"
+      className="w-full max-w-[95vw] sm:max-w-3xl lg:max-w-4xl xl:max-w-full 2xl:max-w-full space-y-2 bg-card p-3 lg:p-4 rounded border border-neutral-700 shadow-sm"
       suppressHydrationWarning={true}
     >
       {/* Blockchain Info */}

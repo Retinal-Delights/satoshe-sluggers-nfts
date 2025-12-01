@@ -257,10 +257,9 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           
           setInventoryData(inventory);
         }
-      } catch (error) {
-        console.error('Error loading pricing mappings:', error);
-        // Silent fail - pricing will be empty, but NFTs should still show
-      }
+        } catch {
+          // Silent fail - pricing will be empty, but NFTs should still show
+        }
     };
     loadPricingMappings();
   }, []);
@@ -466,8 +465,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           );
 
           setNfts(mappedNFTs);
-        } catch (error) {
-          console.error("Error processing NFTs:", error);
+        } catch {
           setNfts([]);
         }
       };
