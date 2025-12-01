@@ -173,12 +173,12 @@ export default function NFTTableView({
                 <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left">{nft.rarity || (typeof nft.tier === 'string' ? nft.tier.replace(" (Ultra-Legendary)", "") : nft.tier || '—')}</td>
                 <td className="px-2 sm:px-3 py-3 text-xs font-normal text-left">
                   {nft.isForSale && nft.priceEth > 0 ? (
-                    <div className="leading-tight text-blue-500">
+                    <div className="leading-tight text-green-500">
                       <span className="whitespace-nowrap">{nft.priceEth}</span>
                       <span className="block sm:inline sm:ml-1">ETH</span>
                     </div>
                   ) : nft.soldPriceEth || !nft.isForSale ? (
-                    <div className="leading-tight text-green-500">
+                    <div className="leading-tight text-blue-500">
                       <span className="whitespace-nowrap">{nft.soldPriceEth || nft.priceEth}</span>
                       <span className="block sm:inline sm:ml-1">ETH</span>
                     </div>

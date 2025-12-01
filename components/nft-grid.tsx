@@ -1033,7 +1033,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                       <td className="px-6 py-3 text-[clamp(11px,0.4vw+5px,14px)] text-neutral-300 truncate font-normal pl-8">{nft.rank} / {TOTAL_COLLECTION_SIZE}</td>
                       <td className="px-4 py-3 text-[clamp(11px,0.4vw+5px,14px)] text-neutral-300 truncate font-normal">{nft.rarityPercent}%</td>
                       <td className="px-4 py-3 text-[clamp(11px,0.4vw+5px,14px)] text-neutral-300 truncate font-normal">{nft.rarity}</td>
-                      <td className="px-4 py-3 text-[clamp(12px,0.5vw+6px,16px)] font-normal text-blue-500 break-words min-w-[80px]">{nft.priceEth} ETH</td>
+                      <td className="px-4 py-3 text-[clamp(12px,0.5vw+6px,16px)] font-normal text-green-500 break-words min-w-[80px]">{nft.priceEth} ETH</td>
                       <td className="px-4 py-3 text-center">
                         <button
                           onClick={(e) => {
@@ -1058,12 +1058,12 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                             {nft.isForSale ? (
                               <Link
                                 href={`/nft/${nft.cardNumber}`}
-                                className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 rounded-sm text-blue-400 text-[clamp(11px,0.5vw+5px,15px)] font-medium hover:bg-blue-500/20 hover:border-blue-500/50 transition-colors whitespace-nowrap"
+                                className="px-2.5 py-1 bg-green-500/10 border border-green-500/30 rounded-sm text-green-400 text-[clamp(11px,0.5vw+5px,15px)] font-medium hover:bg-green-500/20 hover:border-green-500/50 transition-colors whitespace-nowrap"
                               >
                                 Buy
                               </Link>
                             ) : (
-                              <span className="px-2.5 py-1 bg-green-500/10 border border-green-500/30 rounded-sm text-green-400 text-[clamp(11px,0.5vw+5px,15px)] font-medium whitespace-nowrap">
+                              <span className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 rounded-sm text-blue-400 text-[clamp(11px,0.5vw+5px,15px)] font-medium whitespace-nowrap">
                                 Sold
                               </span>
                             )}
