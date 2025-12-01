@@ -808,11 +808,11 @@ export default function NFTSidebar({
 
   return (
     <div
-      className="w-full max-w-[95vw] sm:max-w-3xl lg:max-w-4xl xl:max-w-full 2xl:max-w-full space-y-2 bg-card p-3 lg:p-4 rounded border border-neutral-700 shadow-sm"
+      className="w-full max-w-[95vw] sm:max-w-3xl lg:max-w-4xl xl:max-w-full 2xl:max-w-full space-y-2 bg-card p-3 lg:p-4 pt-6 rounded border border-neutral-700 shadow-sm"
       suppressHydrationWarning={true}
     >
       {/* Blockchain Info */}
-        <div className="mb-4 p-3 lg:p-4 border border-neutral-700 rounded">
+        <div className="mb-4 px-3 py-3 border border-neutral-700 rounded">
           <div className="font-mono text-neutral-400 leading-tight text-sidebar" style={{ fontWeight: '300', marginBottom: '2px' }}>Blockchain: <span className="text-off-white">Base</span></div>
           <div className="font-mono text-neutral-400 leading-tight text-sidebar" style={{ fontWeight: '300', marginBottom: '2px' }}>Chain ID: <span className="text-off-white">8453</span></div>
           <div className="font-mono text-neutral-400 leading-tight text-sidebar" style={{ fontWeight: '300' }}>Token Standard: <span className="text-off-white">ERC-721</span></div>

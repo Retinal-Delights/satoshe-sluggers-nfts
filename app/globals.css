@@ -505,7 +505,3 @@ button[aria-label*="Execute buyFromListing"] * {
   overflow: hidden;
   min-width: 0;
 }
-
-.nft-card-content > div {
-  width: 100%;
-}

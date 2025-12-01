@@ -257,9 +257,10 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           
           setInventoryData(inventory);
         }
-        } catch {
-          // Silent fail - pricing will be empty, but NFTs should still show
-        }
+      } catch (error) {
+        console.error('Error loading pricing mappings:', error);
+        // Silent fail - pricing will be empty, but NFTs should still show
+      }
     };
     loadPricingMappings();
   }, []);
@@ -465,7 +466,8 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           );
 
           setNfts(mappedNFTs);
-        } catch {
+        } catch (error) {
+          console.error("Error processing NFTs:", error);
           setNfts([]);
         }
       };
@@ -901,34 +903,32 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         <>
           {/* Grid Views */}
           {(viewMode === 'grid-large' || viewMode === 'grid-medium' || viewMode === 'grid-small') && (
-            <div ref={gridRef} className="mt-4 mb-8 max-w-[1400px] mx-auto w-full px-4">
-              <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 sm:gap-x-4 md:gap-x-4 lg:gap-x-6 gap-y-6 sm:gap-y-6 md:gap-y-6 lg:gap-y-8 justify-center xl:justify-start`}>
-                {paginatedNFTs.map((nft, index) => (
-                    <div
-                      key={nft.id}
-                      tabIndex={0}
-                      onKeyDown={(e) => handleKeyDown(e, index)}
-                      className={`w-full max-w-[420px] mx-auto focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 rounded-[2px] overflow-visible ${
-                        focusedIndex === index ? 'ring-2 ring-[#ff0099] ring-offset-2 ring-offset-neutral-900' : ''
-                      }`}
-                    >
-                      <NFTCard
-                        image={nft.image}
-                        name={nft.name}
-                        rank={nft.rank}
-                        rarity={nft.rarity}
-                        rarityPercent={nft.rarityPercent}
-                        priceEth={nft.priceEth}
-                        tokenId={nft.tokenId}
-                        cardNumber={nft.cardNumber}
-                        isForSale={nft.isForSale}
-                        soldPriceEth={nft.soldPriceEth}
-                        viewMode={viewMode}
-                        priority={currentPage === 1 && index === 0}
-                      />
-                    </div>
-                ))}
-              </div>
+            <div ref={gridRef} className="mt-4 mb-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 sm:gap-x-4 md:gap-x-4 lg:gap-x-6 gap-y-6 sm:gap-y-6 md:gap-y-6 lg:gap-y-8">
+              {paginatedNFTs.map((nft, index) => (
+                  <div
+                    key={nft.id}
+                    tabIndex={0}
+                    onKeyDown={(e) => handleKeyDown(e, index)}
+                    className={`focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 rounded-[2px] overflow-visible ${
+                      focusedIndex === index ? 'ring-2 ring-[#ff0099] ring-offset-2 ring-offset-neutral-900' : ''
+                    }`}
+                  >
+                    <NFTCard
+                      image={nft.image}
+                      name={nft.name}
+                      rank={nft.rank}
+                      rarity={nft.rarity}
+                      rarityPercent={nft.rarityPercent}
+                      priceEth={nft.priceEth}
+                      tokenId={nft.tokenId}
+                      cardNumber={nft.cardNumber}
+                      isForSale={nft.isForSale}
+                      soldPriceEth={nft.soldPriceEth}
+                      viewMode={viewMode}
+                      priority={currentPage === 1 && index === 0}
+                    />
+                  </div>
+              ))}
             </div>
           )}
 
