@@ -407,9 +407,7 @@ function ListingStatusSection({
                     disabled={isDisabled}
                     className="sidebar-checkbox mr-1.5 flex-shrink-0"
                     style={{
-                      '--checkbox-color': '#525252',
-                      borderColor: '#525252',
-                      backgroundColor: 'transparent'
+                      '--checkbox-color': '#525252'
                     } as React.CSSProperties}
                   />
                   <label
