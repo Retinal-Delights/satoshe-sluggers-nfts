@@ -231,10 +231,10 @@ export const transitions = {
 // ============================================================================
 
 /**
- * Get NFT status color (blue for unsold, green for sold)
+ * Get NFT status color (green for live/unsold, blue for sold)
  */
 export function getNFTStatusColor(isForSale: boolean): string {
-  return isForSale ? colors.text.info : colors.text.success;
+  return isForSale ? colors.text.success : colors.text.info;
 }
 
 /**

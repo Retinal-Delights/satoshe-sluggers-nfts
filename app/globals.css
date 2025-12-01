@@ -191,6 +191,11 @@ input[type="checkbox"].sidebar-checkbox:checked {
   border-color: var(--checkbox-color, var(--brand-pink));
 }
 
+input[type="checkbox"].sidebar-checkbox:checked:disabled {
+  background-color: transparent;
+  border-color: #525252;
+}
+
 input[type="checkbox"].sidebar-checkbox:checked::after {
   content: "✓";
   position: absolute;
