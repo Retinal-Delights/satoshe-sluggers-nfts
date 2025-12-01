@@ -732,8 +732,8 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   }
 
   return (
-      <div className="w-full max-w-full">
-        <div className="flex flex-col gap-3 mb-6 pl-2">
+      <div className="w-full max-w-none px-0 mx-auto flex flex-col">
+        <div className="flex flex-col gap-3 mb-6">
           {/* Header section: Title, stats, and controls all together */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             {/* Left side: Title and stats */}

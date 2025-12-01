@@ -191,7 +191,7 @@ function NFTsPageContent() {
             </Drawer>
           </div>
 
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 w-full max-w-none px-0 mx-auto flex flex-col">
             {isInitialized ? (
               <NFTGrid
                 searchTerm={searchTerm}
