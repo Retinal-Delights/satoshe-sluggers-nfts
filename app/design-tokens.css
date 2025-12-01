@@ -18,7 +18,7 @@
   --font-nft-stat: clamp(13px, 0.5vw + 6px, 18px);
   --font-nft-price: clamp(14px, 0.6vw + 6px, 20px);
   --font-nft-button: clamp(13px, 0.7vw + 5px, 18px);
-  --font-sidebar: clamp(13px, 0.5vw + 6px, 16px);
+  --font-sidebar: clamp(12px, 0.4vw + 5px, 14px);
   --font-nav: clamp(14px, 0.6vw + 6px, 18px);
 
   /* Spacing Tokens */

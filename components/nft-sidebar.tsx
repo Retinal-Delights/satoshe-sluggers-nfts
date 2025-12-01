@@ -195,7 +195,7 @@ function FilterSection({
       >
         <div className="flex items-center gap-2">
           {icon && <span className={colorClasses[color]}>{icon}</span>}
-          <h3 className={`font-medium text-body-sm ${isOpen ? colorClasses[color] : 'text-off-white'}`}>
+          <h3 className={`font-medium text-sidebar ${isOpen ? colorClasses[color] : 'text-off-white'}`}>
             {title}
           </h3>
           {/* Active filter indicator */}
@@ -226,7 +226,7 @@ function FilterSection({
         <div className="mt-2 space-y-1">
           {sortable && (
             <div className="mb-3 px-1">
-            <span className="text-neutral-400 block mb-1 text-sidebar">Sort by:</span>
+            <span className="text-neutral-400 block mb-1 text-sidebar text-sidebar">Sort by:</span>
             <button
                 onClick={() => setSortOrder(sortOrder === "commonToRare" ? "rareToCommon" : "commonToRare")}
               className="flex items-center gap-1 px-3 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition-colors w-full justify-between text-off-white text-sidebar cursor-pointer"
@@ -270,12 +270,12 @@ function FilterSection({
                   />
                   <label
                       htmlFor={optValue}
-                      className={`cursor-pointer flex-1 py-0 whitespace-pre-line leading-none min-w-0 text-body-xs font-light ${selected.includes(optValue) ? colorClasses[color] : 'text-neutral-300'}`}
+                      className={`cursor-pointer flex-1 py-0 whitespace-pre-line leading-none min-w-0 text-sidebar font-light ${selected.includes(optValue) ? colorClasses[color] : 'text-neutral-300'}`}
                   >
                     <div className="flex items-center justify-between gap-1">
                         <span className="break-words min-w-0">{optDisplay.replace('\n', ' ')}</span>
                         {count && (
-                          <span className={`${colorClasses[color]} font-medium flex-shrink-0 ml-1 text-body-xs`}>
+                          <span className={`${colorClasses[color]} font-medium flex-shrink-0 ml-1 text-sidebar`}>
                             ({count})
                           </span>
                         )}
@@ -341,7 +341,7 @@ function ListingStatusSection({
             height={18}
             className={colorClasses.pink}
           />
-          <h3 className={`font-medium text-body-sm ${isOpen ? colorClasses.pink : 'text-off-white'}`}>
+          <h3 className={`font-medium text-sidebar ${isOpen ? colorClasses.pink : 'text-off-white'}`}>
             Listing Status
           </h3>
           {/* Active filter indicator */}
@@ -414,7 +414,7 @@ function ListingStatusSection({
                     htmlFor={`listing-status-${option.value}`}
                     className="text-[#525252] cursor-default py-0.5 leading-tight min-w-0 text-sidebar"
                   >
-                    {option.display} <span className="text-[#525252] text-body-xs ml-1">(Coming Soon)</span>
+                    {option.display} <span className="text-[#525252] text-sidebar ml-1">(Coming Soon)</span>
                   </label>
                 </div>
               </div>
@@ -498,7 +498,7 @@ function SubcategorySection({
       >
         <div className="flex items-center gap-2">
           {icon && <span className={colorClasses[color]}>{icon}</span>}
-          <h3 className={`font-medium text-body-sm ${isOpen ? colorClasses[color] : 'text-off-white'}`}>
+          <h3 className={`font-medium text-sidebar ${isOpen ? colorClasses[color] : 'text-off-white'}`}>
             {title}
           </h3>
           {/* Active filter indicator for subcategories - show when any subcategory is selected (even if no colors selected) */}
@@ -568,7 +568,7 @@ function SubcategorySection({
                     <div className="flex items-center justify-between pb-1">
                       <span className={colorClasses[color]}>{subcategory.name}</span>
                       {totalCount > 0 && (
-                          <span className={`${colorClasses[color]} font-medium text-body-xs`}>
+                          <span className={`${colorClasses[color]} font-medium text-sidebar`}>
                             ({totalCount})
                           </span>
                       )}
@@ -602,12 +602,12 @@ function SubcategorySection({
                         />
                         <label
                           htmlFor={`${subcategory.name}-${option}`}
-                          className={`cursor-pointer flex-1 py-0 min-w-0 text-body-xs font-light ${selected[subcategory.name]?.includes(option) ? colorClasses[color] : 'text-neutral-300'}`}
+                          className={`cursor-pointer flex-1 py-0 min-w-0 text-sidebar font-light ${selected[subcategory.name]?.includes(option) ? colorClasses[color] : 'text-neutral-300'}`}
                         >
                           <div className="flex items-center justify-between gap-1">
                             <span className="break-words min-w-0">{option}</span>
                             {count && (
-                              <span className={`${colorClasses[color]} font-medium flex-shrink-0 ml-1 text-body-xs`}>
+                              <span className={`${colorClasses[color]} font-medium flex-shrink-0 ml-1 text-sidebar`}>
                                 ({count})
                               </span>
                             )}
@@ -813,15 +813,15 @@ export default function NFTSidebar({
     >
       {/* Blockchain Info */}
         <div className="mb-4 p-3 border border-neutral-700 rounded">
-          <div className="font-mono text-neutral-400 leading-tight text-body-xs" style={{ fontWeight: '300', marginBottom: '2px' }}>Blockchain: <span className="text-off-white">Base</span></div>
-          <div className="font-mono text-neutral-400 leading-tight text-body-xs" style={{ fontWeight: '300', marginBottom: '2px' }}>Chain ID: <span className="text-off-white">8453</span></div>
-          <div className="font-mono text-neutral-400 leading-tight text-body-xs" style={{ fontWeight: '300' }}>Token Standard: <span className="text-off-white">ERC-721</span></div>
+          <div className="font-mono text-neutral-400 leading-tight text-sidebar" style={{ fontWeight: '300', marginBottom: '2px' }}>Blockchain: <span className="text-off-white">Base</span></div>
+          <div className="font-mono text-neutral-400 leading-tight text-sidebar" style={{ fontWeight: '300', marginBottom: '2px' }}>Chain ID: <span className="text-off-white">8453</span></div>
+          <div className="font-mono text-neutral-400 leading-tight text-sidebar" style={{ fontWeight: '300' }}>Token Standard: <span className="text-off-white">ERC-721</span></div>
 
         {/* Contract Links */}
         <div className="space-y-2 mt-2">
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <h4 className="font-mono text-neutral-400 text-body-xs" style={{ fontWeight: '300' }}>Marketplace</h4>
+              <h4 className="font-mono text-neutral-400 text-sidebar" style={{ fontWeight: '300' }}>Marketplace</h4>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
                <button
@@ -845,7 +845,7 @@ export default function NFTSidebar({
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <h4 className="font-mono text-neutral-400 text-body-xs" style={{ fontWeight: '300' }}>NFT Contract</h4>
+              <h4 className="font-mono text-neutral-400 text-sidebar" style={{ fontWeight: '300' }}>NFT Contract</h4>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
               <button
@@ -906,7 +906,7 @@ export default function NFTSidebar({
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-500" />
           <Input
             placeholder="Search NFTs..."
-            className="pl-9 py-1.5 font-light h-8 rounded text-brand-pink border-neutral-600 focus:outline-none focus:ring-0 focus:border-brand-pink transition-colors placeholder:font-light text-sidebar"
+            className="pl-9 py-1.5 font-light h-8 rounded text-brand-pink border-neutral-600 focus:outline-none focus:ring-0 focus-visible:ring-0 focus:border-neutral-600 focus-visible:border-neutral-600 transition-colors placeholder:font-light text-sidebar"
             value={searchTerm}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setSearchTerm(e.target.value)
