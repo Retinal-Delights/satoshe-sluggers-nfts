@@ -1,7 +1,10 @@
 // lib/contracts.ts
 import { getContract } from "thirdweb";
-import { base } from "thirdweb/chains";
+import { defineChain } from "thirdweb/chains";
 import { client } from "./thirdweb";
+
+// Define Base chain (chain ID 8453)
+const base = defineChain(8453);
 
 /**
  * Gets the NFT collection contract instance
