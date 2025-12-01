@@ -270,7 +270,7 @@ function FilterSection({
                   />
                   <label
                       htmlFor={optValue}
-                      className={`cursor-pointer flex-1 py-0 whitespace-pre-line leading-none min-w-0 text-sidebar font-light ${selected.includes(optValue) ? colorClasses[color] : 'text-neutral-300'}`}
+                      className={`cursor-pointer flex-1 py-0 whitespace-pre-line leading-[1.1] min-w-0 ${selected.includes(optValue) ? `text-[clamp(12px,0.4vw+6px,14px)] font-medium ${colorClasses[color]}` : 'text-[clamp(12px,0.4vw+6px,14px)] font-normal leading-[1.1] text-gray-300'}`}
                   >
                     <div className="flex items-center justify-between gap-1">
                         <span className="break-words min-w-0">{optDisplay.replace('\n', ' ')}</span>
@@ -602,7 +602,7 @@ function SubcategorySection({
                         />
                         <label
                           htmlFor={`${subcategory.name}-${option}`}
-                          className={`cursor-pointer flex-1 py-0 min-w-0 text-sidebar font-light ${selected[subcategory.name]?.includes(option) ? colorClasses[color] : 'text-neutral-300'}`}
+                          className={`cursor-pointer flex-1 py-0 min-w-0 ${selected[subcategory.name]?.includes(option) ? `text-[clamp(12px,0.4vw+6px,14px)] font-medium leading-[1.1] ${colorClasses[color]}` : 'text-[clamp(12px,0.4vw+6px,14px)] font-normal leading-[1.1] text-gray-300'}`}
                         >
                           <div className="flex items-center justify-between gap-1">
                             <span className="break-words min-w-0">{option}</span>
