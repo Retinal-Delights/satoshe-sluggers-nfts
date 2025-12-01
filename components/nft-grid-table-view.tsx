@@ -173,12 +173,12 @@ export default function NFTTableView({
                 <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left">{nft.rarity || (typeof nft.tier === 'string' ? nft.tier.replace(" (Ultra-Legendary)", "") : nft.tier || '—')}</td>
                 <td className="px-2 sm:px-3 py-3 text-xs font-normal text-left">
                   {nft.isForSale && nft.priceEth > 0 ? (
-                    <div className="leading-tight text-green-500">
+                    <div className="leading-tight text-blue-500">
                       <span className="whitespace-nowrap">{nft.priceEth}</span>
                       <span className="block sm:inline sm:ml-1">ETH</span>
                     </div>
                   ) : nft.soldPriceEth || !nft.isForSale ? (
-                    <div className="leading-tight text-blue-500">
+                    <div className="leading-tight text-green-500">
                       <span className="whitespace-nowrap">{nft.soldPriceEth || nft.priceEth}</span>
                       <span className="block sm:inline sm:ml-1">ETH</span>
                     </div>
@@ -217,7 +217,7 @@ export default function NFTTableView({
                           </Link>
                           <Link
                             href={`/nft/${nft.cardNumber}${typeof window !== 'undefined' && window.location.search ? `?returnTo=${encodeURIComponent(`/nfts${window.location.search}`)}` : ''}`}
-                            className="px-2 py-0.5 bg-green-500/10 border border-green-500 rounded-sm text-green-400 text-xs font-normal hover:bg-green-500/20 hover:border-green-500 transition-colors whitespace-nowrap"
+                            className="px-2 py-0.5 bg-blue-500/10 border border-blue-500 rounded-sm text-blue-400 text-xs font-normal hover:bg-blue-500/20 hover:border-blue-500 transition-colors whitespace-nowrap"
                           >
                             Buy
                           </Link>
@@ -225,7 +225,7 @@ export default function NFTTableView({
                       ) : (
                         <Link
                           href={`/nft/${nft.cardNumber}${typeof window !== 'undefined' && window.location.search ? `?returnTo=${encodeURIComponent(`/nfts${window.location.search}`)}` : ''}`}
-                          className="px-2 py-0.5 bg-blue-500/10 border border-blue-500/30 rounded-sm text-blue-400 text-xs font-normal hover:bg-blue-500/20 hover:border-blue-500/50 transition-colors whitespace-nowrap"
+                          className="px-2 py-0.5 bg-green-500/10 border border-green-500/30 rounded-sm text-green-400 text-xs font-normal hover:bg-green-500/20 hover:border-green-500/50 transition-colors whitespace-nowrap"
                         >
                           Sold
                         </Link>

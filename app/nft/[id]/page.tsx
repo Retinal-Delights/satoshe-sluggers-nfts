@@ -963,8 +963,8 @@ export default function NFTDetailPage() {
               <div className="bg-neutral-800 p-6 rounded border border-neutral-700 order-3 lg:order-none">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                   <div className="flex-1">
-                    <p className="text-sm md:text-base text-green-500 mb-1">Buy Now Price</p>
-                    <p className="text-2xl sm:text-3xl md:text-2xl font-bold text-green-500">
+                    <p className="text-sm md:text-base text-blue-500 mb-1">Buy Now Price</p>
+                    <p className="text-2xl sm:text-3xl md:text-2xl font-bold text-blue-500">
                       {priceEth} ETH
                     </p>
                     {transactionState === 'pending' && (
@@ -982,11 +982,11 @@ export default function NFTDetailPage() {
                     onTransactionSent={handleTransactionPending}
                     onTransactionConfirmed={handleTransactionSuccess}
                     onError={handleTransactionError}
-                    className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-bold transition-all duration-500 ease-out focus:ring-2 focus:ring-offset-2 text-white rounded-sm disabled:opacity-50 disabled:cursor-not-allowed hover:!bg-green-700 w-full sm:w-auto"
+                    className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-bold transition-all duration-500 ease-out focus:ring-2 focus:ring-offset-2 text-white rounded-sm disabled:opacity-50 disabled:cursor-not-allowed hover:!bg-blue-700 w-full sm:w-auto"
                     style={{
-                      backgroundColor: transactionState === 'pending' ? "#6B7280" : "#10B981",
+                      backgroundColor: transactionState === 'pending' ? "#6B7280" : "#3B82F6",
                       color: "white",
-                      borderColor: transactionState === 'pending' ? "#6B7280" : "#10B981",
+                      borderColor: transactionState === 'pending' ? "#6B7280" : "#3B82F6",
                       borderRadius: "2px"
                     }}
                   >
@@ -995,18 +995,18 @@ export default function NFTDetailPage() {
                 </div>
               </div>
             ) : isConfirmedSold ? (
-              <div className="bg-neutral-800 p-6 rounded border border-blue-500/30 order-3 lg:order-none">
+              <div className="bg-neutral-800 p-6 rounded border border-green-500/30 order-3 lg:order-none">
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <p className="text-sm md:text-base text-blue-400 mb-1">Purchased for</p>
-                      <p className="text-2xl sm:text-3xl md:text-2xl font-bold text-blue-500">
+                      <p className="text-sm md:text-base text-green-400 mb-1">Purchased for</p>
+                      <p className="text-2xl sm:text-3xl md:text-2xl font-bold text-green-500">
                         {soldPriceEth && soldPriceEth > 0 ? `${soldPriceEth} ETH` : (priceEth > 0 ? `${priceEth} ETH` : '—')}
                       </p>
                     </div>
                     <button
                       disabled
-                      className="px-4 py-2 sm:px-6 sm:py-3 rounded-sm text-sm sm:text-base font-bold bg-blue-500/10 border border-blue-500/30 text-blue-400 cursor-not-allowed opacity-75"
+                      className="px-4 py-2 sm:px-6 sm:py-3 rounded-sm text-sm sm:text-base font-bold bg-green-500/10 border border-green-500/30 text-green-400 cursor-not-allowed opacity-75"
                     >
                       Sold
                     </button>
@@ -1014,14 +1014,14 @@ export default function NFTDetailPage() {
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-neutral-700">
                     {ownerAddress && (
                       <p className="text-xs sm:text-sm text-neutral-400">
-                        Owner: <a href={`https://basescan.org/address/${ownerAddress}`} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300">{ownerAddress.slice(0,6)}...{ownerAddress.slice(-4)}</a>
+                        Owner: <a href={`https://basescan.org/address/${ownerAddress}`} target="_blank" rel="noopener noreferrer" className="text-green-400 underline hover:text-green-300">{ownerAddress.slice(0,6)}...{ownerAddress.slice(-4)}</a>
                       </p>
                     )}
                     <Link
                       href={`https://opensea.io/assets/base/${getContractAddress()}/${parseInt(tokenId) - 1}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 underline transition-colors whitespace-nowrap"
+                      className="inline-flex items-center gap-2 text-sm text-green-400 hover:text-green-300 underline transition-colors whitespace-nowrap"
                     >
                       View on OpenSea
                       <ExternalLink className="w-4 h-4" />
@@ -1031,7 +1031,7 @@ export default function NFTDetailPage() {
               </div>
             ) : (
               <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-3 lg:order-none">
-                <p className="text-green-400 text-center">This NFT is not currently for sale</p>
+                <p className="text-blue-400 text-center">This NFT is not currently for sale</p>
               </div>
             )}
 
