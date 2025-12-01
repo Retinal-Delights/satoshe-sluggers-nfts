@@ -926,23 +926,19 @@ export default function NFTDetailPage() {
           <div className="space-y-6 order-2 lg:order-2 flex flex-col w-full lg:w-1/2 lg:flex-shrink-0 lg:pl-4 min-w-0">
             {/* NFT Name with Heart Icon - Mobile order-2 (after image) */}
             <div className="flex items-start justify-between gap-4 order-2 lg:order-none min-w-0">
-              <h1 className="text-[clamp(32px,4vw+12px,88px)] font-extrabold tracking-tight text-center mt-4 mb-2">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-center mt-4 mb-2">
                 {metadata?.name || `Satoshe Slugger #${displayNftNumber}`}
               </h1>
               <button
                 onClick={handleFavoriteToggle}
-                className={`p-2 rounded-full hover:bg-neutral-800 transition-colors ${
-                  isFav
-                    ? "text-brand-pink fill-brand-pink"
-                    : "text-neutral-400 hover:text-brand-pink"
-                }`}
+                className="p-2 rounded-full hover:bg-transparent transition-colors"
                 aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
               >
                 <Heart
                   className={`w-6 h-6 transition-colors cursor-pointer ${
                     isFav
-                      ? "text-brand-pink fill-brand-pink"
-                      : "text-neutral-400 hover:text-brand-pink"
+                      ? "fill-[#FF0099] text-[#FF0099]"
+                      : "text-[#FFFBE8] hover:text-[#FF0099]"
                   }`}
                 />
               </button>

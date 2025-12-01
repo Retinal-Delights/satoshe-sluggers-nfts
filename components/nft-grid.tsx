@@ -165,6 +165,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
   const [scrollPosition, setScrollPosition] = useState<number>(0);
   const gridRef = useRef<HTMLDivElement>(null);
+  const gridContainerRef = useRef<HTMLDivElement>(null);
   
   // Function to refresh inventory data from real-time API
   const refreshInventoryData = async (tokenIds?: number[]) => {
@@ -252,7 +253,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
             const updated = { ...prev };
             Object.entries(ownership).forEach(([tokenIdStr, data]: [string, unknown]) => {
               const tokenId = parseInt(tokenIdStr);
-              const { owner, isSold } = data as { owner: string; isSold: boolean };
+              const { owner } = data as { owner: string; isSold: boolean };
               
               if (!isNaN(tokenId)) {
                 const ownerLower = owner.toLowerCase();
@@ -542,6 +543,26 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Apply grid-template-columns at 2xl breakpoint for large/medium views
+  useEffect(() => {
+    if (viewMode === 'grid-small' || !gridContainerRef.current) return;
+    
+    const mediaQuery = window.matchMedia('(min-width: 1536px)');
+    const updateGridTemplate = () => {
+      if (gridContainerRef.current) {
+        if (mediaQuery.matches) {
+          gridContainerRef.current.style.gridTemplateColumns = 'repeat(5, minmax(0, 1fr))';
+        } else {
+          gridContainerRef.current.style.gridTemplateColumns = '';
+        }
+      }
+    };
+    
+    updateGridTemplate();
+    mediaQuery.addEventListener('change', updateGridTemplate);
+    return () => mediaQuery.removeEventListener('change', updateGridTemplate);
+  }, [viewMode]);
 
   // Filter NFTs
   const filteredNFTs = useMemo(() => {
@@ -959,14 +980,14 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         <>
            {/* Grid Views */}
            {(viewMode === 'grid-large' || viewMode === 'grid-medium' || viewMode === 'grid-small') && (
-             <div ref={gridRef} className="mt-4 mb-8 w-full max-w-[1500px] mx-auto px-4">
-               <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 sm:gap-x-4 md:gap-x-4 lg:gap-x-6 gap-y-6 sm:gap-y-6 md:gap-y-6 lg:gap-y-8 justify-center xl:justify-start`}>
+             <div ref={gridRef} className="mt-4 mb-8 w-full max-w-[1500px] mx-auto pl-2 pr-0">
+               <div ref={gridContainerRef} className={`grid ${viewMode === 'grid-small' ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 sm:gap-x-4 md:gap-x-4 lg:gap-x-6 gap-y-6 sm:gap-y-6 md:gap-y-6 lg:gap-y-8 justify-center xl:justify-start' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 sm:gap-x-4 md:gap-x-4 lg:gap-x-6 gap-y-6 sm:gap-y-6 md:gap-y-6 lg:gap-y-8 justify-items-stretch items-start'}`}>
                  {paginatedNFTs.map((nft, index) => (
                      <div
                        key={nft.id}
                        tabIndex={0}
                        onKeyDown={(e) => handleKeyDown(e, index)}
-                       className={`w-full max-w-[420px] mx-auto focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 rounded-[2px] overflow-visible ${
+                       className={`w-full ${viewMode === 'grid-small' ? 'max-w-[420px] mx-auto' : ''} focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 rounded-[2px] overflow-visible ${
                          focusedIndex === index ? 'ring-2 ring-[#ff0099] ring-offset-2 ring-offset-neutral-900' : ''
                        }`}
                      >
@@ -1094,42 +1115,52 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                       <td className="px-6 py-3 text-[clamp(11px,0.4vw+5px,14px)] text-neutral-300 truncate font-normal pl-8">{nft.rank} / {TOTAL_COLLECTION_SIZE}</td>
                       <td className="px-4 py-3 text-[clamp(11px,0.4vw+5px,14px)] text-neutral-300 font-normal whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">{nft.rarityPercent}%</td>
                       <td className="px-4 py-3 text-[clamp(11px,0.4vw+5px,14px)] text-neutral-300 font-normal whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px]">{nft.rarity}</td>
-                      <td className={`px-4 py-3 text-[clamp(12px,0.5vw+6px,16px)] font-normal break-words min-w-[80px] ${nft.isForSale ? 'text-blue-500' : 'text-green-500'}`}>{nft.priceEth} ETH</td>
-                      <td className="px-4 py-3 text-center">
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            toggleFavorite({
-                              tokenId: nft.tokenId,
-                              name: nft.name,
-                              image: nft.image,
-                              rarity: nft.rarity,
-                              rank: nft.rank,
-                              rarityPercent: nft.rarityPercent,
-                            });
-                          }}
-                          className="p-1 hover:bg-neutral-700 rounded transition-colors"
-                        >
-                          <Heart className={`w-4 h-4 ${isFavorited(nft.tokenId) ? "fill-[#ff0099] text-[#ff0099]" : "text-neutral-400 hover:text-neutral-300"}`} />
-                        </button>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex items-center gap-2 justify-end">
-                            {nft.isForSale ? (
-                              <Link
-                                href={`/nft/${nft.cardNumber}${getReturnToUrl !== '/nfts' ? `?returnTo=${encodeURIComponent(getReturnToUrl)}` : ''}`}
-                                className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 rounded-sm text-blue-400 text-[clamp(11px,0.5vw+5px,15px)] font-medium hover:bg-blue-500/20 hover:border-blue-500/50 transition-colors whitespace-nowrap"
+                      {(() => {
+                        const tokenIdNum = parseInt(nft.tokenId);
+                        const inventory = inventoryData[tokenIdNum];
+                        const status = inventory?.status || (nft.isForSale ? 'ACTIVE' : 'SOLD');
+                        const isSold = status === 'SOLD';
+                        return (
+                          <>
+                            <td className={`px-4 py-3 text-[clamp(12px,0.5vw+6px,16px)] font-normal break-words min-w-[80px] ${isSold ? 'text-[#00FF99]' : 'text-blue-500'}`}>{nft.priceEth} ETH</td>
+                            <td className="px-4 py-3 text-center">
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  toggleFavorite({
+                                    tokenId: nft.tokenId,
+                                    name: nft.name,
+                                    image: nft.image,
+                                    rarity: nft.rarity,
+                                    rank: nft.rank,
+                                    rarityPercent: nft.rarityPercent,
+                                  });
+                                }}
+                                className="p-1 hover:bg-neutral-700 rounded transition-colors"
                               >
-                                Buy
-                              </Link>
-                            ) : (
-                              <span className="px-2.5 py-1 bg-green-500/10 border border-green-500/30 rounded-sm text-green-400 text-[clamp(11px,0.5vw+5px,15px)] font-medium whitespace-nowrap">
-                                Sold
-                              </span>
-                            )}
-                        </div>
-                      </td>
+                                <Heart className={`w-4 h-4 ${isFavorited(nft.tokenId) ? "fill-[#ff0099] text-[#ff0099]" : "text-neutral-400 hover:text-neutral-300"}`} />
+                              </button>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <div className="flex items-center gap-2 justify-end">
+                                  {isSold ? (
+                                    <span className="px-2.5 py-1 bg-[#00FF99]/10 border border-[#00FF99]/30 rounded-sm text-[#00FF99] text-[clamp(11px,0.5vw+5px,15px)] font-medium whitespace-nowrap cursor-not-allowed opacity-75">
+                                      Sold
+                                    </span>
+                                  ) : (
+                                    <Link
+                                      href={`/nft/${nft.cardNumber}${getReturnToUrl !== '/nfts' ? `?returnTo=${encodeURIComponent(getReturnToUrl)}` : ''}`}
+                                      className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 rounded-sm text-blue-400 text-[clamp(11px,0.5vw+5px,15px)] font-medium hover:bg-blue-500/20 hover:border-blue-500/50 transition-colors whitespace-nowrap"
+                                    >
+                                      Buy
+                                    </Link>
+                                  )}
+                              </div>
+                            </td>
+                          </>
+                        );
+                      })()}
                     </tr>
                   ))}
                 </tbody>

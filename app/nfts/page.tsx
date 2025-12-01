@@ -103,10 +103,12 @@ function NFTsPageContent() {
     loadInventoryData();
   }, []);
 
-  // Calculate totals from inventoryData
+  // Calculate totals from inventoryData (available for future use)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const totalLive = Object.values(inventoryData)
     .filter(i => i.status === "ACTIVE").length;
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const totalSold = Object.values(inventoryData)
     .filter(i => i.status === "SOLD").length;
 

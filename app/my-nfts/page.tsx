@@ -434,14 +434,7 @@ function MyNFTsContent() {
                 </div>
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-medium text-base">{nft.name}</h3>
-                      {(nft as NFT).isLocallyUnfavorited && (
-                        <span className="text-xs text-neutral-500 bg-neutral-800 px-2 py-1 rounded">
-                          Unfavorited
-                        </span>
-                      )}
-                    </div>
+                    <h3 className="font-medium text-base flex-1">{nft.name}</h3>
                     {activeTab === "favorites" && (
                       <button
                         onClick={() =>
@@ -449,7 +442,7 @@ function MyNFTsContent() {
                             ? handleRefavorite(nft.tokenId)
                             : handleUnfavorite(nft.tokenId)
                         }
-                        className="w-6 h-6 flex items-center justify-center hover:bg-neutral-800 rounded transition-colors group cursor-pointer"
+                        className="w-6 h-6 flex items-center justify-center hover:bg-transparent transition-colors group cursor-pointer flex-shrink-0"
                         aria-label={
                           (nft as NFT).isLocallyUnfavorited
                             ? "Re-favorite this NFT"
@@ -457,15 +450,22 @@ function MyNFTsContent() {
                         }
                       >
                         <Heart
-                          className={`w-4 h-4 group-hover:scale-110 transition-transform ${
+                          className={`w-4 h-4 transition-colors ${
                             (nft as NFT).isLocallyUnfavorited
-                              ? "text-neutral-400 hover:text-red-500"
-                              : "fill-brand-pink text-brand-pink"
+                              ? "text-[#FFFBE8] hover:text-[#FF0099]"
+                              : "fill-[#FF0099] text-[#FF0099]"
                           }`}
                         />
                       </button>
                     )}
                   </div>
+                  {(nft as NFT).isLocallyUnfavorited && (
+                    <div className="mb-3">
+                      <span className="text-xs text-neutral-500 bg-neutral-800 px-2 py-1 rounded">
+                        Unfavorited
+                      </span>
+                    </div>
+                  )}
                   {activeTab === "owned" && (
                     <button
                       onClick={() => router.push(`/nft/${nft.id}`)}

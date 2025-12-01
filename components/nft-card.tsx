@@ -153,7 +153,7 @@ export default function NFTCard({
             </div>
           </div>
 
-          <div className="pl-[6px] pr-0 w-full">
+          <div className="pl-2 pr-2 w-full">
             <div className="flex items-start justify-between gap-2 min-w-0">
               <h3 className="font-semibold text-off-white text-nft-title leading-snug truncate min-w-0 flex-1 whitespace-nowrap">
                 #{cardNumber}
@@ -168,8 +168,8 @@ export default function NFTCard({
                 <Heart
                   className={`w-4 h-4 transition-colors ${
                     isFav
-                      ? "fill-brand-pink text-brand-pink"
-                      : "text-neutral-400 hover:text-brand-pink"
+                      ? "fill-[#FF0099] text-[#FF0099]"
+                      : "text-[#FFFBE8] hover:text-[#FF0099]"
                   }`}
                 />
               </Button>
@@ -186,7 +186,7 @@ export default function NFTCard({
               </div>
               <div className="flex justify-between gap-2">
                 <span className="text-[0.75rem] text-gray-300 font-normal whitespace-nowrap truncate flex-shrink-0">Tier:</span>
-                <span className="text-[0.8rem] text-gray-300 font-normal whitespace-nowrap truncate">{rarity}</span>
+                <span className="text-[0.8rem] text-gray-300 font-normal break-words">{rarity}</span>
               </div>
             </div>
 
@@ -210,21 +210,18 @@ export default function NFTCard({
             ) : (
               <div className="w-full flex items-center justify-between mt-2">
                 <div className="overflow-hidden min-w-0 flex-1">
-                  <div className="text-[clamp(11px,0.4vw+5px,14px)] font-medium text-green-500 whitespace-nowrap truncate">
+                  <div className="text-[clamp(11px,0.4vw+5px,14px)] font-medium text-[#00FF99] whitespace-nowrap truncate">
                     Sold
                   </div>
                   {soldPriceEth && soldPriceEth > 0 ? (
-                    <div className="text-[clamp(12px,0.55vw+6px,15px)] font-normal leading-[1.15] text-green-400 whitespace-nowrap truncate">
+                    <div className="text-[clamp(12px,0.55vw+6px,15px)] font-normal leading-[1.15] text-[#00FF99] whitespace-nowrap truncate">
                       {soldPriceEth} ETH
                     </div>
                   ) : null}
                 </div>
-                <Link
-                  href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
-                  className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-green-500/10 border-[1.5px] border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50"
-                >
+                <span className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-[#00FF99]/10 border-[1.5px] border-[#00FF99]/30 text-[#00FF99] cursor-not-allowed opacity-75">
                   Sold
-                </Link>
+                </span>
               </div>
             )}
           </div>
@@ -259,7 +256,7 @@ export default function NFTCard({
           </div>
         </div>
 
-        <div className="pl-[6px] pr-0 w-full">
+        <div className="pl-2 pr-2 w-full">
           <div className="flex items-center justify-between gap-2 min-w-0">
             <div className={`font-medium leading-[1.15] text-[clamp(12px,0.55vw+6px,15px)] ${isForSale ? 'text-blue-400' : 'text-green-400'} whitespace-nowrap truncate min-w-0 flex-1`}>
               NFT — #{cardNumber}
@@ -271,10 +268,10 @@ export default function NFTCard({
               onClick={handleFavoriteClick}
             >
               <Heart
-                className={`w-4 h-4 ${
+                className={`w-4 h-4 transition-colors ${
                   isFav
-                    ? "fill-brand-pink text-brand-pink"
-                    : "text-off-white hover:text-brand-pink"
+                    ? "fill-[#FF0099] text-[#FF0099]"
+                    : "text-[#FFFBE8] hover:text-[#FF0099]"
                 }`}
               />
             </Button>

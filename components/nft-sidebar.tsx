@@ -243,7 +243,7 @@ function FilterSection({
           </div>
           )}
 
-      <div className="grid lg:grid-cols-2 grid-cols-1 gap-2">
+      <div className="grid xl:grid-cols-2 grid-cols-1 gap-2">
             {sortedOptions.map((option) => {
               const optValue = typeof option === 'string' ? option : option.value
               const optDisplay = typeof option === 'string' ? option : option.display
@@ -576,7 +576,7 @@ function SubcategorySection({
                 </div>
 
                 {isChecked && (
-                  <div className="ml-7 mt-1 grid lg:grid-cols-2 grid-cols-1 gap-2">
+                  <div className="ml-7 mt-1 grid xl:grid-cols-2 grid-cols-1 gap-2">
                     {subcategory.options.map((option) => {
                       const fullValue = `${subcategory.name} ${option}`
                       const count = traitCounts[key]?.[fullValue]
