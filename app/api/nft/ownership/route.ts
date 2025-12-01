@@ -134,62 +134,16 @@ async function fetchRPCOwnership(
   
   const results: Record<number, { owner: string; isSold: boolean }> = {};
 
-  try {
-    // Use Multicall3 to batch all ownership checks into a single RPC call
-    const ownershipResults = await batchCheckOwnership(CONTRACT_ADDRESS!, tokenIds);
-    
-    ownershipResults.forEach(({ tokenId, owner }) => {
-      const ownerLower = owner.toLowerCase();
-      results[tokenId] = {
-        owner: ownerLower,
-        isSold: ownerLower !== "" && ownerLower !== MARKETPLACE_ADDRESS,
-      };
-    });
-  } catch (error) {
-    console.error("Multicall3 ownership check failed, falling back to individual calls:", error);
-    // Fallback to individual calls if multicall fails
-    const contract = getContract({
-      client,
-      chain: base,
-      address: CONTRACT_ADDRESS!,
-    });
-
-    const BATCH_SIZE = 10;
-    for (let i = 0; i < tokenIds.length; i += BATCH_SIZE) {
-      const batch = tokenIds.slice(i, i + BATCH_SIZE);
-
-      const batchResults = await Promise.allSettled(
-        batch.map(async (tokenId) => {
-          try {
-            const owner = (await readContract({
-              contract,
-              method: "function ownerOf(uint256 tokenId) view returns (address)",
-              params: [BigInt(tokenId)],
-            })) as string;
-            const ownerLower = owner.toLowerCase();
-            return {
-              tokenId,
-              owner: ownerLower,
-              isSold: ownerLower !== MARKETPLACE_ADDRESS,
-            };
-          } catch {
-            return {
-              tokenId,
-              owner: "",
-              isSold: false,
-            };
-          }
-        }),
-      );
-
-      batchResults.forEach((result) => {
-        if (result.status === "fulfilled") {
-          const { tokenId, owner, isSold } = result.value;
-          results[tokenId] = { owner, isSold };
-        }
-      });
-    }
-  }
+  // Use Multicall3 to batch all ownership checks into a single RPC call
+  const ownershipResults = await batchCheckOwnership(CONTRACT_ADDRESS!, tokenIds);
+  
+  ownershipResults.forEach(({ tokenId, owner }) => {
+    const ownerLower = owner.toLowerCase();
+    results[tokenId] = {
+      owner: ownerLower,
+      isSold: ownerLower !== "" && ownerLower !== MARKETPLACE_ADDRESS,
+    };
+  });
 
   return results;
 }
