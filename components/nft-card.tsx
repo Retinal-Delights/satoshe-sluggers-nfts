@@ -133,7 +133,7 @@ export default function NFTCard({
   if (viewMode === "grid-large") {
     return (
       <div className="nft-card-wrapper">
-        <div className="flex flex-col w-full max-w-[100%]">
+        <div className="w-full flex flex-col">
           <div className="nft-card-image">
             <div className="relative" style={{ aspectRatio: "0.9/1", maxHeight: "var(--nft-image-height)" }}>
               <Link href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`} className="block w-full h-full relative">
@@ -153,7 +153,7 @@ export default function NFTCard({
             </div>
           </div>
 
-          <div className="nft-card-details px-[14px] md:px-[18px] w-full">
+          <div className="pl-[6px] pr-0 w-full">
             <div className="flex items-start justify-between gap-2 min-w-0">
               <h3 className="font-semibold text-off-white text-nft-title leading-snug truncate min-w-0 flex-1 whitespace-nowrap">
                 #{cardNumber}
@@ -236,7 +236,7 @@ export default function NFTCard({
   // --- View: Medium grid ---
   return (
     <div className="nft-card-wrapper">
-      <div className="flex flex-col w-full max-w-[100%]">
+      <div className="w-full flex flex-col">
         <div className="nft-card-image">
           <div className="relative" style={{ aspectRatio: "0.85/1" }}>
             <Link href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`} className="block w-full h-full relative">
@@ -259,7 +259,7 @@ export default function NFTCard({
           </div>
         </div>
 
-        <div className="nft-card-details pl-[18px] md:pl-[22px] pr-[14px] md:pr-[18px] w-full">
+        <div className="pl-[6px] pr-0 w-full">
           <div className="flex items-center justify-between gap-2 min-w-0">
             <div className={`font-medium leading-[1.15] text-[clamp(12px,0.55vw+6px,15px)] ${isForSale ? 'text-blue-400' : 'text-green-400'} whitespace-nowrap truncate min-w-0 flex-1`}>
               NFT — #{cardNumber}

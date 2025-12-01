@@ -959,7 +959,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         <>
            {/* Grid Views */}
            {(viewMode === 'grid-large' || viewMode === 'grid-medium' || viewMode === 'grid-small') && (
-             <div ref={gridRef} className="mt-4 mb-8 w-full max-w-[1400px] mx-auto px-4">
+             <div ref={gridRef} className="mt-4 mb-8 w-full max-w-[1500px] mx-auto px-4">
                <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 sm:gap-x-4 md:gap-x-4 lg:gap-x-6 gap-y-6 sm:gap-y-6 md:gap-y-6 lg:gap-y-8 justify-center xl:justify-start`}>
                  {paginatedNFTs.map((nft, index) => (
                      <div
