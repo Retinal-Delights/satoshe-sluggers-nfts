@@ -168,69 +168,21 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   const [scrollPosition, setScrollPosition] = useState<number>(0);
   const gridRef = useRef<HTMLDivElement>(null);
   
-  // Load pricing mappings from full-inventory.csv (includes sale status)
-  useEffect(() => {
-    const loadPricingMappings = async () => {
-      try {
-        // Load full inventory data from CSV file (includes status: ACTIVE or SOLD)
+  // Function to refresh inventory data from real-time API
+  const refreshInventoryData = async (tokenIds?: number[]) => {
+    try {
+      // If no tokenIds provided, refresh from CSV (initial load)
+      if (!tokenIds || tokenIds.length === 0) {
         const response = await fetch('/data/nft-mapping/full-inventory.csv');
         
         if (response.ok) {
           const csvText = await response.text();
           const lines = csvText.trim().split('\n');
-          
-          // Skip header row
           const dataLines = lines.slice(1);
           
           const mappings: Record<number, { price_eth: number; listing_id?: number }> = {};
-          
-          dataLines.forEach((line) => {
-            if (!line.trim()) return; // Skip empty lines
-            
-            // Parse CSV line properly - handle quoted fields
-            const parts: string[] = [];
-            let current = '';
-            let inQuotes = false;
-            
-            for (let i = 0; i < line.length; i++) {
-              const char = line[i];
-              if (char === '"') {
-                inQuotes = !inQuotes;
-              } else if (char === ',' && !inQuotes) {
-                parts.push(current.trim());
-                current = '';
-              } else {
-                current += char;
-              }
-            }
-            parts.push(current.trim()); // Add last part
-            
-            // Expected format: listingId,tokenId,name,owner,rarityTier,price,status
-            if (parts.length >= 7) {
-              const listingId = parts[0];
-              const tokenId = parts[1];
-              const price = parts[5]; // Price is 6th field (index 5)
-              const status = parts[6]; // Status is last field (index 6)
-              
-              const tokenIdNum = parseInt(tokenId);
-              const listingIdNum = parseInt(listingId);
-              const priceNum = parseFloat(price);
-              
-              // Only include NFTs with ACTIVE status (for sale)
-              // Skip SOLD NFTs - they won't appear in pricing mappings
-              if (!isNaN(tokenIdNum) && !isNaN(priceNum) && status === 'ACTIVE') {
-                mappings[tokenIdNum] = {
-                  price_eth: priceNum,
-                  listing_id: !isNaN(listingIdNum) ? listingIdNum : undefined
-                };
-              }
-            }
-          });
-          
-          setPricingMappings(mappings);
-          
-          // Also store inventory data (owner, status, and price) for filtering and sold status
           const inventory: Record<number, { owner: string; status: string; price?: number }> = {};
+          
           dataLines.forEach((line) => {
             if (!line.trim()) return;
             
@@ -251,34 +203,106 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
             }
             parts.push(current.trim());
             
-            // Format: listingId,tokenId,name,owner,rarityTier,price,status
             if (parts.length >= 7) {
+              const listingId = parts[0];
               const tokenId = parts[1];
               const owner = parts[3];
               const price = parts[5];
               const status = parts[6];
               
               const tokenIdNum = parseInt(tokenId);
+              const listingIdNum = parseInt(listingId);
               const priceNum = parseFloat(price);
+              
               if (!isNaN(tokenIdNum)) {
+                // Update inventory
                 inventory[tokenIdNum] = {
                   owner: owner.toLowerCase(),
                   status: status,
                   price: !isNaN(priceNum) ? priceNum : undefined
                 };
+                
+                // Update pricing mappings for ACTIVE listings
+                if (!isNaN(priceNum) && status === 'ACTIVE') {
+                  mappings[tokenIdNum] = {
+                    price_eth: priceNum,
+                    listing_id: !isNaN(listingIdNum) ? listingIdNum : undefined
+                  };
+                }
               }
             }
           });
           
+          setPricingMappings(mappings);
           setInventoryData(inventory);
         }
-      } catch (error) {
-        console.error('Error loading pricing mappings:', error);
-        // Silent fail - pricing will be empty, but NFTs should still show
+      } else {
+        // Refresh specific tokenIds from real-time API
+        const response = await fetch('/api/nft/ownership', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tokenIds }),
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          const ownership = data.ownership || {};
+          
+          // Update inventory data with real-time ownership
+          setInventoryData((prev) => {
+            const updated = { ...prev };
+            Object.entries(ownership).forEach(([tokenIdStr, data]: [string, unknown]) => {
+              const tokenId = parseInt(tokenIdStr);
+              const { owner, isSold } = data as { owner: string; isSold: boolean };
+              
+              if (!isNaN(tokenId)) {
+                updated[tokenId] = {
+                  owner: owner.toLowerCase(),
+                  status: isSold ? 'SOLD' : 'ACTIVE',
+                  price: prev[tokenId]?.price, // Preserve existing price
+                };
+                
+                // Remove from pricing mappings if sold
+                if (isSold) {
+                  setPricingMappings((prevMappings) => {
+                    const updatedMappings = { ...prevMappings };
+                    delete updatedMappings[tokenId];
+                    return updatedMappings;
+                  });
+                }
+              }
+            });
+            return updated;
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error refreshing inventory data:', error);
+    }
+  };
+
+  // Load pricing mappings from full-inventory.csv (includes sale status)
+  useEffect(() => {
+    refreshInventoryData();
+  }, []);
+  
+  // Refresh inventory when page becomes visible (user returns from detail page)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Refresh inventory for currently displayed NFTs
+        if (nfts.length > 0) {
+          const tokenIds = nfts.map(nft => parseInt(nft.tokenId));
+          refreshInventoryData(tokenIds);
+        }
       }
     };
-    loadPricingMappings();
-  }, []);
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [nfts]);
 
   // Listen for custom purchase events (from purchase transactions on the same page)
   // This avoids RPC rate limiting while still providing immediate updates
