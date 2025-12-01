@@ -63,7 +63,6 @@ export default function NFTDetailPage() {
   const [transactionState, setTransactionState] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
   const [transactionError, setTransactionError] = useState<string | null>(null);
   const [pricingData, setPricingData] = useState<{ price_eth: number; listing_id?: number } | null>(null);
-  const [inventoryData, setInventoryData] = useState<{ owner: string; status: string; price?: number } | null>(null);
   const [ownerAddress, setOwnerAddress] = useState<string | null>(null);
   const [ownerCheckComplete, setOwnerCheckComplete] = useState(false);
   const [confettiTriggered, setConfettiTriggered] = useState(false); // Prevent confetti from running twice
@@ -436,35 +435,24 @@ export default function NFTDetailPage() {
 
   // Get pricing data from loaded pricing data or metadata fallback
   const priceEth = pricingData?.price_eth || metadata?.merged_data?.price_eth || 0;
-  const marketplaceAddress = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase()?.trim();
-  
-  // CORRECT LOGIC: Check inventory status first (from CSV), then marketplace listing status
-  // Priority: 1. Inventory CSV status (most reliable), 2. Marketplace listing check, 3. Fallback
-  const isSoldFromInventory = inventoryData?.status === 'SOLD';
-  const isActiveFromInventory = inventoryData?.status === 'ACTIVE';
   
   // Determine if for sale:
-  // 1. If inventory says SOLD → not for sale
-  // 2. If inventory says ACTIVE → for sale
-  // 3. Otherwise, check marketplace listing status
+  // 1. Check marketplace listing status (most reliable)
+  // 2. Fallback: has price and not purchased
   const isForSale = Boolean(
-    (!isSoldFromInventory && (
-      isActiveFromInventory || // Inventory says ACTIVE
-      (listingCheckComplete && hasActiveListing === true) || // Has active listing on marketplace
-      (!listingCheckComplete && !isSoldFromInventory && priceEth > 0 && !isPurchased) // Fallback: has price and not sold
-    ))
+    (listingCheckComplete && hasActiveListing === true) || // Has active listing on marketplace
+    (!listingCheckComplete && priceEth > 0 && !isPurchased) // Fallback: has price and not sold
   );
   
-  // Get sold price from inventory if sold
-  const soldPriceEth = isSoldFromInventory ? (inventoryData?.price || priceEth) : undefined;
+  // Get sold price (from pricing data if available)
+  const soldPriceEth = undefined;
   
   // NFT is confirmed as SOLD if:
-  // 1. Inventory status is SOLD (most reliable)
-  // 2. OR manually marked as purchased
-  // 3. OR listing check is complete AND there's NO active listing AND has a price (was listed but no longer active = sold)
-  // 4. OR (fallback) owner check shows owner is NOT marketplace (but only if listing check failed)
+  // 1. Manually marked as purchased
+  // 2. OR listing check is complete AND there's NO active listing AND has a price (was listed but no longer active = sold)
+  // 3. OR (fallback) owner check shows owner is NOT marketplace (but only if listing check failed)
+  const marketplaceAddress = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase()?.trim();
   const isConfirmedSold = Boolean(
-    isSoldFromInventory || // Inventory CSV says SOLD (most reliable)
     isPurchased ||
     (listingCheckComplete && hasActiveListing === false && priceEth > 0) || // Had price but no active listing = sold
     (!listingCheckComplete && ownerCheckComplete && ownerAddress && ownerAddress.trim() !== '' && 

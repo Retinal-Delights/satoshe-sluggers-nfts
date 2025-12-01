@@ -306,7 +306,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   }, []);
 
   // Favorites functionality
-  const { isFavorited, toggleFavorite, favorites } = useFavorites();
+  const { isFavorited, toggleFavorite } = useFavorites();
 
   // Column sort handler
   const handleColumnSort = (field: string) => {
@@ -469,7 +469,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
 
       processNFTs();
     }
-  }, [allMetadata, pricingMappings]);
+  }, [allMetadata, pricingMappings, inventoryData]);
 
 
   // Preserve scroll position when filters change
@@ -563,7 +563,6 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
     // Listing status filtering
     const tokenIdNum = parseInt(nft.tokenId);
     const inventory = inventoryData[tokenIdNum];
-    const marketplaceAddress = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
     
     let matchesListingStatus = false;
     
