@@ -21,7 +21,6 @@ import { Separator } from "@/components/ui/separator";
 import { convertIpfsUrl } from "@/lib/utils";
 import { getContractAddress } from "@/lib/constants";
 import { rpcRateLimiter } from "@/lib/rpc-rate-limiter";
-import PageTransition from "@/components/page-transition";
 import { colors } from "@/lib/design-system";
 
 // Type definitions
@@ -639,7 +638,7 @@ export default function NFTDetailPage() {
   const isFav = isFavorited((parseInt(tokenId) - 1).toString());
 
   return (
-    <PageTransition>
+    <div>
       <main id="main-content" className="min-h-screen bg-background text-foreground flex flex-col">
         <Navigation activePage="nfts" />
       <div className="max-w-[90rem] mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-4 sm:px-6 md:px-6 lg:px-12">
@@ -1412,6 +1411,6 @@ export default function NFTDetailPage() {
 
       <Footer />
     </main>
-    </PageTransition>
+    </div>
   );
 }

@@ -276,9 +276,9 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           });
         }
       }
-    } catch (error) {
-      console.error('Error refreshing inventory data:', error);
-    }
+     } catch {
+       // Silent fail - inventory data will use CSV fallback
+     }
   };
 
   // Load pricing mappings from full-inventory.csv (includes sale status)
@@ -515,11 +515,10 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
             })
           );
 
-          setNfts(mappedNFTs);
-        } catch (error) {
-          console.error("Error processing NFTs:", error);
-          setNfts([]);
-        }
+           setNfts(mappedNFTs);
+         } catch {
+           setNfts([]);
+         }
       };
 
       processNFTs();
@@ -781,9 +780,9 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
     );
   }
 
-  return (
-      <div className="w-full max-w-none px-0 mx-auto flex flex-col">
-        <div className="flex flex-col gap-3 mb-6">
+   return (
+       <div className="w-full max-w-full">
+         <div className="flex flex-col gap-3 mb-6 pl-2">
           {/* Header section: Title, stats, and controls all together */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             {/* Left side: Title and stats */}
@@ -951,39 +950,39 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
 
       {paginatedNFTs.length > 0 ? (
         <>
-          {/* Grid Views */}
-          {(viewMode === 'grid-large' || viewMode === 'grid-medium' || viewMode === 'grid-small') && (
-            <div className="w-full max-w-[1400px] mx-auto px-4">
-              <div ref={gridRef} className="mt-4 mb-8 grid w-full gap-8 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 justify-items-center">
-              {paginatedNFTs.map((nft, index) => (
-                  <div
-                    key={nft.id}
-                    tabIndex={0}
-                    onKeyDown={(e) => handleKeyDown(e, index)}
-                    className={`focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 rounded-[2px] overflow-visible ${
-                      focusedIndex === index ? 'ring-2 ring-[#ff0099] ring-offset-2 ring-offset-neutral-900' : ''
-                    }`}
-                  >
-                    <NFTCard
-                      image={nft.image}
-                      name={nft.name}
-                      rank={nft.rank}
-                      rarity={nft.rarity}
-                      rarityPercent={nft.rarityPercent}
-                      priceEth={nft.priceEth}
-                      tokenId={nft.tokenId}
-                      cardNumber={nft.cardNumber}
-                      isForSale={nft.isForSale}
-                      soldPriceEth={nft.soldPriceEth}
-                      viewMode={viewMode}
-                      priority={currentPage === 1 && index === 0}
-                      returnToUrl={getReturnToUrl}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+           {/* Grid Views */}
+           {(viewMode === 'grid-large' || viewMode === 'grid-medium' || viewMode === 'grid-small') && (
+             <div ref={gridRef} className="mt-4 mb-8 max-w-[1400px] mx-auto w-full px-4">
+               <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 sm:gap-x-4 md:gap-x-4 lg:gap-x-6 gap-y-6 sm:gap-y-6 md:gap-y-6 lg:gap-y-8 justify-center xl:justify-start`}>
+                 {paginatedNFTs.map((nft, index) => (
+                     <div
+                       key={nft.id}
+                       tabIndex={0}
+                       onKeyDown={(e) => handleKeyDown(e, index)}
+                       className={`w-full max-w-[420px] mx-auto focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 rounded-[2px] overflow-visible ${
+                         focusedIndex === index ? 'ring-2 ring-[#ff0099] ring-offset-2 ring-offset-neutral-900' : ''
+                       }`}
+                     >
+                       <NFTCard
+                         image={nft.image}
+                         name={nft.name}
+                         rank={nft.rank}
+                         rarity={nft.rarity}
+                         rarityPercent={nft.rarityPercent}
+                         priceEth={nft.priceEth}
+                         tokenId={nft.tokenId}
+                         cardNumber={nft.cardNumber}
+                         isForSale={nft.isForSale}
+                         soldPriceEth={nft.soldPriceEth}
+                         viewMode={viewMode}
+                         priority={currentPage === 1 && index === 0}
+                         returnToUrl={getReturnToUrl}
+                       />
+                     </div>
+                 ))}
+               </div>
+             </div>
+           )}
 
 
           {/* Compact Table View */}

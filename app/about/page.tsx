@@ -4,11 +4,9 @@
 import Image from "next/image"
 import Footer from "@/components/footer"
 import Navigation from "@/components/navigation"
-import PageTransition from "@/components/page-transition"
-
 export default function AboutPage() {
   return (
-    <PageTransition>
+    <div>
       <main id="main-content" className="min-h-screen bg-background text-off-white flex flex-col pt-24 sm:pt-28">
         <Navigation activePage="about" />
 
@@ -27,7 +25,7 @@ export default function AboutPage() {
 
         <Footer />
       </main>
-    </PageTransition>
+    </div>
   )
 }
 

@@ -17,7 +17,6 @@ import { TOTAL_COLLECTION_SIZE } from "@/lib/contracts";
 import { loadAllNFTs } from "@/lib/simple-data-service";
 import { convertIpfsUrl } from "@/lib/utils";
 import { rpcRateLimiter } from "@/lib/rpc-rate-limiter";
-import PageTransition from "@/components/page-transition";
 
 // NFT data structure for grid/cards
 interface NFT {
@@ -340,7 +339,7 @@ function MyNFTsContent() {
   }
 
   return (
-    <PageTransition>
+    <div>
       <main
         id="main-content"
         className="min-h-screen bg-background text-off-white flex flex-col pt-24 sm:pt-28"
@@ -484,7 +483,7 @@ function MyNFTsContent() {
       </div>
       <Footer />
     </main>
-    </PageTransition>
+    </div>
   );
 }
 

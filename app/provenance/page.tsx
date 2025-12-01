@@ -8,7 +8,6 @@ import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import NFTPagination from "@/components/ui/pagination"
-import PageTransition from "@/components/page-transition"
 
 interface ProvenanceRecord {
   token_id: number
@@ -192,7 +191,7 @@ export default function ProvenancePage() {
   }
 
   return (
-    <PageTransition>
+    <div>
       <TooltipProvider>
         <main id="main-content" className="min-h-screen bg-background text-off-white flex flex-col pt-24 sm:pt-28">
           <Navigation activePage="provenance" />
@@ -668,7 +667,7 @@ export default function ProvenancePage() {
       <Footer />
     </main>
       </TooltipProvider>
-    </PageTransition>
+    </div>
   )
 }
 
