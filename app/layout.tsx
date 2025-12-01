@@ -5,7 +5,6 @@ import "./globals.css"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { ThirdwebProvider } from "thirdweb/react"
-import { client } from "@/lib/thirdweb"
 import ScrollButtons from "@/components/scroll-buttons"
 import TermlyScript from "@/components/termly-script"
 import ErrorBoundary from "@/components/error-boundary"
@@ -166,7 +165,7 @@ export default function RootLayout({
         </a>
         
         <ErrorBoundary>
-          <ThirdwebProvider client={client}>
+          <ThirdwebProvider>
             {children}
             <ScrollButtons />
           </ThirdwebProvider>

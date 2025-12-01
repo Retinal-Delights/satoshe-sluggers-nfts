@@ -151,78 +151,86 @@ export default function NFTCard({
         </div>
 
         <div className="nft-card-content">
-          <div className="flex items-start justify-between gap-2 min-w-0">
-            <h3 className="font-semibold text-off-white text-nft-title leading-snug truncate min-w-0 flex-1">
-              #{cardNumber}
-            </h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0 flex-shrink-0 hover:bg-transparent"
-              onClick={handleFavoriteClick}
-              aria-label="Favorite NFT"
-            >
-              <Heart
-                className={`w-4 h-4 transition-colors ${
-                  isFav
-                    ? "fill-brand-pink text-brand-pink"
-                    : "text-neutral-400 hover:text-brand-pink"
-                }`}
-              />
-            </Button>
-          </div>
+          <div className="flex flex-col gap-[6px] px-0">
+            <div className="max-w-full overflow-hidden text-ellipsis break-words break-normal whitespace-normal">
+              <div className="flex items-start justify-between gap-2 min-w-0">
+                <h3 className="text-[clamp(0.9rem,1vw+0.25rem,1.2rem)] font-semibold text-off-white leading-snug min-w-0 flex-1">
+                  #{cardNumber}
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 flex-shrink-0 hover:bg-transparent"
+                  onClick={handleFavoriteClick}
+                  aria-label="Favorite NFT"
+                >
+                  <Heart
+                    className={`w-4 h-4 transition-colors ${
+                      isFav
+                        ? "fill-brand-pink text-brand-pink"
+                        : "text-neutral-400 hover:text-brand-pink"
+                    }`}
+                  />
+                </Button>
+              </div>
+            </div>
 
-          <div className="flex flex-col w-full gap-1">
-            <div className="text-neutral-400 space-y-0.5">
-              <div className="flex justify-between gap-2">
-                <span className="text-nft-stat flex-shrink-0">Rank:</span>
-                <span className="text-nft-stat text-right truncate">{rank} of {TOTAL_COLLECTION_SIZE}</span>
-              </div>
-              <div className="flex justify-between gap-2">
-                <span className="text-nft-stat flex-shrink-0">Rarity:</span>
-                <span className="text-nft-stat text-right truncate">{rarityPercent}%</span>
-              </div>
-              <div className="flex justify-between gap-2">
-                <span className="text-nft-stat flex-shrink-0">Tier:</span>
-                <span className="text-nft-stat text-right truncate">{rarity}</span>
+            <div className="max-w-full overflow-hidden text-ellipsis break-words break-normal whitespace-normal">
+              <div className="text-neutral-400 space-y-0.5">
+                <div className="flex justify-between gap-2">
+                  <span className="text-[clamp(0.75rem,0.7vw+0.2rem,0.95rem)] leading-tight flex-shrink-0">Rank:</span>
+                  <span className="text-[clamp(0.75rem,0.7vw+0.2rem,0.95rem)] leading-tight text-right">{rank} of {TOTAL_COLLECTION_SIZE}</span>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <span className="text-[clamp(0.75rem,0.7vw+0.2rem,0.95rem)] leading-tight flex-shrink-0">Rarity:</span>
+                  <span className="text-[clamp(0.75rem,0.7vw+0.2rem,0.95rem)] leading-tight text-right">{rarityPercent}%</span>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <span className="text-[clamp(0.75rem,0.7vw+0.2rem,0.95rem)] leading-tight flex-shrink-0">Tier:</span>
+                  <span className="text-[clamp(0.75rem,0.7vw+0.2rem,0.95rem)] leading-tight text-right">{rarity}</span>
+                </div>
               </div>
             </div>
 
             {isForSale ? (
-              <div className="pt-1 flex items-center justify-between gap-2">
-                <div className="overflow-hidden min-w-0 flex-1">
-                  <div className="text-[clamp(11px,0.4vw+5px,14px)] font-medium text-blue-500 truncate">
-                    Buy Now
+              <div className="max-w-full overflow-hidden text-ellipsis break-words break-normal whitespace-normal">
+                <div className="pt-1 flex items-center justify-between gap-2">
+                  <div className="overflow-hidden min-w-0 flex-1">
+                    <div className="text-[clamp(0.82rem,0.7vw+0.2rem,1rem)] font-semibold text-blue-500">
+                      Buy Now
+                    </div>
+                    <div className="text-[clamp(0.82rem,0.7vw+0.2rem,1rem)] font-semibold leading-tight text-blue-400">
+                      {displayPrice} ETH
+                    </div>
                   </div>
-                  <div className="text-[clamp(12px,0.5vw+6px,18px)] font-semibold leading-tight text-blue-400 truncate">
-                    {displayPrice} ETH
-                  </div>
+                  <Link
+                    href={`/nft/${cardNumber}`}
+                    className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500"
+                  >
+                    BUY
+                  </Link>
                 </div>
-                <Link
-                  href={`/nft/${cardNumber}`}
-                  className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500"
-                >
-                  BUY
-                </Link>
               </div>
             ) : (
-              <div className="pt-1 flex items-center justify-between gap-2">
-                <div className="overflow-hidden min-w-0 flex-1">
-                  <div className="text-[clamp(11px,0.4vw+5px,14px)] font-medium text-green-500 truncate">
-                    Sold
-                  </div>
-                  {soldPriceEth && soldPriceEth > 0 ? (
-                    <div className="text-[clamp(12px,0.5vw+6px,18px)] font-semibold leading-tight text-green-400 truncate">
-                      {soldPriceEth} ETH
+              <div className="max-w-full overflow-hidden text-ellipsis break-words break-normal whitespace-normal">
+                <div className="pt-1 flex items-center justify-between gap-2">
+                  <div className="overflow-hidden min-w-0 flex-1">
+                    <div className="text-[clamp(0.82rem,0.7vw+0.2rem,1rem)] font-semibold text-green-500">
+                      Sold
                     </div>
-                  ) : null}
+                    {soldPriceEth && soldPriceEth > 0 ? (
+                      <div className="text-[clamp(0.82rem,0.7vw+0.2rem,1rem)] font-semibold leading-tight text-green-400">
+                        {soldPriceEth} ETH
+                      </div>
+                    ) : null}
+                  </div>
+                  <Link
+                    href={`/nft/${cardNumber}`}
+                    className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-green-500/10 border-[1.5px] border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50"
+                  >
+                    Sold
+                  </Link>
                 </div>
-                <Link
-                  href={`/nft/${cardNumber}`}
-                  className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-green-500/10 border-[1.5px] border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50"
-                >
-                  Sold
-                </Link>
               </div>
             )}
           </div>
@@ -257,24 +265,28 @@ export default function NFTCard({
       </div>
 
       <div className="nft-card-content">
-        <div className="flex items-center justify-between gap-2 min-w-0">
-          <div className={`font-medium leading-tight text-nft-title ${isForSale ? 'text-blue-400' : 'text-green-400'} truncate min-w-0 flex-1`}>
-            NFT — #{cardNumber}
+        <div className="flex flex-col gap-[6px] px-0">
+          <div className="max-w-full overflow-hidden text-ellipsis break-words break-normal whitespace-normal">
+            <div className="flex items-center justify-between gap-2 min-w-0">
+              <div className={`text-[clamp(0.9rem,1vw+0.25rem,1.2rem)] font-semibold leading-tight ${isForSale ? 'text-blue-400' : 'text-green-400'} min-w-0 flex-1`}>
+                NFT — #{cardNumber}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0 hover:bg-transparent flex-shrink-0"
+                onClick={handleFavoriteClick}
+              >
+                <Heart
+                  className={`w-4 h-4 ${
+                    isFav
+                      ? "fill-brand-pink text-brand-pink"
+                      : "text-off-white hover:text-brand-pink"
+                  }`}
+                />
+              </Button>
+            </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0 hover:bg-transparent flex-shrink-0"
-            onClick={handleFavoriteClick}
-          >
-            <Heart
-              className={`w-4 h-4 ${
-                isFav
-                  ? "fill-brand-pink text-brand-pink"
-                  : "text-off-white hover:text-brand-pink"
-              }`}
-            />
-          </Button>
         </div>
       </div>
     </div>
