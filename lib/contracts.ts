@@ -35,4 +35,4 @@ export const getMarketplace = () =>
 // Collection constants
 export const MAX_NFTS = 3000;
 export const TOTAL_COLLECTION_SIZE = 7777;
-export const RPC_RATE_LIMIT = 225;
+export const RPC_RATE_LIMIT = 200;

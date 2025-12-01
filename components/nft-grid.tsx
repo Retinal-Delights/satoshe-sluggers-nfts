@@ -395,10 +395,11 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   useEffect(() => {
     if (allMetadata.length > 0) {
       const processNFTs = async () => {
-        const mappedNFTs: NFTGridItem[] = await Promise.all(
-          (allMetadata as NFTMetadata[])
-            .filter((meta: NFTMetadata) => meta.token_id !== undefined)
-            .map(async (meta: NFTMetadata) => {
+        try {
+          const mappedNFTs: NFTGridItem[] = await Promise.all(
+            (allMetadata as NFTMetadata[])
+              .filter((meta: NFTMetadata) => meta.token_id !== undefined)
+              .map(async (meta: NFTMetadata) => {
               const tokenId = meta.token_id?.toString() || "";
               
               // Use actual image URL from metadata
@@ -462,9 +463,13 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                 headwear: getAttribute(meta, "Headwear"),
               };
             })
-        );
+          );
 
-        setNfts(mappedNFTs);
+          setNfts(mappedNFTs);
+        } catch (error) {
+          console.error("Error processing NFTs:", error);
+          setNfts([]);
+        }
       };
 
       processNFTs();
