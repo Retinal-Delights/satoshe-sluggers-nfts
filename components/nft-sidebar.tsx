@@ -826,14 +826,16 @@ export default function NFTSidebar({
             <div className="flex flex-col sm:flex-row gap-2">
                <button
                 onClick={() => window.open(`https://basescan.org/address/${process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-sidebar w-full sm:w-auto"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-sidebar font-light w-full sm:w-auto"
+                style={{ fontWeight: 300 }}
               >
                 BaseScan
                 <ExternalLink className="h-3 w-3 text-off-white" />
               </button>
               <button
                 onClick={() => window.open(`https://base.blockscout.com/address/${process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-sidebar w-full sm:w-auto"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-sidebar font-light w-full sm:w-auto"
+                style={{ fontWeight: 300 }}
               >
                 Blockscout
                 <ExternalLink className="h-3 w-3 text-off-white" />
@@ -848,14 +850,16 @@ export default function NFTSidebar({
             <div className="flex flex-col sm:flex-row gap-2">
               <button
                 onClick={() => window.open(`https://basescan.org/address/${process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-sidebar w-full sm:w-auto"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-sidebar font-light w-full sm:w-auto"
+                style={{ fontWeight: 300 }}
               >
                 BaseScan
                 <ExternalLink className="h-3 w-3 text-off-white" />
               </button>
               <button
                 onClick={() => window.open(`https://base.blockscout.com/address/${process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-sidebar w-full sm:w-auto"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-sidebar font-light w-full sm:w-auto"
+                style={{ fontWeight: 300 }}
               >
                 Blockscout
                 <ExternalLink className="h-3 w-3 text-off-white" />
@@ -914,6 +918,7 @@ export default function NFTSidebar({
         
         <button
           className="font-light flex items-center justify-center h-8 w-full mb-4 rounded border border-brand-pink text-brand-pink bg-transparent focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-sidebar cursor-pointer"
+          style={{ fontWeight: 300 }}
           aria-label="Search NFTs"
         >
           Search
@@ -927,7 +932,8 @@ export default function NFTSidebar({
           variant="outline" 
           size="sm" 
           onClick={clearAllFilters}
-          className="font-light flex items-center justify-center gap-1 h-9 w-full rounded border-neutral-500 text-neutral-300 hover:bg-neutral-700 hover:text-white hover:border-neutral-400 focus:outline-none focus:ring-0 focus:border-neutral-400 transition-colors text-sidebar cursor-pointer"
+          className="font-light flex items-center justify-center gap-1 h-8 w-full rounded border-neutral-500 text-neutral-300 hover:bg-neutral-700 hover:text-white hover:border-neutral-400 focus:outline-none focus:ring-0 focus:border-neutral-400 transition-colors text-sidebar cursor-pointer"
+          style={{ fontWeight: 300 }}
           aria-label="Clear all filters and search"
         >
           <X className="h-4 w-4" /> Clear All Filters

@@ -140,7 +140,7 @@ export default function NFTCard({
                 fill
                 priority={priority}
                 loading={priority ? undefined : "lazy"}
-                className="object-contain transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg] hover:-translate-y-1"
+                className="object-contain transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg]"
                 sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
                 onLoad={() => { setImgLoaded(true); }}
                 onError={() => { setImgError(true); }}

@@ -487,13 +487,13 @@ button[aria-label*="Execute buyFromListing"] * {
   flex-direction: column;
   width: 100%;
   margin: 0;
-  overflow: hidden;
+  overflow: visible;
   min-width: 0;
 }
 
 .nft-card-image {
   width: 100%;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .nft-card-content {
