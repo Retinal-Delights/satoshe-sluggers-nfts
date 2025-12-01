@@ -787,7 +787,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                         setViewMode('grid-large')
                         announceToScreenReader('Switched to large grid view')
                       }}
-                      className={`p-2 rounded-[2px] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ff0099] focus:ring-offset-2 focus:ring-offset-neutral-900 focus:rounded-[2px] ${viewMode === 'grid-large' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                      className={`p-2 rounded-[2px] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] ${viewMode === 'grid-large' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
                       aria-label="Switch to large grid view"
                       aria-pressed={viewMode === 'grid-large'}
                     >
@@ -805,7 +805,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                         setViewMode('grid-medium')
                         announceToScreenReader('Switched to medium grid view')
                       }}
-                      className={`p-2 rounded-[2px] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ff0099] focus:ring-offset-2 focus:ring-offset-neutral-900 focus:rounded-[2px] ${viewMode === 'grid-medium' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                      className={`p-2 rounded-[2px] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] ${viewMode === 'grid-medium' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
                       aria-label="Switch to medium grid view"
                       aria-pressed={viewMode === 'grid-medium'}
                     >
@@ -823,7 +823,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                         setViewMode('grid-small')
                         announceToScreenReader('Switched to small grid view')
                       }}
-                      className={`p-2 rounded-[2px] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ff0099] focus:ring-offset-2 focus:ring-offset-neutral-900 focus:rounded-[2px] ${viewMode === 'grid-small' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                      className={`p-2 rounded-[2px] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] ${viewMode === 'grid-small' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
                       aria-label="Switch to small grid view"
                       aria-pressed={viewMode === 'grid-small'}
                     >
@@ -841,7 +841,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                         setViewMode('compact')
                         announceToScreenReader('Switched to compact table view')
                       }}
-                      className={`p-2 rounded-[2px] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ff0099] focus:ring-offset-2 focus:ring-offset-neutral-900 focus:rounded-[2px] ${viewMode === 'compact' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                      className={`p-2 rounded-[2px] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] ${viewMode === 'compact' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
                       aria-label="Switch to compact table view"
                       aria-pressed={viewMode === 'compact'}
                     >
@@ -863,7 +863,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                   setSortBy(value);
                   setColumnSort(null); // Clear column sort when using dropdown
                 }}>
-                  <SelectTrigger className="min-w-[200px] w-[200px] sm:min-w-[220px] sm:w-[220px] bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900">
+                  <SelectTrigger className="min-w-[200px] w-[200px] sm:min-w-[220px] sm:w-[220px] bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1">
                     <SelectValue placeholder="Default" />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
@@ -882,7 +882,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
               <div className="flex items-center gap-2">
                 <span className="text-body-sm text-neutral-500">Show:</span>
                 <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
-                  <SelectTrigger className="w-[150px] bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900">
+                  <SelectTrigger className="w-[150px] bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1">
                     <SelectValue placeholder="15 items" />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
@@ -903,13 +903,13 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         <>
           {/* Grid Views */}
           {(viewMode === 'grid-large' || viewMode === 'grid-medium' || viewMode === 'grid-small') && (
-            <div ref={gridRef} className="mt-4 mb-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-6 gap-y-8">
+            <div ref={gridRef} className="mt-4 mb-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 sm:gap-x-4 md:gap-x-4 lg:gap-x-6 gap-y-6 sm:gap-y-6 md:gap-y-6 lg:gap-y-8">
               {paginatedNFTs.map((nft, index) => (
                   <div
                     key={nft.id}
                     tabIndex={0}
                     onKeyDown={(e) => handleKeyDown(e, index)}
-                    className={`focus:outline-none focus:ring-2 focus:ring-[#ff0099] focus:ring-offset-2 focus:ring-offset-neutral-900 rounded-[2px] ${
+                    className={`focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 rounded-[2px] ${
                       focusedIndex === index ? 'ring-2 ring-[#ff0099] ring-offset-2 ring-offset-neutral-900' : ''
                     }`}
                   >
@@ -1015,7 +1015,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                       key={nft.id} 
                       tabIndex={0}
                       onKeyDown={(e) => handleKeyDown(e, index)}
-                      className={`border-b border-neutral-700/50 hover:bg-neutral-800/30 transition-colors focus:outline-none focus:ring-2 focus:ring-[#ff0099] focus:ring-inset ${
+                      className={`border-b border-neutral-700/50 hover:bg-neutral-800/30 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-inset ${
                         index % 2 === 0 ? 'bg-neutral-900/20' : ''
                       } ${focusedIndex === index ? 'ring-2 ring-[#ff0099] ring-inset' : ''}`}
                     >

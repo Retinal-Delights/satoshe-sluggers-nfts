@@ -211,6 +211,24 @@ input[type="checkbox"].sidebar-checkbox:checked:disabled::after {
   color: #525252;
 }
 
+/* Subtle focus styles - only show on keyboard navigation, not mouse clicks */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 2px solid rgba(255, 0, 153, 0.3);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Override Tailwind's default focus ring to be more subtle */
+.focus\:ring-2:focus-visible {
+  --tw-ring-opacity: 0.3;
+  --tw-ring-color: rgba(255, 0, 153, 0.3);
+  --tw-ring-offset-width: 1px;
+}
+
 /* Animation for mobile menu */
 @keyframes slideDown {
   from {
@@ -468,8 +486,7 @@ button[aria-label*="Execute buyFromListing"] * {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 420px;
-  margin: 0 auto;
+  margin: 0;
 }
 
 .nft-card-image {
@@ -478,8 +495,6 @@ button[aria-label*="Execute buyFromListing"] * {
 
 .nft-card-content {
   width: 100%;
-  max-width: 420px;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;

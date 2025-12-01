@@ -153,7 +153,7 @@ export default function NFTTableView({
                 key={nft.id} 
                 tabIndex={0}
                 onKeyDown={(e) => onKeyDown(e, index)}
-                className={`border-b border-neutral-700/50 hover:bg-neutral-800/30 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-pink focus:ring-inset ${
+                className={`border-b border-neutral-700/50 hover:bg-neutral-800/30 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-inset ${
                   index % 2 === 0 ? 'bg-neutral-900/20' : ''
                 } ${focusedIndex === index ? 'ring-2 ring-brand-pink ring-inset' : ''}`}
               >
