@@ -812,7 +812,7 @@ export default function NFTSidebar({
       suppressHydrationWarning={true}
     >
       {/* Blockchain Info */}
-        <div className="mb-4 p-3 border border-neutral-700 rounded">
+        <div className="mb-4 p-3 lg:p-4 border border-neutral-700 rounded">
           <div className="font-mono text-neutral-400 leading-tight text-sidebar" style={{ fontWeight: '300', marginBottom: '2px' }}>Blockchain: <span className="text-off-white">Base</span></div>
           <div className="font-mono text-neutral-400 leading-tight text-sidebar" style={{ fontWeight: '300', marginBottom: '2px' }}>Chain ID: <span className="text-off-white">8453</span></div>
           <div className="font-mono text-neutral-400 leading-tight text-sidebar" style={{ fontWeight: '300' }}>Token Standard: <span className="text-off-white">ERC-721</span></div>
