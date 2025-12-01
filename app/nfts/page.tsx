@@ -39,6 +39,76 @@ function NFTsPageContent() {
   const [sortBy, setSortBy] = useState("default")
   const [itemsPerPage, setItemsPerPage] = useState(25)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [inventoryData, setInventoryData] = useState<Record<number, { owner: string; status: string; price?: number }>>({})
+
+  // Load inventory data from CSV
+  useEffect(() => {
+    const loadInventoryData = async () => {
+      try {
+        const response = await fetch('/data/nft-mapping/full-inventory.csv');
+        
+        if (response.ok) {
+          const csvText = await response.text();
+          const lines = csvText.trim().split('\n');
+          const dataLines = lines.slice(1);
+          
+          const inventory: Record<number, { owner: string; status: string; price?: number }> = {};
+          
+          dataLines.forEach((line) => {
+            if (!line.trim()) return;
+            
+            const parts: string[] = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+              const char = line[i];
+              if (char === '"') {
+                inQuotes = !inQuotes;
+              } else if (char === ',' && !inQuotes) {
+                parts.push(current.trim());
+                current = '';
+              } else {
+                current += char;
+              }
+            }
+            parts.push(current.trim());
+            
+            if (parts.length >= 7) {
+              const tokenId = parts[1];
+              const owner = parts[3];
+              const price = parts[5];
+              const status = parts[6];
+              
+              const tokenIdNum = parseInt(tokenId);
+              const priceNum = parseFloat(price);
+              
+              if (!isNaN(tokenIdNum)) {
+                inventory[tokenIdNum] = {
+                  owner: owner.toLowerCase(),
+                  status: status,
+                  price: !isNaN(priceNum) ? priceNum : undefined
+                };
+              }
+            }
+          });
+          
+          setInventoryData(inventory);
+        }
+      } catch {
+        // Silent fail
+      }
+    };
+
+    loadInventoryData();
+  }, []);
+
+  // Calculate totals from inventoryData
+  const totalLive = Object.values(inventoryData)
+    .filter(i => i.status === "ACTIVE").length;
+
+  const totalSold = Object.values(inventoryData)
+    .filter(i => i.status === "SOLD").length;
 
   // Initialize state from URL parameters
   useEffect(() => {
@@ -145,7 +215,7 @@ function NFTsPageContent() {
 
       <section className="w-full max-w-full mx-auto px-4 sm:px-4 md:px-6 lg:px-8 xl:px-16 2xl:px-20 py-6 sm:py-8 lg:py-10">
         <div className="mb-8 lg:mb-12">
-          <h1 id="collection-heading" className="text-[clamp(1.6rem,4vw,2.4rem)] font-semibold text-center mb-4 text-off-white tracking-tight leading-[1.1]">
+          <h1 id="collection-heading" className="text-[clamp(36px,5vw,72px)] font-bold text-off-white text-center leading-[1.1] tracking-tight mb-4">
             SATO<span className="text-brand-pink">SHE</span> SLUGGERS
           </h1>
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 md:gap-6 text-body-lg text-neutral-300 max-w-4xl mx-auto tracking-tight mt-2">

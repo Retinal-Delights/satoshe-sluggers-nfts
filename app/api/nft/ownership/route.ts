@@ -5,9 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { createThirdwebClient } from "thirdweb";
 import { base } from "thirdweb/chains";
-import { getContract, readContract } from "thirdweb";
 
 // Environment variable sanity checks
 const CLIENT_ID = process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID;
@@ -21,8 +19,6 @@ const MARKETPLACE_ADDRESS =
 if (!CLIENT_ID || !CONTRACT_ADDRESS || !MARKETPLACE_ADDRESS) {
   throw new Error("Missing required environment variables for ownership API");
 }
-
-const client = createThirdwebClient({ clientId: CLIENT_ID });
 
 // Main POST handler
 export async function POST(request: NextRequest) {

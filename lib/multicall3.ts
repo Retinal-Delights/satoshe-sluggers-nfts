@@ -10,7 +10,7 @@
 import { getContract, readContract } from "thirdweb";
 import { base } from "thirdweb/chains";
 import { client } from "./thirdweb";
-import { Interface, AbiCoder } from "ethers";
+import { Interface } from "ethers";
 
 // Standard Multicall3 contract address (same on all chains)
 const MULTICALL3_ADDRESS = "0xcA11bde05977b3631167028862bE2a173976CA11" as const;

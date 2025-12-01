@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { TOTAL_COLLECTION_SIZE } from "@/lib/contracts";
 import {
   Select,
@@ -144,8 +144,6 @@ function computeTraitCounts(nfts: NFTGridItem[], categories: string[]) {
 }
 
 export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listingStatus, sortBy, setSortBy, itemsPerPage, setItemsPerPage, onFilteredCountChange, onTraitCountsChange }: NFTGridProps) {
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
   
@@ -249,6 +247,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           const ownership = data.ownership || {};
           
           // Update inventory data with real-time ownership
+          // Prioritize blockchain ownership: if owner changed away from marketplace → SOLD, if owner is marketplace → ACTIVE
           setInventoryData((prev) => {
             const updated = { ...prev };
             Object.entries(ownership).forEach(([tokenIdStr, data]: [string, unknown]) => {
@@ -256,14 +255,21 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
               const { owner, isSold } = data as { owner: string; isSold: boolean };
               
               if (!isNaN(tokenId)) {
+                const ownerLower = owner.toLowerCase();
+                const marketplaceAddr = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase() || '';
+                
+                // Prioritize blockchain ownership: if owner changed away from marketplace → SOLD, if owner is marketplace → ACTIVE
+                const status = (ownerLower && ownerLower !== marketplaceAddr) ? 'SOLD' : 'ACTIVE';
+                
+                // Create or update entry, preserving price from CSV if it exists
                 updated[tokenId] = {
-                  owner: owner.toLowerCase(),
-                  status: isSold ? 'SOLD' : 'ACTIVE',
-                  price: prev[tokenId]?.price, // Preserve existing price
+                  owner: ownerLower,
+                  status: status,
+                  price: prev[tokenId]?.price, // Preserve existing price from CSV
                 };
                 
                 // Remove from pricing mappings if sold
-                if (isSold) {
+                if (status === 'SOLD') {
                   setPricingMappings((prevMappings) => {
                     const updatedMappings = { ...prevMappings };
                     delete updatedMappings[tokenId];
@@ -335,12 +341,13 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         // Update inventory data to mark as SOLD
         setInventoryData((prev) => {
           const updated = { ...prev };
-          if (updated[tokenIdNum]) {
-            updated[tokenIdNum] = {
-              ...updated[tokenIdNum],
-              status: 'SOLD'
-            };
-          }
+          // Create entry if it doesn't exist, or update existing entry
+          const existing = updated[tokenIdNum];
+          updated[tokenIdNum] = {
+            owner: existing?.owner || '',
+            status: 'SOLD',
+            price: existing?.price || custom.detail?.priceEth
+          };
           return updated;
         });
         
@@ -782,7 +789,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
 
    return (
        <div className="w-full max-w-full">
-         <div className="flex flex-col gap-3 mb-6 pl-2">
+         <div className={`flex flex-col gap-3 mb-6 ${viewMode === 'compact' ? 'pl-4' : 'pl-2'}`}>
           {/* Header section: Title, stats, and controls all together */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             {/* Left side: Title and stats */}
@@ -825,10 +832,10 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           </div>
 
           {/* Right side: View toggles and dropdowns */}
-          <div className="flex flex-col items-end gap-3 ml-auto">
+          <div className={`flex flex-col gap-3 ${viewMode === 'compact' ? 'items-start' : 'items-end ml-auto'}`}>
             {/* View Mode Toggles */}
             <TooltipProvider>
-              <div className="flex items-center gap-1 border border-neutral-700 rounded-sm p-1 bg-neutral-900 flex-shrink-0">
+              <div className={`flex items-center gap-1 border border-neutral-700 rounded-sm p-1 bg-neutral-900 ${viewMode === 'compact' ? 'flex-wrap' : 'flex-shrink-0'}`}>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
@@ -905,14 +912,14 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
             </TooltipProvider>
 
             {/* Dropdowns - Below view toggles */}
-            <div className="flex items-center gap-3 flex-shrink-0">
+            <div className={`flex items-center gap-3 ${viewMode === 'compact' ? 'flex-wrap' : 'flex-shrink-0'}`}>
               <div className="flex items-center gap-2">
                 <span className="text-body-sm text-neutral-500 whitespace-nowrap">Sort by:</span>
                 <Select value={sortBy} onValueChange={(value) => {
                   setSortBy(value);
                   setColumnSort(null); // Clear column sort when using dropdown
                 }}>
-                  <SelectTrigger className="min-w-[200px] w-[200px] sm:min-w-[220px] sm:w-[220px] bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1">
+                  <SelectTrigger className={`${viewMode === 'compact' ? 'min-w-[180px] w-[180px]' : 'min-w-[200px] w-[200px] sm:min-w-[220px] sm:w-[220px]'} bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1`}>
                     <SelectValue placeholder="Default" />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
@@ -931,7 +938,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
               <div className="flex items-center gap-2">
                 <span className="text-body-sm text-neutral-500">Show:</span>
                 <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
-                  <SelectTrigger className="w-[150px] bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1">
+                  <SelectTrigger className={`${viewMode === 'compact' ? 'w-[130px]' : 'w-[150px]'} bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1`}>
                     <SelectValue placeholder="15 items" />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
@@ -952,7 +959,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         <>
            {/* Grid Views */}
            {(viewMode === 'grid-large' || viewMode === 'grid-medium' || viewMode === 'grid-small') && (
-             <div ref={gridRef} className="mt-4 mb-8 max-w-[1400px] mx-auto w-full px-4">
+             <div ref={gridRef} className="mt-4 mb-8 w-full max-w-[1400px] mx-auto px-4">
                <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 sm:gap-x-4 md:gap-x-4 lg:gap-x-6 gap-y-6 sm:gap-y-6 md:gap-y-6 lg:gap-y-8 justify-center xl:justify-start`}>
                  {paginatedNFTs.map((nft, index) => (
                      <div
@@ -1021,6 +1028,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                     <th 
                       className="text-left px-4 py-3 text-body-xs sm:text-body-sm font-medium text-[#FFFBEB] hover:text-neutral-200 cursor-pointer select-none"
                       onClick={() => handleColumnSort('rarity')}
+                      style={{ maxWidth: '120px' }}
                     >
                       <div className="flex items-center gap-1">
                         Rarity
@@ -1034,6 +1042,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                     <th 
                       className="text-left px-4 py-3 text-body-xs sm:text-body-sm font-medium text-[#FFFBEB] hover:text-neutral-200 cursor-pointer select-none"
                       onClick={() => handleColumnSort('tier')}
+                      style={{ maxWidth: '150px' }}
                     >
                       <div className="flex items-center gap-1">
                         Tier
@@ -1083,9 +1092,9 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                         </div>
                       </td>
                       <td className="px-6 py-3 text-[clamp(11px,0.4vw+5px,14px)] text-neutral-300 truncate font-normal pl-8">{nft.rank} / {TOTAL_COLLECTION_SIZE}</td>
-                      <td className="px-4 py-3 text-[clamp(11px,0.4vw+5px,14px)] text-neutral-300 truncate font-normal">{nft.rarityPercent}%</td>
-                      <td className="px-4 py-3 text-[clamp(11px,0.4vw+5px,14px)] text-neutral-300 truncate font-normal">{nft.rarity}</td>
-                      <td className="px-4 py-3 text-[clamp(12px,0.5vw+6px,16px)] font-normal text-green-500 break-words min-w-[80px]">{nft.priceEth} ETH</td>
+                      <td className="px-4 py-3 text-[clamp(11px,0.4vw+5px,14px)] text-neutral-300 font-normal whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">{nft.rarityPercent}%</td>
+                      <td className="px-4 py-3 text-[clamp(11px,0.4vw+5px,14px)] text-neutral-300 font-normal whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px]">{nft.rarity}</td>
+                      <td className={`px-4 py-3 text-[clamp(12px,0.5vw+6px,16px)] font-normal break-words min-w-[80px] ${nft.isForSale ? 'text-blue-500' : 'text-green-500'}`}>{nft.priceEth} ETH</td>
                       <td className="px-4 py-3 text-center">
                         <button
                           onClick={(e) => {

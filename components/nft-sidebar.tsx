@@ -243,7 +243,7 @@ function FilterSection({
           </div>
           )}
 
-      <div className="grid md:grid-cols-2 grid-cols-1 gap-2">
+      <div className="grid lg:grid-cols-2 grid-cols-1 gap-2">
             {sortedOptions.map((option) => {
               const optValue = typeof option === 'string' ? option : option.value
               const optDisplay = typeof option === 'string' ? option : option.display
@@ -270,7 +270,7 @@ function FilterSection({
                   />
                   <label
                       htmlFor={optValue}
-                      className={`cursor-pointer flex-1 py-0 whitespace-pre-line leading-[1.1] min-w-0 text-[clamp(0.75rem,0.4vw,0.9rem)] font-normal ${selected.includes(optValue) ? colorClasses[color] : 'text-gray-300'}`}
+                      className={`cursor-pointer flex-1 py-0 whitespace-pre-line leading-[1.1] min-w-0 text-[clamp(12px,0.4vw+4px,14px)] font-normal ${selected.includes(optValue) ? colorClasses[color] : 'text-gray-300'}`}
                   >
                     <div className="flex items-center justify-between gap-1">
                         <span className="break-words min-w-0">{optDisplay.replace('\n', ' ')}</span>
@@ -393,7 +393,6 @@ function ListingStatusSection({
           
           {/* Secondary Market - on its own line */}
           {options.filter(opt => opt.value === 'secondary').map((option) => {
-            const isChecked = listingStatus[option.value as 'live' | 'sold' | 'secondary']
             const isDisabled = true
             
             return (
@@ -577,7 +576,7 @@ function SubcategorySection({
                 </div>
 
                 {isChecked && (
-                  <div className="ml-7 mt-1 grid md:grid-cols-2 grid-cols-1 gap-2">
+                  <div className="ml-7 mt-1 grid lg:grid-cols-2 grid-cols-1 gap-2">
                     {subcategory.options.map((option) => {
                       const fullValue = `${subcategory.name} ${option}`
                       const count = traitCounts[key]?.[fullValue]
@@ -602,7 +601,7 @@ function SubcategorySection({
                         />
                         <label
                           htmlFor={`${subcategory.name}-${option}`}
-                          className={`cursor-pointer flex-1 py-0 min-w-0 text-[clamp(0.75rem,0.4vw,0.9rem)] font-normal leading-[1.1] ${selected[subcategory.name]?.includes(option) ? colorClasses[color] : 'text-gray-300'}`}
+                          className={`cursor-pointer flex-1 py-0 min-w-0 text-[clamp(12px,0.4vw+4px,14px)] font-normal leading-[1.1] ${selected[subcategory.name]?.includes(option) ? colorClasses[color] : 'text-gray-300'}`}
                         >
                           <div className="flex items-center justify-between gap-1">
                             <span className="break-words min-w-0">{option}</span>

@@ -153,81 +153,81 @@ export default function NFTCard({
             </div>
           </div>
 
-          <div className="w-full max-w-full px-0 pl-0 pr-0 mx-auto mt-3 flex flex-col text-left">
-          <div className="flex items-start justify-between gap-2 min-w-0 pl-[2px]">
-            <h3 className="font-semibold text-off-white text-nft-title leading-snug truncate min-w-0 flex-1 whitespace-nowrap">
-              #{cardNumber}
-            </h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0 flex-shrink-0 hover:bg-transparent"
-              onClick={handleFavoriteClick}
-              aria-label="Favorite NFT"
-            >
-              <Heart
-                className={`w-4 h-4 transition-colors ${
-                  isFav
-                    ? "fill-brand-pink text-brand-pink"
-                    : "text-neutral-400 hover:text-brand-pink"
-                }`}
-              />
-            </Button>
-          </div>
-
-          <div className="w-full flex flex-col gap-[2px] leading-[1.15] pl-[2px]">
-            <div className="flex justify-between gap-2">
-              <span className="text-[clamp(11px,0.45vw+6px,14px)] text-gray-300 whitespace-nowrap truncate flex-shrink-0">Rank:</span>
-              <span className="text-[clamp(12px,0.55vw+6px,15px)] font-normal text-gray-200 whitespace-nowrap truncate">{rank} of {TOTAL_COLLECTION_SIZE}</span>
-            </div>
-            <div className="flex justify-between gap-2">
-              <span className="text-[clamp(11px,0.45vw+6px,14px)] text-gray-300 whitespace-nowrap truncate flex-shrink-0">Rarity:</span>
-              <span className="text-[clamp(12px,0.55vw+6px,15px)] font-normal text-gray-200 whitespace-nowrap truncate">{rarityPercent}%</span>
-            </div>
-            <div className="flex justify-between gap-2">
-              <span className="text-[clamp(11px,0.45vw+6px,14px)] text-gray-300 whitespace-nowrap truncate flex-shrink-0">Tier:</span>
-              <span className="text-[clamp(12px,0.55vw+6px,15px)] font-normal text-gray-200 whitespace-nowrap truncate">{rarity}</span>
-            </div>
-          </div>
-
-          {isForSale ? (
-            <div className="w-full flex items-center justify-between mt-2 pl-[2px]">
-              <div className="overflow-hidden min-w-0 flex-1">
-                <div className="text-[clamp(11px,0.4vw+5px,14px)] font-medium text-blue-500 whitespace-nowrap truncate">
-                  Buy Now
-                </div>
-                <div className="text-[clamp(12px,0.55vw+6px,15px)] font-normal leading-[1.15] text-blue-400 whitespace-nowrap truncate">
-                  {displayPrice} ETH
-                </div>
-              </div>
-              <Link
-                href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
-                className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500"
+          <div className="nft-card-details px-[14px] md:px-[18px] w-full">
+            <div className="flex items-start justify-between gap-2 min-w-0">
+              <h3 className="font-semibold text-off-white text-nft-title leading-snug truncate min-w-0 flex-1 whitespace-nowrap">
+                #{cardNumber}
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0 flex-shrink-0 hover:bg-transparent"
+                onClick={handleFavoriteClick}
+                aria-label="Favorite NFT"
               >
-                BUY
-              </Link>
+                <Heart
+                  className={`w-4 h-4 transition-colors ${
+                    isFav
+                      ? "fill-brand-pink text-brand-pink"
+                      : "text-neutral-400 hover:text-brand-pink"
+                  }`}
+                />
+              </Button>
             </div>
-          ) : (
-            <div className="w-full flex items-center justify-between mt-2 pl-[2px]">
-              <div className="overflow-hidden min-w-0 flex-1">
-                <div className="text-[clamp(11px,0.4vw+5px,14px)] font-medium text-green-500 whitespace-nowrap truncate">
-                  Sold
-                </div>
-                {soldPriceEth && soldPriceEth > 0 ? (
-                  <div className="text-[clamp(12px,0.55vw+6px,15px)] font-normal leading-[1.15] text-green-400 whitespace-nowrap truncate">
-                    {soldPriceEth} ETH
+
+            <div className="w-full flex flex-col gap-[2px] leading-[1.2]">
+              <div className="flex justify-between gap-2">
+                <span className="text-[0.75rem] text-gray-300 font-normal whitespace-nowrap truncate flex-shrink-0">Rank:</span>
+                <span className="text-[0.8rem] text-gray-300 font-normal whitespace-nowrap truncate">{rank} of {TOTAL_COLLECTION_SIZE}</span>
+              </div>
+              <div className="flex justify-between gap-2">
+                <span className="text-[0.75rem] text-gray-300 font-normal whitespace-nowrap truncate flex-shrink-0">Rarity:</span>
+                <span className="text-[0.8rem] text-gray-300 font-normal whitespace-nowrap truncate">{rarityPercent}%</span>
+              </div>
+              <div className="flex justify-between gap-2">
+                <span className="text-[0.75rem] text-gray-300 font-normal whitespace-nowrap truncate flex-shrink-0">Tier:</span>
+                <span className="text-[0.8rem] text-gray-300 font-normal whitespace-nowrap truncate">{rarity}</span>
+              </div>
+            </div>
+
+            {isForSale ? (
+              <div className="w-full flex items-center justify-between mt-2">
+                <div className="overflow-hidden min-w-0 flex-1">
+                  <div className="text-[clamp(11px,0.4vw+5px,14px)] font-medium text-blue-500 whitespace-nowrap truncate">
+                    Buy Now
                   </div>
-                ) : null}
+                  <div className="text-[clamp(12px,0.55vw+6px,15px)] font-normal leading-[1.15] text-blue-400 whitespace-nowrap truncate">
+                    {displayPrice} ETH
+                  </div>
+                </div>
+                <Link
+                  href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
+                  className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500"
+                >
+                  BUY
+                </Link>
               </div>
-              <Link
-                href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
-                className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-green-500/10 border-[1.5px] border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50"
-              >
-                Sold
-              </Link>
-            </div>
-          )}
-        </div>
+            ) : (
+              <div className="w-full flex items-center justify-between mt-2">
+                <div className="overflow-hidden min-w-0 flex-1">
+                  <div className="text-[clamp(11px,0.4vw+5px,14px)] font-medium text-green-500 whitespace-nowrap truncate">
+                    Sold
+                  </div>
+                  {soldPriceEth && soldPriceEth > 0 ? (
+                    <div className="text-[clamp(12px,0.55vw+6px,15px)] font-normal leading-[1.15] text-green-400 whitespace-nowrap truncate">
+                      {soldPriceEth} ETH
+                    </div>
+                  ) : null}
+                </div>
+                <Link
+                  href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
+                  className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-green-500/10 border-[1.5px] border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50"
+                >
+                  Sold
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -259,26 +259,26 @@ export default function NFTCard({
           </div>
         </div>
 
-        <div className="w-full max-w-full px-0 pl-0 pr-0 mx-auto mt-3 flex flex-col text-left">
-        <div className="flex items-center justify-between gap-2 min-w-0 pl-[2px]">
-          <div className={`font-medium leading-[1.15] text-[clamp(12px,0.55vw+6px,15px)] ${isForSale ? 'text-blue-400' : 'text-green-400'} whitespace-nowrap truncate min-w-0 flex-1`}>
-            NFT — #{cardNumber}
+        <div className="nft-card-details pl-[18px] md:pl-[22px] pr-[14px] md:pr-[18px] w-full">
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <div className={`font-medium leading-[1.15] text-[clamp(12px,0.55vw+6px,15px)] ${isForSale ? 'text-blue-400' : 'text-green-400'} whitespace-nowrap truncate min-w-0 flex-1`}>
+              NFT — #{cardNumber}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0 hover:bg-transparent flex-shrink-0"
+              onClick={handleFavoriteClick}
+            >
+              <Heart
+                className={`w-4 h-4 ${
+                  isFav
+                    ? "fill-brand-pink text-brand-pink"
+                    : "text-off-white hover:text-brand-pink"
+                }`}
+              />
+            </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0 hover:bg-transparent flex-shrink-0"
-            onClick={handleFavoriteClick}
-          >
-            <Heart
-              className={`w-4 h-4 ${
-                isFav
-                  ? "fill-brand-pink text-brand-pink"
-                  : "text-off-white hover:text-brand-pink"
-              }`}
-            />
-          </Button>
-        </div>
         </div>
       </div>
     </div>
