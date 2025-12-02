@@ -1068,7 +1068,20 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                         )}
                       </div>
                     </th>
-                    <th className="text-center px-4 py-3 text-body-xs sm:text-body-sm font-medium text-[#FFFBEB]">Favorite</th>
+                    <th 
+                      className="text-center px-4 py-3 text-body-xs sm:text-body-sm font-medium text-[#FFFBEB] hover:text-neutral-200 cursor-pointer select-none"
+                      onClick={() => {
+                        setSortBy("favorites");
+                        setColumnSort(null); // Clear column sort when using favorites
+                      }}
+                    >
+                      <div className="flex items-center justify-center gap-1">
+                        Favorite
+                        {sortBy === "favorites" && (
+                          <span className="text-[#ff0099]">★</span>
+                        )}
+                      </div>
+                    </th>
                     <th className="text-right px-4 py-3 text-body-xs sm:text-body-sm font-medium text-[#FFFBEB]">Actions</th>
                   </tr>
                 </thead>

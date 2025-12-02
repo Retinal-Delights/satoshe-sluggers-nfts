@@ -63,7 +63,7 @@ export default function ScrollButtons() {
   return (
     <TooltipProvider>
       {/* Two separate scroll buttons - Bottom Right - Stacked vertically */}
-      <div className="fixed bottom-6 right-4 sm:right-6 lg:right-8 xl:right-16 2xl:right-20 z-50 flex flex-col gap-2">
+      <div className="fixed bottom-6 right-2 sm:right-3 lg:right-4 xl:right-6 2xl:right-8 z-50 flex flex-col gap-2">
         {/* Scroll Up Button */}
         <Tooltip>
           <TooltipTrigger asChild>
