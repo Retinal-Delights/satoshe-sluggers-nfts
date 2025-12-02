@@ -358,13 +358,13 @@ export default function ProvenancePage() {
                   
                   {/* Bottom row - Values */}
                   <div className="flex flex-col items-center text-center">
-                    <span className="font-mono text-brand-pink text-xs" style={{ fontWeight: '300' }}>7,777</span>
+                    <span className="font-mono text-brand-pink text-xs" style={{ fontWeight: '400' }}>7,777</span>
                   </div>
                   <div className="flex flex-col items-center text-center">
-                    <span className="font-mono text-brand-pink text-xs" style={{ fontWeight: '300' }}>BASE</span>
+                    <span className="font-mono text-brand-pink text-xs" style={{ fontWeight: '400' }}>BASE</span>
                   </div>
                   <div className="flex flex-col items-center text-center">
-                    <span className="font-mono text-brand-pink text-xs" style={{ fontWeight: '300' }}>8453</span>
+                    <span className="font-mono text-brand-pink text-xs" style={{ fontWeight: '400' }}>8453</span>
                   </div>
                 </div>
               </div>
@@ -652,15 +652,14 @@ export default function ProvenancePage() {
           </div>
 
           {/* Pagination */}
-          <div className="mt-8">
-            <NFTPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={sortedRecords.length}
-              itemsPerPage={itemsPerPage}
-              onPageChange={handlePageChange}
-            />
-          </div>
+          <NFTPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={sortedRecords.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+            stickyToSection={true}
+          />
         </div>
       </div>
 

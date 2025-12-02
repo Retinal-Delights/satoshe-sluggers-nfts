@@ -1,7 +1,7 @@
 // components/ui/pagination.tsx
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { ChevronFirst, ChevronLast, ChevronLeft, ChevronRight } from "lucide-react"
 
@@ -67,6 +67,7 @@ interface NFTPaginationProps {
   totalItems: number
   itemsPerPage: number
   onPageChange: (page: number) => void
+  stickyToSection?: boolean // If true, sticky to section instead of fixed to viewport
 }
 
 export default function NFTPagination({
@@ -75,6 +76,7 @@ export default function NFTPagination({
   totalItems: _totalItems = 50, // eslint-disable-line @typescript-eslint/no-unused-vars
   itemsPerPage: _itemsPerPage = 12, // eslint-disable-line @typescript-eslint/no-unused-vars
   onPageChange,
+  stickyToSection = false,
 }: NFTPaginationProps) {
   // Generate page numbers to display
   const getPageNumbers = () => {
@@ -127,10 +129,62 @@ export default function NFTPagination({
   }
 
   const pageNumbers = getPageNumbers()
+  const paginationRef = useRef<HTMLDivElement>(null)
+  const [bottomOffset, setBottomOffset] = useState(0)
+  const [leftOffset, setLeftOffset] = useState(0)
+  const [width, setWidth] = useState('100%')
 
-  return (
-    <div className="pb-40">
-      <div className="sticky bottom-0 left-0 right-0 w-full bg-neutral-900 py-3 px-4 rounded-t-lg border-t border-neutral-800 z-50 shadow-lg">
+  useEffect(() => {
+    // Only run footer detection for fixed (viewport) pagination
+    if (stickyToSection) {
+      return
+    }
+
+    const updatePosition = () => {
+      // Find the NFT grid container to match its position and width
+      const gridContainer = document.querySelector('.w-full.max-w-\\[1650px\\]') || 
+                            document.querySelector('[class*="max-w-[1650px]"]')
+      
+      const footer = document.querySelector('footer')
+      
+      if (gridContainer && paginationRef.current) {
+        const gridRect = gridContainer.getBoundingClientRect()
+        const viewportWidth = window.innerWidth
+        
+        // Set width and left position to match grid container
+        setWidth(`${gridRect.width}px`)
+        setLeftOffset(gridRect.left)
+        
+        // Footer detection
+        if (footer) {
+          const footerRect = footer.getBoundingClientRect()
+          const viewportHeight = window.innerHeight
+          const footerTop = footerRect.top
+          
+          // If footer is visible in viewport, set offset to prevent overlap
+          if (footerTop < viewportHeight) {
+            const offset = viewportHeight - footerTop + 10 // 10px gap
+            setBottomOffset(offset)
+          } else {
+            setBottomOffset(0)
+          }
+        }
+      }
+    }
+
+    updatePosition()
+    window.addEventListener('scroll', updatePosition)
+    window.addEventListener('resize', updatePosition)
+
+    return () => {
+      window.removeEventListener('scroll', updatePosition)
+      window.removeEventListener('resize', updatePosition)
+    }
+  }, [stickyToSection])
+
+  // Shared pagination content
+  const paginationContent = (
+    <div className="bg-neutral-900 py-3 px-4 rounded-t-lg border-t border-neutral-800 shadow-lg">
       <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
         <div className="flex items-center gap-1">
           <Button
@@ -216,8 +270,35 @@ export default function NFTPagination({
           Page {currentPage} of {totalPages}
         </span>
       </div>
-      </div>
     </div>
+  )
+
+  // If sticky to section, use sticky positioning within parent
+  if (stickyToSection) {
+    return (
+      <div className="sticky bottom-0 z-40 mt-8">
+        {paginationContent}
+      </div>
+    )
+  }
+
+  // Fixed to viewport (default behavior for NFTs page)
+  return (
+    <>
+      <div 
+        ref={paginationRef}
+        className="fixed z-40"
+        style={{ 
+          bottom: `${bottomOffset}px`,
+          left: `${leftOffset}px`,
+          width: width,
+        }}
+      >
+        {paginationContent}
+      </div>
+      {/* Spacer to prevent content from being hidden behind fixed pagination */}
+      <div className="h-24" />
+    </>
   )
 }
 
