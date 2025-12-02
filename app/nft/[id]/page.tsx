@@ -641,7 +641,7 @@ export default function NFTDetailPage() {
     <div>
       <main id="main-content" className="min-h-screen bg-background text-foreground flex flex-col">
         <Navigation activePage="nfts" />
-      <div className="max-w-[140rem] mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-4 sm:px-6 md:px-6 lg:px-16">
+      <div className="max-w-[140rem] mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-4 sm:px-6 md:px-6 lg:px-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-8 sm:mb-10">
           {(() => {
             // Prefer returning to the exact filtered collection URL when provided
@@ -690,9 +690,9 @@ export default function NFTDetailPage() {
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-8">
-          {/* Left Column - Image and metadata links - 50% width */}
-          <div className="space-y-4 order-1 lg:order-1 w-full lg:w-1/2 lg:flex-shrink-0 lg:pr-6 min-w-0">
+        <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-4">
+          {/* Left Column - Image and metadata links - 52% width */}
+          <div className="space-y-4 order-1 lg:order-1 w-full lg:w-[52%] lg:flex-shrink-0 lg:pr-2 min-w-0">
             {/* NFT Image Card */}
             <div className="relative w-full" style={{ aspectRatio: "2700/3000", maxWidth: "100%" }}>
               <div className="relative w-full h-full">
@@ -922,8 +922,8 @@ export default function NFTDetailPage() {
 
           </div>
 
-          {/* Right Column - NFT Details - 50% width */}
-          <div className="space-y-4 order-2 lg:order-2 flex flex-col w-full lg:w-1/2 lg:flex-shrink-0 lg:pl-6 min-w-0">
+          {/* Right Column - NFT Details - 48% width */}
+          <div className="space-y-4 order-2 lg:order-2 flex flex-col w-full lg:w-[48%] lg:flex-shrink-0 lg:pl-2 min-w-0">
             {/* NFT Name with Heart Icon - Mobile order-2 (after image) */}
             <div className="flex items-start justify-start gap-4 order-2 lg:order-none min-w-0 relative w-full">
               <h1 className="text-xl md:text-2xl lg:text-3xl font-extrabold tracking-tight text-left mb-2 truncate">
