@@ -433,8 +433,8 @@ function MyNFTsContent() {
                   </Link>
                 </div>
                 <div className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-medium text-base flex-1">{nft.name}</h3>
+                  <div className="flex w-full justify-between items-center px-1">
+                    <span className="text-sm font-medium">{nft.name}</span>
                     {activeTab === "favorites" && (
                       <button
                         onClick={() =>

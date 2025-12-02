@@ -121,6 +121,7 @@ export function useOnChainOwnership(totalNFTs: number = 7777) {
           const soldCount = typeof data.soldCount === "number" ? data.soldCount : 0;
           setLiveCount(liveCount);
           setSoldCount(soldCount);
+          console.log("Counts updated:", liveCount, soldCount);
           saveCache(liveCount, soldCount);
           setIsChecking(false);
         }

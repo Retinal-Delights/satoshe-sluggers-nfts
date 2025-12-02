@@ -153,7 +153,7 @@ export default function NFTCard({
             </div>
           </div>
 
-          <div className="pl-2 pr-2 w-full">
+          <div className="pl-4 pr-5 pt-3 pb-4">
             <div className="flex items-start justify-between gap-2 min-w-0">
               <h3 className="font-semibold text-off-white text-nft-title leading-snug truncate min-w-0 flex-1 whitespace-nowrap">
                 #{cardNumber}
@@ -184,7 +184,7 @@ export default function NFTCard({
                 <span className="text-[0.75rem] text-gray-300 font-normal whitespace-nowrap truncate flex-shrink-0">Rarity:</span>
                 <span className="text-[0.8rem] text-gray-300 font-normal whitespace-nowrap truncate">{rarityPercent}%</span>
               </div>
-              <div className="flex justify-between gap-2">
+              <div className="flex justify-between gap-2 truncate">
                 <span className="text-[0.75rem] text-gray-300 font-normal whitespace-nowrap truncate flex-shrink-0">Tier:</span>
                 <span className="text-[0.8rem] text-gray-300 font-normal break-words">{rarity}</span>
               </div>
@@ -256,7 +256,7 @@ export default function NFTCard({
           </div>
         </div>
 
-        <div className="pl-2 pr-2 w-full">
+        <div className="pl-4 pr-5 pt-3 pb-4">
           <div className="flex items-center justify-between gap-2 min-w-0">
             <div className={`font-medium leading-[1.15] text-[clamp(12px,0.55vw+6px,15px)] ${isForSale ? 'text-blue-400' : 'text-green-400'} whitespace-nowrap truncate min-w-0 flex-1`}>
               NFT — #{cardNumber}
