@@ -153,13 +153,13 @@ export default function RootLayout({
         {/* Skip Navigation Links */}
         <a 
           href="#main-content" 
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-brand-pink text-white px-4 py-2 rounded-sm z-50"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-brand-pink text-white px-4 py-2 rounded-[2px] z-50"
         >
           Skip to main content
         </a>
         <a 
           href="#navigation" 
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-32 bg-brand-pink text-white px-4 py-2 rounded-sm z-50"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-32 bg-brand-pink text-white px-4 py-2 rounded-[2px] z-50"
         >
           Skip to navigation
         </a>

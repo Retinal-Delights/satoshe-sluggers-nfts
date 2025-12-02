@@ -199,7 +199,7 @@ export default function NFTCard({
               </div>
               <Link
                 href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
-                className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500 text-center"
+                className="px-2 sm:px-3 py-1.5 rounded-[2px] font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500 text-center"
               >
                 BUY
               </Link>
@@ -216,7 +216,7 @@ export default function NFTCard({
                   </div>
                 ) : null}
               </div>
-              <span className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-[#00FF99]/10 border-[1.5px] border-[#00FF99]/30 text-[#00FF99] cursor-not-allowed opacity-75">
+              <span className="px-2 sm:px-3 py-1.5 rounded-[2px] font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-[#00FF99]/10 border-[1.5px] border-[#00FF99]/30 text-[#00FF99] cursor-not-allowed opacity-75">
                 Sold
               </span>
             </div>

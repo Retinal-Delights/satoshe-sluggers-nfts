@@ -52,7 +52,7 @@ export default function NFTTableView({
   const { isFavorited, toggleFavorite } = useFavorites();
 
   return (
-    <div className="mt-4 mb-4 border border-neutral-700 rounded-sm overflow-x-hidden w-full">
+    <div className="mt-4 mb-4 border border-neutral-700 rounded-[2px] overflow-x-hidden w-full">
       <div className="w-full min-w-0 overflow-x-hidden">
         <table className="w-full" style={{ tableLayout: 'auto' }}>
           <colgroup>
@@ -211,13 +211,13 @@ export default function NFTTableView({
                         <>
                           <Link
                             href={`/nft/${nft.cardNumber}${typeof window !== 'undefined' && window.location.search ? `?returnTo=${encodeURIComponent(`/nfts${window.location.search}`)}` : ''}`}
-                            className="px-2 py-0.5 bg-yellow-500/10 border border-yellow-500/30 rounded-sm text-yellow-400 text-xs font-normal hover:bg-yellow-500/20 hover:border-yellow-500/50 transition-colors whitespace-nowrap"
+                            className="px-2 py-0.5 bg-yellow-500/10 border border-yellow-500/30 rounded-[2px] text-yellow-400 text-xs font-normal hover:bg-yellow-500/20 hover:border-yellow-500/50 transition-colors whitespace-nowrap"
                           >
                             View
                           </Link>
                           <Link
                             href={`/nft/${nft.cardNumber}${typeof window !== 'undefined' && window.location.search ? `?returnTo=${encodeURIComponent(`/nfts${window.location.search}`)}` : ''}`}
-                            className="px-2 py-0.5 bg-blue-500/10 border border-blue-500 rounded-sm text-blue-400 text-xs font-normal hover:bg-blue-500/20 hover:border-blue-500 transition-colors whitespace-nowrap"
+                            className="px-2 py-0.5 bg-blue-500/10 border border-blue-500 rounded-[2px] text-blue-400 text-xs font-normal hover:bg-blue-500/20 hover:border-blue-500 transition-colors whitespace-nowrap"
                           >
                             Buy
                           </Link>
@@ -225,7 +225,7 @@ export default function NFTTableView({
                       ) : (
                         <Link
                           href={`/nft/${nft.cardNumber}${typeof window !== 'undefined' && window.location.search ? `?returnTo=${encodeURIComponent(`/nfts${window.location.search}`)}` : ''}`}
-                          className="px-2 py-0.5 bg-green-500/10 border border-green-500/30 rounded-sm text-green-400 text-xs font-normal hover:bg-green-500/20 hover:border-green-500/50 transition-colors whitespace-nowrap"
+                          className="px-2 py-0.5 bg-green-500/10 border border-green-500/30 rounded-[2px] text-green-400 text-xs font-normal hover:bg-green-500/20 hover:border-green-500/50 transition-colors whitespace-nowrap"
                         >
                           Sold
                         </Link>

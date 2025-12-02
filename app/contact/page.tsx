@@ -115,7 +115,7 @@ export default function ContactPage() {
               </p>
               <Button
                 asChild
-                className="px-6 py-2 border border-brand-pink bg-transparent text-brand-pink font-normal rounded-sm hover:!bg-brand-pink hover:!text-off-white transition-all duration-200"
+                className="px-6 py-2 border border-brand-pink bg-transparent text-brand-pink font-normal rounded-[2px] hover:!bg-brand-pink hover:!text-off-white transition-all duration-200"
               >
                 <Link href="/">Return Home</Link>
               </Button>
@@ -271,7 +271,7 @@ export default function ContactPage() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-1.5 sm:px-5 sm:py-2 md:px-6 md:py-2 text-sm sm:text-base border border-brand-pink bg-transparent text-brand-pink font-normal rounded-sm hover:!bg-brand-pink hover:!text-off-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-1.5 sm:px-5 sm:py-2 md:px-6 md:py-2 text-sm sm:text-base border border-brand-pink bg-transparent text-brand-pink font-normal rounded-[2px] hover:!bg-brand-pink hover:!text-off-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-live="polite"
                 >
                   {isSubmitting ? (

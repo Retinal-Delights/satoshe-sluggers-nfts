@@ -128,7 +128,7 @@ export function MobileMenu({ isWalletConnected = false, hasUserActivity = false 
     >
           <div 
             ref={menuRef}
-            className={`w-80 max-w-[90vw] fixed left-1/2 -translate-x-1/2 rounded-lg pt-4 pb-12 px-8 transition-all duration-200 ease-out ${
+            className={`w-80 max-w-[90vw] fixed left-1/2 -translate-x-1/2 rounded-[2px] pt-4 pb-12 px-8 transition-all duration-200 ease-out ${
               isAnimating 
                 ? 'opacity-100 translate-y-0' 
                 : 'opacity-0 -translate-y-4'

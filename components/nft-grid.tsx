@@ -791,7 +791,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
 
    return (
        <div className="w-full">
-         <div className={`flex flex-col gap-3 mb-6 ${viewMode === 'compact' ? 'pl-4' : 'pl-2'}`}>
+         <div className="flex flex-col gap-3 mb-6 pl-2">
           {/* Header section: Title, stats, and controls all together */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             {/* Left side: Title and stats */}
@@ -834,10 +834,10 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           </div>
 
           {/* Right side: View toggles and dropdowns */}
-          <div className={`flex flex-col gap-3 ${viewMode === 'compact' ? 'items-start' : 'items-end ml-auto'}`}>
+          <div className="flex flex-col gap-3 items-end ml-auto">
             {/* View Mode Toggles */}
             <TooltipProvider>
-              <div className="flex items-center gap-3 border border-neutral-700 rounded-sm p-1">
+              <div className="flex items-center gap-3 border border-neutral-700 rounded-[2px] p-1">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
@@ -996,7 +996,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
 
           {/* Compact Table View */}
           {viewMode === 'compact' && (
-            <div className="mt-4 mb-8 border border-neutral-700 rounded-sm overflow-hidden">
+            <div className="mt-4 mb-8 border border-neutral-700 rounded-[2px] overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[800px]">
                 <thead className="bg-neutral-800/50 border-b border-neutral-700">
@@ -1103,7 +1103,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                         const isSold = status === 'SOLD';
                         return (
                           <>
-                            <td className={`px-4 py-3 text-[clamp(12px,0.5vw+6px,16px)] font-normal break-words min-w-[80px] ${isSold ? 'text-[#00FF99]' : 'text-blue-500'}`}>{nft.priceEth} ETH</td>
+                            <td className={`px-4 py-3 text-[clamp(12px,0.5vw+6px,16px)] font-medium break-words min-w-[80px] ${isSold ? 'text-[#00FF99]' : 'text-blue-500'}`}>{nft.priceEth} ETH</td>
                             <td className="px-4 py-3 text-center">
                               <button
                                 onClick={(e) => {
@@ -1126,13 +1126,13 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                             <td className="px-4 py-3 text-right">
                               <div className="flex items-center gap-2 justify-end">
                                   {isSold ? (
-                                    <span className="px-2.5 py-1 bg-[#00FF99]/10 border border-[#00FF99]/30 rounded-sm text-[#00FF99] text-[clamp(11px,0.5vw+5px,15px)] font-medium whitespace-nowrap cursor-not-allowed opacity-75">
+                                    <span className="px-2.5 py-1 bg-[#00FF99]/10 border border-[#00FF99]/30 rounded-[2px] text-[#00FF99] text-[clamp(11px,0.5vw+5px,15px)] font-medium whitespace-nowrap cursor-not-allowed opacity-75">
                                       Sold
                                     </span>
                                   ) : (
                                     <Link
                                       href={`/nft/${nft.cardNumber}${getReturnToUrl !== '/nfts' ? `?returnTo=${encodeURIComponent(getReturnToUrl)}` : ''}`}
-                                      className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 rounded-sm text-blue-400 text-[clamp(11px,0.5vw+5px,15px)] font-medium hover:bg-blue-500/20 hover:border-blue-500/50 transition-colors whitespace-nowrap"
+                                      className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 rounded-[2px] text-blue-400 text-[clamp(11px,0.5vw+5px,15px)] font-medium hover:bg-blue-500/20 hover:border-blue-500/50 transition-colors whitespace-nowrap"
                                     >
                                       Buy
                                     </Link>

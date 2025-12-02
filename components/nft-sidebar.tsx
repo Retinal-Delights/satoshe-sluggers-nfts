@@ -229,7 +229,7 @@ function FilterSection({
             <span className="text-neutral-400 block mb-1 text-sidebar text-sidebar">Sort by:</span>
             <button
                 onClick={() => setSortOrder(sortOrder === "commonToRare" ? "rareToCommon" : "commonToRare")}
-              className="flex items-center gap-1 px-3 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition-colors w-full justify-between text-off-white text-sidebar cursor-pointer"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-[2px] bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition-colors w-full justify-between text-off-white text-sidebar cursor-pointer"
             >
               <span className={colorClasses[color]}>
                 {sortOrder === "commonToRare" ? "Common to Rare" : "Rare to Common"}
@@ -243,14 +243,14 @@ function FilterSection({
           </div>
           )}
 
-      <div className="grid xl:grid-cols-2 grid-cols-1 gap-2">
+      <div className="grid 2xl:grid-cols-2 grid-cols-1 gap-2">
             {sortedOptions.map((option) => {
               const optValue = typeof option === 'string' ? option : option.value
               const optDisplay = typeof option === 'string' ? option : option.display
               const count = getCount(optValue)
               
               return (
-                <div key={optValue} className="flex items-center group hover:bg-neutral-800/50 rounded px-1 py-0 transition-colors">
+                <div key={optValue} className="flex items-center group hover:bg-neutral-800/50 rounded-[2px] px-1 py-0 transition-colors">
                 <div className="relative flex items-center w-full">
                   <input
                     type="checkbox"
@@ -367,7 +367,7 @@ function ListingStatusSection({
               const isChecked = listingStatus[option.value as 'live' | 'sold' | 'secondary']
               
               return (
-                <div key={option.value} className="flex items-center group hover:bg-neutral-800/50 rounded px-1 py-0.5 transition-colors flex-shrink-0">
+                <div key={option.value} className="flex items-center group hover:bg-neutral-800/50 rounded-[2px] px-1 py-0.5 transition-colors flex-shrink-0">
                   <div className="relative flex items-center min-w-0">
                     <input
                       type="checkbox"
@@ -396,7 +396,7 @@ function ListingStatusSection({
             const isDisabled = true
             
             return (
-              <div key={option.value} className="flex items-center group rounded px-1 py-0.5 transition-colors w-full">
+              <div key={option.value} className="flex items-center group rounded-[2px] px-1 py-0.5 transition-colors w-full">
                 <div className="relative flex items-center min-w-0 w-full">
                   <input
                     type="checkbox"
@@ -576,13 +576,13 @@ function SubcategorySection({
                 </div>
 
                 {isChecked && (
-                  <div className="ml-7 mt-1 grid xl:grid-cols-2 grid-cols-1 gap-2">
+                  <div className="ml-7 mt-1 grid 2xl:grid-cols-2 grid-cols-1 gap-2">
                     {subcategory.options.map((option) => {
                       const fullValue = `${subcategory.name} ${option}`
                       const count = traitCounts[key]?.[fullValue]
                       
                       return (
-                        <div key={option} className="flex items-center group hover:bg-neutral-800/50 rounded px-1 py-0 transition-colors">
+                        <div key={option} className="flex items-center group hover:bg-neutral-800/50 rounded-[2px] px-1 py-0 transition-colors">
                         <input
                           type="checkbox"
                           id={`${subcategory.name}-${option}`}
@@ -807,11 +807,11 @@ export default function NFTSidebar({
 
   return (
     <div
-      className="w-full max-w-[95vw] sm:max-w-3xl lg:max-w-4xl xl:max-w-full 2xl:max-w-full space-y-2 bg-card p-3 lg:p-4 pt-6 rounded border border-neutral-700 shadow-sm"
+      className="w-full max-w-[95vw] sm:max-w-3xl lg:max-w-4xl xl:max-w-full 2xl:max-w-full space-y-2 bg-card p-3 lg:p-4 pt-6 rounded-[2px] border border-neutral-700 shadow-sm"
       suppressHydrationWarning={true}
     >
       {/* Blockchain Info */}
-        <div className="mb-4 px-3 py-3 border border-neutral-700 rounded">
+        <div className="mb-4 px-3 py-3 border border-neutral-700 rounded-[2px]">
           <div className="font-mono text-neutral-400 leading-tight text-sidebar" style={{ fontWeight: '300', marginBottom: '2px' }}>Blockchain: <span className="text-off-white">Base</span></div>
           <div className="font-mono text-neutral-400 leading-tight text-sidebar" style={{ fontWeight: '300', marginBottom: '2px' }}>Chain ID: <span className="text-off-white">8453</span></div>
           <div className="font-mono text-neutral-400 leading-tight text-sidebar" style={{ fontWeight: '300' }}>Token Standard: <span className="text-off-white">ERC-721</span></div>
@@ -825,7 +825,7 @@ export default function NFTSidebar({
             <div className="flex flex-col sm:flex-row gap-2">
                <button
                 onClick={() => window.open(`https://basescan.org/address/${process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-sidebar font-light w-full sm:w-auto"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded-[2px] transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-sidebar font-light w-full sm:w-auto"
                 style={{ fontWeight: 300 }}
               >
                 BaseScan
@@ -833,7 +833,7 @@ export default function NFTSidebar({
               </button>
               <button
                 onClick={() => window.open(`https://base.blockscout.com/address/${process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-sidebar font-light w-full sm:w-auto"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded-[2px] transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-sidebar font-light w-full sm:w-auto"
                 style={{ fontWeight: 300 }}
               >
                 Blockscout
@@ -849,7 +849,7 @@ export default function NFTSidebar({
             <div className="flex flex-col sm:flex-row gap-2">
               <button
                 onClick={() => window.open(`https://basescan.org/address/${process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-sidebar font-light w-full sm:w-auto"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded-[2px] transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-sidebar font-light w-full sm:w-auto"
                 style={{ fontWeight: 300 }}
               >
                 BaseScan
@@ -857,7 +857,7 @@ export default function NFTSidebar({
               </button>
               <button
                 onClick={() => window.open(`https://base.blockscout.com/address/${process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS}`, '_blank')}
-                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-sidebar font-light w-full sm:w-auto"
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 px-2 py-1.5 rounded-[2px] transition-colors border border-neutral-600 flex items-center justify-center gap-1 text-off-white cursor-pointer text-sidebar font-light w-full sm:w-auto"
                 style={{ fontWeight: 300 }}
               >
                 Blockscout
@@ -875,10 +875,10 @@ export default function NFTSidebar({
         <h3 className="font-medium mb-2 text-off-white text-sidebar">Search</h3>
         
         <div className="mb-3">
-          <div className="flex bg-neutral-700 rounded p-1">
+          <div className="flex bg-neutral-700 rounded-[2px] p-1">
             <button
               onClick={() => handleSearchModeChange("contains")}
-              className={`flex-1 px-3 py-1.5 rounded transition-colors text-sidebar font-normal cursor-pointer ${
+              className={`flex-1 px-3 py-1.5 rounded-[2px] transition-colors text-sidebar font-normal cursor-pointer ${
                 searchMode === "contains"
                   ? "bg-brand-pink text-white"
                   : "text-neutral-400 hover:text-white"
@@ -889,7 +889,7 @@ export default function NFTSidebar({
             </button>
             <button
               onClick={() => handleSearchModeChange("exact")}
-              className={`flex-1 px-3 py-1.5 rounded transition-colors text-sidebar font-normal cursor-pointer ${
+              className={`flex-1 px-3 py-1.5 rounded-[2px] transition-colors text-sidebar font-normal cursor-pointer ${
                 searchMode === "exact"
                   ? "bg-brand-pink text-white"
                   : "text-neutral-200 hover:text-white"
@@ -905,7 +905,7 @@ export default function NFTSidebar({
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-500" />
           <Input
             placeholder="Search NFTs..."
-            className="pl-9 py-1.5 font-light h-8 rounded text-brand-pink border-neutral-600 focus:outline-none focus:ring-0 focus-visible:ring-0 focus:border-neutral-600 focus-visible:border-neutral-600 transition-colors placeholder:font-light text-sidebar"
+            className="pl-9 py-1.5 font-light h-8 rounded-[2px] text-brand-pink border-neutral-600 focus:outline-none focus:ring-0 focus-visible:ring-1 focus-visible:ring-brand-pink/30 focus-visible:rounded-[2px] focus:border-neutral-600 focus-visible:border-neutral-600 transition-colors placeholder:font-light text-sidebar"
             value={searchTerm}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setSearchTerm(e.target.value)
@@ -916,7 +916,7 @@ export default function NFTSidebar({
         </div>
         
         <button
-          className="font-light flex items-center justify-center h-8 w-full mb-4 rounded border border-brand-pink text-brand-pink bg-transparent focus:outline-none focus:ring-0 focus:border-brand-pink hover:text-brand-pink hover:opacity-100 text-sidebar cursor-pointer"
+          className="font-light flex items-center justify-center h-8 w-full mb-4 rounded-[2px] border border-brand-pink text-brand-pink bg-transparent focus:outline-none focus:ring-0 focus:border-brand-pink hover:text-brand-pink hover:opacity-100 text-sidebar cursor-pointer"
           style={{ fontWeight: 300 }}
           aria-label="Search NFTs"
         >
@@ -931,7 +931,7 @@ export default function NFTSidebar({
           variant="outline" 
           size="sm" 
           onClick={clearAllFilters}
-          className="font-light flex items-center justify-center gap-1 h-8 w-full rounded border-neutral-500 text-neutral-300 hover:bg-neutral-700 hover:text-white hover:border-neutral-400 focus:outline-none focus:ring-0 focus:border-neutral-400 transition-colors text-sidebar cursor-pointer"
+          className="font-light flex items-center justify-center gap-1 h-8 w-full rounded-[2px] border-neutral-500 text-neutral-300 hover:bg-neutral-700 hover:text-white hover:border-neutral-400 focus:outline-none focus:ring-0 focus:border-neutral-400 transition-colors text-sidebar cursor-pointer"
           style={{ fontWeight: 300 }}
           aria-label="Clear all filters and search"
         >

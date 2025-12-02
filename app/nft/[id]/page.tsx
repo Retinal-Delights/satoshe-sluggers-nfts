@@ -977,7 +977,7 @@ export default function NFTDetailPage() {
                     onTransactionSent={handleTransactionPending}
                     onTransactionConfirmed={handleTransactionSuccess}
                     onError={handleTransactionError}
-                    className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-bold transition-all duration-500 ease-out focus:ring-2 focus:ring-offset-2 text-white rounded-sm disabled:opacity-50 disabled:cursor-not-allowed hover:!bg-blue-700 w-full sm:w-auto"
+                    className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-bold transition-all duration-500 ease-out focus:ring-2 focus:ring-offset-2 text-white rounded-[2px] disabled:opacity-50 disabled:cursor-not-allowed hover:!bg-blue-700 w-full sm:w-auto"
                     style={{
                       backgroundColor: transactionState === 'pending' ? "#6B7280" : "#3B82F6",
                       color: "white",
@@ -1001,7 +1001,7 @@ export default function NFTDetailPage() {
                     </div>
                     <button
                       disabled
-                      className="px-4 py-2 sm:px-6 sm:py-3 rounded-sm text-sm sm:text-base font-bold bg-green-500/10 border border-green-500/30 text-green-400 cursor-not-allowed opacity-75"
+                      className="px-4 py-2 sm:px-6 sm:py-3 rounded-[2px] text-sm sm:text-base font-bold bg-green-500/10 border border-green-500/30 text-green-400 cursor-not-allowed opacity-75"
                     >
                       Sold
                     </button>
@@ -1033,7 +1033,7 @@ export default function NFTDetailPage() {
             {/* Error Message */}
             {transactionState === 'error' && transactionError && (
               <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                <div className="bg-neutral-800 p-8 rounded-lg border border-red-500/50 text-center max-w-md mx-4">
+                <div className="bg-neutral-800 p-8 rounded-[2px] border border-red-500/50 text-center max-w-md mx-4">
                   <div className="text-6xl mb-4">❌</div>
                   <h3 className="text-2xl font-bold text-red-400 mb-2">Transaction Failed</h3>
                   <p className="text-neutral-300 mb-4">
@@ -1049,7 +1049,7 @@ export default function NFTDetailPage() {
             {/* Success Message */}
             {showSuccess && (
               <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                <div className="bg-neutral-800 p-8 rounded-lg border border-neutral-700 text-center max-w-md mx-4">
+                <div className="bg-neutral-800 p-8 rounded-[2px] border border-neutral-700 text-center max-w-md mx-4">
                   <div className="text-6xl mb-4">🎉</div>
                   <h3 className="text-2xl font-bold text-green-400 mb-2">Purchase Successful!</h3>
                   <p className="text-neutral-300 mb-4">

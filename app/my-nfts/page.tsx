@@ -383,7 +383,7 @@ function MyNFTsContent() {
             </p>
             <Button
               onClick={() => window.location.reload()}
-              className="px-6 py-2 border border-brand-pink bg-transparent text-brand-pink font-normal rounded-sm hover:!bg-brand-pink hover:!text-off-white transition-all duration-200"
+              className="px-6 py-2 border border-brand-pink bg-transparent text-brand-pink font-normal rounded-[2px] hover:!bg-brand-pink hover:!text-off-white transition-all duration-200"
             >
               Refresh Page
             </Button>
@@ -407,7 +407,7 @@ function MyNFTsContent() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {activeNFTs.map((nft) => (
-              <div key={nft.id} className="rounded-md overflow-hidden">
+              <div key={nft.id} className="rounded-[2px] overflow-hidden">
                 <div
                   className="relative w-full"
                   style={{ aspectRatio: "0.9/1" }}
