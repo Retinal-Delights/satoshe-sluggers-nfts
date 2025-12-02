@@ -544,25 +544,6 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Apply grid-template-columns at 2xl breakpoint for large/medium views
-  useEffect(() => {
-    if (viewMode === 'grid-small' || !gridContainerRef.current) return;
-    
-    const mediaQuery = window.matchMedia('(min-width: 1536px)');
-    const updateGridTemplate = () => {
-      if (gridContainerRef.current) {
-        if (mediaQuery.matches) {
-          gridContainerRef.current.style.gridTemplateColumns = 'repeat(5, minmax(0, 1fr))';
-        } else {
-          gridContainerRef.current.style.gridTemplateColumns = '';
-        }
-      }
-    };
-    
-    updateGridTemplate();
-    mediaQuery.addEventListener('change', updateGridTemplate);
-    return () => mediaQuery.removeEventListener('change', updateGridTemplate);
-  }, [viewMode]);
 
   // Filter NFTs
   const filteredNFTs = useMemo(() => {
@@ -980,14 +961,14 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         <>
            {/* Grid Views */}
            {(viewMode === 'grid-large' || viewMode === 'grid-medium' || viewMode === 'grid-small') && (
-             <div ref={gridRef} className="mt-4 mb-8 w-full max-w-[1650px] mx-auto px-4">
-               <div ref={gridContainerRef} className={`w-full grid ${viewMode === 'grid-small' ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 sm:gap-x-4 md:gap-x-4 lg:gap-x-6 gap-y-6 sm:gap-y-6 md:gap-y-6 lg:gap-y-8 justify-center xl:justify-start' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 sm:gap-x-4 md:gap-x-4 lg:gap-x-6 gap-y-6 sm:gap-y-6 md:gap-y-6 lg:gap-y-8 justify-items-stretch items-start'}`}>
+             <div ref={gridRef} className="mt-4 mb-8 w-full">
+               <div ref={gridContainerRef} className="w-full flex flex-wrap justify-between gap-y-10">
                  {paginatedNFTs.map((nft, index) => (
                      <div
                        key={nft.id}
                        tabIndex={0}
                        onKeyDown={(e) => handleKeyDown(e, index)}
-                       className={`w-full ${viewMode === 'grid-small' ? 'max-w-[420px] mx-auto' : ''} focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 rounded-[2px] overflow-visible ${
+                       className={`${viewMode === 'grid-large' ? 'w-[280px] sm:w-[300px] lg:w-[320px]' : viewMode === 'grid-medium' ? 'w-[240px] sm:w-[260px] lg:w-[280px]' : 'w-[200px] sm:w-[220px] lg:w-[240px]'} focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 rounded-[2px] overflow-visible ${
                          focusedIndex === index ? 'ring-2 ring-[#ff0099] ring-offset-2 ring-offset-neutral-900' : ''
                        }`}
                      >
