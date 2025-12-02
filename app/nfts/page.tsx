@@ -213,6 +213,7 @@ function NFTsPageContent() {
   return (
     <div>
       <main id="main-content" className="min-h-screen bg-background text-off-white pt-24 sm:pt-28 w-full max-w-full">
+        <div className="max-w-screen-2xl mx-auto px-6">
         <Navigation activePage="nfts" />
 
       <section className="w-full py-6 sm:py-8 lg:py-10">
@@ -306,6 +307,7 @@ function NFTsPageContent() {
       </section>
 
       <Footer />
+        </div>
     </main>
     </div>
   )
