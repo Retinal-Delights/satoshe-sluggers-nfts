@@ -133,7 +133,7 @@ export default function NFTCard({
   if (viewMode === "grid-large") {
     return (
       <div className="nft-card-wrapper">
-        <div className="flex flex-col">
+        <div className="w-full flex flex-col">
           <div className="nft-card-image flex items-center justify-center">
             <div className="relative w-full" style={{ aspectRatio: "0.9/1", maxHeight: "var(--nft-image-height)" }}>
               <Link href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`} className="block w-full h-full relative">
@@ -153,8 +153,8 @@ export default function NFTCard({
             </div>
           </div>
 
-          <div className="pl-4 pr-5 pt-3 pb-4">
-            <div className="flex items-start justify-between gap-2 min-w-0">
+          <div className="w-full pl-3 pt-3 pb-4">
+            <div className="flex items-start justify-between gap-2 min-w-0 mb-0.5">
               <h3 className="font-semibold text-off-white text-nft-title leading-snug truncate min-w-0 flex-1 whitespace-nowrap">
                 #{cardNumber}
               </h3>
@@ -202,7 +202,7 @@ export default function NFTCard({
                 </div>
                 <Link
                   href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
-                  className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500"
+                  className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500 text-center"
                 >
                   BUY
                 </Link>
@@ -233,7 +233,7 @@ export default function NFTCard({
   // --- View: Medium grid ---
   return (
     <div className="nft-card-wrapper">
-      <div className="w-full flex flex-col">
+      <div className="flex flex-col">
         <div className="nft-card-image flex items-center justify-center">
           <div className="relative w-full" style={{ aspectRatio: "0.85/1" }}>
             <Link href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`} className="block w-full h-full relative">
@@ -256,7 +256,7 @@ export default function NFTCard({
           </div>
         </div>
 
-        <div className="pl-4 pr-5 pt-3 pb-4">
+        <div className="w-full pl-3 pt-3 pb-4">
           <div className="flex items-center justify-between gap-2 min-w-0">
             <div className={`font-medium leading-[1.15] text-[clamp(12px,0.55vw+6px,15px)] ${isForSale ? 'text-blue-400' : 'text-green-400'} whitespace-nowrap truncate min-w-0 flex-1`}>
               NFT — #{cardNumber}

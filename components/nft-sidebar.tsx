@@ -195,7 +195,7 @@ function FilterSection({
       >
         <div className="flex items-center gap-2">
           {icon && <span className={colorClasses[color]}>{icon}</span>}
-          <h3 className={`font-medium text-sidebar ${isOpen ? colorClasses[color] : 'text-off-white'}`}>
+          <h3 className={`font-normal text-base ${isOpen ? colorClasses[color] : 'text-off-white'}`}>
             {title}
           </h3>
           {/* Active filter indicator */}
@@ -341,7 +341,7 @@ function ListingStatusSection({
             height={18}
             className={colorClasses.pink}
           />
-          <h3 className={`font-medium text-sidebar ${isOpen ? colorClasses.pink : 'text-off-white'}`}>
+          <h3 className={`font-normal text-base ${isOpen ? colorClasses.pink : 'text-off-white'}`}>
             Listing Status
           </h3>
           {/* Active filter indicator */}
@@ -497,7 +497,7 @@ function SubcategorySection({
       >
         <div className="flex items-center gap-2">
           {icon && <span className={colorClasses[color]}>{icon}</span>}
-          <h3 className={`font-medium text-sidebar ${isOpen ? colorClasses[color] : 'text-off-white'}`}>
+          <h3 className={`font-normal text-base ${isOpen ? colorClasses[color] : 'text-off-white'}`}>
             {title}
           </h3>
           {/* Active filter indicator for subcategories - show when any subcategory is selected (even if no colors selected) */}
@@ -916,7 +916,7 @@ export default function NFTSidebar({
         </div>
         
         <button
-          className="font-light flex items-center justify-center h-8 w-full mb-4 rounded border border-brand-pink text-brand-pink bg-transparent focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-sidebar cursor-pointer"
+          className="font-light flex items-center justify-center h-8 w-full mb-4 rounded border border-brand-pink text-brand-pink bg-transparent focus:outline-none focus:ring-0 focus:border-brand-pink hover:text-brand-pink hover:opacity-100 text-sidebar cursor-pointer"
           style={{ fontWeight: 300 }}
           aria-label="Search NFTs"
         >

@@ -796,11 +796,11 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         </div>
         <div className="mt-8 mb-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-6 gap-y-8">
           {Array.from({ length: 12 }).map((_, index) => (
-            <div key={index} className="bg-neutral-800 rounded-lg p-4 animate-pulse">
-              <div className="aspect-square bg-neutral-700 rounded-lg mb-3"></div>
-              <div className="h-4 bg-neutral-700 rounded mb-2"></div>
-              <div className="h-3 bg-neutral-700 rounded mb-1"></div>
-              <div className="h-3 bg-neutral-700 rounded w-2/3"></div>
+            <div key={index} className="bg-neutral-800 rounded-[2px] p-4 animate-pulse">
+              <div className="aspect-square bg-neutral-700 rounded-[2px] mb-3"></div>
+              <div className="h-4 bg-neutral-700 rounded-[2px] mb-2"></div>
+              <div className="h-3 bg-neutral-700 rounded-[2px] mb-1"></div>
+              <div className="h-3 bg-neutral-700 rounded-[2px] w-2/3"></div>
             </div>
           ))}
         </div>
@@ -935,39 +935,39 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
             {/* Dropdowns - Below view toggles */}
             <div className={`flex items-center gap-3 ${viewMode === 'compact' ? 'flex-wrap' : 'flex-shrink-0'}`}>
               <div className="flex items-center gap-2">
-                <span className="text-body-sm text-neutral-500 whitespace-nowrap">Sort by:</span>
+                <span className="text-sidebar text-neutral-500 whitespace-nowrap">Sort by:</span>
                 <Select value={sortBy} onValueChange={(value) => {
                   setSortBy(value);
                   setColumnSort(null); // Clear column sort when using dropdown
                 }}>
-                  <SelectTrigger className={`${viewMode === 'compact' ? 'min-w-[180px] w-[180px]' : 'min-w-[200px] w-[200px] sm:min-w-[220px] sm:w-[220px]'} bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1`}>
+                  <SelectTrigger className={`${viewMode === 'compact' ? 'min-w-[180px] w-[180px]' : 'min-w-[200px] w-[200px] sm:min-w-[220px] sm:w-[220px]'} bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sidebar font-normal focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1`}>
                     <SelectValue placeholder="Default" />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
-                    <SelectItem value="default">Default</SelectItem>
-                    <SelectItem value="favorites">Favorites</SelectItem>
-                    <SelectItem value="price-asc">Price: Low to High</SelectItem>
-                    <SelectItem value="price-desc">Price: High to Low</SelectItem>
-                    <SelectItem value="rank-desc">Rank: High to Low</SelectItem>
-                    <SelectItem value="rank-asc">Rank: Low to High</SelectItem>
-                    <SelectItem value="rarity-desc">Rarity: High to Low</SelectItem>
-                    <SelectItem value="rarity-asc">Rarity: Low to High</SelectItem>
+                    <SelectItem value="default" className="text-sidebar">Default</SelectItem>
+                    <SelectItem value="favorites" className="text-sidebar">Favorites</SelectItem>
+                    <SelectItem value="price-asc" className="text-sidebar">Price: Low to High</SelectItem>
+                    <SelectItem value="price-desc" className="text-sidebar">Price: High to Low</SelectItem>
+                    <SelectItem value="rank-desc" className="text-sidebar">Rank: High to Low</SelectItem>
+                    <SelectItem value="rank-asc" className="text-sidebar">Rank: Low to High</SelectItem>
+                    <SelectItem value="rarity-desc" className="text-sidebar">Rarity: High to Low</SelectItem>
+                    <SelectItem value="rarity-asc" className="text-sidebar">Rarity: Low to High</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-body-sm text-neutral-500">Show:</span>
+                <span className="text-sidebar text-neutral-500">Show:</span>
                 <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
-                  <SelectTrigger className={`${viewMode === 'compact' ? 'w-[130px]' : 'w-[150px]'} bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1`}>
+                  <SelectTrigger className={`${viewMode === 'compact' ? 'w-[130px]' : 'w-[150px]'} bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sidebar font-normal focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1`}>
                     <SelectValue placeholder="15 items" />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
-                    <SelectItem value="15">15 items</SelectItem>
-                    <SelectItem value="25">25 items</SelectItem>
-                    <SelectItem value="50">50 items</SelectItem>
-                    <SelectItem value="100">100 items</SelectItem>
-                    <SelectItem value="250">250 items</SelectItem>
+                    <SelectItem value="15" className="text-sidebar">15 items</SelectItem>
+                    <SelectItem value="25" className="text-sidebar">25 items</SelectItem>
+                    <SelectItem value="50" className="text-sidebar">50 items</SelectItem>
+                    <SelectItem value="100" className="text-sidebar">100 items</SelectItem>
+                    <SelectItem value="250" className="text-sidebar">250 items</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -981,7 +981,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
            {/* Grid Views */}
            {(viewMode === 'grid-large' || viewMode === 'grid-medium' || viewMode === 'grid-small') && (
              <div ref={gridRef} className="mt-4 mb-8 w-full max-w-[1650px] mx-auto px-4">
-               <div ref={gridContainerRef} className={`grid ${viewMode === 'grid-small' ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 sm:gap-x-4 md:gap-x-4 lg:gap-x-6 gap-y-6 sm:gap-y-6 md:gap-y-6 lg:gap-y-8 justify-center xl:justify-start' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 sm:gap-x-4 md:gap-x-4 lg:gap-x-6 gap-y-6 sm:gap-y-6 md:gap-y-6 lg:gap-y-8 justify-items-stretch items-start'}`}>
+               <div ref={gridContainerRef} className={`w-full grid ${viewMode === 'grid-small' ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 sm:gap-x-4 md:gap-x-4 lg:gap-x-6 gap-y-6 sm:gap-y-6 md:gap-y-6 lg:gap-y-8 justify-center xl:justify-start' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 sm:gap-x-4 md:gap-x-4 lg:gap-x-6 gap-y-6 sm:gap-y-6 md:gap-y-6 lg:gap-y-8 justify-items-stretch items-start'}`}>
                  {paginatedNFTs.map((nft, index) => (
                      <div
                        key={nft.id}
