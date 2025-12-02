@@ -791,7 +791,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
     return (
       <div className="w-full max-w-full">
         <div className="mb-6">
-          <h2 className="text-h3 font-medium">NFT Collection</h2>
+          <h2 className="text-3xl font-bold">NFT Collection</h2>
           <div className="text-body-sm font-medium text-pink-500 mt-1">Loading...</div>
         </div>
         <div className="mt-8 mb-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-6 gap-y-8">
@@ -809,13 +809,13 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   }
 
    return (
-       <div className="w-full max-w-full">
+       <div className="w-full">
          <div className={`flex flex-col gap-3 mb-6 ${viewMode === 'compact' ? 'pl-4' : 'pl-2'}`}>
           {/* Header section: Title, stats, and controls all together */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             {/* Left side: Title and stats */}
             <div className="flex-shrink-0 min-w-0">
-              <h2 className="text-h3 font-medium mb-2">NFT Collection</h2>
+              <h2 className="text-3xl font-bold mb-2">NFT Collection</h2>
             {filteredNFTs.length > 0 && (
               <>
                 <div className="text-body-sm font-medium mt-1">
@@ -856,7 +856,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           <div className={`flex flex-col gap-3 ${viewMode === 'compact' ? 'items-start' : 'items-end ml-auto'}`}>
             {/* View Mode Toggles */}
             <TooltipProvider>
-              <div className={`flex items-center gap-1 border border-neutral-700 rounded-sm p-1 bg-neutral-900 ${viewMode === 'compact' ? 'flex-wrap' : 'flex-shrink-0'}`}>
+              <div className="flex items-center gap-3">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
@@ -980,7 +980,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         <>
            {/* Grid Views */}
            {(viewMode === 'grid-large' || viewMode === 'grid-medium' || viewMode === 'grid-small') && (
-             <div ref={gridRef} className="mt-4 mb-8 w-full max-w-[1800px] mx-auto pl-2 pr-0">
+             <div ref={gridRef} className="mt-4 mb-8 w-full max-w-[1650px] mx-auto px-4">
                <div ref={gridContainerRef} className={`grid ${viewMode === 'grid-small' ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 sm:gap-x-4 md:gap-x-4 lg:gap-x-6 gap-y-6 sm:gap-y-6 md:gap-y-6 lg:gap-y-8 justify-center xl:justify-start' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 sm:gap-x-4 md:gap-x-4 lg:gap-x-6 gap-y-6 sm:gap-y-6 md:gap-y-6 lg:gap-y-8 justify-items-stretch items-start'}`}>
                  {paginatedNFTs.map((nft, index) => (
                      <div

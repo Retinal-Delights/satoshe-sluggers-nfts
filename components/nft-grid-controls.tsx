@@ -32,7 +32,7 @@ export default function NFTGridControls({
   onColumnSortSync,
 }: NFTGridControlsProps) {
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 flex-wrap justify-start sm:justify-end w-full lg:w-auto overflow-x-hidden">
+    <div className="flex items-center gap-3 flex-col sm:flex-row flex-wrap justify-start sm:justify-end w-full lg:w-auto overflow-x-hidden">
       <div className="flex items-center gap-2 min-w-0 flex-shrink-0 max-w-full">
         <span className="text-neutral-500 whitespace-nowrap flex-shrink-0 text-xs sm:text-sm">Sort by:</span>
         <Select value={sortBy} onValueChange={(value) => {

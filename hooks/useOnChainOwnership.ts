@@ -32,6 +32,7 @@ export function useOnChainOwnership(totalNFTs: number = 7777) {
   const [liveCount, setLiveCount] = useState(totalNFTs);
   const [soldCount, setSoldCount] = useState(0);
   const [isChecking, setIsChecking] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
   // Try to load cached counts (valid if less than CACHE_EXPIRY ms old)
   const loadCache = useCallback((): CountsCache | null => {
@@ -124,11 +125,13 @@ export function useOnChainOwnership(totalNFTs: number = 7777) {
           console.log("Counts updated:", liveCount, soldCount);
           saveCache(liveCount, soldCount);
           setIsChecking(false);
+          setInitialized(true);
         }
       })
       .catch(() => {
         if (!cancelled) {
           setIsChecking(false);
+          setInitialized(true);
         }
       });
 
@@ -195,9 +198,20 @@ export function useOnChainOwnership(totalNFTs: number = 7777) {
   }, [fetchAggregateCounts, saveCache]);
 
   // Return API: compatible with existing code
+  if (!initialized) {
+    return {
+      liveCount: 0,
+      soldCount: 0,
+      isChecking,
+      checkedCount: totalNFTs,
+      totalToCheck: totalNFTs,
+      soldTokens: new Set<number>(), // always empty (compat)
+    };
+  }
+  
   return {
-    liveCount,
-    soldCount,
+    liveCount: liveCount !== undefined ? liveCount : totalNFTs,
+    soldCount: soldCount !== undefined ? soldCount : 0,
     isChecking,
     checkedCount: totalNFTs,
     totalToCheck: totalNFTs,

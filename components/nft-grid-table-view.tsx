@@ -65,9 +65,9 @@ export default function NFTTableView({
             <col style={{ width: '14.28%' }} />
           </colgroup>
           <thead className="bg-neutral-800/50 border-b border-neutral-700">
-            <tr>
+            <tr className="text-left">
               <th 
-                className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors"
+                className="text-left px-4 py-3 text-sm font-semibold text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors"
                 onClick={() => onColumnSort('nft')}
               >
                 <div className="flex items-center gap-1">
@@ -80,7 +80,7 @@ export default function NFTTableView({
                 </div>
               </th>
               <th 
-                className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors"
+                className="text-left px-4 py-3 text-sm font-semibold text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors"
                 onClick={() => onColumnSort('rank')}
               >
                 <div className="flex items-center gap-1">
@@ -93,7 +93,7 @@ export default function NFTTableView({
                 </div>
               </th>
               <th 
-                className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors"
+                className="text-left px-4 py-3 text-sm font-semibold text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors"
                 onClick={() => onColumnSort('rarity')}
               >
                 <div className="flex items-center gap-1">
@@ -106,7 +106,7 @@ export default function NFTTableView({
                 </div>
               </th>
               <th 
-                className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors"
+                className="text-left px-4 py-3 text-sm font-semibold text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors"
                 onClick={() => onColumnSort('tier')}
               >
                 <div className="flex items-center gap-1">
@@ -119,7 +119,7 @@ export default function NFTTableView({
                 </div>
               </th>
               <th 
-                className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors"
+                className="text-left px-4 py-3 text-sm font-semibold text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors"
                 onClick={() => onColumnSort('price')}
               >
                 <div className="flex items-center gap-1">
@@ -132,7 +132,7 @@ export default function NFTTableView({
                 </div>
               </th>
               <th 
-                className="text-center px-1 sm:px-2 py-3 text-xs sm:text-sm font-medium text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors"
+                className="text-right px-4 py-3 text-sm font-semibold text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors"
                 onClick={() => onColumnSort('favorite')}
               >
                 <div className="flex items-center justify-center gap-1">
@@ -144,7 +144,7 @@ export default function NFTTableView({
                   )}
                 </div>
               </th>
-              <th className="text-left px-2 sm:px-3 py-3 text-xs sm:text-sm font-medium text-off-white">Actions</th>
+              <th className="text-right px-4 py-3 text-sm font-semibold text-off-white">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -157,7 +157,7 @@ export default function NFTTableView({
                   index % 2 === 0 ? 'bg-neutral-900/20' : ''
                 } ${focusedIndex === index ? 'ring-2 ring-brand-pink ring-inset' : ''}`}
               >
-                <td className="px-2 sm:px-3 py-3">
+                <td className="px-4 py-2 text-sm">
                   <div className="flex items-center gap-2 min-w-0">
                     <Link href={`/nft/${nft.cardNumber}${typeof window !== 'undefined' && window.location.search ? `?returnTo=${encodeURIComponent(`/nfts${window.location.search}`)}` : ''}`} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity min-w-0 flex-1">
                       <Image src={nft.image} alt={`${nft.name} - NFT #${nft.cardNumber}, Rank ${nft.rank}, ${nft.rarity} rarity, Tier ${nft.tier}`} width={32} height={32} className="rounded object-contain flex-shrink-0" />
@@ -168,10 +168,10 @@ export default function NFTTableView({
                     </Link>
                   </div>
                 </td>
-                <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left">{nft.rank} / {TOTAL_COLLECTION_SIZE}</td>
-                <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left">{nft.rarityPercent}%</td>
-                <td className="px-2 sm:px-3 py-3 text-xs text-neutral-300 font-normal text-left">{nft.rarity || (typeof nft.tier === 'string' ? nft.tier.replace(" (Ultra-Legendary)", "") : nft.tier || '—')}</td>
-                <td className="px-2 sm:px-3 py-3 text-xs font-normal text-left">
+                <td className="px-4 py-2 text-sm text-neutral-300 font-normal text-left">{nft.rank} / {TOTAL_COLLECTION_SIZE}</td>
+                <td className="px-4 py-2 text-sm text-neutral-300 font-normal text-left">{nft.rarityPercent}%</td>
+                <td className="px-4 py-2 text-sm text-neutral-300 font-normal text-left">{nft.rarity || (typeof nft.tier === 'string' ? nft.tier.replace(" (Ultra-Legendary)", "") : nft.tier || '—')}</td>
+                <td className="px-4 py-2 text-sm font-normal text-left">
                   {nft.isForSale && nft.priceEth > 0 ? (
                     <div className="leading-tight text-blue-500">
                       <span className="whitespace-nowrap">{nft.priceEth}</span>
@@ -186,7 +186,7 @@ export default function NFTTableView({
                     <span className="text-neutral-500">—</span>
                   )}
                 </td>
-                <td className="px-1 sm:px-2 py-3 text-center">
+                <td className="px-4 py-2 text-sm text-right">
                   <button
                     onClick={(e) => {
                       e.preventDefault();
@@ -205,8 +205,8 @@ export default function NFTTableView({
                     <Heart className={`w-4 h-4 ${isFavorited(nft.tokenId) ? "fill-brand-pink text-brand-pink" : "text-neutral-400 hover:text-neutral-300"}`} />
                   </button>
                 </td>
-                <td className="px-2 sm:px-3 py-3">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 flex-wrap">
+                <td className="px-4 py-2 text-sm text-right">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 flex-wrap justify-end">
                       {nft.isForSale ? (
                         <>
                           <Link

@@ -215,7 +215,7 @@ function NFTsPageContent() {
       <main id="main-content" className="min-h-screen bg-background text-off-white pt-24 sm:pt-28 w-full max-w-full">
         <Navigation activePage="nfts" />
 
-      <section className="w-full max-w-full mx-auto px-4 sm:px-4 md:px-6 lg:px-8 xl:px-16 2xl:px-20 py-6 sm:py-8 lg:py-10">
+      <section className="w-full py-6 sm:py-8 lg:py-10">
         <div className="mb-8 lg:mb-12">
           <h1 id="collection-heading" className="text-6xl font-extrabold tracking-tight text-center pb-2">
             SATO<span className="text-brand-pink">SHE</span> SLUGGERS
@@ -248,7 +248,7 @@ function NFTsPageContent() {
           </div>
 
           {/* Mobile/Tablet Drawer */}
-          <div className="xl:hidden mb-4">
+          <div className="xl:hidden mb-4 ml-0">
             <Drawer direction="left" open={drawerOpen} onOpenChange={setDrawerOpen} shouldScaleBackground={false}>
               <DrawerTrigger asChild>
                 <button className="flex items-center gap-2 px-4 py-2 bg-[#ff0099] hover:bg-[#ff0099]/90 text-white rounded-sm transition-colors font-medium text-body-sm">
@@ -282,7 +282,7 @@ function NFTsPageContent() {
             </Drawer>
           </div>
 
-          <div className="w-full max-w-[1400px] mx-auto px-4">
+          <div className="w-full max-w-[1650px] mx-auto px-4">
             {isInitialized ? (
               <NFTGrid
                 searchTerm={searchTerm}
