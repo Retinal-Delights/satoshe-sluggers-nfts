@@ -856,7 +856,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           <div className={`flex flex-col gap-3 ${viewMode === 'compact' ? 'items-start' : 'items-end ml-auto'}`}>
             {/* View Mode Toggles */}
             <TooltipProvider>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 border border-neutral-700 rounded-sm p-1">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button

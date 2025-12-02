@@ -112,7 +112,7 @@ export default function NFTCard({
                 fill
                 priority={priority}
                 loading={priority ? undefined : "lazy"}
-                className={`object-contain p-2 hover:scale-[1.02] hover:rotate-[5deg] transition-transform duration-300 ease-out ${showPlaceholder ? "animate-pulse" : ""}`}
+                className={`object-contain object-center p-2 hover:scale-[1.02] hover:rotate-[5deg] transition-transform duration-300 ease-out ${showPlaceholder ? "animate-pulse" : ""}`}
                 onLoad={() => {
                   setImgLoaded(true);
                 }}
@@ -133,9 +133,9 @@ export default function NFTCard({
   if (viewMode === "grid-large") {
     return (
       <div className="nft-card-wrapper">
-        <div className="w-full flex flex-col">
-          <div className="nft-card-image">
-            <div className="relative" style={{ aspectRatio: "0.9/1", maxHeight: "var(--nft-image-height)" }}>
+        <div className="flex flex-col">
+          <div className="nft-card-image flex items-center justify-center">
+            <div className="relative w-full" style={{ aspectRatio: "0.9/1", maxHeight: "var(--nft-image-height)" }}>
               <Link href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`} className="block w-full h-full relative">
                 <Image
                   src={showPlaceholder ? placeholder : image}
@@ -143,7 +143,7 @@ export default function NFTCard({
                   fill
                   priority={priority}
                   loading={priority ? undefined : "lazy"}
-                  className="object-contain transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg]"
+                  className="object-contain object-center transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg]"
                   sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
                   onLoad={() => { setImgLoaded(true); }}
                   onError={() => { setImgError(true); }}
@@ -234,8 +234,8 @@ export default function NFTCard({
   return (
     <div className="nft-card-wrapper">
       <div className="w-full flex flex-col">
-        <div className="nft-card-image">
-          <div className="relative" style={{ aspectRatio: "0.85/1" }}>
+        <div className="nft-card-image flex items-center justify-center">
+          <div className="relative w-full" style={{ aspectRatio: "0.85/1" }}>
             <Link href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`} className="block w-full h-full relative">
               <Image
                 src={showPlaceholder ? placeholder : image}
@@ -243,7 +243,7 @@ export default function NFTCard({
                 fill
                 priority={priority}
                 loading={priority ? undefined : "lazy"}
-                className={`object-contain transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg] ${showPlaceholder ? "animate-pulse" : ""}`}
+                className={`object-contain object-center transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg] ${showPlaceholder ? "animate-pulse" : ""}`}
                 onLoad={() => {
                   setImgLoaded(true);
                 }}
