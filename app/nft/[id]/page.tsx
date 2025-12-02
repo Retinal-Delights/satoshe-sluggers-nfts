@@ -641,7 +641,7 @@ export default function NFTDetailPage() {
     <div>
       <main id="main-content" className="min-h-screen bg-background text-foreground flex flex-col">
         <Navigation activePage="nfts" />
-      <div className="max-w-[90rem] mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-4 sm:px-6 md:px-6 lg:px-12">
+      <div className="max-w-[140rem] mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-4 sm:px-6 md:px-6 lg:px-16">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-8 sm:mb-10">
           {(() => {
             // Prefer returning to the exact filtered collection URL when provided
@@ -663,7 +663,7 @@ export default function NFTDetailPage() {
           })()}
 
           {/* Navigation Arrows */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-auto">
             {navigationTokens.prev !== null && (
               <Link
                 href={`/nft/${navigationTokens.prev}`}
@@ -690,9 +690,9 @@ export default function NFTDetailPage() {
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-8">
+        <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-8">
           {/* Left Column - Image and metadata links - 50% width */}
-          <div className="space-y-4 order-1 lg:order-1 w-full lg:w-1/2 lg:flex-shrink-0 lg:pr-4 min-w-0">
+          <div className="space-y-4 order-1 lg:order-1 w-full lg:w-1/2 lg:flex-shrink-0 lg:pr-6 min-w-0">
             {/* NFT Image Card */}
             <div className="relative w-full" style={{ aspectRatio: "2700/3000", maxWidth: "100%" }}>
               <div className="relative w-full h-full">
@@ -900,7 +900,7 @@ export default function NFTDetailPage() {
 
             {/* Attributes - Moved to right column after Collection Details - Mobile order-7 */}
             <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-7 lg:order-none hidden lg:block">
-              <h3 className="text-lg font-semibold mb-4 text-off-white">Attributes</h3>
+              <h3 className="text-lg font-semibold mb-3 text-off-white">Attributes</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }, index: number) => (
                   <div key={index} className="bg-neutral-800 p-3 rounded border border-neutral-700">
@@ -923,7 +923,7 @@ export default function NFTDetailPage() {
           </div>
 
           {/* Right Column - NFT Details - 50% width */}
-          <div className="space-y-6 order-2 lg:order-2 flex flex-col w-full lg:w-1/2 lg:flex-shrink-0 lg:pl-4 min-w-0">
+          <div className="space-y-4 order-2 lg:order-2 flex flex-col w-full lg:w-1/2 lg:flex-shrink-0 lg:pl-6 min-w-0">
             {/* NFT Name with Heart Icon - Mobile order-2 (after image) */}
             <div className="flex items-start justify-start gap-4 order-2 lg:order-none min-w-0 relative w-full">
               <h1 className="text-xl md:text-2xl lg:text-3xl font-extrabold tracking-tight text-left mb-2 truncate">
@@ -955,7 +955,7 @@ export default function NFTDetailPage() {
 
             {/* Buy Now Section - Simplified - Mobile order-3 */}
             {isForSale ? (
-              <div className="bg-neutral-800 p-6 rounded border border-neutral-700 order-3 lg:order-none">
+              <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-3 lg:order-none">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                   <div className="flex-1">
                     <p className="text-sm md:text-base text-blue-500 mb-1">Buy Now Price</p>
@@ -990,7 +990,7 @@ export default function NFTDetailPage() {
                 </div>
               </div>
             ) : isConfirmedSold ? (
-              <div className="bg-neutral-800 p-6 rounded border border-green-500/30 order-3 lg:order-none">
+              <div className="bg-neutral-800 p-4 rounded border border-green-500/30 order-3 lg:order-none">
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -1066,8 +1066,8 @@ export default function NFTDetailPage() {
             )}
 
             {/* Collection Details - Mobile order-5 */}
-            <div className="bg-neutral-800 p-6 rounded border border-neutral-700 order-5 lg:order-none">
-              <h3 className="text-lg font-semibold mb-5 text-off-white">Collection Details</h3>
+            <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-5 lg:order-none">
+              <h3 className="text-lg font-semibold mb-3 text-off-white">Collection Details</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-4 sm:gap-y-5 text-sm">
                 <div className="min-w-0">
                   <p className="text-neutral-400 mb-1 text-xs sm:text-sm">NFT Number</p>
@@ -1111,8 +1111,8 @@ export default function NFTDetailPage() {
             </div>
 
             {/* Contract Details - Mobile order-6 (moved below Collection Details) */}
-            <div className="bg-neutral-800 p-6 rounded border border-neutral-700 order-6 lg:order-none">
-              <h3 className="text-lg font-semibold mb-5 text-off-white">Contract Details</h3>
+            <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-6 lg:order-none">
+              <h3 className="text-lg font-semibold mb-3 text-off-white">Contract Details</h3>
                 <div className="space-y-4 text-sm">
                   <div className="flex justify-between items-center gap-2 min-w-0">
                     <span className="text-neutral-400 flex-shrink-0">Contract Address</span>
