@@ -8,6 +8,7 @@ import { ThirdwebProvider } from "thirdweb/react"
 import ScrollButtons from "@/components/scroll-buttons"
 import TermlyScript from "@/components/termly-script"
 import ErrorBoundary from "@/components/error-boundary"
+import CookieSettingsIcon from "@/components/cookie-settings-icon"
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -171,6 +172,9 @@ export default function RootLayout({
           </ThirdwebProvider>
           <Analytics />
           <SpeedInsights />
+          
+          {/* Cookie Settings Icon - Fixed position, rendered outside scrolling containers */}
+          <CookieSettingsIcon />
           
           {/* Live region for screen reader announcements */}
           <div

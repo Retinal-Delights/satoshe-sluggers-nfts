@@ -4,7 +4,6 @@ import Link from "next/link"
 import Image from "next/image"
 import { Heart } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 declare global {
   interface Window {
@@ -105,36 +104,6 @@ export default function Footer() {
           </div>
         </div>
       </div>
-
-      {/* Cookie Settings Button - Bottom Left Corner */}
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <a
-              href="#"
-              className="termly-display-preferences absolute bottom-4 left-4 w-10 h-10 flex items-center justify-center hover:bg-neutral-700/50 rounded-full transition-all duration-300"
-              aria-label="Cookie settings"
-              onClick={(e) => {
-                e.preventDefault();
-                if (typeof window !== 'undefined' && window.Termly?.displayPreferenceModal) {
-                  window.Termly.displayPreferenceModal();
-                }
-              }}
-            >
-              <Image
-                src="/icons/cookies/cookies-icon-48px.png"
-                alt="Cookie settings"
-                width={40}
-                height={40}
-                className="w-10 h-10"
-              />
-            </a>
-          </TooltipTrigger>
-          <TooltipContent side="top" className="bg-neutral-800 text-off-white border-neutral-600">
-            <p>Cookie Settings</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
 
     </footer>
   )

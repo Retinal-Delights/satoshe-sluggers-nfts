@@ -714,7 +714,7 @@ export default function NFTDetailPage() {
           })()}
 
           {/* Navigation Arrows */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 sm:ml-auto w-full sm:w-auto justify-end">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 w-full sm:w-auto justify-end">
             {navigationTokens.prev !== null && (
               <Link
                 href={`/nft/${navigationTokens.prev}`}
@@ -765,7 +765,7 @@ export default function NFTDetailPage() {
                 href="https://kristenwoerdeman.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded transition-all group cursor-pointer"
+                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded-[2px] transition-all group cursor-pointer"
                 aria-label="Visit Kristen Woerdeman's website"
               >
                 <div className="flex items-center gap-3">
@@ -805,7 +805,7 @@ export default function NFTDetailPage() {
                 href="https://retinaldelights.io"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded transition-all group cursor-pointer"
+                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded-[2px] transition-all group cursor-pointer"
                 aria-label="Visit Retinal Delights website"
               >
                 <div className="flex items-center gap-3">
@@ -848,7 +848,7 @@ export default function NFTDetailPage() {
                   href={metadata?.merged_data?.metadata_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none"
+                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded-[2px] transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none"
                   aria-label="View token metadata on IPFS"
                 >
                   <div className="flex items-center gap-3">
@@ -901,7 +901,7 @@ export default function NFTDetailPage() {
                   href={metadata?.merged_data?.media_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded-[2px] transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   aria-label="View NFT image on IPFS"
                 >
                   <div className="flex items-center gap-3">
@@ -950,11 +950,11 @@ export default function NFTDetailPage() {
               </div>
 
             {/* Attributes - Moved to right column after Collection Details - Mobile order-7 */}
-            <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-7 lg:order-none hidden lg:block">
+            <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700 order-7 lg:order-none hidden lg:block">
               <h3 className="text-lg font-semibold mb-3 text-off-white">Attributes</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }, index: number) => (
-                  <div key={index} className="bg-neutral-800 p-3 rounded border border-neutral-700">
+                  <div key={index} className="bg-neutral-800 p-3 rounded-[2px] border border-neutral-700">
                     <div className="flex items-center mb-2">
                       <div
                         className="w-3 h-3 rounded-full mr-2"
@@ -997,7 +997,7 @@ export default function NFTDetailPage() {
 
             {/* Connect to Interact Message */}
             {!isConnected && isForSale && (
-              <div className="bg-yellow-500/10 border border-yellow-500/20 rounded p-3 mb-4">
+              <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-[2px] p-3 mb-4">
                 <p className="text-yellow-400 text-sm text-center">
                   🔗 Connect your wallet to purchase this NFT
                 </p>
@@ -1006,7 +1006,7 @@ export default function NFTDetailPage() {
 
             {/* Buy Now Section - Simplified - Mobile order-3 */}
             {isForSale ? (
-              <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-3 lg:order-none">
+              <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700 order-3 lg:order-none">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                   <div className="flex-1">
                     <p className="text-sm md:text-base text-blue-500 mb-1">Buy Now Price</p>
@@ -1041,7 +1041,7 @@ export default function NFTDetailPage() {
                 </div>
               </div>
             ) : isConfirmedSold ? (
-              <div className="bg-neutral-800 p-4 rounded border border-green-500/30 order-3 lg:order-none">
+              <div className="bg-neutral-800 p-4 rounded-[2px] border border-green-500/30 order-3 lg:order-none">
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -1076,7 +1076,7 @@ export default function NFTDetailPage() {
                 </div>
               </div>
             ) : (
-              <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-3 lg:order-none">
+              <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700 order-3 lg:order-none">
                 <p className="text-blue-400 text-center">This NFT is not currently for sale</p>
               </div>
             )}
@@ -1117,7 +1117,7 @@ export default function NFTDetailPage() {
             )}
 
             {/* Collection Details - Mobile order-5 */}
-            <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-5 lg:order-none">
+            <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700 order-5 lg:order-none">
               <h3 className="text-lg font-semibold mb-3 text-off-white">Collection Details</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-4 sm:gap-y-5 text-sm">
                 <div className="min-w-0">
@@ -1162,7 +1162,7 @@ export default function NFTDetailPage() {
             </div>
 
             {/* Contract Details - Mobile order-6 (moved below Collection Details) */}
-            <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-6 lg:order-none">
+            <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700 order-6 lg:order-none">
               <h3 className="text-lg font-semibold mb-3 text-off-white">Contract Details</h3>
                 <div className="space-y-4 text-sm">
                   <div className="flex justify-between items-center gap-2 min-w-0">
@@ -1174,7 +1174,7 @@ export default function NFTDetailPage() {
                           navigator.clipboard.writeText(getContractAddress());
                           // You could add a toast notification here if desired
                         }}
-                        className="p-1 hover:bg-neutral-700 rounded transition-colors group"
+                        className="p-1 hover:bg-neutral-700 rounded-[2px] transition-colors group"
                         aria-label="Copy contract address"
                         title="Copy contract address"
                       >
@@ -1220,7 +1220,7 @@ export default function NFTDetailPage() {
                 href="https://kristenwoerdeman.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded transition-all group cursor-pointer"
+                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded-[2px] transition-all group cursor-pointer"
                 aria-label="Visit Kristen Woerdeman's website"
               >
                 <div className="flex items-center gap-3">
@@ -1260,7 +1260,7 @@ export default function NFTDetailPage() {
                 href="https://retinaldelights.io"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded transition-all group cursor-pointer"
+                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded-[2px] transition-all group cursor-pointer"
                 aria-label="Visit Retinal Delights website"
               >
                 <div className="flex items-center gap-3">
@@ -1303,7 +1303,7 @@ export default function NFTDetailPage() {
                   href={metadata?.merged_data?.metadata_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none"
+                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded-[2px] transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none"
                   aria-label="View token metadata on IPFS"
                 >
                   <div className="flex items-center gap-3">
@@ -1356,7 +1356,7 @@ export default function NFTDetailPage() {
                   href={metadata?.merged_data?.media_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded-[2px] transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   aria-label="View NFT image on IPFS"
                 >
                   <div className="flex items-center gap-3">
@@ -1405,11 +1405,11 @@ export default function NFTDetailPage() {
               </div>
 
             {/* Attributes - Mobile order-9 (after Collection Details) */}
-            <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-9 lg:order-none lg:hidden">
+            <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700 order-9 lg:order-none lg:hidden">
               <h3 className="text-lg font-semibold mb-4 text-off-white">Attributes</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }, index: number) => (
-                  <div key={index} className="bg-neutral-800 p-3 rounded border border-neutral-700 min-w-0">
+                  <div key={index} className="bg-neutral-800 p-3 rounded-[2px] border border-neutral-700 min-w-0">
                     <div className="flex items-center mb-2 min-w-0">
                       <div
                         className="w-3 h-3 rounded-full mr-2 flex-shrink-0"
