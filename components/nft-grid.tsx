@@ -754,8 +754,8 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
     );
   }
 
-   return (
-       <div className="w-full">
+  return (
+      <div className="w-full" data-nft-grid-container="true">
          <div className="flex flex-col gap-3 mb-6">
           {/* Header section: Title, stats, and controls all together */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

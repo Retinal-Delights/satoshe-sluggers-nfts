@@ -142,7 +142,9 @@ export default function NFTPagination({
 
     const updatePosition = () => {
       // Find the NFT grid container to match its position and width
-      const gridContainer = document.querySelector('.w-full.max-w-\\[1650px\\]') || 
+      // First try to find the grid container by data attribute, then fall back to class selectors
+      const gridContainer = document.querySelector('[data-nft-grid-container="true"]') ||
+                            document.querySelector('.w-full.max-w-\\[1650px\\]') || 
                             document.querySelector('[class*="max-w-[1650px]"]')
       
       const footer = document.querySelector('footer')
@@ -291,6 +293,7 @@ export default function NFTPagination({
           bottom: `${bottomOffset}px`,
           left: `${leftOffset}px`,
           width: width,
+          maxWidth: width, // Ensure it doesn't exceed the calculated width
         }}
       >
         {paginationContent}
