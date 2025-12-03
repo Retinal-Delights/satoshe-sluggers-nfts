@@ -8,6 +8,7 @@ import { NextResponse } from "next/server";
 import { base } from "thirdweb/chains";
 import { getContract, getContractEvents, prepareEvent } from "thirdweb";
 import { client } from "@/lib/thirdweb";
+import { getAllOwnershipsWithFallback } from "@/lib/insight-service";
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS;
 const MARKETPLACE_ADDRESS = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
@@ -27,32 +28,33 @@ const cache: {
 const CACHE_EXPIRY = 5 * 60 * 1000; // 5 minutes
 
 export async function GET() {
-  try {
-    const now = Date.now();
-    
-    // Check cache first
-    if (cache.data && now - cache.timestamp < CACHE_EXPIRY) {
+  const now = Date.now();
+  
+  // Early env var check (fail-fast)
+  if (!CONTRACT_ADDRESS || !MARKETPLACE_ADDRESS) {
+    if (cache.data) {
       return NextResponse.json(cache.data, {
         headers: {
           "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60",
         },
       });
     }
+    return NextResponse.json(
+      { error: "Missing required environment variables" },
+      { status: 500 }
+    );
+  }
+  
+  // Check cache first
+  if (cache.data && now - cache.timestamp < CACHE_EXPIRY) {
+    return NextResponse.json(cache.data, {
+      headers: {
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60",
+      },
+    });
+  }
 
-    if (!CONTRACT_ADDRESS || !MARKETPLACE_ADDRESS) {
-      // Return default if cache exists, otherwise error
-      if (cache.data) {
-        return NextResponse.json(cache.data, {
-          headers: {
-            "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60",
-          },
-        });
-      }
-      return NextResponse.json(
-        { error: "Missing required environment variables" },
-        { status: 500 }
-      );
-    }
+  try {
 
     // Get contract instance
     const contract = getContract({
@@ -73,7 +75,8 @@ export async function GET() {
         contract,
         events: [transferEvent],
       });
-    } catch {
+    } catch (err) {
+      console.error("Failed to fetch transfer events:", err);
       // Return cached data if available, otherwise return default
       if (cache.data) {
         return NextResponse.json(cache.data, {
@@ -130,19 +133,23 @@ export async function GET() {
 
     // Now check current ownership for tokens that were ever sold
     // If current owner is marketplace, they're ACTIVE again (relisted)
+    // Use Insight API (with Multicall3 fallback) for efficient batch ownership checks
     const currentOwners = new Map<number, string>();
     if (tokensEverSold.size > 0) {
-      // Fetch current ownership for tokens that were ever sold using Multicall3
-      const tokenIdsToCheck = Array.from(tokensEverSold);
-      const { batchCheckOwnership } = await import("@/lib/multicall3");
-      
       try {
-        const ownershipResults = await batchCheckOwnership(CONTRACT_ADDRESS, tokenIdsToCheck);
+        // Use Insight API for batch ownership check (1 API call for all NFTs)
+        // This is more efficient than checking only sold tokens since we get all data in one call
+        const ownershipResults = await getAllOwnershipsWithFallback(CONTRACT_ADDRESS, TOTAL_NFTS);
+        
+        // Filter to only tokens we need to check (those that were ever sold)
         ownershipResults.forEach(({ tokenId, owner }) => {
-          currentOwners.set(tokenId, owner.toLowerCase());
+          if (tokensEverSold.has(tokenId)) {
+            currentOwners.set(tokenId, owner.toLowerCase());
+          }
         });
-      } catch {
-        // If batch check fails, use latest transfer as fallback
+      } catch (err) {
+        console.error("Failed to fetch ownerships:", err);
+        // If Insight API and fallback fail, use latest transfer as fallback
         // This is acceptable as it's a best-effort check
       }
     }
@@ -189,7 +196,8 @@ export async function GET() {
       },
     });
 
-  } catch {
+  } catch (err) {
+    console.error("NFT Status API error:", err);
     // Return cached data if available
     if (cache.data) {
       return NextResponse.json(cache.data, {

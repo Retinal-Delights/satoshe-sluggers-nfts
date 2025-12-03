@@ -20,7 +20,7 @@ import confetti from 'canvas-confetti';
 import { Separator } from "@/components/ui/separator";
 import { convertIpfsUrl } from "@/lib/utils";
 import { getContractAddress } from "@/lib/constants";
-import { rpcRateLimiter } from "@/lib/rpc-rate-limiter";
+// rpcRateLimiter removed - now using cached /api/ownership endpoint instead of direct RPC calls
 import { colors } from "@/lib/design-system";
 
 // Type definitions
@@ -352,8 +352,8 @@ export default function NFTDetailPage() {
   }, [tokenId]);
 
   // LOAD OWNER ADDRESS
-  // Fetch current owner from chain (ERC-721 ownerOf) with rate limiting
-  // Also re-check periodically to catch any ownership changes
+  // Use cached /api/ownership endpoint instead of direct RPC calls
+  // This eliminates periodic RPC calls and uses already-cached data
   useEffect(() => {
     // Reset state immediately when tokenId changes
     setOwnerAddress(null);
@@ -361,30 +361,26 @@ export default function NFTDetailPage() {
     
     const fetchOwner = async () => {
       try {
-        const contract = getContract({ client, chain: base, address: getContractAddress() });
-        // Convert route param (1-based) to 0-based token ID for on-chain lookup
-        const actualTokenId = BigInt(parseInt(tokenId) - 1);
+        // Convert route param (1-based) to 0-based token ID for API lookup
+        const actualTokenId = parseInt(tokenId) - 1;
         
-        const result = await rpcRateLimiter.execute(async () => {
-          return await readContract({
-            contract,
-            method: "function ownerOf(uint256 tokenId) view returns (address)",
-            params: [actualTokenId],
-          });
-        });
-        
-        // Normalize owner address to lowercase for consistent comparison
-        // Only set owner address if it's a valid non-empty string
-        let normalizedOwner: string | null = null;
-        if (typeof result === "string" && result.trim() !== "") {
-          normalizedOwner = result.toLowerCase().trim();
-        } else if (result && typeof result === "object" && "_value" in result) {
-          const value = String((result as { _value: unknown })._value).trim();
-          if (value !== "") {
-            normalizedOwner = value.toLowerCase();
+        // Use cached /api/ownership endpoint (powered by Insight API with Multicall3 fallback)
+        const response = await fetch("/api/ownership");
+        if (response.ok) {
+          const data = await response.json();
+          // Find the ownership record for this token ID
+          const ownershipRecord = data.find((item: { tokenId: number; owner: string }) => 
+            item.tokenId === actualTokenId
+          );
+          
+          if (ownershipRecord && ownershipRecord.owner) {
+            setOwnerAddress(ownershipRecord.owner.toLowerCase());
+          } else {
+            setOwnerAddress(null);
           }
+        } else {
+          setOwnerAddress(null);
         }
-        setOwnerAddress(normalizedOwner);
       } catch {
         // Error fetching owner - set null (will show as "not for sale" by default)
         setOwnerAddress(null);
@@ -397,7 +393,7 @@ export default function NFTDetailPage() {
     // Fetch owner immediately on mount/tokenId change
     fetchOwner();
     
-    // Re-check ownership every 60 seconds to catch any changes (reduced frequency to prevent flashing)
+    // Re-check ownership every 60 seconds to catch any changes (uses cached API, no RPC calls)
     const interval = setInterval(fetchOwner, 60000);
     return () => clearInterval(interval);
   }, [tokenId]);
@@ -415,30 +411,21 @@ export default function NFTDetailPage() {
       if (typeof tokenIdNum === 'number' && !Number.isNaN(tokenIdNum) && tokenIdNum === actualTokenId) {
         setIsPurchased(true);
         
-        // Refetch owner immediately with rate limiting (after delay to allow transaction to confirm)
+        // Refetch owner immediately using cached API (after delay to allow transaction to confirm)
         const fetchOwner = async () => {
           try {
-            const contract = getContract({ client, chain: base, address: getContractAddress() });
-            const actualTokenIdBigInt = BigInt(actualTokenId);
-            const result = await rpcRateLimiter.execute(async () => {
-              return await readContract({
-                contract,
-                method: "function ownerOf(uint256 tokenId) view returns (address)",
-                params: [actualTokenIdBigInt],
-              });
-            });
-            
-            // Normalize owner address to lowercase - only set if valid
-            let normalizedOwner: string | null = null;
-            if (typeof result === "string" && result.trim() !== "") {
-              normalizedOwner = result.toLowerCase().trim();
-            } else if (result && typeof result === "object" && "_value" in result) {
-              const value = String((result as { _value: unknown })._value).trim();
-              if (value !== "") {
-                normalizedOwner = value.toLowerCase();
+            // Use cached /api/ownership endpoint instead of direct RPC call
+            const response = await fetch("/api/ownership");
+            if (response.ok) {
+              const data = await response.json();
+              const ownershipRecord = data.find((item: { tokenId: number; owner: string }) => 
+                item.tokenId === actualTokenId
+              );
+              
+              if (ownershipRecord && ownershipRecord.owner) {
+                setOwnerAddress(ownershipRecord.owner.toLowerCase());
               }
             }
-            setOwnerAddress(normalizedOwner);
             setOwnerCheckComplete(true);
           } catch {
             // Error fetching owner - still mark as complete to prevent infinite loading
@@ -568,22 +555,18 @@ export default function NFTDetailPage() {
     // Wait 5 seconds for transaction to confirm on-chain before checking owner
     const ownerCheckTimeout = setTimeout(async () => {
       try {
-        const contract = getContract({ client, chain: base, address: getContractAddress() });
-        // Convert route param (1-based) to 0-based token ID for on-chain lookup
-        const actualTokenId = BigInt(parseInt(tokenId) - 1);
-        const result = await rpcRateLimiter.execute(async () => {
-          return await readContract({
-            contract,
-            method: "function ownerOf(uint256 tokenId) view returns (address)",
-            params: [actualTokenId],
-          });
-        });
-        
-        // Normalize owner address to lowercase
-        if (typeof result === "string") {
-          setOwnerAddress(result.toLowerCase());
-        } else if (result && typeof result === "object" && "_value" in result) {
-          setOwnerAddress(String((result as { _value: unknown })._value).toLowerCase());
+        // Use cached /api/ownership endpoint instead of direct RPC call
+        const actualTokenId = parseInt(tokenId) - 1;
+        const response = await fetch("/api/ownership");
+        if (response.ok) {
+          const ownershipData = await response.json();
+          const ownershipRecord = ownershipData.find((item: { tokenId: number; owner: string }) => 
+            item.tokenId === actualTokenId
+          );
+          
+          if (ownershipRecord && ownershipRecord.owner) {
+            setOwnerAddress(ownershipRecord.owner.toLowerCase());
+          }
         }
         setOwnerCheckComplete(true);
       } catch {

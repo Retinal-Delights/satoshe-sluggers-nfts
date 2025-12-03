@@ -1,11 +1,11 @@
 // app/api/ownership/route.ts
 
 import { NextResponse } from "next/server";
-import fs from "fs";
+import { promises as fs } from "fs";
 import path from "path";
 import os from "os";
 
-import { batchCheckOwnership } from "@/lib/multicall3";
+import { getAllOwnershipsWithFallback } from "@/lib/insight-service";
 
 const TOTAL_NFTS = 7777;
 const LISTING_OWNER_ADDRESS =
@@ -42,30 +42,37 @@ export async function GET() {
     }
 
     // ---- Serve valid cached version (if fresh) ----
-    if (fs.existsSync(CACHE_PATH)) {
-      const stat = fs.statSync(CACHE_PATH);
+    try {
+      const stat = await fs.stat(CACHE_PATH);
       const age = Date.now() - stat.mtimeMs;
 
       if (age < CACHE_LIFETIME_MS) {
-        const cached = JSON.parse(fs.readFileSync(CACHE_PATH, "utf8"));
-        return NextResponse.json(cached, {
-          headers: {
-            "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60",
-          },
-        });
+        const cachedContent = await fs.readFile(CACHE_PATH, "utf8");
+        try {
+          const cached = JSON.parse(cachedContent);
+          return NextResponse.json(cached, {
+            headers: {
+              "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60",
+            },
+          });
+        } catch {
+          // JSON parse failed - cache file corrupted, continue to fetch fresh data
+        }
       }
+    } catch {
+      // Cache file doesn't exist or is invalid - continue to fetch fresh data
     }
 
-    // ---- Fresh ownership resolution via multicall ----
-    const tokenIds = Array.from({ length: TOTAL_NFTS }, (_, i) => i);
-
-    const results = await batchCheckOwnership(
+    // ---- Fresh ownership resolution via Insight API (with Multicall3 fallback) ----
+    // Insight API: 1 API call for all 7,777 NFTs (98.7% reduction vs Multicall3)
+    // Falls back to Multicall3 if Insight API is unavailable
+    const results = await getAllOwnershipsWithFallback(
       NFT_COLLECTION_ADDRESS,
-      tokenIds
+      TOTAL_NFTS
     );
 
     // Convert to ACTIVE / SOLD records
-    const ownership = results.map(({ tokenId, owner }: { tokenId: number; owner: string }) => {
+    const ownership = results.map(({ tokenId, owner }) => {
       const normalized = owner?.toLowerCase?.() ?? "";
       return {
         tokenId,
@@ -78,8 +85,8 @@ export async function GET() {
     // ---- Write to cache ----
     try {
       const dir = path.dirname(CACHE_PATH);
-      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-      fs.writeFileSync(CACHE_PATH, JSON.stringify(ownership), "utf8");
+      await fs.mkdir(dir, { recursive: true });
+      await fs.writeFile(CACHE_PATH, JSON.stringify(ownership), "utf8");
     } catch {
       // Cache write failed - continue without caching
     }
@@ -93,17 +100,26 @@ export async function GET() {
   } catch (err) {
     const msg =
       err instanceof Error ? err.message : String(err);
+    
+    console.error("Ownership API error:", err);
 
     // ---- fallback to stale cache if exists ----
-    if (fs.existsSync(CACHE_PATH)) {
-      const cached = JSON.parse(fs.readFileSync(CACHE_PATH, "utf8"));
-      return NextResponse.json(cached, {
-        headers: {
-          "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60",
-        },
-      });
+    try {
+      const cachedContent = await fs.readFile(CACHE_PATH, "utf8");
+      try {
+        const cached = JSON.parse(cachedContent);
+        return NextResponse.json(cached, {
+          headers: {
+            "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60",
+          },
+        });
+      } catch {
+        // JSON parse failed - cache corrupted, return error
+        return NextResponse.json({ error: msg }, { status: 500 });
+      }
+    } catch {
+      // Cache read failed - return error
+      return NextResponse.json({ error: msg }, { status: 500 });
     }
-
-    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

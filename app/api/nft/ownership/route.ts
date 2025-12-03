@@ -1,10 +1,11 @@
 /**
  * NFT Ownership API Route (Batch)
- * Checks owner for a batch of tokenIds using Multicall3 for efficient batch queries.
+ * Checks owner for a batch of tokenIds using Insight API (primary) or Multicall3 (fallback).
  * Returns: { ownership: { [tokenId: number]: { owner: string, isSold: boolean } } }
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { getBatchOwnershipWithFallback } from "@/lib/insight-service";
 
 // Environment variable sanity checks
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS;
@@ -39,10 +40,18 @@ export async function POST(request: NextRequest) {
 
     for (const batch of batches) {
       try {
-        // Use Multicall3 for efficient batch ownership checks
-        const rpcResults = await fetchRPCOwnership(batch);
-        Object.assign(results, rpcResults);
-      } catch {
+        // Use Insight API (primary) with Multicall3 fallback for efficient batch ownership checks
+        const ownershipResults = await getBatchOwnershipWithFallback(CONTRACT_ADDRESS!, batch);
+        
+        ownershipResults.forEach(({ tokenId, owner }) => {
+          const ownerLower = owner.toLowerCase();
+          results[tokenId] = {
+            owner: ownerLower,
+            isSold: ownerLower !== "" && ownerLower !== MARKETPLACE_ADDRESS,
+          };
+        });
+      } catch (err) {
+        console.error("Batch ownership fetch failed:", err);
         // On error, return empty results for this batch
         batch.forEach((tokenId) => {
           results[tokenId] = { owner: "", isSold: false };
@@ -51,7 +60,8 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ ownership: results });
-  } catch {
+  } catch (err) {
+    console.error("Ownership API error:", err);
     return NextResponse.json(
       { error: "Failed to fetch ownership data" },
       { status: 500 },
@@ -59,32 +69,11 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// On-chain batch ownership check using Multicall3 (batches multiple calls into 1 RPC call)
-async function fetchRPCOwnership(
-  tokenIds: number[],
-): Promise<Record<number, { owner: string; isSold: boolean }>> {
-  const { batchCheckOwnership } = await import("@/lib/multicall3");
-  
-  const results: Record<number, { owner: string; isSold: boolean }> = {};
-
-  // Use Multicall3 to batch all ownership checks into a single RPC call
-  const ownershipResults = await batchCheckOwnership(CONTRACT_ADDRESS!, tokenIds);
-  
-  ownershipResults.forEach(({ tokenId, owner }) => {
-    const ownerLower = owner.toLowerCase();
-    results[tokenId] = {
-      owner: ownerLower,
-      isSold: ownerLower !== "" && ownerLower !== MARKETPLACE_ADDRESS,
-    };
-  });
-
-  return results;
-}
-
 /**
  * NON-DEVELOPER NOTES:
- * - This API uses Multicall3 for efficient batch ownership checks.
+ * - This API uses Insight API (primary) for efficient batch ownership checks (1 API call per batch).
+ * - Falls back to Multicall3 if Insight API is unavailable (1 RPC call per 100 NFTs).
  * - All batching is pre-tuned to avoid "rate limit" or provider bans.
- * - This can be called with up to 200 IDs at a time.
+ * - This can be called with up to 200 IDs at a time MAX!
  * - It will never crash or throw on individual token errors or missing/invalid IDs.
  */

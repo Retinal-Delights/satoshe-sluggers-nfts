@@ -10,10 +10,8 @@ import Link from "next/link";
 import { useActiveAccount } from "thirdweb/react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { Heart, Package } from "lucide-react";
-import { getContract } from "thirdweb";
-import { base } from "thirdweb/chains";
-import { client } from "@/lib/thirdweb";
-import { getOwnedNFTs } from "thirdweb/extensions/erc721";
+// Removed unused imports: getContract, getOwnedNFTs
+// Now using cached /api/ownership endpoint instead of SDK getOwnedNFTs
 import { loadAllNFTs } from "@/lib/simple-data-service";
 import { convertIpfsUrl } from "@/lib/utils";
 
@@ -64,29 +62,26 @@ function MyNFTsContent() {
   }, [removeFromFavorites]);
 
   // Helper function to load and process owned NFTs
+  // Uses cached /api/ownership endpoint (powered by Insight API) instead of SDK getOwnedNFTs
+  // This is more efficient and reduces RPC calls
   const loadOwnedNFTs = async (accountAddress: string, allMetadata: any[]): Promise<NFT[]> => {
-    const contract = getContract({
-      client,
-      chain: base,
-      address: process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS!,
-    });
-    const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS?.toLowerCase();
+    const accountAddressLower = accountAddress.toLowerCase();
     const ownedNFTsList: NFT[] = [];
     
     try {
-      // Get all NFTs owned by the user using Thirdweb SDK
-      const ownedNFTs = await getOwnedNFTs({
-        contract,
-        owner: accountAddress,
-      });
+      // Use cached /api/ownership endpoint (powered by Insight API with Multicall3 fallback)
+      // This is much more efficient than SDK getOwnedNFTs which may make multiple RPC calls
+      const response = await fetch("/api/ownership");
+      if (!response.ok) {
+        return []; // Return empty on error
+      }
 
-      // Filter to only NFTs from our collection and process them
-      for (const nft of ownedNFTs) {
-        const nftContract = (nft.tokenAddress || "").toLowerCase();
-        if (CONTRACT_ADDRESS && nftContract === CONTRACT_ADDRESS) {
-          // Extract tokenId from the NFT
-          const tokenIdStr = nft.id?.toString() || "";
-          const tokenId = parseInt(tokenIdStr);
+      const ownershipData = await response.json();
+      
+      // Filter to NFTs owned by this wallet address
+      for (const item of ownershipData) {
+        if (item.owner && item.owner.toLowerCase() === accountAddressLower) {
+          const tokenId = item.tokenId;
           
           if (
             !isNaN(tokenId) &&
@@ -109,7 +104,7 @@ function MyNFTsContent() {
         }
       }
     } catch {
-      // If getOwnedNFTs fails, return empty list
+      // If fetch fails, return empty list
       // Error is handled gracefully
     }
     
