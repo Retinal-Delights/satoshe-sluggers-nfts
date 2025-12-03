@@ -116,19 +116,12 @@ async function fetchOwnershipsPage(
   // Ensure contract address is lowercase (Ethereum addresses should be lowercase for API)
   const contractAddressLower = contractAddress.toLowerCase();
   
-  // Try multiple endpoint formats (prioritize /nfts/owners as recommended)
-  // Note: Error shows API expects "contract_address" (snake_case) in validation path
-  // Also, addresses must be lowercase (42 characters, starting with 0x)
+  // Use only contractAddress (camelCase) parameter as required by Insight API
+  // Addresses must be lowercase (42 characters, starting with 0x)
   const endpoints = [
-    // Format 1: Chain-specific with contract_address (snake_case, lowercase address)
-    `${INSIGHT_API_BASE}/nfts/owners?contract_address=${contractAddressLower}&limit=${limit}`,
-    // Format 2: Chain-specific with contractAddress (camelCase, lowercase address)
+    // Format 1: Chain-specific endpoint (recommended)
     `${INSIGHT_API_BASE}/nfts/owners?contractAddress=${contractAddressLower}&limit=${limit}`,
-    // Format 3: Global endpoint with contract param (lowercase)
-    `${INSIGHT_API_BASE_ALT}/nfts/owners?chain=${BASE_CHAIN_ID}&contract=${contractAddressLower}&limit=${limit}`,
-    // Format 4: Global endpoint with contract_address (snake_case)
-    `${INSIGHT_API_BASE_ALT}/nfts/owners?chain=${BASE_CHAIN_ID}&contract_address=${contractAddressLower}&limit=${limit}`,
-    // Format 5: Global endpoint with contractAddress (camelCase)
+    // Format 2: Global endpoint with chain param
     `${INSIGHT_API_BASE_ALT}/nfts/owners?chain=${BASE_CHAIN_ID}&contractAddress=${contractAddressLower}&limit=${limit}`,
   ];
 
@@ -239,14 +232,15 @@ export async function getBatchOwnershipFromInsight(
   // Format token IDs as comma-separated string
   const tokenIdsStr = tokenIds.join(",");
   
-  // Try multiple endpoint formats (prioritize /nfts/owners as recommended)
+  // Ensure contract address is lowercase
+  const contractAddressLower = contractAddress.toLowerCase();
+  
+  // Use only contractAddress (camelCase) parameter as required by Insight API
   const endpoints = [
-    // Format 1: Recommended - Chain-specific subdomain with /nfts/owners
-    `${INSIGHT_API_BASE}/nfts/owners?contractAddress=${contractAddress}&tokenIds=${tokenIdsStr}`,
+    // Format 1: Chain-specific endpoint (recommended)
+    `${INSIGHT_API_BASE}/nfts/owners?contractAddress=${contractAddressLower}&tokenIds=${tokenIdsStr}`,
     // Format 2: Global endpoint with chain param
-    `${INSIGHT_API_BASE_ALT}/nfts/owners?chain=${BASE_CHAIN_ID}&contract=${contractAddress}&tokenIds=${tokenIdsStr}`,
-    // Format 3: Alternative with contractAddress param
-    `${INSIGHT_API_BASE_ALT}/nfts/owners?chain=${BASE_CHAIN_ID}&contractAddress=${contractAddress}&tokenIds=${tokenIdsStr}`,
+    `${INSIGHT_API_BASE_ALT}/nfts/owners?chain=${BASE_CHAIN_ID}&contractAddress=${contractAddressLower}&tokenIds=${tokenIdsStr}`,
   ];
 
   for (const url of endpoints) {
@@ -323,9 +317,16 @@ export async function getOwnedNFTsFromInsight(
 ): Promise<OwnershipResult[]> {
   const clientId = getClientId();
   
+  // Ensure contract address is lowercase
+  const contractAddressLower = contractAddress.toLowerCase();
+  const walletAddressLower = walletAddress.toLowerCase();
+  
+  // Use only contractAddress (camelCase) parameter as required by Insight API
   const endpoints = [
-    `${INSIGHT_API_BASE}/nfts?owner=${walletAddress}&contractAddress=${contractAddress}`,
-    `${INSIGHT_API_BASE_ALT}/nfts?chain=${BASE_CHAIN_ID}&owner=${walletAddress}&contract=${contractAddress}`,
+    // Format 1: Chain-specific endpoint (recommended)
+    `${INSIGHT_API_BASE}/nfts?owner=${walletAddressLower}&contractAddress=${contractAddressLower}`,
+    // Format 2: Global endpoint with chain param
+    `${INSIGHT_API_BASE_ALT}/nfts?chain=${BASE_CHAIN_ID}&owner=${walletAddressLower}&contractAddress=${contractAddressLower}`,
   ];
 
   for (const url of endpoints) {

@@ -755,61 +755,61 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   }
 
   return (
-      <div className="w-full max-w-full overflow-x-hidden" data-nft-grid-container="true">
-         <div className="flex flex-col gap-3 mb-6">
-          {/* Header section: Title, stats, and controls all together */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 min-w-0">
-            {/* Left side: Title and stats */}
-            <div className="flex-shrink-0 min-w-0 flex-1">
-              <h2 className="text-3xl font-bold mb-3">NFT Collection</h2>
-              {/* Tabs: All / Live / Sold - Contained toggle group */}
-              <div className="flex items-center gap-0 border border-neutral-700 rounded-[2px] p-1 bg-neutral-900/50 w-fit mb-3 flex-shrink-0">
-                <button
-                  onClick={() => setTab("all")}
-                  className={`px-4 py-2 text-body-sm font-medium transition-all cursor-pointer rounded-[2px] ${
-                    tab === "all"
-                      ? "bg-brand-pink text-[#FFFBFB]"
-                      : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
-                  }`}
-                  aria-label="Show all NFTs"
-                  aria-pressed={tab === "all"}
-                >
-                  All ({totalAll})
-                </button>
-                <button
-                  onClick={() => setTab("live")}
-                  className={`px-4 py-2 text-body-sm font-medium transition-all cursor-pointer rounded-[2px] ${
-                    tab === "live"
-                      ? "bg-brand-pink text-[#FFFBFB]"
-                      : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
-                  }`}
-                  aria-label="Show live NFTs"
-                  aria-pressed={tab === "live"}
-                >
-                  Live ({totalActive})
-                </button>
-                <button
-                  onClick={() => setTab("sold")}
-                  className={`px-4 py-2 text-body-sm font-medium transition-all cursor-pointer rounded-[2px] ${
-                    tab === "sold"
-                      ? "bg-brand-pink text-[#FFFBFB]"
-                      : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
-                  }`}
-                  aria-label="Show sold NFTs"
-                  aria-pressed={tab === "sold"}
-                >
-                  Sold ({totalSold})
-                </button>
-              </div>
-              {filteredNFTs.length > 0 && (
-                <div className="text-[clamp(11px,0.4vw+5px,14px)] text-neutral-500 mt-1.5">
-                  {startIndex + 1}-{Math.min(endIndex, filteredNFTs.length)} of {filteredNFTs.length} NFTs
-                </div>
-              )}
+    <div className="w-full max-w-full overflow-x-hidden" data-nft-grid-container="true">
+      <div className="flex flex-col gap-3 mb-6">
+        {/* Header section: Title, stats, and controls all together */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 min-w-0">
+          {/* Left side: Title and stats */}
+          <div className="flex-shrink-0 min-w-0 flex-1 max-w-full">
+            <h2 className="text-3xl font-bold mb-3 whitespace-nowrap">NFT Collection</h2>
+            {/* Tabs: All / Live / Sold - Contained toggle group */}
+            <div className="flex items-center gap-0 border border-neutral-700 rounded-[2px] p-1 bg-neutral-900/50 w-fit mb-3 flex-shrink-0 overflow-hidden flex-nowrap">
+              <button
+                onClick={() => setTab("all")}
+                className={`px-4 py-2 text-body-sm font-medium transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
+                  tab === "all"
+                    ? "bg-brand-pink text-[#FFFBFB]"
+                    : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
+                }`}
+                aria-label="Show all NFTs"
+                aria-pressed={tab === "all"}
+              >
+                All ({totalAll})
+              </button>
+              <button
+                onClick={() => setTab("live")}
+                className={`px-4 py-2 text-body-sm font-medium transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
+                  tab === "live"
+                    ? "bg-brand-pink text-[#FFFBFB]"
+                    : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
+                }`}
+                aria-label="Show live NFTs"
+                aria-pressed={tab === "live"}
+              >
+                Live ({totalActive})
+              </button>
+              <button
+                onClick={() => setTab("sold")}
+                className={`px-4 py-2 text-body-sm font-medium transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
+                  tab === "sold"
+                    ? "bg-brand-pink text-[#FFFBFB]"
+                    : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
+                }`}
+                aria-label="Show sold NFTs"
+                aria-pressed={tab === "sold"}
+              >
+                Sold ({totalSold})
+              </button>
             </div>
+            {filteredNFTs.length > 0 && (
+              <div className="text-[clamp(11px,0.4vw+5px,14px)] text-neutral-500 mt-1.5">
+                {startIndex + 1}-{Math.min(endIndex, filteredNFTs.length)} of {filteredNFTs.length} NFTs
+              </div>
+            )}
+          </div>
 
           {/* Right side: View toggles and dropdowns */}
-          <div className="flex flex-col gap-3 items-end sm:items-end flex-shrink-0 min-w-0 max-w-full">
+          <div className="flex flex-col gap-3 items-end sm:items-end flex-shrink-0 min-w-0 max-w-full sm:max-w-none">
             {/* View Mode Toggles */}
             <TooltipProvider>
               <div className="relative flex items-center gap-3 border border-neutral-700 rounded-[2px] p-1">
@@ -889,8 +889,8 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
             </TooltipProvider>
 
             {/* Dropdowns - Below view toggles */}
-            <div className={`flex items-center gap-3 min-w-0 max-w-full ${viewMode === 'compact' ? 'flex-wrap' : 'flex-shrink-0'}`}>
-              <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
+            <div className={`flex items-center gap-3 min-w-0 max-w-full sm:max-w-none ${viewMode === 'compact' ? 'flex-wrap' : 'flex-shrink-0 flex-nowrap'}`}>
+              <div className="flex items-center gap-2 min-w-0 flex-shrink-0 whitespace-nowrap">
                 <span className="text-sidebar text-neutral-500 whitespace-nowrap flex-shrink-0">Sort by:</span>
                 <Select value={sortBy} onValueChange={(value) => {
                   setSortBy(value);
@@ -913,7 +913,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                 </Select>
               </div>
 
-              <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
+              <div className="flex items-center gap-2 min-w-0 flex-shrink-0 whitespace-nowrap">
                 <span className="text-sidebar text-neutral-500 whitespace-nowrap flex-shrink-0">Show:</span>
                 <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
                   <SelectTrigger className={`${viewMode === 'compact' ? 'w-[130px]' : 'w-[150px]'} max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sidebar font-normal focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 flex-shrink-0`}>
