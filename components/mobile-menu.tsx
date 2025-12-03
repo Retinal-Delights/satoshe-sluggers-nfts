@@ -226,7 +226,7 @@ export function MobileMenu({ isWalletConnected = false, hasUserActivity = false 
   )
 
   return (
-    <div className="lg:hidden flex items-center gap-2 sm:gap-4">
+    <div className="relative lg:hidden flex items-center gap-2 sm:gap-4">
       {walletConnected && (
         <TooltipProvider>
           <Tooltip>

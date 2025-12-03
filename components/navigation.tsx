@@ -111,7 +111,7 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
           </Link>
         )}
       </nav>
-      <div className="flex items-center gap-2 lg:gap-2.5 ml-4">
+      <div className="relative flex items-center gap-2 lg:gap-2.5 ml-4">
         {account && (
           <TooltipProvider>
             <Tooltip>

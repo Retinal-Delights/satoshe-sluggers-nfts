@@ -1,13 +1,14 @@
 /**
  * NFT Aggregate Counts API Route
- * Counts sold NFTs using the Insight aggregate endpoint for speed and reliability.
- * Always caches results for 10 minutes to avoid excess API pressure.
+ * Counts sold NFTs using Transfer events from the blockchain.
+ * Always caches results for 1 minute to avoid excess RPC pressure.
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { base } from "thirdweb/chains";
+import { getContract, getContractEvents, prepareEvent } from "thirdweb";
+import { client } from "@/lib/thirdweb";
 
-const INSIGHT_CLIENT_ID = process.env.NEXT_PUBLIC_INSIGHT_CLIENT_ID || process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID;
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS;
 const MARKETPLACE_ADDRESS = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
 const TOTAL_NFTS = 7777;
@@ -36,49 +37,58 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ...cache.data, cached: true });
     }
 
-    if (!INSIGHT_CLIENT_ID || !CONTRACT_ADDRESS || !MARKETPLACE_ADDRESS) {
+    if (!CONTRACT_ADDRESS || !MARKETPLACE_ADDRESS) {
       return NextResponse.json(
         { error: "Missing required environment variables" },
         { status: 500 }
       );
     }
 
-    const CHAIN_ID = base.id;
-    const apiUrl = `https://insight.thirdweb.com/v1/events/${CONTRACT_ADDRESS}/Transfer(address,address,uint256)?chain=${CHAIN_ID}&from_address=${MARKETPLACE_ADDRESS}&aggregate=count()`;
-
-    const response = await fetch(apiUrl, {
-      headers: {
-        "x-client-id": INSIGHT_CLIENT_ID,
-        "Content-Type": "application/json",
-      },
+    // Get contract instance
+    const contract = getContract({
+      client,
+      chain: base,
+      address: CONTRACT_ADDRESS,
     });
 
-    if (!response.ok) {
-      if (cache.data) return NextResponse.json({ ...cache.data, cached: true });
-      return NextResponse.json({ liveCount: TOTAL_NFTS, soldCount: 0, cached: false });
-    }
-
-    const data = await response.json();
     let soldCount = 0;
 
-    if (
-      data.aggregations &&
-      Array.isArray(data.aggregations) &&
-      data.aggregations.length > 0 &&
-      typeof data.aggregations[0].count === "number"
-    ) {
-      soldCount = data.aggregations[0].count;
-    } else if (data.data && Array.isArray(data.data)) {
-      const tokenSet = new Set<string>();
-      interface EventData {
-        args?: { tokenId?: string | number };
-        token_id?: string | number;
-      }
-      data.data.forEach((event: EventData) => {
-        const tokenId = event.args?.tokenId || event.token_id;
-        if (tokenId !== undefined) tokenSet.add(tokenId.toString());
+    try {
+      // Fetch Transfer events where from_address is the marketplace
+      // This indicates tokens that were sold from the marketplace
+      const transferEvent = prepareEvent({
+        signature: "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
       });
+      
+      const allTransferEvents = await getContractEvents({
+        contract,
+        events: [transferEvent],
+      });
+      
+      // Filter events where from is the marketplace
+      const transferEvents = allTransferEvents.filter((event) => {
+        const args = event.args as { from?: string } | undefined;
+        const from = args?.from ? String(args.from).toLowerCase() : "";
+        return from === MARKETPLACE_ADDRESS;
+      });
+
+      // Count unique tokenIds that were transferred from marketplace
+      const tokenSet = new Set<string>();
+      if (Array.isArray(transferEvents)) {
+        transferEvents.forEach((event) => {
+          const args = event.args as { tokenId?: bigint | string | number } | undefined;
+          const tokenId = args?.tokenId;
+          if (tokenId !== undefined) {
+            const tokenIdStr = typeof tokenId === "bigint" ? tokenId.toString() : String(tokenId);
+            tokenSet.add(tokenIdStr);
+          }
+        });
+      }
       soldCount = tokenSet.size;
+    } catch {
+      // If event fetching fails, return cached data or default
+      if (cache.data) return NextResponse.json({ ...cache.data, cached: true });
+      return NextResponse.json({ liveCount: TOTAL_NFTS, soldCount: 0, cached: false });
     }
 
     const liveCount = Math.max(0, TOTAL_NFTS - soldCount);

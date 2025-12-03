@@ -1,22 +1,17 @@
 /**
  * NFT Ownership API Route (Batch)
- * Checks owner for a batch of tokenIds using Insight API or blockchain fallback.
+ * Checks owner for a batch of tokenIds using Multicall3 for efficient batch queries.
  * Returns: { ownership: { [tokenId: number]: { owner: string, isSold: boolean } } }
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { base } from "thirdweb/chains";
 
 // Environment variable sanity checks
-const CLIENT_ID = process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID;
-const INSIGHT_CLIENT_ID =
-  process.env.NEXT_PUBLIC_INSIGHT_CLIENT_ID ||
-  process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID;
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS;
 const MARKETPLACE_ADDRESS =
   process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
 
-if (!CLIENT_ID || !CONTRACT_ADDRESS || !MARKETPLACE_ADDRESS) {
+if (!CONTRACT_ADDRESS || !MARKETPLACE_ADDRESS) {
   throw new Error("Missing required environment variables for ownership API");
 }
 
@@ -44,19 +39,14 @@ export async function POST(request: NextRequest) {
 
     for (const batch of batches) {
       try {
-        // Try fast Insight API if available
-        const insightResults = await fetchInsightOwnership(batch);
-        if (insightResults) {
-          Object.assign(results, insightResults);
-        } else {
-          // Fallback to on-chain direct method if Insight fails/unavailable
-          const rpcResults = await fetchRPCOwnership(batch);
-          Object.assign(results, rpcResults);
-        }
-      } catch {
-        // On error, always fallback to on-chain lookup for robustness
+        // Use Multicall3 for efficient batch ownership checks
         const rpcResults = await fetchRPCOwnership(batch);
         Object.assign(results, rpcResults);
+      } catch {
+        // On error, return empty results for this batch
+        batch.forEach((tokenId) => {
+          results[tokenId] = { owner: "", isSold: false };
+        });
       }
     }
 
@@ -69,60 +59,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Insight indexer - fast, cheap, may be rate limited occasionally
-async function fetchInsightOwnership(
-  tokenIds: number[],
-): Promise<Record<number, { owner: string; isSold: boolean }> | null> {
-  try {
-    const results: Record<number, { owner: string; isSold: boolean }> = {};
-    const CHAIN_ID = base.id;
-    const BATCH_SIZE = 20; // Insight recommends small batches!
-
-    for (let i = 0; i < tokenIds.length; i += BATCH_SIZE) {
-      const batch = tokenIds.slice(i, i + BATCH_SIZE);
-
-      // Insight only supports "one owner per call" for ERC721s
-      const batchPromises = batch.map(async (tokenId) => {
-        try {
-          const resp = await fetch(
-            `https://insight.thirdweb.com/v1/tokens/${CHAIN_ID}/${CONTRACT_ADDRESS}/owners?tokenId=${tokenId}&page=1&limit=1`,
-            {
-              headers: {
-                "x-client-id": INSIGHT_CLIENT_ID || "",
-                "Content-Type": "application/json",
-              },
-            },
-          );
-          if (!resp.ok) return { tokenId, owner: "", isSold: false };
-          const data = await resp.json();
-          let owner = "";
-          if (data.data && Array.isArray(data.data) && data.data.length > 0) {
-            owner = (data.data[0].owner || "").toLowerCase();
-          }
-          const isSold = owner !== "" && owner !== MARKETPLACE_ADDRESS;
-          return { tokenId, owner, isSold };
-        } catch {
-          return { tokenId, owner: "", isSold: false };
-        }
-      });
-
-      const batchResults = await Promise.all(batchPromises);
-      batchResults.forEach(({ tokenId, owner, isSold }) => {
-        results[tokenId] = { owner, isSold };
-      });
-
-      if (i + BATCH_SIZE < tokenIds.length) {
-        await new Promise((resolve) => setTimeout(resolve, 50));
-      }
-    }
-
-    return results;
-  } catch {
-    return null; // Fallback signal (do not crash)
-  }
-}
-
-// On-chain direct fallback using Multicall3 (batches multiple calls into 1 RPC call)
+// On-chain batch ownership check using Multicall3 (batches multiple calls into 1 RPC call)
 async function fetchRPCOwnership(
   tokenIds: number[],
 ): Promise<Record<number, { owner: string; isSold: boolean }>> {
@@ -146,8 +83,8 @@ async function fetchRPCOwnership(
 
 /**
  * NON-DEVELOPER NOTES:
- * - This API is highly resilient. It first tries a fast indexer, then on-chain.
- * - All batching/delays are pre-tuned to avoid "rate limit" or provider bans.
+ * - This API uses Multicall3 for efficient batch ownership checks.
+ * - All batching is pre-tuned to avoid "rate limit" or provider bans.
  * - This can be called with up to 200 IDs at a time.
  * - It will never crash or throw on individual token errors or missing/invalid IDs.
  */

@@ -67,6 +67,8 @@ export default function NFTDetailPage() {
   const [confettiTriggered, setConfettiTriggered] = useState(false); // Prevent confetti from running twice
   const [hasActiveListing, setHasActiveListing] = useState<boolean | null>(null); // null = not checked yet
   const [listingCheckComplete, setListingCheckComplete] = useState(false);
+  const [ownershipStatus, setOwnershipStatus] = useState<"ACTIVE" | "SOLD" | null>(null); // From /api/ownership
+  const [ownershipStatusCheckComplete, setOwnershipStatusCheckComplete] = useState(false);
 
   // Always reset all significant state when the token changes (prevents UI bleed when flipping NFTs)
   // This ensures a clean state for each NFT viewed and prevents stale data from previous NFT
@@ -81,6 +83,8 @@ export default function NFTDetailPage() {
     setConfettiTriggered(false); // Reset confetti trigger when navigating between NFTs
     setHasActiveListing(null);
     setListingCheckComplete(false);
+    setOwnershipStatus(null);
+    setOwnershipStatusCheckComplete(false);
   }, [tokenId]);
   
   const { isFavorited, toggleFavorite, isConnected } = useFavorites();
@@ -300,6 +304,47 @@ export default function NFTDetailPage() {
     }
   }, [tokenId, listingId, pricingData, metadata]);
 
+  // LOAD OWNERSHIP STATUS FROM API
+  // Use the same /api/ownership endpoint that the grid uses for consistency
+  useEffect(() => {
+    // Reset state immediately when tokenId changes
+    setOwnershipStatus(null);
+    setOwnershipStatusCheckComplete(false);
+    
+    const fetchOwnershipStatus = async () => {
+      try {
+        // Convert route param (1-based) to 0-based token ID for API lookup
+        const actualTokenId = parseInt(tokenId) - 1;
+        
+        const response = await fetch("/api/ownership");
+        if (response.ok) {
+          const data = await response.json();
+          // Find the ownership record for this token ID
+          const ownershipRecord = data.find((item: { tokenId: number; status: "ACTIVE" | "SOLD" }) => 
+            item.tokenId === actualTokenId
+          );
+          
+          if (ownershipRecord) {
+            setOwnershipStatus(ownershipRecord.status);
+          } else {
+            // If not found, default to ACTIVE
+            setOwnershipStatus("ACTIVE");
+          }
+        } else {
+          // Error fetching - default to ACTIVE
+          setOwnershipStatus("ACTIVE");
+        }
+      } catch {
+        // Error fetching - default to ACTIVE
+        setOwnershipStatus("ACTIVE");
+      } finally {
+        setOwnershipStatusCheckComplete(true);
+      }
+    };
+    
+    fetchOwnershipStatus();
+  }, [tokenId]);
+
   // LOAD OWNER ADDRESS
   // Fetch current owner from chain (ERC-721 ownerOf) with rate limiting
   // Also re-check periodically to catch any ownership changes
@@ -435,29 +480,35 @@ export default function NFTDetailPage() {
   // Get pricing data from loaded pricing data or metadata fallback
   const priceEth = pricingData?.price_eth || metadata?.merged_data?.price_eth || 0;
   
-  // Determine if for sale:
-  // 1. Check marketplace listing status (most reliable)
-  // 2. Fallback: has price and not purchased
-  const isForSale = Boolean(
-    (listingCheckComplete && hasActiveListing === true) || // Has active listing on marketplace
-    (!listingCheckComplete && priceEth > 0 && !isPurchased) // Fallback: has price and not sold
-  );
-  
-  // Get sold price (from pricing data if available)
-  const soldPriceEth = undefined;
-  
   // NFT is confirmed as SOLD if:
   // 1. Manually marked as purchased
-  // 2. OR listing check is complete AND there's NO active listing AND has a price (was listed but no longer active = sold)
-  // 3. OR (fallback) owner check shows owner is NOT marketplace (but only if listing check failed)
+  // 2. OR ownership status from /api/ownership is "SOLD" (most reliable, same as grid uses)
+  // 3. OR listing check is complete AND there's NO active listing AND has a price (was listed but no longer active = sold)
+  // 4. OR (fallback) owner check shows owner is NOT marketplace (but only if other checks haven't completed)
   const marketplaceAddress = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase()?.trim();
   const isConfirmedSold = Boolean(
     isPurchased ||
+    (ownershipStatusCheckComplete && ownershipStatus === "SOLD") || // Use ownership API status (same as grid)
     (listingCheckComplete && hasActiveListing === false && priceEth > 0) || // Had price but no active listing = sold
-    (!listingCheckComplete && ownerCheckComplete && ownerAddress && ownerAddress.trim() !== '' && 
+    (!ownershipStatusCheckComplete && !listingCheckComplete && ownerCheckComplete && ownerAddress && ownerAddress.trim() !== '' && 
      marketplaceAddress && marketplaceAddress.trim() !== '' && marketplaceAddress.length >= 42 &&
      ownerAddress.toLowerCase() !== marketplaceAddress.toLowerCase()) // Fallback: owner is not marketplace
   );
+  
+  // Determine if for sale:
+  // 1. Must NOT be sold (check ownership status first - most reliable)
+  // 2. AND (has active listing on marketplace OR ownership status is ACTIVE with price)
+  const isForSale = Boolean(
+    !isConfirmedSold && // Must not be sold (this checks ownershipStatus === "SOLD" first)
+    (
+      (listingCheckComplete && hasActiveListing === true) || // Has active listing on marketplace
+      (ownershipStatusCheckComplete && ownershipStatus === "ACTIVE" && priceEth > 0) || // Ownership API says ACTIVE + has price
+      (!ownershipStatusCheckComplete && !listingCheckComplete && priceEth > 0 && !isPurchased) // Last resort: has price and not manually purchased (only if ownership check not done)
+    )
+  );
+  
+  // Get sold price (from pricing data if available)
+  const soldPriceEth = isConfirmedSold ? priceEth : undefined;
 
   // CONFETTI CELEBRATION FUNCTION
   // Trigger confetti safely - only once per purchase to prevent double-triggering
@@ -641,7 +692,7 @@ export default function NFTDetailPage() {
     <div>
       <main id="main-content" className="min-h-screen bg-background text-foreground flex flex-col">
         <Navigation activePage="nfts" />
-      <div className="max-w-[140rem] mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-4 sm:px-6 md:px-6 lg:px-6">
+      <div className="w-full max-w-[900px] xl:max-w-[1100px] 2xl:max-w-[1300px] mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-8 sm:mb-10">
           {(() => {
             // Prefer returning to the exact filtered collection URL when provided
@@ -654,7 +705,7 @@ export default function NFTDetailPage() {
             return (
               <Link
                 href={backTo}
-                className="inline-flex items-center text-neutral-400 hover:text-off-white text-sm transition-colors group flex-shrink-0"
+                className="inline-flex items-center text-neutral-400 hover:text-off-white transition-colors group flex-shrink-0 text-sm"
               >
                 <ArrowLeft className="h-4 w-4 mr-2 transition-all group-hover:-translate-x-1 group-hover:text-off-white" />
                 Back to collection
@@ -663,7 +714,7 @@ export default function NFTDetailPage() {
           })()}
 
           {/* Navigation Arrows */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-auto">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 sm:ml-auto w-full sm:w-auto justify-end">
             {navigationTokens.prev !== null && (
               <Link
                 href={`/nft/${navigationTokens.prev}`}
@@ -690,9 +741,9 @@ export default function NFTDetailPage() {
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-4">
-          {/* Left Column - Image and metadata links - 52% width */}
-          <div className="space-y-4 order-1 lg:order-1 w-full lg:w-[52%] lg:flex-shrink-0 lg:pr-2 min-w-0">
+        <div className="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-8">
+          {/* Left Column - Image and metadata links - 50% width */}
+          <div className="space-y-4 order-1 lg:order-1 w-full lg:w-[50%] lg:flex-shrink-0 lg:pr-4 min-w-0">
             {/* NFT Image Card */}
             <div className="relative w-full" style={{ aspectRatio: "2700/3000", maxWidth: "100%" }}>
               <div className="relative w-full h-full">
@@ -922,8 +973,8 @@ export default function NFTDetailPage() {
 
           </div>
 
-          {/* Right Column - NFT Details - 48% width */}
-          <div className="space-y-4 order-2 lg:order-2 flex flex-col w-full lg:w-[48%] lg:flex-shrink-0 lg:pl-2 min-w-0">
+          {/* Right Column - NFT Details - 50% width */}
+          <div className="space-y-4 order-2 lg:order-2 flex flex-col w-full lg:w-[50%] lg:flex-shrink-0 lg:pl-4 min-w-0">
             {/* NFT Name with Heart Icon - Mobile order-2 (after image) */}
             <div className="flex items-start justify-start gap-4 order-2 lg:order-none min-w-0 relative w-full">
               <h1 className="text-xl md:text-2xl lg:text-3xl font-extrabold tracking-tight text-left mb-2 truncate">

@@ -149,7 +149,6 @@ export default function NFTPagination({
       
       if (gridContainer && paginationRef.current) {
         const gridRect = gridContainer.getBoundingClientRect()
-        const viewportWidth = window.innerWidth
         
         // Set width and left position to match grid container
         setWidth(`${gridRect.width}px`)

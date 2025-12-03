@@ -4,7 +4,7 @@
  * Uses Multicall3 contract to batch multiple contract calls into a single RPC call
  * Dramatically reduces RPC usage (e.g., 100 ownerOf calls → 1 RPC call)
  * 
- * No fallback - multicall3 only
+ * Uses Thirdweb v5 SDK with manual multicall3 contract interaction
  */
 
 import { getContract, readContract } from "thirdweb";
@@ -20,9 +20,61 @@ const ERC721_INTERFACE = new Interface([
   "function ownerOf(uint256 tokenId) view returns (address)",
 ]);
 
+// Multicall3 ABI for tryAggregate - using proper ABI format
+const MULTICALL3_ABI = [
+  {
+    inputs: [
+      {
+        internalType: "bool",
+        name: "requireSuccess",
+        type: "bool",
+      },
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "target",
+            type: "address",
+          },
+          {
+            internalType: "bytes",
+            name: "callData",
+            type: "bytes",
+          },
+        ],
+        internalType: "struct Multicall3.Call[]",
+        name: "calls",
+        type: "tuple[]",
+      },
+    ],
+    name: "tryAggregate",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "bool",
+            name: "success",
+            type: "bool",
+          },
+          {
+            internalType: "bytes",
+            name: "returnData",
+            type: "bytes",
+          },
+        ],
+        internalType: "struct Multicall3.Result[]",
+        name: "returnData",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+] as const;
+
 /**
  * Batch check ownership for multiple NFTs using Multicall3
- * This reduces N individual RPC calls to 1 single RPC call
+ * This reduces N individual RPC calls to 1 single RPC call per batch
  * 
  * @param nftContractAddress - The NFT collection contract address
  * @param tokenIds - Array of token IDs to check (0-based)
@@ -38,6 +90,7 @@ export async function batchCheckOwnership(
     client,
     chain: base,
     address: MULTICALL3_ADDRESS,
+    abi: MULTICALL3_ABI,
   });
 
   // Prepare calls for multicall3
@@ -54,31 +107,37 @@ export async function batchCheckOwnership(
     const batch = calls.slice(i, i + MAX_CALLS_PER_BATCH);
     const batchTokenIds = tokenIds.slice(i, i + MAX_CALLS_PER_BATCH);
 
-    // Call Multicall3's tryAggregate
-    // @ts-expect-error - Thirdweb's readContract type system doesn't fully support multicall3's complex tuple types, but this works at runtime
-    const multicallResult = await readContract({
-      contract: multicall3,
-      method: "function tryAggregate(bool requireSuccess, tuple(address target, bytes callData)[] calls) view returns (tuple(bool success, bytes returnData)[] returnData)",
-      params: [false, batch],
-    }) as Array<{ success: boolean; returnData: string }>;
+    try {
+      // Call Multicall3's tryAggregate using proper ABI
+      const multicallResult = await readContract({
+        contract: multicall3,
+        method: "tryAggregate",
+        params: [false, batch],
+      }) as Array<{ success: boolean; returnData: string }>;
 
-    // Decode results
-    const decodedResults = multicallResult.map(({ success, returnData }, idx) => {
-      const tokenId = batchTokenIds[idx];
-      
-      if (!success || !returnData || returnData === "0x") {
-        return { tokenId, owner: "" };
-      }
+      // Decode results
+      const decodedResults = multicallResult.map(({ success, returnData }, idx) => {
+        const tokenId = batchTokenIds[idx];
+        
+        if (!success || !returnData || returnData === "0x") {
+          return { tokenId, owner: "" };
+        }
 
-      try {
-        const owner = ERC721_INTERFACE.decodeFunctionResult("ownerOf", returnData)[0] as string;
-        return { tokenId, owner: owner.toLowerCase() };
-      } catch {
-        return { tokenId, owner: "" };
-      }
-    });
+        try {
+          const owner = ERC721_INTERFACE.decodeFunctionResult("ownerOf", returnData)[0] as string;
+          return { tokenId, owner: owner.toLowerCase() };
+        } catch {
+          return { tokenId, owner: "" };
+        }
+      });
 
-    results.push(...decodedResults);
+      results.push(...decodedResults);
+    } catch {
+      // If batch fails, mark all tokens in batch with empty owner
+      batchTokenIds.forEach((tokenId) => {
+        results.push({ tokenId, owner: "" });
+      });
+    }
   }
 
   return results;

@@ -10,13 +10,12 @@ import Link from "next/link";
 import { useActiveAccount } from "thirdweb/react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { Heart, Package } from "lucide-react";
-import { getContract, readContract } from "thirdweb";
+import { getContract } from "thirdweb";
 import { base } from "thirdweb/chains";
 import { client } from "@/lib/thirdweb";
-import { TOTAL_COLLECTION_SIZE } from "@/lib/contracts";
+import { getOwnedNFTs } from "thirdweb/extensions/erc721";
 import { loadAllNFTs } from "@/lib/simple-data-service";
 import { convertIpfsUrl } from "@/lib/utils";
-import { rpcRateLimiter } from "@/lib/rpc-rate-limiter";
 
 // NFT data structure for grid/cards
 interface NFT {
@@ -64,7 +63,7 @@ function MyNFTsContent() {
     };
   }, [removeFromFavorites]);
 
-  // Main effect: load user's NFTs (Insight API, fallback to slow on-chain scan)
+  // Main effect: load user's NFTs using Thirdweb SDK
   useEffect(() => {
     let cancelled = false;
     let purchaseHandler: ((e: Event) => void) | null = null;
@@ -80,7 +79,6 @@ function MyNFTsContent() {
       setIsLoading(true);
 
       try {
-        const userAddress = account.address.toLowerCase();
         const contract = getContract({
           client,
           chain: base,
@@ -89,125 +87,52 @@ function MyNFTsContent() {
         const allMetadata = await loadAllNFTs();
         if (cancelled) return;
 
-        // Insight owner API (fast path)
-        const INSIGHT_CLIENT_ID =
-          process.env.NEXT_PUBLIC_INSIGHT_CLIENT_ID ||
-          process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID;
-        const CHAIN_ID = 8453;
-        const resp = await fetch(
-          `https://insight.thirdweb.com/v1/tokens/erc721/${userAddress}?chain=${CHAIN_ID}`,
-          {
-            headers: {
-              "x-client-id": INSIGHT_CLIENT_ID || "",
-              "Content-Type": "application/json",
-            },
-          },
-        );
+        // Use Thirdweb SDK to get owned NFTs
+        const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS?.toLowerCase();
         const ownedNFTsList: NFT[] = [];
-        if (cancelled) return;
+        
+        try {
+          // Get all NFTs owned by the user using Thirdweb SDK
+          const ownedNFTs = await getOwnedNFTs({
+            contract,
+            owner: account.address,
+          });
 
-        if (resp.ok) {
-          const data = await resp.json();
-          const CONTRACT_ADDRESS =
-            process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS?.toLowerCase();
-          if (data.data && Array.isArray(data.data)) {
-            for (const nft of data.data) {
-              const nftContract = (
-                nft.contract_address ||
-                nft.contractAddress ||
-                ""
-              ).toLowerCase();
-              if (CONTRACT_ADDRESS && nftContract === CONTRACT_ADDRESS) {
-                const tokenId = parseInt(nft.tokenId || nft.token_id || "0");
-                if (
-                  !isNaN(tokenId) &&
-                  tokenId >= 0 &&
-                  tokenId < allMetadata.length
-                ) {
-                  const meta = allMetadata[tokenId];
-                  if (meta) {
-                    const mediaUrl =
-                      meta?.merged_data?.media_url || meta?.image;
-                    const imageUrl = convertIpfsUrl(mediaUrl);
-                    ownedNFTsList.push({
-                      id: (tokenId + 1).toString(),
-                      tokenId: tokenId.toString(),
-                      name: meta?.name || `Satoshe Slugger #${tokenId + 1}`,
-                      image: imageUrl || "/nfts/placeholder-nft.webp",
-                      rarity: meta?.rarity_tier || "Unknown",
-                    });
-                  }
-                }
-              }
-            }
-          }
-        } else {
-          // Fallback: crawl each token (slow)
-          const batchSize = 10;
-          const tokenIdsToCheck = Array.from(
-            { length: Math.min(TOTAL_COLLECTION_SIZE, allMetadata.length) },
-            (_, idx) => idx,
-          );
-          for (
-            let i = 0;
-            i < tokenIdsToCheck.length && !cancelled;
-            i += batchSize
-          ) {
-            const batch = tokenIdsToCheck.slice(i, i + batchSize);
+          if (cancelled) return;
 
-            const calls = batch.map((tokenIdNum) => async () => {
-              const tokenId = BigInt(tokenIdNum);
-              const owner = await rpcRateLimiter.execute(async () => {
-                return (await readContract({
-                  contract,
-                  method:
-                    "function ownerOf(uint256 tokenId) view returns (address)",
-                  params: [tokenId],
-                })) as string;
-              });
-              return {
-                tokenId: tokenIdNum,
-                owner: (owner as string).toLowerCase(),
-              };
-            });
-
-            const results = await rpcRateLimiter.executeBatch(calls, 5);
+          // Filter to only NFTs from our collection and process them
+          for (const nft of ownedNFTs) {
             if (cancelled) break;
-
-            results.forEach((result) => {
+            
+            const nftContract = (nft.tokenAddress || "").toLowerCase();
+            if (CONTRACT_ADDRESS && nftContract === CONTRACT_ADDRESS) {
+              // Extract tokenId from the NFT
+              const tokenIdStr = nft.id?.toString() || "";
+              const tokenId = parseInt(tokenIdStr);
+              
               if (
-                result &&
-                typeof result === "object" &&
-                "tokenId" in result &&
-                "owner" in result
+                !isNaN(tokenId) &&
+                tokenId >= 0 &&
+                tokenId < allMetadata.length
               ) {
-                const { tokenId: tokenIdNum, owner } = result as {
-                  tokenId: number;
-                  owner: string;
-                };
-                if (owner === userAddress) {
-                  const meta = allMetadata[tokenIdNum];
+                const meta = allMetadata[tokenId];
+                if (meta) {
                   const mediaUrl = meta?.merged_data?.media_url || meta?.image;
                   const imageUrl = convertIpfsUrl(mediaUrl);
                   ownedNFTsList.push({
-                    id: (tokenIdNum + 1).toString(),
-                    tokenId: tokenIdNum.toString(),
-                    name: meta?.name || `Satoshe Slugger #${tokenIdNum + 1}`,
+                    id: (tokenId + 1).toString(),
+                    tokenId: tokenId.toString(),
+                    name: meta?.name || `Satoshe Slugger #${tokenId + 1}`,
                     image: imageUrl || "/nfts/placeholder-nft.webp",
                     rarity: meta?.rarity_tier || "Unknown",
                   });
                 }
               }
-            });
-
-            if (
-              i + batchSize <
-                Math.min(TOTAL_COLLECTION_SIZE, allMetadata.length) &&
-              !cancelled
-            ) {
-              await new Promise((resolve) => setTimeout(resolve, 50));
             }
           }
+        } catch {
+          // If getOwnedNFTs fails, return empty list
+          // Error is handled gracefully
         }
 
         if (!cancelled) {
