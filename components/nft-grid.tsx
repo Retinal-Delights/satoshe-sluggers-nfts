@@ -728,12 +728,12 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   }
 
   return (
-    <div className="w-full max-w-full">
+    <div className="w-full max-w-full overflow-x-hidden">
       <div className="flex flex-col gap-2 mb-4 pl-2">
         {/* Header section: Title, stats, and controls all together */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 min-w-0">
           {/* Left side: Title and stats */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 min-w-0 flex-1">
             <h2 className="text-lg font-medium">NFT Collection</h2>
             {filteredNFTs.length > 0 && (
               <>
@@ -772,7 +772,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           </div>
 
           {/* Right side: View toggles and dropdowns */}
-          <div className="flex flex-col items-end gap-2 ml-auto">
+          <div className="flex flex-col items-end sm:items-end gap-2 flex-shrink-0 min-w-0 max-w-full">
             {/* View Mode Toggles */}
             <TooltipProvider>
               <div className="flex items-center gap-1 border border-neutral-700 rounded-sm p-1 bg-neutral-900 flex-shrink-0">
@@ -852,14 +852,14 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
             </TooltipProvider>
 
             {/* Dropdowns - Below view toggles */}
-            <div className="flex items-center gap-3 flex-shrink-0">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-neutral-500">Sort by:</span>
+            <div className="flex items-center gap-3 flex-shrink-0 min-w-0 max-w-full">
+              <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
+                <span className="text-sm text-neutral-500 whitespace-nowrap flex-shrink-0">Sort by:</span>
                 <Select value={sortBy} onValueChange={(value) => {
                   setSortBy(value);
                   setColumnSort(null); // Clear column sort when using dropdown
                 }}>
-                  <SelectTrigger className="w-[180px] bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900">
+                  <SelectTrigger className="w-[180px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0">
                     <SelectValue placeholder="Default" />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
@@ -875,10 +875,10 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                 </Select>
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-neutral-500">Show:</span>
+              <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
+                <span className="text-sm text-neutral-500 whitespace-nowrap flex-shrink-0">Show:</span>
                 <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
-                  <SelectTrigger className="w-[150px] bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900">
+                  <SelectTrigger className="w-[150px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0">
                     <SelectValue placeholder="15 items" />
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
