@@ -146,7 +146,7 @@ function NFTsPageContent() {
 
       <section className="w-full py-6 sm:py-8 lg:py-10">
         {/* Consistent container for all content sections */}
-        <div className="w-full max-w-[1650px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12">
+        <div className="w-full max-w-[1650px] 2xl:max-w-[2000px] 4xl:max-w-[2400px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12">
           <div className="mb-8 lg:mb-12">
             <h1 id="collection-heading" className="text-6xl md:text-7xl font-extrabold tracking-tight text-center pb-2">
               SATO<span className="text-brand-pink">SHE</span> SLUGGERS

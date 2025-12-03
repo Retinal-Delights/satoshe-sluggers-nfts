@@ -692,7 +692,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
             {isLoadingOwnership ? "Loading ownership..." : "Loading..."}
           </div>
         </div>
-        <div className="mt-8 mb-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-6 gap-y-8">
+        <div className="mt-8 mb-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 4xl:grid-cols-6 gap-x-4 gap-y-8">
           {Array.from({ length: 12 }).map((_, index) => (
             <div key={index} className="bg-neutral-800 rounded-[2px] p-4 animate-pulse">
               <div className="aspect-square bg-neutral-700 rounded-[2px] mb-3"></div>

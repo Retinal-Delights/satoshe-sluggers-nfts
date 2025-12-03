@@ -70,6 +70,7 @@ export default function NFTDetailPage() {
   const [ownershipStatus, setOwnershipStatus] = useState<"ACTIVE" | "SOLD" | null>(null); // From /api/ownership
   const [ownershipStatusCheckComplete, setOwnershipStatusCheckComplete] = useState(false);
   const [copiedAddress, setCopiedAddress] = useState(false);
+  const [transactionHash, setTransactionHash] = useState<string | null>(null);
 
   // Always reset all significant state when the token changes (prevents UI bleed when flipping NFTs)
   // This ensures a clean state for each NFT viewed and prevents stale data from previous NFT
@@ -87,6 +88,7 @@ export default function NFTDetailPage() {
     setOwnershipStatus(null);
     setOwnershipStatusCheckComplete(false);
     setCopiedAddress(false);
+    setTransactionHash(null);
   }, [tokenId]);
   
   const { isFavorited, toggleFavorite, isConnected } = useFavorites();
@@ -536,6 +538,7 @@ export default function NFTDetailPage() {
     setTransactionState('success');
     setIsPurchased(true);
     setShowSuccess(true);
+    setTransactionHash(receipt.transactionHash); // Store transaction hash for Basescan link
     
     // Trigger confetti celebration (safely, only once)
     triggerConfetti();
@@ -1147,15 +1150,28 @@ export default function NFTDetailPage() {
                   <p className="text-sm text-neutral-400 mb-4">
                     Transaction confirmed on the blockchain.
                   </p>
-                  <Link
-                    href={`https://opensea.io/assets/base/${getContractAddress()}/${parseInt(tokenId) - 1}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm text-green-400 hover:text-green-300 underline transition-colors mb-4"
-                  >
-                    View on OpenSea
-                    <ExternalLink className="w-4 h-4" />
-                  </Link>
+                  <div className="flex flex-col items-center gap-2 mb-4">
+                    {transactionHash && (
+                      <Link
+                        href={`https://basescan.org/tx/${transactionHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-sm text-green-400 hover:text-green-300 underline transition-colors"
+                      >
+                        View Transaction on Basescan
+                        <ExternalLink className="w-4 h-4" />
+                      </Link>
+                    )}
+                    <Link
+                      href={`https://opensea.io/assets/base/${getContractAddress()}/${parseInt(tokenId) - 1}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-xs text-neutral-400 hover:text-neutral-300 underline transition-colors"
+                    >
+                      View on OpenSea (may take a moment to appear)
+                      <ExternalLink className="w-3 h-3" />
+                    </Link>
+                  </div>
                   <p className="text-xs text-neutral-500">
                     This message will disappear in a few seconds...
                   </p>
