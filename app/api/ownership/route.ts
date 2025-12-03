@@ -9,6 +9,8 @@ import { getAllOwnershipsWithFallback } from "@/lib/insight-service";
 
 const TOTAL_NFTS = 7777;
 
+// Environment variables - loaded from process.env (not hardcoded)
+// This ensures consistency across environments (dev, staging, production)
 const NFT_COLLECTION_ADDRESS =
   process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS!;
 const MARKETPLACE_ADDRESS =
@@ -66,6 +68,8 @@ export async function GET() {
     // ---- Fresh ownership resolution via Insight API (with Multicall3 fallback) ----
     // Insight API: 1 API call for all 7,777 NFTs (98.7% reduction vs Multicall3)
     // Falls back to Multicall3 if Insight API is unavailable
+    console.log(`[Ownership API] Fetching ownership for contract: ${NFT_COLLECTION_ADDRESS}`);
+    console.log(`[Ownership API] Marketplace address: ${MARKETPLACE_ADDRESS}`);
     const results = await getAllOwnershipsWithFallback(
       NFT_COLLECTION_ADDRESS,
       TOTAL_NFTS

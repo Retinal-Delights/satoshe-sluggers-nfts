@@ -6,6 +6,7 @@
  * Based on Thirdweb AI recommendations for optimal resource usage.
  * 
  * @see https://portal.thirdweb.com/insight - Insight API Documentation
+ * @see https://portal.thirdweb.com/insight/api-reference/get-nft-owners - Get NFT Owners API Reference
  */
 
 import { batchCheckOwnership } from "./multicall3";
@@ -39,30 +40,40 @@ interface OwnershipResult {
 
 /**
  * Get client ID from environment
- * Prefers Insight-specific client ID, falls back to main Thirdweb client ID
+ * Priority order:
+ * 1. INSIGHT_CLIENT_ID (server-side, secure, preferred for Insight API calls)
+ * 2. NEXT_PUBLIC_INSIGHT_CLIENT_ID (public, if needed)
+ * 3. NEXT_PUBLIC_THIRDWEB_CLIENT_ID (fallback to main Thirdweb client ID)
  * 
  * NOTE: All Insight API calls are server-side only (in API routes), so we use
  * server-side env vars (without NEXT_PUBLIC_) to keep the client ID secure.
  * This follows best practices by proxying requests through the backend.
+ * 
+ * Best practice: Use a dedicated INSIGHT_CLIENT_ID for server-side Insight API calls.
+ * This keeps it private and not exposed to the browser.
  */
 function getClientId(): string {
-  // Prefer server-side Insight client ID (secure, not exposed to browser)
+  // Priority 1: Prefer server-side Insight client ID (secure, not exposed to browser)
+  // This is the recommended approach for dedicated Insight API usage
   const insightClientId = process.env.INSIGHT_CLIENT_ID;
   if (insightClientId) {
+    console.log(`[Insight Service] Using dedicated INSIGHT_CLIENT_ID (server-side)`);
     return insightClientId;
   }
   
-  // Fallback to public Insight client ID (if needed for some reason)
+  // Priority 2: Fallback to public Insight client ID (if needed for some reason)
   const publicInsightClientId = process.env.NEXT_PUBLIC_INSIGHT_CLIENT_ID;
   if (publicInsightClientId) {
+    console.log(`[Insight Service] Using NEXT_PUBLIC_INSIGHT_CLIENT_ID (fallback)`);
     return publicInsightClientId;
   }
   
-  // Final fallback to main Thirdweb client ID
+  // Priority 3: Final fallback to main Thirdweb client ID
   const clientId = process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID;
   if (!clientId) {
     throw new Error("Missing INSIGHT_CLIENT_ID, NEXT_PUBLIC_INSIGHT_CLIENT_ID, or NEXT_PUBLIC_THIRDWEB_CLIENT_ID environment variable");
   }
+  console.log(`[Insight Service] Using NEXT_PUBLIC_THIRDWEB_CLIENT_ID (final fallback)`);
   return clientId;
 }
 
@@ -70,8 +81,12 @@ function getClientId(): string {
  * Fetch all NFT ownerships from Insight API
  * Returns array of { tokenId, owner } for all NFTs in the collection
  * 
- * NOTE: Insight API has a maximum limit of 1000 per request, so we paginate
- * for collections larger than 1000 NFTs.
+ * NOTE: Insight API has a maximum limit of 1000 per request.
+ * IMPORTANT: The /nfts/owners endpoint does NOT support offset/start parameters.
+ * For collections >1000 NFTs, we can only fetch the first 1000 results.
+ * For larger collections, consider using Multicall3 fallback or the /nfts endpoint.
+ * 
+ * @see https://portal.thirdweb.com/insight - Insight API Documentation
  */
 export async function getAllOwnershipsFromInsight(
   contractAddress: string,
@@ -106,15 +121,24 @@ export async function getAllOwnershipsFromInsight(
 
 /**
  * Fetch a single page of ownerships from Insight API
+ * 
+ * NOTE: The Insight API /nfts/owners endpoint does NOT support offset/start parameters.
+ * This function can only fetch the first N results (up to 1000 limit).
+ * For pagination beyond 1000, use Multicall3 fallback or aggregate from /nfts endpoint.
+ * 
+ * @see https://portal.thirdweb.com/insight/api-reference/get-nft-owners - API Reference
  */
 async function fetchOwnershipsPage(
   clientId: string,
   contractAddress: string,
-  offset: number, // Currently unused - API may not support offset
+  offset: number, // NOTE: Currently unused - Insight API does not support offset
   limit: number
 ): Promise<OwnershipResult[]> {
   // Ensure contract address is lowercase (Ethereum addresses should be lowercase for API)
   const contractAddressLower = contractAddress.toLowerCase();
+  
+  // Log contract address for debugging
+  console.log(`[Insight API] Fetching ownership for contract: ${contractAddressLower} (original: ${contractAddress})`);
   
   // Use only contractAddress (camelCase) parameter as required by Insight API
   // Addresses must be lowercase (42 characters, starting with 0x)
@@ -124,6 +148,8 @@ async function fetchOwnershipsPage(
     // Format 2: Global endpoint with chain param
     `${INSIGHT_API_BASE_ALT}/nfts/owners?chain=${BASE_CHAIN_ID}&contractAddress=${contractAddressLower}&limit=${limit}`,
   ];
+  
+  console.log(`[Insight API] Attempting endpoints:`, endpoints);
 
   for (const url of endpoints) {
     try {
@@ -135,22 +161,33 @@ async function fetchOwnershipsPage(
       });
 
       if (!response.ok) {
-        // Log error details if available
+        // Parse error details for better debugging
         let errorText = "";
+        let errorJson: { error?: { message?: string; issues?: unknown[] }; message?: string } | null = null;
+        
         try {
           errorText = await response.text();
+          // Try to parse as JSON for structured error messages
+          try {
+            errorJson = JSON.parse(errorText);
+          } catch {
+            // Not JSON, use as plain text
+          }
         } catch {
           // Ignore text read errors
         }
         
+        // Extract meaningful error message
+        const errorMessage = errorJson?.error?.message || errorJson?.message || errorText || `HTTP ${response.status}`;
+        
         // Don't log 400 errors for limit issues (we'll handle pagination)
         if (response.status !== 400 || !errorText.includes("too_big")) {
-          console.warn(`Insight API returned ${response.status} for ${url}`, errorText || "");
+          console.warn(`Insight API returned ${response.status} for ${url}`, errorMessage);
         }
         
         // If 401 Unauthorized, the client ID is wrong - don't try other endpoints
         if (response.status === 401) {
-          throw new Error(`Insight API authentication failed (401). Check INSIGHT_CLIENT_ID.`);
+          throw new Error(`Insight API authentication failed (401): ${errorMessage}. Check INSIGHT_CLIENT_ID.`);
         }
         
         continue; // Try next endpoint
@@ -215,7 +252,8 @@ async function fetchOwnershipsPage(
   }
 
   // All endpoints failed, throw to trigger fallback
-  throw new Error("Insight API unavailable - all endpoints failed");
+  // Include last error details if available for debugging
+  throw new Error("Insight API unavailable - all endpoints failed. Falling back to Multicall3.");
 }
 
 /**
@@ -253,6 +291,20 @@ export async function getBatchOwnershipFromInsight(
       });
 
       if (!response.ok) {
+        // Parse error for better debugging (but don't throw - try next endpoint)
+        try {
+          const errorText = await response.text();
+          let errorJson: { error?: { message?: string }; message?: string } | null = null;
+          try {
+            errorJson = JSON.parse(errorText);
+          } catch {
+            // Not JSON, ignore
+          }
+          const errorMessage = errorJson?.error?.message || errorJson?.message || errorText || `HTTP ${response.status}`;
+          console.warn(`Insight API batch endpoint returned ${response.status}: ${errorMessage}`);
+        } catch {
+          // Ignore error parsing errors
+        }
         continue;
       }
 
@@ -339,6 +391,20 @@ export async function getOwnedNFTsFromInsight(
       });
 
       if (!response.ok) {
+        // Parse error for better debugging (but don't throw - try next endpoint)
+        try {
+          const errorText = await response.text();
+          let errorJson: { error?: { message?: string }; message?: string } | null = null;
+          try {
+            errorJson = JSON.parse(errorText);
+          } catch {
+            // Not JSON, ignore
+          }
+          const errorMessage = errorJson?.error?.message || errorJson?.message || errorText || `HTTP ${response.status}`;
+          console.warn(`Insight API wallet endpoint returned ${response.status}: ${errorMessage}`);
+        } catch {
+          // Ignore error parsing errors
+        }
         continue;
       }
 

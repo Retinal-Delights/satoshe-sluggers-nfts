@@ -1,7 +1,7 @@
 // components/nft-grid.tsx
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, memo } from "react";
 import { useSearchParams } from "next/navigation";
 import { TOTAL_COLLECTION_SIZE } from "@/lib/contracts";
 import {
@@ -143,7 +143,7 @@ function computeTraitCounts(nfts: NFTGridItem[], categories: string[]) {
   return counts;
 }
 
-export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listingStatus, sortBy, setSortBy, itemsPerPage, setItemsPerPage, onFilteredCountChange, onTraitCountsChange }: NFTGridProps) {
+function NFTGrid({ searchTerm, searchMode, selectedFilters, listingStatus, sortBy, setSortBy, itemsPerPage, setItemsPerPage, onFilteredCountChange, onTraitCountsChange }: NFTGridProps) {
   const searchParams = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
   
@@ -164,6 +164,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   const [pricingMappings, setPricingMappings] = useState<Record<number, { price_eth: number; listing_id?: number }>>({});
   const [ownershipData, setOwnershipData] = useState<Array<{ tokenId: number; owner: string; status: "ACTIVE" | "SOLD" }>>([]);
   const [isLoadingOwnership, setIsLoadingOwnership] = useState(false);
+  const [ownershipError, setOwnershipError] = useState<string | null>(null);
   const [saleOrder, setSaleOrder] = useState<number[]>([]); // Array of tokenIds in sale order (most recent first)
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
   const [scrollPosition, setScrollPosition] = useState<number>(0);
@@ -171,24 +172,50 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   const gridContainerRef = useRef<HTMLDivElement>(null);
   
   // Load ownership data from API (only once on mount)
+  // Expected response format: [{ tokenId: number, owner: string, status: "ACTIVE" | "SOLD" }]
+  // @see /api/ownership route for implementation details
   useEffect(() => {
     let cancelled = false;
     
     const loadOwnership = async () => {
       setIsLoadingOwnership(true);
+      setOwnershipError(null);
       try {
         const res = await fetch("/api/ownership");
         if (!res.ok) {
           throw new Error(`Failed to fetch ownership: ${res.statusText}`);
         }
         const data = await res.json();
-        if (!cancelled) {
-          setOwnershipData(data);
+        
+        // Validate response format
+        if (!Array.isArray(data)) {
+          throw new Error("Invalid ownership data format: expected array");
         }
-      } catch {
+        
+        // Ensure all items have required fields with correct types
+        const validatedData = data.map((item: unknown) => {
+          if (typeof item !== 'object' || item === null) {
+            return null;
+          }
+          const obj = item as { tokenId?: unknown; owner?: unknown; status?: unknown };
+          return {
+            tokenId: typeof obj.tokenId === 'number' ? obj.tokenId : Number(obj.tokenId),
+            owner: typeof obj.owner === 'string' ? obj.owner : String(obj.owner || ''),
+            status: (obj.status === 'ACTIVE' || obj.status === 'SOLD') ? obj.status : 'ACTIVE' as const,
+          };
+        }).filter((item): item is { tokenId: number; owner: string; status: "ACTIVE" | "SOLD" } => item !== null);
+        
+        if (!cancelled) {
+          setOwnershipData(validatedData);
+        }
+      } catch (error) {
         // On error, default all to empty array (counts will be 0)
+        // Show user-friendly warning
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         if (!cancelled) {
           setOwnershipData([]);
+          setOwnershipError(errorMessage);
+          console.warn("[NFTGrid] Ownership data failed to load:", errorMessage);
         }
       } finally {
         if (!cancelled) {
@@ -755,15 +782,17 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   }
 
   return (
-    <div className="w-full max-w-full overflow-x-hidden" data-nft-grid-container="true">
-      <div className="flex flex-col gap-3 mb-6">
-        {/* Header section: Title, stats, and controls all together */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 min-w-0">
-          {/* Left side: Title and stats */}
-          <div className="flex-shrink-0 min-w-0 flex-1 max-w-full">
-            <h2 className="text-3xl font-bold mb-3 whitespace-nowrap">NFT Collection</h2>
-            {/* Tabs: All / Live / Sold - Contained toggle group */}
-            <div className="flex items-center gap-0 border border-neutral-700 rounded-[2px] p-1 bg-neutral-900/50 w-fit mb-3 flex-shrink-0 overflow-hidden flex-nowrap">
+    <div className="w-full max-w-full overflow-x-hidden" data-nft-grid-container="true" data-component-id="nft-grid-singleton">
+      {/* Header section: Strict 2-column CSS Grid layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-6 items-start mb-6 w-full">
+        {/* LEFT COLUMN */}
+        <div className="flex flex-col gap-2">
+          {/* NFT Collection title */}
+          <h2 className="text-2xl font-bold">NFT Collection</h2>
+
+          {/* Tabs */}
+          <div className="flex flex-row gap-3 items-center justify-start">
+            <div className="flex items-center gap-0 border border-neutral-700 rounded-[2px] p-1 bg-neutral-900/50 w-fit overflow-hidden flex-nowrap">
               <button
                 onClick={() => setTab("all")}
                 className={`px-4 py-2 text-body-sm font-medium transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
@@ -801,18 +830,53 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                 Sold ({totalSold})
               </button>
             </div>
-            {filteredNFTs.length > 0 && (
-              <div className="text-[clamp(11px,0.4vw+5px,14px)] text-neutral-500 mt-1.5">
-                {startIndex + 1}-{Math.min(endIndex, filteredNFTs.length)} of {filteredNFTs.length} NFTs
-              </div>
-            )}
           </div>
 
-          {/* Right side: View toggles and dropdowns */}
-          <div className="flex flex-col gap-3 items-end sm:items-end flex-shrink-0 min-w-0 max-w-full sm:max-w-none">
-            {/* View Mode Toggles */}
+          {/* Sort By */}
+          <div className="flex flex-row gap-2 items-center">
+            <span className="text-sm opacity-80">Sort by:</span>
+            <Select value={sortBy} onValueChange={(value) => {
+              setSortBy(value);
+              setColumnSort(null); // Clear column sort when using dropdown
+            }}>
+              <SelectTrigger className={`${viewMode === 'compact' ? 'min-w-[180px] w-[180px]' : 'min-w-[200px] w-[200px] sm:min-w-[220px] sm:w-[220px]'} max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sidebar font-normal focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 flex-shrink-0`}>
+                <SelectValue placeholder="Default" />
+              </SelectTrigger>
+              <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
+                <SelectItem value="default" className="text-sidebar">Default</SelectItem>
+                <SelectItem value="favorites" className="text-sidebar">Favorites</SelectItem>
+                <SelectItem value="most-recent" className="text-sidebar">Sold: Most Recent</SelectItem>
+                <SelectItem value="price-asc" className="text-sidebar">Price: Low to High</SelectItem>
+                <SelectItem value="price-desc" className="text-sidebar">Price: High to Low</SelectItem>
+                <SelectItem value="rank-desc" className="text-sidebar">Rank: High to Low</SelectItem>
+                <SelectItem value="rank-asc" className="text-sidebar">Rank: Low to High</SelectItem>
+                <SelectItem value="rarity-desc" className="text-sidebar">Rarity: High to Low</SelectItem>
+                <SelectItem value="rarity-asc" className="text-sidebar">Rarity: Low to High</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* 1-25 line */}
+          {filteredNFTs.length > 0 && (
+            <div className="text-sm leading-tight opacity-80 mt-1">
+              {startIndex + 1}-{Math.min(endIndex, filteredNFTs.length)} of {filteredNFTs.length} NFTs
+            </div>
+          )}
+
+          {/* Warning */}
+          {ownershipError && (
+            <div className="text-xs leading-tight text-yellow-500" role="alert" aria-live="polite">
+              ⚠️ Some ownership data may be out of date
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT COLUMN */}
+        <div className="flex flex-col gap-2 min-w-[220px] md:items-end">
+          {/* View mode toggles */}
+          <div className="flex flex-row gap-2 items-center justify-start md:justify-end flex-nowrap">
             <TooltipProvider>
-              <div className="relative flex items-center gap-3 border border-neutral-700 rounded-[2px] p-1">
+              <div className="relative flex items-center gap-2 border border-neutral-700 rounded-[2px] p-1 flex-nowrap">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
@@ -887,48 +951,23 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                 </Tooltip>
               </div>
             </TooltipProvider>
+          </div>
 
-            {/* Dropdowns - Below view toggles */}
-            <div className={`flex items-center gap-3 min-w-0 max-w-full sm:max-w-none ${viewMode === 'compact' ? 'flex-wrap' : 'flex-shrink-0 flex-nowrap'}`}>
-              <div className="flex items-center gap-2 min-w-0 flex-shrink-0 whitespace-nowrap">
-                <span className="text-sidebar text-neutral-500 whitespace-nowrap flex-shrink-0">Sort by:</span>
-                <Select value={sortBy} onValueChange={(value) => {
-                  setSortBy(value);
-                  setColumnSort(null); // Clear column sort when using dropdown
-                }}>
-                  <SelectTrigger className={`${viewMode === 'compact' ? 'min-w-[180px] w-[180px]' : 'min-w-[200px] w-[200px] sm:min-w-[220px] sm:w-[220px]'} max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sidebar font-normal focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 flex-shrink-0`}>
-                    <SelectValue placeholder="Default" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
-                    <SelectItem value="default" className="text-sidebar">Default</SelectItem>
-                    <SelectItem value="favorites" className="text-sidebar">Favorites</SelectItem>
-                    <SelectItem value="most-recent" className="text-sidebar">Sold: Most Recent</SelectItem>
-                    <SelectItem value="price-asc" className="text-sidebar">Price: Low to High</SelectItem>
-                    <SelectItem value="price-desc" className="text-sidebar">Price: High to Low</SelectItem>
-                    <SelectItem value="rank-desc" className="text-sidebar">Rank: High to Low</SelectItem>
-                    <SelectItem value="rank-asc" className="text-sidebar">Rank: Low to High</SelectItem>
-                    <SelectItem value="rarity-desc" className="text-sidebar">Rarity: High to Low</SelectItem>
-                    <SelectItem value="rarity-asc" className="text-sidebar">Rarity: Low to High</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center gap-2 min-w-0 flex-shrink-0 whitespace-nowrap">
-                <span className="text-sidebar text-neutral-500 whitespace-nowrap flex-shrink-0">Show:</span>
-                <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
-                  <SelectTrigger className={`${viewMode === 'compact' ? 'w-[130px]' : 'w-[150px]'} max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sidebar font-normal focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 flex-shrink-0`}>
-                    <SelectValue placeholder="15 items" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
-                    <SelectItem value="15" className="text-sidebar">15 items</SelectItem>
-                    <SelectItem value="25" className="text-sidebar">25 items</SelectItem>
-                    <SelectItem value="50" className="text-sidebar">50 items</SelectItem>
-                    <SelectItem value="100" className="text-sidebar">100 items</SelectItem>
-                    <SelectItem value="250" className="text-sidebar">250 items</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+          {/* Items per page */}
+          <div className="flex flex-row gap-2 items-center justify-start md:justify-end">
+            <span className="text-sm opacity-80">Show:</span>
+            <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
+              <SelectTrigger className={`${viewMode === 'compact' ? 'w-[130px]' : 'w-[150px]'} max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sidebar font-normal focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 flex-shrink-0`}>
+                <SelectValue placeholder="15 items" />
+              </SelectTrigger>
+              <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
+                <SelectItem value="15" className="text-sidebar">15 items</SelectItem>
+                <SelectItem value="25" className="text-sidebar">25 items</SelectItem>
+                <SelectItem value="50" className="text-sidebar">50 items</SelectItem>
+                <SelectItem value="100" className="text-sidebar">100 items</SelectItem>
+                <SelectItem value="250" className="text-sidebar">250 items</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
@@ -1155,4 +1194,20 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   );
 }
 
+// Memoize component to prevent unnecessary re-renders and duplicate rendering
+// Use a custom comparison function to ensure stable rendering
+const MemoizedNFTGrid = memo(NFTGrid, (prevProps, nextProps) => {
+  // Only re-render if props actually change
+  return (
+    prevProps.searchTerm === nextProps.searchTerm &&
+    prevProps.searchMode === nextProps.searchMode &&
+    prevProps.sortBy === nextProps.sortBy &&
+    prevProps.itemsPerPage === nextProps.itemsPerPage &&
+    JSON.stringify(prevProps.selectedFilters) === JSON.stringify(nextProps.selectedFilters) &&
+    JSON.stringify(prevProps.listingStatus) === JSON.stringify(nextProps.listingStatus)
+  );
+});
 
+MemoizedNFTGrid.displayName = 'NFTGrid';
+
+export default MemoizedNFTGrid;

@@ -216,6 +216,7 @@ function NFTsPageContent() {
             <div className="w-full">
               {isInitialized ? (
                 <NFTGrid
+                  key="nft-grid-main"
                   searchTerm={searchTerm}
                   searchMode={searchMode}
                   selectedFilters={selectedFilters}
