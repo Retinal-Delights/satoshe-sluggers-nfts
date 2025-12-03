@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Heart, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import { ArrowLeft, Heart, ChevronLeft, ChevronRight, ExternalLink, Copy, Check } from "lucide-react";
 import Footer from "@/components/footer";
 import Navigation from "@/components/navigation";
 import AttributeRarityChart from "@/components/attribute-rarity-chart";
@@ -69,6 +69,7 @@ export default function NFTDetailPage() {
   const [listingCheckComplete, setListingCheckComplete] = useState(false);
   const [ownershipStatus, setOwnershipStatus] = useState<"ACTIVE" | "SOLD" | null>(null); // From /api/ownership
   const [ownershipStatusCheckComplete, setOwnershipStatusCheckComplete] = useState(false);
+  const [copiedAddress, setCopiedAddress] = useState(false);
 
   // Always reset all significant state when the token changes (prevents UI bleed when flipping NFTs)
   // This ensures a clean state for each NFT viewed and prevents stale data from previous NFT
@@ -85,6 +86,7 @@ export default function NFTDetailPage() {
     setListingCheckComplete(false);
     setOwnershipStatus(null);
     setOwnershipStatusCheckComplete(false);
+    setCopiedAddress(false);
   }, [tokenId]);
   
   const { isFavorited, toggleFavorite, isConnected } = useFavorites();
@@ -1059,9 +1061,45 @@ export default function NFTDetailPage() {
                   </div>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-neutral-700">
                     {ownerAddress && (
-                      <p className="text-xs sm:text-sm text-neutral-400">
-                        Owner: <a href={`https://basescan.org/address/${ownerAddress}`} target="_blank" rel="noopener noreferrer" className="text-green-400 underline hover:text-green-300">{ownerAddress.slice(0,6)}...{ownerAddress.slice(-4)}</a>
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs sm:text-sm text-neutral-400">
+                          Owner: <a href={`https://basescan.org/address/${ownerAddress}`} target="_blank" rel="noopener noreferrer" className="text-green-400 underline hover:text-green-300">{ownerAddress.slice(0,6)}...{ownerAddress.slice(-4)}</a>
+                        </p>
+                        <button
+                          onClick={async () => {
+                            try {
+                              await navigator.clipboard.writeText(ownerAddress);
+                              setCopiedAddress(true);
+                              setTimeout(() => setCopiedAddress(false), 2000);
+                            } catch {
+                              // Fallback for older browsers
+                              const textArea = document.createElement('textarea');
+                              textArea.value = ownerAddress;
+                              textArea.style.position = 'fixed';
+                              textArea.style.opacity = '0';
+                              document.body.appendChild(textArea);
+                              textArea.select();
+                              try {
+                                document.execCommand('copy');
+                                setCopiedAddress(true);
+                                setTimeout(() => setCopiedAddress(false), 2000);
+                              } catch {
+                                // Copy failed
+                              }
+                              document.body.removeChild(textArea);
+                            }
+                          }}
+                          className="p-1 hover:bg-neutral-700 rounded transition-colors"
+                          aria-label="Copy owner address"
+                          title="Copy full address"
+                        >
+                          {copiedAddress ? (
+                            <Check className="w-4 h-4 text-green-400" />
+                          ) : (
+                            <Copy className="w-4 h-4 text-neutral-400 hover:text-green-400 transition-colors" />
+                          )}
+                        </button>
+                      </div>
                     )}
                     <Link
                       href={`https://opensea.io/assets/base/${getContractAddress()}/${parseInt(tokenId) - 1}`}
@@ -1103,12 +1141,21 @@ export default function NFTDetailPage() {
                 <div className="bg-neutral-800 p-8 rounded-[2px] border border-neutral-700 text-center max-w-md mx-4">
                   <div className="text-6xl mb-4">🎉</div>
                   <h3 className="text-2xl font-bold text-green-400 mb-2">Purchase Successful!</h3>
-                  <p className="text-neutral-300 mb-4">
+                  <p className="text-base text-neutral-300 mb-4">
                     You successfully purchased <strong>Satoshe Slugger #{displayNftNumber}</strong> for {priceEth} ETH!
                   </p>
                   <p className="text-sm text-neutral-400 mb-4">
                     Transaction confirmed on the blockchain.
                   </p>
+                  <Link
+                    href={`https://opensea.io/assets/base/${getContractAddress()}/${parseInt(tokenId) - 1}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm text-green-400 hover:text-green-300 underline transition-colors mb-4"
+                  >
+                    View on OpenSea
+                    <ExternalLink className="w-4 h-4" />
+                  </Link>
                   <p className="text-xs text-neutral-500">
                     This message will disappear in a few seconds...
                   </p>

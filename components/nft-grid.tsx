@@ -1024,8 +1024,8 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <Link href={`/nft/${nft.cardNumber}${getReturnToUrl !== '/nfts' ? `?returnTo=${encodeURIComponent(getReturnToUrl)}` : ''}`} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-                            <Image src={nft.image} alt={`${nft.name} - NFT #${nft.cardNumber}, Rank ${nft.rank}, ${nft.rarity} rarity, Tier ${nft.tier}`} width={40} height={40} className="rounded object-contain" style={{ width: "auto", height: "40px" }} />
+                          <Link href={`/nft/${nft.cardNumber && !isNaN(nft.cardNumber) ? nft.cardNumber : (parseInt(nft.tokenId) + 1)}${getReturnToUrl !== '/nfts' ? `?returnTo=${encodeURIComponent(getReturnToUrl)}` : ''}`} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+                            <Image src={nft.image} alt={`${nft.name} - NFT #${nft.cardNumber || (parseInt(nft.tokenId) + 1)}, Rank ${nft.rank}, ${nft.rarity} rarity, Tier ${nft.tier}`} width={40} height={40} className="rounded object-contain" style={{ width: "auto", height: "40px" }} />
                             <div>
                               <p className="text-body-xs font-normal text-[#FFFBEB] truncate">{nft.name}</p>
                               <p className="text-body-xs text-neutral-500 truncate">Token ID: {nft.tokenId}</p>
@@ -1070,7 +1070,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                                     </span>
                                   ) : (
                                     <Link
-                                      href={`/nft/${nft.cardNumber}${getReturnToUrl !== '/nfts' ? `?returnTo=${encodeURIComponent(getReturnToUrl)}` : ''}`}
+                                      href={`/nft/${nft.cardNumber && !isNaN(nft.cardNumber) ? nft.cardNumber : (parseInt(nft.tokenId) + 1)}${getReturnToUrl !== '/nfts' ? `?returnTo=${encodeURIComponent(getReturnToUrl)}` : ''}`}
                                       className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 rounded-[2px] text-blue-400 text-[clamp(11px,0.5vw+5px,15px)] font-medium hover:bg-blue-500/20 hover:border-blue-500/50 transition-colors whitespace-nowrap"
                                     >
                                       Buy

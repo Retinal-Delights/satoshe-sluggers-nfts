@@ -151,7 +151,7 @@ function NFTsPageContent() {
             <h1 id="collection-heading" className="text-6xl md:text-7xl font-extrabold tracking-tight text-center pb-2">
               SATO<span className="text-brand-pink">SHE</span> SLUGGERS
             </h1>
-            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 md:gap-6 text-body-lg text-neutral-300 max-w-4xl mx-auto tracking-tight mt-2">
+            <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 md:gap-3 text-body-lg text-neutral-300 max-w-4xl mx-auto tracking-tight mt-2">
               <span>/ <span className="text-brand-pink">SHE</span> hits different</span>
               <span>/ <span className="text-brand-pink">SHE</span> funds women&apos;s baseball</span>
               <span>/ <span className="text-brand-pink">SHE</span> makes a difference</span>
@@ -182,7 +182,7 @@ function NFTsPageContent() {
             <div className="xl:hidden mb-4">
               <Drawer direction="left" open={drawerOpen} onOpenChange={setDrawerOpen} shouldScaleBackground={false}>
                 <DrawerTrigger asChild>
-                  <button className="flex items-center gap-2 px-4 py-2 bg-[#ff0099] hover:bg-[#ff0099]/90 text-white rounded-sm transition-colors font-medium text-body-sm">
+                  <button className="flex items-center gap-2 px-4 py-2 bg-[#ff0099] hover:bg-[#ff0099]/90 text-white rounded-[2px] transition-colors font-medium text-body-sm">
                     <Filter className="w-4 h-4" />
                     Filters
                   </button>
