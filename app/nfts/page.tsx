@@ -141,95 +141,98 @@ function NFTsPageContent() {
   return (
     <div>
       <main id="main-content" className="min-h-screen bg-background text-off-white pt-24 sm:pt-28 w-full max-w-full">
-        <div className="w-full px-6 xl:px-10 2xl:px-16">
+        <div className="w-full px-6 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24">
         <Navigation activePage="nfts" />
 
       <section className="w-full py-6 sm:py-8 lg:py-10">
-        <div className="mb-8 lg:mb-12">
-          <h1 id="collection-heading" className="text-6xl md:text-7xl font-extrabold tracking-tight text-center pb-2">
-            SATO<span className="text-brand-pink">SHE</span> SLUGGERS
-          </h1>
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 md:gap-6 text-body-lg text-neutral-300 max-w-4xl mx-auto tracking-tight mt-2">
-            <span>/ <span className="text-brand-pink">SHE</span> hits different</span>
-            <span>/ <span className="text-brand-pink">SHE</span> funds women&apos;s baseball</span>
-            <span>/ <span className="text-brand-pink">SHE</span> makes a difference</span>
-          </div>
-        </div>
-
-        <div className="mb-8 lg:mb-12">
-          <CollectionStats />
-        </div>
-
-        <div className="flex flex-col xl:flex-row gap-6 lg:gap-8" suppressHydrationWarning>
-          {/* Desktop Sidebar - Hidden on mobile/tablet */}
-          <div className="hidden xl:block xl:sticky xl:top-[112px] xl:self-start z-10 w-full xl:w-[21rem] 2xl:w-[28rem]">
-            <NFTSidebar
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              searchMode={searchMode}
-              setSearchMode={setSearchMode}
-              selectedFilters={selectedFilters}
-              setSelectedFilters={setSelectedFilters}
-              traitCounts={traitCounts}
-              listingStatus={listingStatus}
-              setListingStatus={setListingStatus}
-            />
+        {/* Consistent container for all content sections */}
+        <div className="w-full max-w-[1650px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12">
+          <div className="mb-8 lg:mb-12">
+            <h1 id="collection-heading" className="text-6xl md:text-7xl font-extrabold tracking-tight text-center pb-2">
+              SATO<span className="text-brand-pink">SHE</span> SLUGGERS
+            </h1>
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 md:gap-6 text-body-lg text-neutral-300 max-w-4xl mx-auto tracking-tight mt-2">
+              <span>/ <span className="text-brand-pink">SHE</span> hits different</span>
+              <span>/ <span className="text-brand-pink">SHE</span> funds women&apos;s baseball</span>
+              <span>/ <span className="text-brand-pink">SHE</span> makes a difference</span>
+            </div>
           </div>
 
-          {/* Mobile/Tablet Drawer */}
-          <div className="xl:hidden mb-4 ml-0">
-            <Drawer direction="left" open={drawerOpen} onOpenChange={setDrawerOpen} shouldScaleBackground={false}>
-              <DrawerTrigger asChild>
-                <button className="flex items-center gap-2 px-4 py-2 bg-[#ff0099] hover:bg-[#ff0099]/90 text-white rounded-sm transition-colors font-medium text-body-sm">
-                  <Filter className="w-4 h-4" />
-                  Filters
-                </button>
-              </DrawerTrigger>
-              <DrawerContent className="h-full w-[85vw] max-w-[400px] bg-neutral-900 border-r border-neutral-700 left-0 top-0 bottom-0">
-                <DrawerHeader className="flex flex-row items-center justify-between border-b border-neutral-700 pb-4">
-                  <DrawerTitle className="text-h3 font-semibold text-off-white">Filters</DrawerTitle>
-                  <DrawerClose asChild>
-                    <button className="text-[#ff0099] hover:text-[#ff0099]/80 transition-colors p-1" aria-label="Close filters">
-                      <X className="w-5 h-5" />
-                    </button>
-                  </DrawerClose>
-                </DrawerHeader>
-                <div className="overflow-y-auto flex-1 p-4">
-                  <NFTSidebar
-                    searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
-                    searchMode={searchMode}
-                    setSearchMode={setSearchMode}
-                    selectedFilters={selectedFilters}
-                    setSelectedFilters={setSelectedFilters}
-                    traitCounts={traitCounts}
-                    listingStatus={listingStatus}
-                    setListingStatus={setListingStatus}
-                  />
-                </div>
-              </DrawerContent>
-            </Drawer>
+          <div className="mb-8 lg:mb-12">
+            <CollectionStats />
           </div>
 
-          <div className="w-full max-w-[1650px] mx-auto px-4">
-            {isInitialized ? (
-              <NFTGrid
+          <div className="flex flex-col xl:flex-row gap-6 lg:gap-8" suppressHydrationWarning>
+            {/* Desktop Sidebar - Hidden on mobile/tablet */}
+            <div className="hidden xl:block xl:sticky xl:top-[112px] xl:self-start z-10 w-full xl:w-[21rem] 2xl:w-[28rem]">
+              <NFTSidebar
                 searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
                 searchMode={searchMode}
+                setSearchMode={setSearchMode}
                 selectedFilters={selectedFilters}
+                setSelectedFilters={setSelectedFilters}
+                traitCounts={traitCounts}
                 listingStatus={listingStatus}
-                sortBy={sortBy}
-                setSortBy={setSortBy}
-                itemsPerPage={itemsPerPage}
-                setItemsPerPage={setItemsPerPage}
-                onFilteredCountChange={() => {}} // Empty callback since we don't use the count
-                onTraitCountsChange={setTraitCounts} // Pass trait counts to sidebar
+                setListingStatus={setListingStatus}
               />
-            ) : (
-              <div className="flex items-center justify-center h-64">
-                <div className="text-neutral-400">Loading filters...</div>
-              </div>
-            )}
+            </div>
+
+            {/* Mobile/Tablet Drawer */}
+            <div className="xl:hidden mb-4">
+              <Drawer direction="left" open={drawerOpen} onOpenChange={setDrawerOpen} shouldScaleBackground={false}>
+                <DrawerTrigger asChild>
+                  <button className="flex items-center gap-2 px-4 py-2 bg-[#ff0099] hover:bg-[#ff0099]/90 text-white rounded-sm transition-colors font-medium text-body-sm">
+                    <Filter className="w-4 h-4" />
+                    Filters
+                  </button>
+                </DrawerTrigger>
+                <DrawerContent className="h-full w-[85vw] max-w-[400px] bg-neutral-900 border-r border-neutral-700 left-0 top-0 bottom-0">
+                  <DrawerHeader className="flex flex-row items-center justify-between border-b border-neutral-700 pb-4">
+                    <DrawerTitle className="text-h3 font-semibold text-off-white">Filters</DrawerTitle>
+                    <DrawerClose asChild>
+                      <button className="text-[#ff0099] hover:text-[#ff0099]/80 transition-colors p-1" aria-label="Close filters">
+                        <X className="w-5 h-5" />
+                      </button>
+                    </DrawerClose>
+                  </DrawerHeader>
+                  <div className="overflow-y-auto flex-1 p-4">
+                    <NFTSidebar
+                      searchTerm={searchTerm}
+                      setSearchTerm={setSearchTerm}
+                      searchMode={searchMode}
+                      setSearchMode={setSearchMode}
+                      selectedFilters={selectedFilters}
+                      setSelectedFilters={setSelectedFilters}
+                      traitCounts={traitCounts}
+                      listingStatus={listingStatus}
+                      setListingStatus={setListingStatus}
+                    />
+                  </div>
+                </DrawerContent>
+              </Drawer>
+            </div>
+
+            <div className="w-full">
+              {isInitialized ? (
+                <NFTGrid
+                  searchTerm={searchTerm}
+                  searchMode={searchMode}
+                  selectedFilters={selectedFilters}
+                  listingStatus={listingStatus}
+                  sortBy={sortBy}
+                  setSortBy={setSortBy}
+                  itemsPerPage={itemsPerPage}
+                  setItemsPerPage={setItemsPerPage}
+                  onFilteredCountChange={() => {}} // Empty callback since we don't use the count
+                  onTraitCountsChange={setTraitCounts} // Pass trait counts to sidebar
+                />
+              ) : (
+                <div className="flex items-center justify-center h-64">
+                  <div className="text-neutral-400">Loading filters...</div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>

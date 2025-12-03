@@ -282,20 +282,20 @@ function MyNFTsContent() {
         <div className="mb-6">
           <div className="flex border-b border-neutral-700">
             <button
-              className={`py-2 px-4 flex items-center gap-2 ${activeTab === "favorites" ? "border-b-2 border-brand-pink text-offwhite font-medium" : "text-neutral-400 hover:text-offwhite"}`}
+              className={`py-2 px-4 flex items-center gap-2 transition-colors group ${activeTab === "favorites" ? "border-b-2 border-brand-pink text-offwhite font-medium hover:bg-brand-pink hover:text-off-white" : "text-neutral-400 hover:text-offwhite"}`}
               onClick={() => setActiveTab("favorites")}
             >
               <Heart
-                className={`w-4 h-4 ${activeTab === "favorites" ? "fill-brand-pink text-brand-pink" : ""}`}
+                className={`w-4 h-4 transition-colors ${activeTab === "favorites" ? "fill-brand-pink text-brand-pink group-hover:fill-off-white group-hover:text-off-white" : ""}`}
               />
               Favorites ({favorites.length - locallyUnfavorited.size})
             </button>
             <button
-              className={`py-2 px-4 flex items-center gap-2 ${activeTab === "owned" ? "border-b-2 border-brand-pink text-offwhite font-medium" : "text-neutral-400 hover:text-offwhite"}`}
+              className={`py-2 px-4 flex items-center gap-2 transition-colors group ${activeTab === "owned" ? "border-b-2 border-brand-pink text-offwhite font-medium hover:bg-brand-pink hover:text-off-white" : "text-neutral-400 hover:text-offwhite"}`}
               onClick={() => setActiveTab("owned")}
             >
               <Package
-                className={`w-4 h-4 ${activeTab === "owned" ? "text-brand-pink" : ""}`}
+                className={`w-4 h-4 transition-colors ${activeTab === "owned" ? "text-brand-pink group-hover:text-off-white" : ""}`}
               />
               Owned ({Array.isArray(ownedNFTs) ? ownedNFTs.length : 0})
             </button>
@@ -357,9 +357,9 @@ function MyNFTsContent() {
                     />
                   </Link>
                 </div>
-                <div className="p-4">
-                  <div className="flex w-full justify-between items-center px-1">
-                    <span className="text-sm font-medium">{nft.name}</span>
+                <div className="p-4 pt-6">
+                  <div className="flex w-full justify-between items-center mb-4">
+                    <span className="text-base font-medium flex-1 min-w-0 pr-2">{nft.name}</span>
                     {activeTab === "favorites" && (
                       <button
                         onClick={() =>
@@ -367,7 +367,7 @@ function MyNFTsContent() {
                             ? handleRefavorite(nft.tokenId)
                             : handleUnfavorite(nft.tokenId)
                         }
-                        className="w-6 h-6 flex items-center justify-center hover:bg-transparent transition-colors group cursor-pointer flex-shrink-0"
+                        className="w-6 h-6 flex items-center justify-center hover:bg-transparent transition-colors group cursor-pointer flex-shrink-0 ml-2"
                         aria-label={
                           (nft as NFT).isLocallyUnfavorited
                             ? "Re-favorite this NFT"
@@ -385,20 +385,22 @@ function MyNFTsContent() {
                     )}
                   </div>
                   {(nft as NFT).isLocallyUnfavorited && (
-                    <div className="mb-3">
+                    <div className="mb-4">
                       <span className="text-xs text-neutral-500 bg-neutral-800 px-2 py-1 rounded">
                         Unfavorited
                       </span>
                     </div>
                   )}
                   {activeTab === "owned" && (
-                    <button
-                      onClick={() => router.push(`/nft/${nft.id}`)}
-                      className="font-light flex items-center justify-center h-8 w-full rounded border border-brand-pink text-brand-pink bg-transparent hover:!bg-brand-pink hover:!text-off-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-fluid-sm"
-                      aria-label="View NFT details"
-                    >
-                      View Details
-                    </button>
+                    <div className="mt-6">
+                      <button
+                        onClick={() => router.push(`/nft/${nft.id}`)}
+                        className="font-light flex items-center justify-center h-8 w-full rounded border border-brand-pink text-brand-pink bg-transparent hover:!bg-brand-pink hover:!text-off-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-fluid-sm"
+                        aria-label="View NFT details"
+                      >
+                        View Details
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
