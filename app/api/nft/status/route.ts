@@ -7,7 +7,7 @@
 import { NextResponse } from "next/server";
 import { base } from "thirdweb/chains";
 import { getContract, getContractEvents, prepareEvent } from "thirdweb";
-import { client } from "@/lib/thirdweb";
+import { getInsightClient } from "@/lib/thirdweb";
 import { getAllOwnershipsWithFallback } from "@/lib/insight-service";
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS;
@@ -56,9 +56,10 @@ export async function GET() {
 
   try {
 
-    // Get contract instance
+    // Get contract instance using Insight client (for SDK's internal Insight API usage)
+    const insightClient = getInsightClient();
     const contract = getContract({
-      client,
+      client: insightClient,
       chain: base,
       address: CONTRACT_ADDRESS,
     });

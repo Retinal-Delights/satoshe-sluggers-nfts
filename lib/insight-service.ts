@@ -69,21 +69,67 @@ function getClientId(): string {
 /**
  * Fetch all NFT ownerships from Insight API
  * Returns array of { tokenId, owner } for all NFTs in the collection
+ * 
+ * NOTE: Insight API has a maximum limit of 1000 per request, so we paginate
+ * for collections larger than 1000 NFTs.
  */
 export async function getAllOwnershipsFromInsight(
   contractAddress: string,
   totalNFTs: number = 7777
 ): Promise<OwnershipResult[]> {
   const clientId = getClientId();
+  const MAX_LIMIT = 1000; // Insight API maximum limit per request
+  
+  // If collection is smaller than limit, fetch in one request
+  if (totalNFTs <= MAX_LIMIT) {
+    return await fetchOwnershipsPage(clientId, contractAddress, 0, totalNFTs);
+  }
+  
+  // For larger collections, paginate requests
+  const allResults: OwnershipResult[] = [];
+  let offset = 0;
+  
+  while (offset < totalNFTs) {
+    const limit = Math.min(MAX_LIMIT, totalNFTs - offset);
+    const pageResults = await fetchOwnershipsPage(clientId, contractAddress, offset, limit);
+    allResults.push(...pageResults);
+    offset += limit;
+    
+    // If we got fewer results than requested, we've reached the end
+    if (pageResults.length < limit) {
+      break;
+    }
+  }
+  
+  return allResults;
+}
+
+/**
+ * Fetch a single page of ownerships from Insight API
+ */
+async function fetchOwnershipsPage(
+  clientId: string,
+  contractAddress: string,
+  offset: number, // Currently unused - API may not support offset
+  limit: number
+): Promise<OwnershipResult[]> {
+  // Ensure contract address is lowercase (Ethereum addresses should be lowercase for API)
+  const contractAddressLower = contractAddress.toLowerCase();
   
   // Try multiple endpoint formats (prioritize /nfts/owners as recommended)
+  // Note: Error shows API expects "contract_address" (snake_case) in validation path
+  // Also, addresses must be lowercase (42 characters, starting with 0x)
   const endpoints = [
-    // Format 1: Recommended - Chain-specific subdomain with /nfts/owners
-    `${INSIGHT_API_BASE}/nfts/owners?contractAddress=${contractAddress}&limit=${totalNFTs}`,
-    // Format 2: Global endpoint with chain param
-    `${INSIGHT_API_BASE_ALT}/nfts/owners?chain=${BASE_CHAIN_ID}&contract=${contractAddress}&limit=${totalNFTs}`,
-    // Format 3: Alternative with contract param
-    `${INSIGHT_API_BASE_ALT}/nfts/owners?chain=${BASE_CHAIN_ID}&contractAddress=${contractAddress}&limit=${totalNFTs}`,
+    // Format 1: Chain-specific with contract_address (snake_case, lowercase address)
+    `${INSIGHT_API_BASE}/nfts/owners?contract_address=${contractAddressLower}&limit=${limit}`,
+    // Format 2: Chain-specific with contractAddress (camelCase, lowercase address)
+    `${INSIGHT_API_BASE}/nfts/owners?contractAddress=${contractAddressLower}&limit=${limit}`,
+    // Format 3: Global endpoint with contract param (lowercase)
+    `${INSIGHT_API_BASE_ALT}/nfts/owners?chain=${BASE_CHAIN_ID}&contract=${contractAddressLower}&limit=${limit}`,
+    // Format 4: Global endpoint with contract_address (snake_case)
+    `${INSIGHT_API_BASE_ALT}/nfts/owners?chain=${BASE_CHAIN_ID}&contract_address=${contractAddressLower}&limit=${limit}`,
+    // Format 5: Global endpoint with contractAddress (camelCase)
+    `${INSIGHT_API_BASE_ALT}/nfts/owners?chain=${BASE_CHAIN_ID}&contractAddress=${contractAddressLower}&limit=${limit}`,
   ];
 
   for (const url of endpoints) {
@@ -92,14 +138,28 @@ export async function getAllOwnershipsFromInsight(
         headers: {
           "x-client-id": clientId,
         },
-        // Add timeout to prevent hanging
         // Timeout handled via try-catch
       });
 
       if (!response.ok) {
         // Log error details if available
-        const errorText = await response.text().catch(() => "");
-        console.warn(`Insight API returned ${response.status} for ${url}`, errorText || "");
+        let errorText = "";
+        try {
+          errorText = await response.text();
+        } catch {
+          // Ignore text read errors
+        }
+        
+        // Don't log 400 errors for limit issues (we'll handle pagination)
+        if (response.status !== 400 || !errorText.includes("too_big")) {
+          console.warn(`Insight API returned ${response.status} for ${url}`, errorText || "");
+        }
+        
+        // If 401 Unauthorized, the client ID is wrong - don't try other endpoints
+        if (response.status === 401) {
+          throw new Error(`Insight API authentication failed (401). Check INSIGHT_CLIENT_ID.`);
+        }
+        
         continue; // Try next endpoint
       }
 
@@ -149,6 +209,11 @@ export async function getAllOwnershipsFromInsight(
           .filter((item): item is OwnershipResult => item !== null);
       }
     } catch (error) {
+      // If it's an auth error, throw immediately (don't try other endpoints)
+      if (error instanceof Error && error.message.includes("authentication failed")) {
+        throw error;
+      }
+      
       // Continue to next endpoint or fallback
       const errorMessage = error instanceof Error ? error.message : String(error);
       console.warn(`Insight API endpoint failed: ${url}`, errorMessage);

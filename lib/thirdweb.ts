@@ -22,3 +22,15 @@ export const THIRDWEB_CLIENT_ID: string = THIRDWEB_CLIENT_ID_RAW;
 // Export a shared client instance for use in hooks, contracts, etc.
 // The throw above guarantees THIRDWEB_CLIENT_ID is defined, so client is always defined
 export const client = createThirdwebClient({ clientId: THIRDWEB_CLIENT_ID });
+
+// Export an Insight-optimized client for routes that use getContractEvents
+// This uses the Insight client ID if available, which may help with SDK's internal Insight API usage
+export function getInsightClient() {
+  // Prefer Insight client ID for SDK operations that may use Insight API internally
+  const insightClientId = process.env.INSIGHT_CLIENT_ID || process.env.NEXT_PUBLIC_INSIGHT_CLIENT_ID;
+  if (insightClientId) {
+    return createThirdwebClient({ clientId: insightClientId });
+  }
+  // Fallback to main client
+  return client;
+}
