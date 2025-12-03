@@ -761,15 +761,15 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             {/* Left side: Title and stats */}
             <div className="flex-shrink-0 min-w-0">
-              <h2 className="text-3xl font-bold mb-2">NFT Collection</h2>
-              {/* Tabs: All / Live / Sold */}
-              <div className="flex items-center gap-4 mt-3 mb-2">
+              <h2 className="text-3xl font-bold mb-3">NFT Collection</h2>
+              {/* Tabs: All / Live / Sold - Contained toggle group */}
+              <div className="flex items-center gap-0 border border-neutral-700 rounded-[2px] p-1 bg-neutral-900/50 w-fit mb-3">
                 <button
                   onClick={() => setTab("all")}
-                  className={`text-body-sm font-medium transition-colors cursor-pointer ${
+                  className={`px-4 py-2 text-body-sm font-medium transition-all cursor-pointer rounded-[2px] ${
                     tab === "all"
-                      ? "text-[#ff0099] underline underline-offset-4"
-                      : "text-neutral-400 hover:text-neutral-300"
+                      ? "bg-brand-pink text-[#FFFBFB]"
+                      : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
                   }`}
                   aria-label="Show all NFTs"
                   aria-pressed={tab === "all"}
@@ -778,10 +778,10 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                 </button>
                 <button
                   onClick={() => setTab("live")}
-                  className={`text-body-sm font-medium transition-colors cursor-pointer ${
+                  className={`px-4 py-2 text-body-sm font-medium transition-all cursor-pointer rounded-[2px] ${
                     tab === "live"
-                      ? "text-blue-400 underline underline-offset-4"
-                      : "text-neutral-400 hover:text-neutral-300"
+                      ? "bg-brand-pink text-[#FFFBFB]"
+                      : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
                   }`}
                   aria-label="Show live NFTs"
                   aria-pressed={tab === "live"}
@@ -790,10 +790,10 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                 </button>
                 <button
                   onClick={() => setTab("sold")}
-                  className={`text-body-sm font-medium transition-colors cursor-pointer ${
+                  className={`px-4 py-2 text-body-sm font-medium transition-all cursor-pointer rounded-[2px] ${
                     tab === "sold"
-                      ? "text-green-400 underline underline-offset-4"
-                      : "text-neutral-400 hover:text-neutral-300"
+                      ? "bg-brand-pink text-[#FFFBFB]"
+                      : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
                   }`}
                   aria-label="Show sold NFTs"
                   aria-pressed={tab === "sold"}
