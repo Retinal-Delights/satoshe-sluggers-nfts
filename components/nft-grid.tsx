@@ -164,6 +164,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   const [pricingMappings, setPricingMappings] = useState<Record<number, { price_eth: number; listing_id?: number }>>({});
   const [ownershipData, setOwnershipData] = useState<Array<{ tokenId: number; owner: string; status: "ACTIVE" | "SOLD" }>>([]);
   const [isLoadingOwnership, setIsLoadingOwnership] = useState(false);
+  const [saleOrder, setSaleOrder] = useState<number[]>([]); // Array of tokenIds in sale order (most recent first)
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
   const [scrollPosition, setScrollPosition] = useState<number>(0);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -197,6 +198,35 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
     };
     
     loadOwnership();
+    
+    return () => {
+      cancelled = true;
+    };
+  }, []); // Only run once on mount
+
+  // Load sale order from API (only once on mount)
+  useEffect(() => {
+    let cancelled = false;
+    
+    const loadSaleOrder = async () => {
+      try {
+        const res = await fetch("/api/nft/sale-order");
+        if (!res.ok) {
+          throw new Error(`Failed to fetch sale order: ${res.statusText}`);
+        }
+        const data = await res.json();
+        if (!cancelled && data.saleOrder) {
+          setSaleOrder(data.saleOrder);
+        }
+      } catch {
+        // On error, default to empty array (will fall back to tokenId sorting)
+        if (!cancelled) {
+          setSaleOrder([]);
+        }
+      }
+    };
+    
+    loadSaleOrder();
     
     return () => {
       cancelled = true;
@@ -624,8 +654,20 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           // If both are favorited or both are not, maintain original order
           return 0;
         case "most-recent":
-          // Sort by most recent sale - reverse tokenId order (higher tokenIds = more recent)
+          // Sort by most recent sale - use sale order from API (most recent first)
           // This works best when viewing the "Sold" tab
+          if (saleOrder.length > 0) {
+            const aIndex = saleOrder.indexOf(parseInt(a.tokenId));
+            const bIndex = saleOrder.indexOf(parseInt(b.tokenId));
+            // If both are in sale order, sort by their position (lower index = more recent)
+            if (aIndex !== -1 && bIndex !== -1) {
+              return aIndex - bIndex;
+            }
+            // If only one is in sale order, prioritize it
+            if (aIndex !== -1) return -1;
+            if (bIndex !== -1) return 1;
+          }
+          // Fallback: reverse tokenId order if sale order not available
           return parseInt(b.tokenId) - parseInt(a.tokenId);
         case "rank-asc":
           return Number(a.rank) - Number(b.rank);
@@ -643,7 +685,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           return 0;
       }
     });
-  }, [filteredNFTs, sortBy, columnSort, isFavorited]);
+  }, [filteredNFTs, sortBy, columnSort, isFavorited, saleOrder]);
 
 
   // Pagination
@@ -860,7 +902,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                   <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
                     <SelectItem value="default" className="text-sidebar">Default</SelectItem>
                     <SelectItem value="favorites" className="text-sidebar">Favorites</SelectItem>
-                    <SelectItem value="most-recent" className="text-sidebar">Most Recent</SelectItem>
+                    <SelectItem value="most-recent" className="text-sidebar">Sold: Most Recent</SelectItem>
                     <SelectItem value="price-asc" className="text-sidebar">Price: Low to High</SelectItem>
                     <SelectItem value="price-desc" className="text-sidebar">Price: High to Low</SelectItem>
                     <SelectItem value="rank-desc" className="text-sidebar">Rank: High to Low</SelectItem>
