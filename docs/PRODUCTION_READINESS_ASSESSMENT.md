@@ -5,24 +5,6 @@
 
 ---
 
-## ✨ Recent Improvements
-
-### UI/UX Enhancements
-- ✅ **My NFTs Page Tabs**: Restyled with hot pink brand color, off-white text, proper hover states, and cursor pointer
-- ✅ **Purchase Success Modal**: Added "View on OpenSea" link for immediate transaction verification
-- ✅ **Owned NFTs Update**: Fixed immediate update after purchase (now updates within 2-3 seconds instead of 5 minutes)
-- ✅ **Favorites Tab Layout**: Improved justify-between spacing for NFT names and heart icons
-- ✅ **Filters Button**: Fixed corner radius to match design system (`rounded-[2px]`)
-- ✅ **Collection Stats**: Reduced spacing and heights on tablet breakpoints for better mobile/tablet experience
-- ✅ **Tagline Spacing**: Reduced spacing between the three "SHE" statements for tighter layout
-
-### Purchase Flow Improvements
-- ✅ **Immediate Owned NFTs Update**: Purchase events now trigger immediate refetch of owned NFTs list
-- ✅ **OpenSea Verification**: Purchase success modal includes direct link to view transaction on OpenSea
-- ✅ **Event Handling**: Improved purchase event listeners for better real-time updates
-
----
-
 ## ⚠️ Remaining Tasks
 
 ### 1. Staging Deployment & Testing

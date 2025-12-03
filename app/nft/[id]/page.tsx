@@ -70,6 +70,7 @@ export default function NFTDetailPage() {
   const [ownershipStatus, setOwnershipStatus] = useState<"ACTIVE" | "SOLD" | null>(null); // From /api/ownership
   const [ownershipStatusCheckComplete, setOwnershipStatusCheckComplete] = useState(false);
   const [copiedAddress, setCopiedAddress] = useState(false);
+  const [copiedContractAddress, setCopiedContractAddress] = useState(false);
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
 
   // Always reset all significant state when the token changes (prevents UI bleed when flipping NFTs)
@@ -88,6 +89,7 @@ export default function NFTDetailPage() {
     setOwnershipStatus(null);
     setOwnershipStatusCheckComplete(false);
     setCopiedAddress(false);
+    setCopiedContractAddress(false);
     setTransactionHash(null);
   }, [tokenId]);
   
@@ -1066,7 +1068,35 @@ export default function NFTDetailPage() {
                     {ownerAddress && (
                       <div className="flex items-center gap-2">
                         <p className="text-xs sm:text-sm text-neutral-400">
-                          Owner: <a href={`https://basescan.org/address/${ownerAddress}`} target="_blank" rel="noopener noreferrer" className="text-green-400 underline hover:text-green-300">{ownerAddress.slice(0,6)}...{ownerAddress.slice(-4)}</a>
+                          Owner: <button
+                            onClick={async () => {
+                              try {
+                                await navigator.clipboard.writeText(ownerAddress);
+                                setCopiedAddress(true);
+                                setTimeout(() => setCopiedAddress(false), 2000);
+                              } catch {
+                                // Fallback for older browsers
+                                const textArea = document.createElement('textarea');
+                                textArea.value = ownerAddress;
+                                textArea.style.position = 'fixed';
+                                textArea.style.opacity = '0';
+                                document.body.appendChild(textArea);
+                                textArea.select();
+                                try {
+                                  document.execCommand('copy');
+                                  setCopiedAddress(true);
+                                  setTimeout(() => setCopiedAddress(false), 2000);
+                                } catch {
+                                  // Copy failed
+                                }
+                                document.body.removeChild(textArea);
+                              }
+                            }}
+                            className="text-green-400 underline hover:text-green-300 cursor-pointer"
+                            title="Click to copy full address"
+                          >
+                            {ownerAddress.slice(0,6)}...{ownerAddress.slice(-4)}
+                          </button>
                         </p>
                         <button
                           onClick={async () => {
@@ -1231,31 +1261,68 @@ export default function NFTDetailPage() {
                   <div className="flex justify-between items-center gap-2 min-w-0">
                     <span className="text-neutral-400 flex-shrink-0">Contract Address</span>
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-off-white truncate">{getContractAddress().slice(0, 6)}...{getContractAddress().slice(-4)}</span>
                       <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(getContractAddress());
-                          // You could add a toast notification here if desired
+                        onClick={async () => {
+                          try {
+                            await navigator.clipboard.writeText(getContractAddress());
+                            setCopiedContractAddress(true);
+                            setTimeout(() => setCopiedContractAddress(false), 2000);
+                          } catch {
+                            // Fallback for older browsers
+                            const textArea = document.createElement('textarea');
+                            textArea.value = getContractAddress();
+                            textArea.style.position = 'fixed';
+                            textArea.style.opacity = '0';
+                            document.body.appendChild(textArea);
+                            textArea.select();
+                            try {
+                              document.execCommand('copy');
+                              setCopiedContractAddress(true);
+                              setTimeout(() => setCopiedContractAddress(false), 2000);
+                            } catch {
+                              // Copy failed
+                            }
+                            document.body.removeChild(textArea);
+                          }
                         }}
-                        className="p-1 hover:bg-neutral-700 rounded-[2px] transition-colors group"
-                        aria-label="Copy contract address"
-                        title="Copy contract address"
+                        className="text-off-white truncate hover:text-green-400 transition-colors cursor-pointer"
+                        title="Click to copy full address"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="text-neutral-400 group-hover:text-green-500 transition-colors"
-                        >
-                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                        </svg>
+                        {getContractAddress().slice(0, 6)}...{getContractAddress().slice(-4)}
+                      </button>
+                      <button
+                        onClick={async () => {
+                          try {
+                            await navigator.clipboard.writeText(getContractAddress());
+                            setCopiedContractAddress(true);
+                            setTimeout(() => setCopiedContractAddress(false), 2000);
+                          } catch {
+                            // Fallback for older browsers
+                            const textArea = document.createElement('textarea');
+                            textArea.value = getContractAddress();
+                            textArea.style.position = 'fixed';
+                            textArea.style.opacity = '0';
+                            document.body.appendChild(textArea);
+                            textArea.select();
+                            try {
+                              document.execCommand('copy');
+                              setCopiedContractAddress(true);
+                              setTimeout(() => setCopiedContractAddress(false), 2000);
+                            } catch {
+                              // Copy failed
+                            }
+                            document.body.removeChild(textArea);
+                          }
+                        }}
+                        className="p-1 hover:bg-neutral-700 rounded transition-colors"
+                        aria-label="Copy contract address"
+                        title="Copy full address"
+                      >
+                        {copiedContractAddress ? (
+                          <Check className="w-4 h-4 text-green-400" />
+                        ) : (
+                          <Copy className="w-4 h-4 text-neutral-400 hover:text-green-400 transition-colors" />
+                        )}
                       </button>
                     </div>
                   </div>

@@ -623,6 +623,10 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           if (!aIsFavorited && bIsFavorited) return 1;
           // If both are favorited or both are not, maintain original order
           return 0;
+        case "most-recent":
+          // Sort by most recent sale - reverse tokenId order (higher tokenIds = more recent)
+          // This works best when viewing the "Sold" tab
+          return parseInt(b.tokenId) - parseInt(a.tokenId);
         case "rank-asc":
           return Number(a.rank) - Number(b.rank);
         case "rank-desc":
@@ -688,9 +692,11 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
       <div className="w-full max-w-full">
         <div className="mb-6">
           <h2 className="text-3xl font-bold">NFT Collection</h2>
-          <div className="text-body-sm font-medium text-pink-500 mt-1">
-            {isLoadingOwnership ? "Loading ownership..." : "Loading..."}
-          </div>
+          {isLoading && !isLoadingOwnership && (
+            <div className="text-body-sm font-medium text-pink-500 mt-1">
+              Loading...
+            </div>
+          )}
         </div>
         <div className="mt-8 mb-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 4xl:grid-cols-6 gap-x-4 gap-y-8">
           {Array.from({ length: 12 }).map((_, index) => (
@@ -854,6 +860,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                   <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
                     <SelectItem value="default" className="text-sidebar">Default</SelectItem>
                     <SelectItem value="favorites" className="text-sidebar">Favorites</SelectItem>
+                    <SelectItem value="most-recent" className="text-sidebar">Most Recent</SelectItem>
                     <SelectItem value="price-asc" className="text-sidebar">Price: Low to High</SelectItem>
                     <SelectItem value="price-desc" className="text-sidebar">Price: High to Low</SelectItem>
                     <SelectItem value="rank-desc" className="text-sidebar">Rank: High to Low</SelectItem>
@@ -889,13 +896,13 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
            {/* Grid Views */}
            {(viewMode === 'grid-large' || viewMode === 'grid-medium' || viewMode === 'grid-small') && (
              <div ref={gridRef} className="mt-4 mb-8 w-full">
-               <div ref={gridContainerRef} className="w-full flex flex-wrap justify-between gap-y-10">
+               <div ref={gridContainerRef} className="w-full flex flex-wrap justify-start gap-x-4 gap-y-6">
                  {paginatedNFTs.map((nft, index) => (
                      <div
                        key={nft.id}
                        tabIndex={0}
                        onKeyDown={(e) => handleKeyDown(e, index)}
-                       className={`${viewMode === 'grid-large' ? 'w-[280px] sm:w-[300px] lg:w-[320px]' : viewMode === 'grid-medium' ? 'w-[240px] sm:w-[260px] lg:w-[280px]' : 'w-[200px] sm:w-[220px] lg:w-[240px]'} focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 rounded-[2px] overflow-visible ${
+                       className={`${viewMode === 'grid-large' ? 'w-full sm:w-[calc(50%-8px)] md:w-[calc(33.333%-11px)] lg:w-[calc(33.333%-11px)] xl:w-[calc(25%-12px)] 2xl:w-[calc(20%-13px)] 4xl:w-[calc(16.666%-13px)]' : viewMode === 'grid-medium' ? 'w-full sm:w-[calc(50%-8px)] md:w-[calc(33.333%-11px)] lg:w-[calc(33.333%-11px)] xl:w-[calc(25%-12px)] 2xl:w-[calc(20%-13px)]' : 'w-full sm:w-[calc(50%-8px)] md:w-[calc(33.333%-11px)] lg:w-[calc(33.333%-11px)] xl:w-[calc(25%-12px)]'} focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 rounded-[2px] overflow-visible ${
                          focusedIndex === index ? 'ring-2 ring-[#ff0099] ring-offset-2 ring-offset-neutral-900' : ''
                        }`}
                      >
