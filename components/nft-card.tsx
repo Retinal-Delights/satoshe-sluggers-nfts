@@ -160,12 +160,12 @@ export default function NFTCard({
             <Button
               variant="ghost"
               size="sm"
-              className="h-6 w-6 p-0 flex-shrink-0 hover:bg-transparent"
+              className="h-6 w-6 p-0 flex-shrink-0 bg-transparent hover:bg-transparent"
               onClick={handleFavoriteClick}
-              aria-label="Favorite NFT"
+              aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
             >
               <Heart
-                className={`w-4 h-4 transition-colors ${
+                className={`w-4 h-4 transition-colors cursor-pointer ${
                   isFav
                     ? "fill-[#FF0099] text-[#FF0099]"
                     : "text-[#FFFBE8] hover:text-[#FF0099]"
@@ -252,19 +252,20 @@ export default function NFTCard({
         </Link>
       </div>
 
-      <div className="w-full pl-3 pt-3 pb-4">
+      <div className="w-full pl-3 pr-3 pt-3 pb-4">
         <div className="flex items-center justify-between gap-2 min-w-0">
-          <div className={`font-normal leading-[1.15] text-nft-title ${isForSale ? 'text-blue-400' : 'text-green-400'} whitespace-nowrap truncate min-w-0 flex-1`}>
+          <div className={`font-normal leading-[1.15] text-nft-title ${isForSale ? 'text-blue-400' : 'text-green-400'} whitespace-nowrap truncate min-w-0 flex-1 pl-1.5`}>
             NFT — #{cardNumber}
           </div>
           <Button
             variant="ghost"
             size="sm"
-            className="h-6 w-6 p-0 hover:bg-transparent flex-shrink-0"
+            className="h-6 w-6 p-0 bg-transparent hover:bg-transparent flex-shrink-0"
             onClick={handleFavoriteClick}
+            aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
           >
             <Heart
-              className={`w-4 h-4 transition-colors ${
+              className={`w-4 h-4 transition-colors cursor-pointer ${
                 isFav
                   ? "fill-[#FF0099] text-[#FF0099]"
                   : "text-[#FFFBE8] hover:text-[#FF0099]"

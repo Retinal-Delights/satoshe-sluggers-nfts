@@ -200,9 +200,10 @@ export default function NFTTableView({
                         rarityPercent: nft.rarityPercent,
                       });
                     }}
-                    className="p-1 hover:bg-neutral-700 rounded transition-colors mx-auto"
+                    className="p-1 hover:bg-transparent transition-colors mx-auto"
+                    aria-label={isFavorited(nft.tokenId) ? "Remove from favorites" : "Add to favorites"}
                   >
-                    <Heart className={`w-4 h-4 ${isFavorited(nft.tokenId) ? "fill-brand-pink text-brand-pink" : "text-neutral-400 hover:text-neutral-300"}`} />
+                    <Heart className={`w-4 h-4 transition-colors cursor-pointer ${isFavorited(nft.tokenId) ? "fill-[#FF0099] text-[#FF0099]" : "text-[#FFFBE8] hover:text-[#FF0099]"}`} />
                   </button>
                 </td>
                 <td className="px-4 py-2 text-sm text-right">
