@@ -69,6 +69,11 @@ export async function GET() {
         signature: "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
       });
       
+      // NOTE: Insight API errors are expected and harmless
+      // Thirdweb SDK v5 tries Insight API first (deprecated), fails with 401, then automatically falls back to RPC
+      // The error messages in console are from SDK's internal logging - we cannot suppress them
+      // This is documented behavior: https://portal.thirdweb.com/changelog/deprecation-notice-insight-service-endpoints
+      // The SDK handles the fallback automatically, so functionality works correctly
       transferEvents = await getContractEvents({
         contract,
         events: [transferEvent],
