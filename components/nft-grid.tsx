@@ -12,7 +12,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Pagination from "@/components/ui/pagination";
-// Removed BuyDirectListingButton imports - using regular buttons to avoid RPC calls
 import NFTCard from "./nft-card";
 import { LayoutGrid, Rows3, Grid3x3, Heart, Square } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -22,8 +21,6 @@ import Image from "next/image";
 import { loadAllNFTs } from "@/lib/simple-data-service";
 import { announceToScreenReader } from "@/lib/accessibility-utils";
 import { convertIpfsUrl } from "@/lib/utils";
-
-
 
 type NFTGridItem = {
   id: string;
@@ -950,19 +947,22 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           </div>
         </div>
 
-        {/* Row 4: Item count text (full width) */}
-        <div className="text-body-xs font-thin leading-tight opacity-80">
-          {filteredNFTs.length > 0 ? (
-            `${startIndex + 1}-${Math.min(endIndex, filteredNFTs.length)} of ${filteredNFTs.length} NFTs`
-          ) : null}
-        </div>
-
-        {/* Row 5: Warning text (full width) */}
-        {ownershipError && (
-          <div className="text-body-xs leading-tight text-yellow-500 mt-1" role="alert" aria-live="polite">
-            ⚠️ Some ownership data may be out of date
+        {/* Row 4: Item count text and warning (2 columns) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
+          {/* Column 1: Item count text */}
+          <div className="text-body-xs font-thin leading-tight opacity-80">
+            {filteredNFTs.length > 0 ? (
+              `${startIndex + 1}-${Math.min(endIndex, filteredNFTs.length)} of ${filteredNFTs.length} NFTs`
+            ) : null}
           </div>
-        )}
+
+          {/* Column 2: Warning text (right-aligned) */}
+          {ownershipError && (
+            <div className="text-body-xs leading-tight text-yellow-500 justify-end flex" role="alert" aria-live="polite">
+              ⚠️ Some ownership data may be out of date
+            </div>
+          )}
+        </div>
       </div>
 
       {paginatedNFTs.length > 0 ? (
