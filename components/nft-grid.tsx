@@ -903,7 +903,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         </div>
 
         {/* Row 3: Sort by and Show dropdowns */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-start sm:justify-end gap-4 min-w-0">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 min-w-0">
           {/* Sort by dropdown */}
           <div className="flex items-center gap-2 min-w-0 flex-1 sm:flex-initial">
             <span className="text-body-sm font-light opacity-80 whitespace-nowrap flex-shrink-0">Sort by:</span>
@@ -929,7 +929,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           </div>
 
           {/* Show dropdown */}
-          <div className="flex items-center gap-2 min-w-0 flex-1 sm:flex-initial">
+          <div className="flex items-center gap-2 min-w-0 flex-1 sm:flex-initial sm:ml-auto">
             <span className="text-body-sm font-light opacity-80 whitespace-nowrap flex-shrink-0">Show:</span>
             <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
               <SelectTrigger className="w-full sm:w-[130px] md:w-[150px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0 min-w-0">
