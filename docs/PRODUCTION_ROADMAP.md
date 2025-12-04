@@ -305,21 +305,26 @@ Frontend → /api/favorites → Supabase → Returns user's favorites
 
 ## 🔍 Current Known Issues
 
-### 1. Insight API Console Errors (Expected)
-**Status:** Expected behavior, not a bug
+### 1. Insight API Console Errors (RESOLVED)
+**Status:** ✅ **FIXED** - Now using dedicated Insight Client ID
 
-**What you'll see:**
+**What was happening:**
 ```
 Error fetching from insight, falling back to rpc Error: 401 Unauthorized
 ```
 
-**Why it happens:**
-- Thirdweb SDK tries deprecated Insight API first
-- Gets 401 (expected - Insight API is deprecated)
-- SDK automatically falls back to RPC
-- Everything works correctly
+**Root cause:**
+- SDK's `getContractEvents()` uses Insight API first
+- Was using SDK Client ID (`b9de842602dfa0732a23d716af4c1451`) which doesn't have Insight API access
+- Got 401 error, then fell back to RPC
 
-**Action:** None needed - this is expected SDK behavior. The error is harmless.
+**Solution implemented:**
+- Created separate `insightClient` in `lib/thirdweb.ts` using `INSIGHT_CLIENT_ID`
+- Updated `lib/hybrid-events.ts` to use `insightClient` for event queries
+- Now `getContractEvents()` uses the correct Insight Client ID (`cf2e2081218cb0511c735f95e9b5d186`)
+- **Expected result:** No more 401 errors, Insight API should work correctly
+
+**Action:** Test to verify 401 errors are gone and Insight API is working
 
 ### 2. NFT Status Accuracy (Needs Testing)
 **Status:** Needs verification
@@ -380,13 +385,28 @@ Error fetching from insight, falling back to rpc Error: 401 Unauthorized
 ## 📝 Notes
 
 ### Thirdweb SDK Configuration
-- **Client ID:** `NEXT_PUBLIC_THIRDWEB_CLIENT_ID` (required)
-- **No Secret Key Needed:** Client ID is sufficient for current functionality
-- **RPC:** SDK handles RPC internally - no configuration needed
-- **Insight API Errors:** Expected and harmless - SDK handles fallback automatically
+- **SDK Client ID:** `NEXT_PUBLIC_THIRDWEB_CLIENT_ID` (required)
+  - Current value: `b9de842602dfa0732a23d716af4c1451`
+  - Used for: SDK operations (wallet connect, contract reads/writes, RPC)
+- **Insight API Client ID:** `INSIGHT_CLIENT_ID` (separate, dedicated client ID)
+  - Current value: `cf2e2081218cb0511c735f95e9b5d186`
+  - Used for: Insight API operations (cheap reads, analytics, owned NFTs, event queries)
+  - **Implementation:** Separate `insightClient` instance created in `lib/thirdweb.ts`
+  - **Usage:** `getContractEvents()` now uses `insightClient` instead of main `client`
+  - **Status:** ✅ Configured - should eliminate 401 errors
+- **Project ID:** `prj_cmfllaqux0mezcj0keaiyqkjq` (for reference, not needed in code)
+- **RPC URLs:** 
+  - `RPC_URL=https://8453.rpc.thirdweb.com/cf2e2081218cb0511c735f95e9b5d186` (with Insight Client ID)
+  - `NEXT_PUBLIC_RPC_URL=https://8453.rpc.thirdweb.com` (base URL)
+- **Insight Base URL:** `INSIGHT_BASE_URL=https://insight.thirdweb.com`
+- **Domain Restrictions:** Currently set to `*` (unrestricted) for testing - **MUST RESTRICT TO SPECIFIC DOMAINS BEFORE PRODUCTION**
 
 ### Environment Variables Required
-- `NEXT_PUBLIC_THIRDWEB_CLIENT_ID` - Thirdweb SDK authentication
+- `NEXT_PUBLIC_THIRDWEB_CLIENT_ID` - Thirdweb SDK Client ID (`b9de842602dfa0732a23d716af4c1451`)
+- `INSIGHT_CLIENT_ID` - Insight API dedicated Client ID (`cf2e2081218cb0511c735f95e9b5d186`)
+- `RPC_URL` - RPC endpoint with Insight Client ID (`https://8453.rpc.thirdweb.com/cf2e2081218cb0511c735f95e9b5d186`)
+- `NEXT_PUBLIC_RPC_URL` - Base RPC URL (`https://8453.rpc.thirdweb.com`)
+- `INSIGHT_BASE_URL` - Insight API base URL (`https://insight.thirdweb.com`)
 - `NEXT_PUBLIC_NFT_COLLECTION_ADDRESS` - NFT contract address
 - `NEXT_PUBLIC_MARKETPLACE_ADDRESS` - Marketplace contract address
 - `SUPABASE_URL` - Supabase database URL
@@ -446,4 +466,15 @@ Error fetching from insight, falling back to rpc Error: 401 Unauthorized
 - `HYBRID_SOLUTION_EXPLAINED.md` - Archived, see PRODUCTION_ROADMAP.md
 
 **⚠️ IMPORTANT:** Always use `PRODUCTION_ROADMAP.md` as your primary guide. Other docs are for reference only.
+
+---
+
+## 🔒 Pre-Production Security Checklist
+
+**CRITICAL - Must Complete Before Production Launch:**
+
+- [ ] **Domain Restrictions:** Restrict Insight API Client ID domain restrictions from `*` to specific production domains only
+  - Current: `*` (unrestricted - for testing only)
+  - Required: Add specific domains (e.g., `satoshesluggers.com`, `www.satoshesluggers.com`)
+  - Location: Thirdweb Dashboard → Project Settings → Insight API → Domain Restrictions
 

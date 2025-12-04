@@ -4,7 +4,8 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Heart, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import { ArrowLeft, Heart, ChevronLeft, ChevronRight, ExternalLink, Copy, Check } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import Footer from "@/components/footer";
 import Navigation from "@/components/navigation";
 import AttributeRarityChart from "@/components/attribute-rarity-chart";
@@ -45,6 +46,15 @@ function getColorForAttribute(attributeName: string) {
   return colorMap[attributeName] || colors.filter.blue;
 }
 
+// Helper to format attribute value for display (removes "Eyewear" prefix from Eyewear category values)
+// This matches the formatEyewearDisplay function in nft-sidebar.tsx
+function formatAttributeValueForDisplay(name: string, value: string): string {
+  if (name === "Eyewear" && value.startsWith("Eyewear ")) {
+    return value.replace(/^Eyewear\s+/i, "");
+  }
+  return value;
+}
+
 export default function NFTDetailPage() {
   const params = useParams<{ id: string }>();
   
@@ -75,6 +85,7 @@ export default function NFTDetailPage() {
   const [listingCheckComplete, setListingCheckComplete] = useState(false);
   const [ownershipStatus, setOwnershipStatus] = useState<"ACTIVE" | "SOLD" | null>(null); // From /api/ownership
   const [ownershipStatusCheckComplete, setOwnershipStatusCheckComplete] = useState(false);
+  const [copiedAddress, setCopiedAddress] = useState<string | null>(null); // Track which address was copied
 
   // Always reset all significant state when the token changes (prevents UI bleed when flipping NFTs)
   // This ensures a clean state for each NFT viewed and prevents stale data from previous NFT
@@ -91,6 +102,7 @@ export default function NFTDetailPage() {
     setListingCheckComplete(false);
     setOwnershipStatus(null);
     setOwnershipStatusCheckComplete(false);
+    setCopiedAddress(null); // Reset copy feedback
   }, [tokenId]);
   
   const { isFavorited, toggleFavorite, isConnected } = useFavorites();
@@ -765,195 +777,229 @@ export default function NFTDetailPage() {
               </div>
             </div>
 
-            {/* Artist and Platform - Moved to right column after Collection Details - Mobile order-5 */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 order-5 lg:order-none hidden lg:grid">
-              <a
-                href="https://kristenwoerdeman.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded transition-all group cursor-pointer"
-                aria-label="Visit Kristen Woerdeman's website"
-              >
-                <div className="flex items-center gap-3">
-                  <Image
-                    src="/brands/kristen-woerdeman/kwoerd-circular-offwhite-32.png"
-                    alt="Kristen Woerdeman"
-                    width={26}
-                    height={26}
-                    className="w-6 h-6"
-                    sizes="26px"
-                  />
-                  <div>
-                    <p className="text-sm font-medium text-off-white group-hover:text-off-white transition-colors">Artist</p>
-                    <p className="text-xs text-neutral-400 group-hover:text-off-white transition-colors">Kristen Woerdeman</p>
-                  </div>
-                </div>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-neutral-400 group-hover:text-brand-pink transition-colors"
-                  aria-hidden="true"
-                >
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                  <polyline points="15 3 21 3 21 9"></polyline>
-                  <line x1="10" y1="14" x2="21" y2="3"></line>
-                </svg>
-              </a>
-
-              <a
-                href="https://retinaldelights.io"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded transition-all group cursor-pointer"
-                aria-label="Visit Retinal Delights website"
-              >
-                <div className="flex items-center gap-3">
-                  <Image
-                    src="/brands/retinal-delights/retinal-delights-cicular-offwhite-32.png"
-                    alt="Retinal Delights"
-                    width={26}
-                    height={26}
-                    className="w-6 h-6"
-                    sizes="26px"
-                  />
-                  <div>
-                    <p className="text-sm font-medium text-off-white group-hover:text-off-white transition-colors">Platform</p>
-                    <p className="text-xs text-neutral-400 group-hover:text-off-white transition-colors">Retinal Delights</p>
-                  </div>
-                </div>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-neutral-400 group-hover:text-brand-pink transition-colors"
-                  aria-hidden="true"
-                >
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                  <polyline points="15 3 21 3 21 9"></polyline>
-                  <line x1="10" y1="14" x2="21" y2="3"></line>
-                </svg>
-              </a>
-            </div>
-
-            {/* IPFS Links - Moved to right column after Collection Details - Mobile order-6 */}
-            <div className="flex flex-row gap-3 order-6 lg:order-none hidden lg:block">
-                <a
-                  href={metadata?.merged_data?.metadata_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between w-auto px-3 py-2 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none"
-                  aria-label="View token metadata on IPFS"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: colors.filter.green + '20' }}>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        style={{ color: colors.filter.green }}
-                        aria-hidden="true"
+            {/* Artist and Platform with Token URI and Media URI below - Mobile order-5 */}
+            <div className="space-y-3 order-5 lg:order-none hidden lg:block">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <a
+                        href="https://kristenwoerdeman.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded transition-all group cursor-pointer"
+                        aria-label="Visit Kristen Woerdeman's website"
                       >
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14,2 14,8 20,8"></polyline>
-                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                        <polyline points="10,9 9,9 8,9"></polyline>
-                      </svg>
-                    </div>
-                    <div className="flex items-center gap-1.5 whitespace-nowrap">
-                      <span className="text-xs font-medium" style={{ color: colors.filter.green }}>Token URI</span>
-                      <span className="text-[10px] text-neutral-400">View metadata</span>
-                    </div>
-                  </div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-neutral-400 group-hover:text-green-500 transition-colors ml-1 flex-shrink-0"
-                    aria-hidden="true"
-                  >
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                    <polyline points="15 3 21 3 21 9"></polyline>
-                    <line x1="10" y1="14" x2="21" y2="3"></line>
-                  </svg>
-                </a>
+                        <div className="flex items-center gap-3">
+                          <Image
+                            src="/brands/kristen-woerdeman/kwoerd-circular-offwhite-32.png"
+                            alt="Kristen Woerdeman"
+                            width={26}
+                            height={26}
+                            className="w-6 h-6"
+                            sizes="26px"
+                          />
+                          <div>
+                            <p className="text-sm font-medium text-off-white group-hover:text-off-white transition-colors">Artist</p>
+                            <p className="text-xs text-neutral-400 group-hover:text-off-white transition-colors">Kristen Woerdeman</p>
+                          </div>
+                        </div>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-neutral-400 group-hover:text-brand-pink transition-colors"
+                          aria-hidden="true"
+                        >
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                          <polyline points="15 3 21 3 21 9"></polyline>
+                          <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                      </a>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="bg-neutral-800 text-off-white border-neutral-600">
+                      <div className="flex flex-col gap-1">
+                        <p>Visit website</p>
+                        <p className="text-xs font-light text-neutral-400">kristenwoerdeman.com</p>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
 
-                <a
-                  href={metadata?.merged_data?.media_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between w-auto px-3 py-2 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  aria-label="View NFT image on IPFS"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: colors.filter.blue + '20' }}>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        style={{ color: colors.filter.blue }}
-                        aria-hidden="true"
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <a
+                        href="https://retinaldelights.io"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded transition-all group cursor-pointer"
+                        aria-label="Visit Retinal Delights website"
                       >
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                        <polyline points="21,15 16,10 5,21"></polyline>
-                      </svg>
-                    </div>
-                    <div className="flex items-center gap-1.5 whitespace-nowrap">
-                      <span className="text-xs font-medium" style={{ color: colors.filter.blue }}>Media URI</span>
-                      <span className="text-[10px] text-neutral-400">View image</span>
-                    </div>
-                  </div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-neutral-400 group-hover:text-blue-500 transition-colors ml-1 flex-shrink-0"
-                    aria-hidden="true"
-                  >
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                    <polyline points="15 3 21 3 21 9"></polyline>
-                    <line x1="10" y1="14" x2="21" y2="3"></line>
-                  </svg>
-                </a>
+                        <div className="flex items-center gap-3">
+                          <Image
+                            src="/brands/retinal-delights/retinal-delights-cicular-offwhite-32.png"
+                            alt="Retinal Delights"
+                            width={26}
+                            height={26}
+                            className="w-6 h-6"
+                            sizes="26px"
+                          />
+                          <div>
+                            <p className="text-sm font-medium text-off-white group-hover:text-off-white transition-colors">Platform</p>
+                            <p className="text-xs text-neutral-400 group-hover:text-off-white transition-colors">Retinal Delights</p>
+                          </div>
+                        </div>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-neutral-400 group-hover:text-brand-pink transition-colors"
+                          aria-hidden="true"
+                        >
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                          <polyline points="15 3 21 3 21 9"></polyline>
+                          <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                      </a>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="bg-neutral-800 text-off-white border-neutral-600">
+                      <div className="flex flex-col gap-1">
+                        <p>Visit website</p>
+                        <p className="text-xs font-light text-neutral-400">retinaldelights.io</p>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
+
+              {/* Token URI and Media URI - below Artist and Platform */}
+              <TooltipProvider>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <a
+                        href={metadata?.merged_data?.metadata_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between w-full px-3 py-2 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none cursor-pointer"
+                        aria-label="View token metadata on IPFS"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: colors.filter.green + '20' }}>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              style={{ color: colors.filter.green }}
+                              aria-hidden="true"
+                            >
+                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                              <polyline points="14,2 14,8 20,8"></polyline>
+                              <line x1="16" y1="13" x2="8" y2="13"></line>
+                              <line x1="16" y1="17" x2="8" y2="17"></line>
+                              <polyline points="10,9 9,9 8,9"></polyline>
+                            </svg>
+                          </div>
+                          <span className="text-xs font-medium" style={{ color: colors.filter.green }}>Token URI</span>
+                        </div>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-neutral-400 group-hover:text-green-500 transition-colors ml-1 flex-shrink-0"
+                          aria-hidden="true"
+                        >
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                          <polyline points="15 3 21 3 21 9"></polyline>
+                          <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                      </a>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="bg-neutral-800 text-off-white border-neutral-600">
+                      <p>View metadata on IPFS</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <a
+                        href={metadata?.merged_data?.media_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between w-full px-3 py-2 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"
+                        aria-label="View NFT image on IPFS"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: colors.filter.blue + '20' }}>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              style={{ color: colors.filter.blue }}
+                              aria-hidden="true"
+                            >
+                              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                              <polyline points="21,15 16,10 5,21"></polyline>
+                            </svg>
+                          </div>
+                          <span className="text-xs font-medium" style={{ color: colors.filter.blue }}>Media URI</span>
+                        </div>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-neutral-400 group-hover:text-blue-500 transition-colors ml-1 flex-shrink-0"
+                          aria-hidden="true"
+                        >
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                          <polyline points="15 3 21 3 21 9"></polyline>
+                          <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                      </a>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="bg-neutral-800 text-off-white border-neutral-600">
+                      <p>View image</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </TooltipProvider>
+            </div>
 
             {/* Attributes - Moved to right column after Collection Details - Mobile order-7 */}
             <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-7 lg:order-none hidden lg:block">
@@ -968,7 +1014,7 @@ export default function NFTDetailPage() {
                       ></div>
                       <span className="text-xs text-neutral-400">{attr.name}</span>
                     </div>
-                    <div className="text-base md:text-sm font-medium text-off-white mb-1">{attr.value}</div>
+                    <div className="text-base md:text-sm font-medium text-off-white mb-1">{formatAttributeValueForDisplay(attr.name, attr.value)}</div>
                     <div className="text-xs text-neutral-400">
                       {attr.percentage}% • {attr.occurrence} of {TOTAL_COLLECTION_SIZE}
                     </div>
@@ -1047,37 +1093,67 @@ export default function NFTDetailPage() {
                 </div>
               </div>
             ) : isConfirmedSold ? (
-              <div className="bg-neutral-800 p-4 rounded border border-green-500/30 order-3 lg:order-none">
+              <div className="bg-neutral-800 p-4 rounded border order-3 lg:order-none" style={{ borderColor: colors.semantic.successBorder }}>
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <p className="text-sm md:text-base text-green-400 mb-1">Purchased for</p>
-                      <p className="text-2xl sm:text-3xl md:text-2xl font-bold text-green-500">
+                      <p className="text-sm md:text-base mb-1" style={{ color: colors.filter.green }}>Purchased for</p>
+                      <p className="text-2xl sm:text-3xl md:text-2xl font-bold" style={{ color: colors.filter.green }}>
                         {soldPriceEth && soldPriceEth > 0 ? `${soldPriceEth} ETH` : (priceEth > 0 ? `${priceEth} ETH` : '—')}
                       </p>
                     </div>
-                    <button
-                      disabled
-                      className="px-4 py-2 sm:px-6 sm:py-3 rounded-[2px] text-sm sm:text-base font-bold bg-green-500/10 border border-green-500/30 text-green-400 cursor-not-allowed opacity-75"
-                    >
+                    <div className="px-4 py-2 sm:px-6 sm:py-3 rounded-[2px] text-sm sm:text-base font-bold border" style={{ 
+                      color: colors.filter.green,
+                      backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                      borderColor: 'rgba(16, 185, 129, 0.3)'
+                    }}>
                       Sold
-                    </button>
+                    </div>
                   </div>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-neutral-700">
                     {ownerAddress && (
-                      <p className="text-xs sm:text-sm text-neutral-400">
-                        Owner: <a href={`https://basescan.org/address/${ownerAddress}`} target="_blank" rel="noopener noreferrer" className="text-green-400 underline hover:text-green-300">{ownerAddress.slice(0,6)}...{ownerAddress.slice(-4)}</a>
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs sm:text-sm text-neutral-400">Owner:</span>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(ownerAddress);
+                            setCopiedAddress('owner');
+                            setTimeout(() => setCopiedAddress(null), 2000);
+                          }}
+                          className="flex items-center gap-1.5 p-1 hover:bg-neutral-700 rounded transition-colors group cursor-pointer"
+                          aria-label="Copy owner address"
+                          title="Copy owner address"
+                        >
+                          <span className="text-sm font-normal" style={{ color: colors.filter.green }}>{ownerAddress.slice(0,6)}...{ownerAddress.slice(-4)}</span>
+                          {copiedAddress === 'owner' ? (
+                            <Check className="w-3 h-3" style={{ color: colors.filter.green }} />
+                          ) : (
+                            <Copy className="w-3 h-3 text-neutral-400 group-hover:text-green-500 transition-colors" />
+                          )}
+                        </button>
+                      </div>
                     )}
-                    <Link
-                      href={`https://opensea.io/assets/base/${getContractAddress()}/${parseInt(tokenId) - 1}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm text-green-400 hover:text-green-300 underline transition-colors whitespace-nowrap"
-                    >
-                      View on OpenSea
-                      <ExternalLink className="w-4 h-4" />
-                    </Link>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Link
+                            href={`https://opensea.io/assets/base/${getContractAddress()}/${parseInt(tokenId) - 1}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 text-sm transition-colors whitespace-nowrap cursor-pointer"
+                            style={{ color: colors.filter.green }}
+                            onMouseEnter={(e) => e.currentTarget.style.color = colors.filter.green}
+                            onMouseLeave={(e) => e.currentTarget.style.color = colors.filter.green}
+                          >
+                            View on OpenSea
+                            <ExternalLink className="w-4 h-4" />
+                          </Link>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="bg-neutral-800 text-off-white border-neutral-600">
+                          <p>View on OpenSea</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                 </div>
               </div>
@@ -1108,7 +1184,7 @@ export default function NFTDetailPage() {
               <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                 <div className="bg-neutral-800 p-8 rounded-[2px] border border-neutral-700 text-center max-w-md mx-4">
                   <div className="text-6xl mb-4">🎉</div>
-                  <h3 className="text-2xl font-bold text-green-400 mb-2">Purchase Successful!</h3>
+                  <h3 className="text-2xl font-bold mb-2" style={{ color: colors.filter.green }}>Purchase Successful!</h3>
                   <p className="text-neutral-300 mb-4">
                     You successfully purchased <strong>Satoshe Slugger #{displayNftNumber}</strong> for {priceEth} ETH!
                   </p>
@@ -1174,31 +1250,22 @@ export default function NFTDetailPage() {
                   <div className="flex justify-between items-center gap-2 min-w-0">
                     <span className="text-neutral-400 flex-shrink-0">Contract Address</span>
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-off-white truncate">{getContractAddress().slice(0, 6)}...{getContractAddress().slice(-4)}</span>
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(getContractAddress());
-                          // You could add a toast notification here if desired
+                          setCopiedAddress('contract');
+                          setTimeout(() => setCopiedAddress(null), 2000);
                         }}
-                        className="p-1 hover:bg-neutral-700 rounded transition-colors group"
+                        className="flex items-center gap-2 p-1 hover:bg-neutral-700 rounded transition-colors group cursor-pointer"
                         aria-label="Copy contract address"
                         title="Copy contract address"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="text-neutral-400 group-hover:text-green-500 transition-colors"
-                        >
-                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                        </svg>
+                        <span className="text-off-white truncate">{getContractAddress().slice(0, 6)}...{getContractAddress().slice(-4)}</span>
+                        {copiedAddress === 'contract' ? (
+                          <Check className="w-4 h-4" style={{ color: colors.filter.green }} />
+                        ) : (
+                          <Copy className="w-4 h-4 text-neutral-400 group-hover:text-green-500 transition-colors" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -1423,7 +1490,7 @@ export default function NFTDetailPage() {
                       ></div>
                       <span className="text-xs text-neutral-400 truncate">{attr.name}</span>
                     </div>
-                    <div className="text-sm font-medium text-off-white mb-1 break-words">{attr.value}</div>
+                    <div className="text-sm font-medium text-off-white mb-1 break-words">{formatAttributeValueForDisplay(attr.name, attr.value)}</div>
                     <div className="text-xs text-neutral-400 break-words">
                       {attr.percentage}% • {attr.occurrence} of {TOTAL_COLLECTION_SIZE}
                     </div>
@@ -1434,25 +1501,24 @@ export default function NFTDetailPage() {
 
             {/* Rarity Distribution - Mobile order-10 */}
             <div className="order-10 lg:order-none">
-              <h3 className="text-lg font-semibold mb-4 text-off-white">Rarity Distribution</h3>
-            {attributes.length > 0 ? (
-              <AttributeRarityChart
-                attributes={attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }) => ({
-                  name: attr.name,
-                  value: attr.value,
-                  percentage: attr.percentage || 0,
-                  occurrence: attr.occurrence,
-                  color: getColorForAttribute(attr.name)
-                }))}
-                overallRarity={metadata?.rarity_percent || "93.5"}
-              />
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-neutral-400">No attributes available for rarity distribution</p>
-                <p className="text-xs text-neutral-500 mt-2">Attributes count: {attributes.length}</p>
-                <p className="text-xs text-neutral-500 mt-1">Metadata: {metadata ? 'Loaded' : 'Not loaded'}</p>
-              </div>
-            )}
+              {attributes.length > 0 ? (
+                <AttributeRarityChart
+                  attributes={attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }) => ({
+                    name: attr.name,
+                    value: attr.value,
+                    percentage: attr.percentage || 0,
+                    occurrence: attr.occurrence,
+                    color: getColorForAttribute(attr.name)
+                  }))}
+                  overallRarity={metadata?.rarity_percent || "93.5"}
+                />
+              ) : (
+                <div className="bg-neutral-800 p-4 rounded border border-neutral-700 text-center py-8">
+                  <p className="text-neutral-400">No attributes available for rarity distribution</p>
+                  <p className="text-xs text-neutral-500 mt-2">Attributes count: {attributes.length}</p>
+                  <p className="text-xs text-neutral-500 mt-1">Metadata: {metadata ? 'Loaded' : 'Not loaded'}</p>
+                </div>
+              )}
             </div>
 
 

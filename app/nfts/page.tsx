@@ -191,7 +191,7 @@ function NFTsPageContent() {
 
       <section className="w-full py-6 sm:py-8 lg:py-10">
         {/* Consistent container for all content sections */}
-        <div className="w-full max-w-[1650px] 2xl:max-w-[2000px] 4xl:max-w-[2400px] mx-auto px-6 sm:px-6 md:px-8 lg:px-8 xl:px-8">
+        <div className="w-full max-w-[1650px] 2xl:max-w-[2000px] 4xl:max-w-[2400px] mx-auto px-6 sm:px-6 md:px-8 lg:px-4 xl:px-4 2xl:px-4 3xl:px-4 4xl:px-4">
           <div className="mb-8 lg:mb-12">
             <h1 id="collection-heading" className="text-[clamp(32px,4vw+12px,79px)] font-extrabold tracking-tighter text-center pb-2 leading-[0.9] sm:leading-tight">
               SATO<span className="text-brand-pink">SHE</span> SLUGGERS
@@ -225,6 +225,9 @@ function NFTsPageContent() {
 
             {/* Mobile/Tablet Drawer */}
             <Drawer direction="left" open={drawerOpen} onOpenChange={setDrawerOpen} shouldScaleBackground={false}>
+              <DrawerTrigger asChild>
+                <button className="hidden" aria-hidden="true" />
+              </DrawerTrigger>
               <DrawerContent className="h-full w-[85vw] max-w-[400px] bg-neutral-900 border-r border-neutral-700 left-0 top-0 bottom-0">
                 <DrawerHeader className="flex flex-row items-center justify-between border-b border-neutral-700 pb-4">
                   <DrawerTitle className="text-h3 font-normal text-off-white">Filters</DrawerTitle>
@@ -265,12 +268,13 @@ function NFTsPageContent() {
                   onTraitCountsChange={setTraitCounts} // Pass trait counts to sidebar
                   filtersButton={
                     <div className="xl:hidden">
-                      <DrawerTrigger asChild>
-                        <button className="flex items-center gap-2 px-4 py-2 bg-[#ff0099] hover:bg-[#ff0099]/90 text-white rounded-[2px] transition-colors font-medium text-body-sm cursor-pointer">
-                          <Filter className="w-4 h-4" />
-                          Filters
-                        </button>
-                      </DrawerTrigger>
+                      <button 
+                        onClick={() => setDrawerOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-[#ff0099] hover:bg-[#ff0099]/90 text-white rounded-[2px] transition-colors font-medium text-body-sm cursor-pointer"
+                      >
+                        <Filter className="w-4 h-4" />
+                        Filters
+                      </button>
                     </div>
                   }
                 />

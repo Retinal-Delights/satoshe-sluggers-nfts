@@ -69,7 +69,7 @@ export default function ScrollButtons() {
           <TooltipTrigger asChild>
             <button
               onClick={scrollToTop}
-              className="w-7 h-7 rounded-full bg-brand-pink hover:bg-brand-pink/90 text-off-white shadow-lg hover:shadow-xl hover:ring-2 hover:ring-white/30 transition-all duration-300 flex items-center justify-center"
+              className="w-7 h-7 rounded-full bg-brand-pink hover:bg-brand-pink/90 text-off-white shadow-lg hover:shadow-xl hover:ring-2 hover:ring-white/30 transition-all duration-300 flex items-center justify-center cursor-pointer"
               aria-label="Scroll to top"
             >
               <ArrowUp className="w-4 h-4 stroke-[2.5]" />
@@ -85,7 +85,7 @@ export default function ScrollButtons() {
           <TooltipTrigger asChild>
             <button
               onClick={scrollToBottom}
-              className="w-7 h-7 rounded-full bg-brand-pink hover:bg-brand-pink/90 text-off-white shadow-lg hover:shadow-xl hover:ring-2 hover:ring-white/30 transition-all duration-300 flex items-center justify-center"
+              className="w-7 h-7 rounded-full bg-brand-pink hover:bg-brand-pink/90 text-off-white shadow-lg hover:shadow-xl hover:ring-2 hover:ring-white/30 transition-all duration-300 flex items-center justify-center cursor-pointer"
               aria-label="Scroll to bottom"
             >
               <ArrowDown className="w-4 h-4 stroke-[2.5]" />

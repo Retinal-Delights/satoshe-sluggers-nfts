@@ -213,7 +213,7 @@ export default function NFTCard({
             ) : (
               <div className="w-full flex items-center justify-between mt-2">
                 <div className="overflow-hidden min-w-0 flex-1">
-                  <div className="text-nft-stat font-normal text-[#00FF99] whitespace-nowrap truncate">
+                  <div className="text-body-xs font-normal text-[#00FF99] whitespace-nowrap truncate">
                     Sold
                   </div>
                   {soldPriceEth && soldPriceEth > 0 ? (

@@ -124,6 +124,17 @@
   .hover\:fill-brand-pink:hover {
     fill: var(--brand-pink);
   }
+  
+  /* Design system green for hover states */
+  .group-hover\:text-green-500:hover {
+    color: #10B981 !important;
+  }
+  
+  /* Ensure off-white hover works correctly */
+  .hover\:text-off-white:hover,
+  .group:hover .group-hover\:text-off-white {
+    color: var(--off-white) !important;
+  }
 }
 
 @layer base {

@@ -82,74 +82,79 @@ export default function AttributeRarityChart({ attributes, overallRarity }: Attr
   }, {} as ChartConfig)
 
   return (
-    <ChartContainer
-      config={chartConfig}
-      className="mx-auto aspect-square w-full h-[300px] relative"
-    >
-      <PieChart
-        width={300}
-        height={300}
-      >
-        <ChartTooltip
-          cursor={false}
-          content={<ChartTooltipContent
-            hideLabel
-            className="bg-neutral-900 border-neutral-600 text-off-white"
-            formatter={(value, name) => {
-              const item = chartData.find(d => d.name === name);
-              return [
-                <span key={name} className="text-off-white font-medium">
-                  {name}: {item?.value} ({value}%)
-                </span>,
-                ""
-              ];
-            }}
-          />}
-        />
-        <Pie
-          data={chartData}
-          dataKey="percentage"
-          nameKey="name"
-          innerRadius={80}
-          outerRadius={140}
-          strokeWidth={2}
-          stroke={colors.background.stroke}
-          animationBegin={0}
-          animationDuration={1200}
-          animationEasing="ease-out"
+    <Card className="flex flex-col bg-neutral-800 border border-neutral-700 rounded-sm">
+      <CardContent className="flex-1 pb-4 pt-4">
+        <h3 className="text-lg font-semibold mb-4 text-off-white">Rarity Distribution</h3>
+        <ChartContainer
+          config={chartConfig}
+          className="mx-auto aspect-square w-full h-[300px] relative"
         >
-          <Label
-            content={({ viewBox }) => {
-              if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                return (
-                  <text
-                    x={viewBox.cx}
-                    y={viewBox.cy}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                  >
-                    <tspan
-                      x={viewBox.cx}
-                      y={(viewBox.cy || 0) - 8}
-                      className="fill-neutral-100 text-2xl font-bold"
-                    >
-                      {overallRarity}%
-                    </tspan>
-                    <tspan
-                      x={viewBox.cx}
-                      y={(viewBox.cy || 0) + 18}
-                      className="fill-neutral-400 text-sm"
-                    >
-                      Rarity
-                    </tspan>
-                  </text>
-                )
-              }
-            }}
-          />
-        </Pie>
-      </PieChart>
-    </ChartContainer>
+          <PieChart
+            width={300}
+            height={300}
+          >
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent
+                hideLabel
+                className="bg-neutral-900 border-neutral-600 text-off-white"
+                formatter={(value, name) => {
+                  const item = chartData.find(d => d.name === name);
+                  return [
+                    <span key={name} className="text-off-white font-medium">
+                      {name}: {item?.value} ({value}%)
+                    </span>,
+                    ""
+                  ];
+                }}
+              />}
+            />
+            <Pie
+              data={chartData}
+              dataKey="percentage"
+              nameKey="name"
+              innerRadius={80}
+              outerRadius={140}
+              strokeWidth={2}
+              stroke={colors.background.stroke}
+              animationBegin={0}
+              animationDuration={1200}
+              animationEasing="ease-out"
+            >
+              <Label
+                content={({ viewBox }) => {
+                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                    return (
+                      <text
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) - 8}
+                          className="fill-neutral-100 text-2xl font-bold"
+                        >
+                          {overallRarity}%
+                        </tspan>
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) + 18}
+                          className="fill-neutral-400 text-sm"
+                        >
+                          Rarity
+                        </tspan>
+                      </text>
+                    )
+                  }
+                }}
+              />
+            </Pie>
+          </PieChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
   )
   } catch (error) {
     return (

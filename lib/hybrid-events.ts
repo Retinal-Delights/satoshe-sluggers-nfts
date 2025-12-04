@@ -3,6 +3,7 @@
  * Thirdweb Event Query Utility
  * 
  * Uses ONLY Thirdweb SDK's getContractEvents() to query Transfer events.
+ * Uses dedicated Insight Client ID (insightClient) for Insight API authentication.
  * Thirdweb SDK handles all RPC internally using the client ID.
  * 
  * Standard error handling: try/catch with proper error propagation.
@@ -10,7 +11,7 @@
 
 import { getContract, getContractEvents, prepareEvent } from "thirdweb";
 import { base } from "thirdweb/chains";
-import { client } from "./thirdweb";
+import { insightClient } from "./thirdweb";
 
 // ERC721 Transfer event signature
 const TRANSFER_EVENT_SIGNATURE = "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)";
@@ -31,19 +32,21 @@ export type TransferEvent = {
  * Get Transfer events using Thirdweb SDK only
  * 
  * @param contractAddress - The NFT contract address
- * @param fromBlock - Starting block number (optional, defaults to 0)
+ * @param fromBlock - Starting block number (optional, defaults to "earliest")
  * @param toBlock - Ending block number (optional, defaults to 'latest')
  * @returns Array of Transfer events with decoded parameters
  * @returns Empty array on error (graceful degradation)
+ * 
+ * Note: Insight API requires fromBlock > 0, so we use "earliest" instead of 0
  */
 export async function getTransferEventsHybrid(
   contractAddress: string,
-  fromBlock: number | "earliest" = 0,
+  fromBlock: number | "earliest" = "earliest",
   toBlock: number | "latest" = "latest"
 ): Promise<TransferEvent[]> {
   try {
     const contract = getContract({
-      client,
+      client: insightClient, // Use Insight Client ID for event queries
       chain: base,
       address: contractAddress,
     });
@@ -52,11 +55,12 @@ export async function getTransferEventsHybrid(
       signature: TRANSFER_EVENT_SIGNATURE,
     });
 
-    // Thirdweb SDK handles RPC internally using client ID
+    // Thirdweb SDK uses Insight Client ID for Insight API calls, falls back to RPC if needed
+    // Insight API requires fromBlock > 0, so we use "earliest" instead of 0
     const events = await getContractEvents({
       contract,
       events: [transferEvent],
-      fromBlock: typeof fromBlock === "number" ? BigInt(fromBlock) : fromBlock,
+      fromBlock: typeof fromBlock === "number" && fromBlock === 0 ? "earliest" : (typeof fromBlock === "number" ? BigInt(fromBlock) : fromBlock),
       toBlock: typeof toBlock === "number" ? BigInt(toBlock) : toBlock,
     });
 
@@ -88,7 +92,7 @@ export async function getTransferEventsHybrid(
 export async function getTransferEventsFrom(
   contractAddress: string,
   fromAddress: string,
-  fromBlock: number | "earliest" = 0,
+  fromBlock: number | "earliest" = "earliest",
   toBlock: number | "latest" = "latest"
 ): Promise<TransferEvent[]> {
   const allEvents = await getTransferEventsHybrid(contractAddress, fromBlock, toBlock);
