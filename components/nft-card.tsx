@@ -157,10 +157,10 @@ export default function NFTCard({
 
           {/* Text content - aligned with image edges */}
           <div className="w-full px-3 pt-3 pb-4">
-          <div className="flex items-start justify-between gap-2 min-w-0 mb-0.5">
-            <h3 className="font-semibold text-off-white text-nft-title leading-snug truncate min-w-0 flex-1 whitespace-nowrap">
-              #{cardNumber}
-            </h3>
+            <div className="flex items-start justify-between gap-2 min-w-0 mb-0.5">
+              <h3 className="font-semibold text-off-white text-nft-title leading-snug truncate min-w-0 flex-1 whitespace-nowrap">
+                #{cardNumber}
+              </h3>
             <Button
               variant="ghost"
               size="sm"
@@ -176,57 +176,57 @@ export default function NFTCard({
                 }`}
               />
             </Button>
-          </div>
+            </div>
 
-          <div className="w-full flex flex-col gap-[2px] leading-[1.2]">
-            <div className="flex justify-between gap-2">
-              <span className="text-[0.75rem] text-gray-300 font-light whitespace-nowrap truncate flex-shrink-0">Rank:</span>
-              <span className="text-[0.8rem] text-gray-300 font-light whitespace-nowrap truncate">{rank} of {TOTAL_COLLECTION_SIZE}</span>
-            </div>
-            <div className="flex justify-between gap-2">
-              <span className="text-[0.75rem] text-gray-300 font-light whitespace-nowrap truncate flex-shrink-0">Rarity:</span>
-              <span className="text-[0.8rem] text-gray-300 font-light whitespace-nowrap truncate">{rarityPercent}%</span>
-            </div>
-            <div className="flex justify-between gap-2 truncate">
-              <span className="text-[0.75rem] text-gray-300 font-light whitespace-nowrap truncate flex-shrink-0">Tier:</span>
-              <span className="text-[0.8rem] text-gray-300 font-light break-words">{rarity}</span>
-            </div>
-          </div>
-
-          {isForSale ? (
-            <div className="w-full flex items-center justify-between mt-2">
-              <div className="overflow-hidden min-w-0 flex-1">
-                <div className="text-nft-stat font-normal text-blue-500 whitespace-nowrap truncate">
-                  Buy Now
-                </div>
-                <div className="text-nft-price font-normal leading-[1.15] text-blue-400 whitespace-nowrap truncate">
-                  {displayPrice} ETH
-                </div>
+            <div className="w-full flex flex-col gap-[2px] leading-[1.2]">
+              <div className="flex justify-between gap-2">
+                <span className="text-[0.75rem] text-gray-300 font-light whitespace-nowrap truncate flex-shrink-0">Rank:</span>
+                <span className="text-[0.8rem] text-gray-300 font-light whitespace-nowrap truncate">{rank} of {TOTAL_COLLECTION_SIZE}</span>
               </div>
-              <Link
-                href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
-                className="px-3 py-2 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-nft-button bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500 text-center"
-              >
-                BUY
-              </Link>
+              <div className="flex justify-between gap-2">
+                <span className="text-[0.75rem] text-gray-300 font-light whitespace-nowrap truncate flex-shrink-0">Rarity:</span>
+                <span className="text-[0.8rem] text-gray-300 font-light whitespace-nowrap truncate">{rarityPercent}%</span>
+              </div>
+              <div className="flex justify-between gap-2 truncate">
+                <span className="text-[0.75rem] text-gray-300 font-light whitespace-nowrap truncate flex-shrink-0">Tier:</span>
+                <span className="text-[0.8rem] text-gray-300 font-light break-words">{rarity}</span>
+              </div>
             </div>
-          ) : (
-            <div className="w-full flex items-center justify-between mt-2">
-              <div className="overflow-hidden min-w-0 flex-1">
-                <div className="text-nft-stat font-normal text-[#00FF99] whitespace-nowrap truncate">
-                  Sold
-                </div>
-                {soldPriceEth && soldPriceEth > 0 ? (
-                  <div className="text-nft-price font-normal leading-[1.15] text-[#00FF99] whitespace-nowrap truncate">
-                    {soldPriceEth} ETH
+
+            {isForSale ? (
+              <div className="w-full flex items-center justify-between mt-2">
+                <div className="overflow-hidden min-w-0 flex-1">
+                  <div className="text-nft-stat font-normal text-blue-500 whitespace-nowrap truncate">
+                    Buy Now
                   </div>
-                ) : null}
+                  <div className="text-nft-price font-normal leading-[1.15] text-blue-400 whitespace-nowrap truncate">
+                    {displayPrice} ETH
+                  </div>
+                </div>
+                <Link
+                  href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
+                  className="px-3 py-2 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-nft-button bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500 text-center"
+                >
+                  BUY
+                </Link>
               </div>
-              <span className="px-3 py-2 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-nft-button bg-[#00FF99]/10 border border-[#00FF99]/30 text-[#00FF99] cursor-not-allowed opacity-75">
-                Sold
-              </span>
-            </div>
-          )}
+            ) : (
+              <div className="w-full flex items-center justify-between mt-2">
+                <div className="overflow-hidden min-w-0 flex-1">
+                  <div className="text-nft-stat font-normal text-[#00FF99] whitespace-nowrap truncate">
+                    Sold
+                  </div>
+                  {soldPriceEth && soldPriceEth > 0 ? (
+                    <div className="text-nft-price font-normal leading-[1.15] text-[#00FF99] whitespace-nowrap truncate">
+                      {soldPriceEth} ETH
+                    </div>
+                  ) : null}
+                </div>
+                <span className="px-3 py-2 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-nft-button bg-[#00FF99]/10 border border-[#00FF99]/30 text-[#00FF99] cursor-not-allowed opacity-75">
+                  Sold
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -262,26 +262,26 @@ export default function NFTCard({
 
         {/* Text content - aligned with image edges */}
         <div className="w-full px-3 pt-3 pb-4">
-        <div className="flex items-center justify-between gap-2 min-w-0">
-          <div className={`font-normal leading-[1.15] text-nft-title ${isForSale ? 'text-blue-400' : 'text-green-400'} whitespace-nowrap truncate min-w-0 flex-1 pl-1.5`}>
-            NFT — #{cardNumber}
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <div className={`font-normal leading-[1.15] text-nft-title ${isForSale ? 'text-blue-400' : 'text-green-400'} whitespace-nowrap truncate min-w-0 flex-1 pl-1.5`}>
+              NFT — #{cardNumber}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0 bg-transparent hover:bg-transparent flex-shrink-0"
+              onClick={handleFavoriteClick}
+              aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
+            >
+              <Heart
+                className={`w-4 h-4 transition-colors cursor-pointer ${
+                  isFav
+                    ? "fill-[#FF0099] text-[#FF0099]"
+                    : "text-[#FFFBE8] hover:text-[#FF0099]"
+                }`}
+              />
+            </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0 bg-transparent hover:bg-transparent flex-shrink-0"
-            onClick={handleFavoriteClick}
-            aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
-          >
-            <Heart
-              className={`w-4 h-4 transition-colors cursor-pointer ${
-                isFav
-                  ? "fill-[#FF0099] text-[#FF0099]"
-                  : "text-[#FFFBE8] hover:text-[#FF0099]"
-              }`}
-            />
-          </Button>
-        </div>
         </div>
       </div>
     </div>
