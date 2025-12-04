@@ -5,10 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { base } from "thirdweb/chains";
-import { getContract, getContractEvents, prepareEvent } from "thirdweb";
-import { client } from "@/lib/thirdweb";
-import { suppressInsightApiErrors } from "@/lib/utils";
+import { getTransferEventsFrom } from "@/lib/hybrid-events";
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS;
 const MARKETPLACE_ADDRESS = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
@@ -45,53 +42,23 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get contract instance
-    const contract = getContract({
-      client,
-      chain: base,
-      address: CONTRACT_ADDRESS,
-    });
-
     let soldCount = 0;
 
     try {
-      // Fetch Transfer events where from_address is the marketplace
-      // This indicates tokens that were sold from the marketplace
-      const transferEvent = prepareEvent({
-        signature: "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
-      });
-      
-      // NOTE: Insight API errors are expected and harmless
-      // Thirdweb SDK v5 tries Insight API first (deprecated), fails with 401, then automatically falls back to RPC
-      // This is documented behavior: https://portal.thirdweb.com/changelog/deprecation-notice-insight-service-endpoints
-      // The SDK handles the fallback automatically, so functionality works correctly
-      // We suppress the expected 401 errors to keep console clean
-      const allTransferEvents = await suppressInsightApiErrors(() =>
-        getContractEvents({
-          contract,
-          events: [transferEvent],
-        })
+      // Fetch Transfer events using Thirdweb SDK only
+      // This queries events where 'from' is the marketplace address (actual sales)
+      // Thirdweb SDK handles all RPC internally using client ID
+      const transferEvents = await getTransferEventsFrom(
+        CONTRACT_ADDRESS,
+        MARKETPLACE_ADDRESS
       );
-      
-      // Filter events where from is the marketplace
-      const transferEvents = allTransferEvents.filter((event) => {
-        const args = event.args as { from?: string } | undefined;
-        const from = args?.from ? String(args.from).toLowerCase() : "";
-        return from === MARKETPLACE_ADDRESS;
-      });
 
       // Count unique tokenIds that were transferred from marketplace
       const tokenSet = new Set<string>();
-      if (Array.isArray(transferEvents)) {
-        transferEvents.forEach((event) => {
-          const args = event.args as { tokenId?: bigint | string | number } | undefined;
-          const tokenId = args?.tokenId;
-          if (tokenId !== undefined) {
-            const tokenIdStr = typeof tokenId === "bigint" ? tokenId.toString() : String(tokenId);
-            tokenSet.add(tokenIdStr);
-          }
-        });
-      }
+      transferEvents.forEach((event) => {
+        const tokenIdStr = event.tokenId.toString();
+        tokenSet.add(tokenIdStr);
+      });
       soldCount = tokenSet.size;
     } catch {
       // If event fetching fails, return cached data or default

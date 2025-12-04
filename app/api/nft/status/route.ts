@@ -5,10 +5,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { base } from "thirdweb/chains";
-import { getContract, getContractEvents, prepareEvent } from "thirdweb";
-import { client } from "@/lib/thirdweb";
-import { suppressInsightApiErrors } from "@/lib/utils";
+import { getTransferEventsHybrid } from "@/lib/hybrid-events";
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS;
 const MARKETPLACE_ADDRESS = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
@@ -55,32 +52,22 @@ export async function GET() {
       );
     }
 
-    // Get contract instance
-    const contract = getContract({
-      client,
-      chain: base,
-      address: CONTRACT_ADDRESS,
-    });
-
-    // Fetch ALL Transfer events using Thirdweb SDK
-    // We need to get all transfers to determine which tokens have been sold
+    // Fetch ALL Transfer events using Thirdweb SDK only
+    // We need all transfers to determine which tokens have been sold
+    // Thirdweb SDK handles all RPC internally using client ID
     let transferEvents;
     try {
-      const transferEvent = prepareEvent({
-        signature: "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
-      });
+      const allEvents = await getTransferEventsHybrid(CONTRACT_ADDRESS);
       
-      // NOTE: Insight API errors are expected and harmless
-      // Thirdweb SDK v5 tries Insight API first (deprecated), fails with 401, then automatically falls back to RPC
-      // This is documented behavior: https://portal.thirdweb.com/changelog/deprecation-notice-insight-service-endpoints
-      // The SDK handles the fallback automatically, so functionality works correctly
-      // We suppress the expected 401 errors to keep console clean
-      transferEvents = await suppressInsightApiErrors(() =>
-        getContractEvents({
-          contract,
-          events: [transferEvent],
-        })
-      );
+      // Convert to format expected by rest of code
+      transferEvents = allEvents.map((event) => ({
+        args: {
+          from: event.from,
+          to: event.to,
+          tokenId: event.tokenId,
+        },
+        blockNumber: BigInt(event.blockNumber),
+      }));
     } catch {
       // Return cached data if available, otherwise return default
       if (cache.data) {
@@ -116,21 +103,17 @@ export async function GET() {
     
     if (Array.isArray(transferEvents)) {
       transferEvents.forEach((event) => {
-        // Extract data from Thirdweb event format
-        const args = event.args as { from?: string; to?: string; tokenId?: bigint | string | number } | undefined;
-        const tokenId = args?.tokenId;
-        const to = args?.to ? String(args.to).toLowerCase() : "";
+        // Extract data from Thirdweb SDK event format
+        const tokenIdNum = Number(event.tokenId);
+        const to = event.to.toLowerCase();
         
-        if (tokenId !== undefined && to) {
-          const tokenIdNum = typeof tokenId === "bigint" ? Number(tokenId) : typeof tokenId === "string" ? parseInt(tokenId) : Number(tokenId);
-          if (!isNaN(tokenIdNum) && tokenIdNum >= 0 && tokenIdNum < TOTAL_NFTS) {
-            // Track latest transfer destination
-            latestTransfer.set(tokenIdNum, to);
-            
-            // If transferred to a non-zero address that is not the marketplace, mark as ever sold
-            if (to !== "0x0000000000000000000000000000000000000000" && to !== MARKETPLACE_ADDRESS) {
-              tokensEverSold.add(tokenIdNum);
-            }
+        if (!isNaN(tokenIdNum) && tokenIdNum >= 0 && tokenIdNum < TOTAL_NFTS) {
+          // Track latest transfer destination
+          latestTransfer.set(tokenIdNum, to);
+          
+          // If transferred to a non-zero address that is not the marketplace, mark as ever sold
+          if (to !== "0x0000000000000000000000000000000000000000" && to !== MARKETPLACE_ADDRESS) {
+            tokensEverSold.add(tokenIdNum);
           }
         }
       });

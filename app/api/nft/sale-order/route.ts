@@ -5,10 +5,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { base } from "thirdweb/chains";
-import { getContract, getContractEvents, prepareEvent } from "thirdweb";
-import { client } from "@/lib/thirdweb";
-import { suppressInsightApiErrors } from "@/lib/utils";
+import { getTransferEventsFrom } from "@/lib/hybrid-events";
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS;
 const MARKETPLACE_ADDRESS = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
@@ -41,60 +38,29 @@ export async function GET() {
       );
     }
 
-    // Get contract instance
-    const contract = getContract({
-      client,
-      chain: base,
-      address: CONTRACT_ADDRESS,
-    });
-
     try {
-      // Fetch Transfer events where from_address is the marketplace
-      // This indicates tokens that were sold from the marketplace
-      // Note: This may be slow on first load as it fetches all events via RPC
-      const transferEvent = prepareEvent({
-        signature: "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
-      });
-      
-      // NOTE: Insight API errors are expected and harmless
-      // Thirdweb SDK v5 tries Insight API first (deprecated), fails with 401, then automatically falls back to RPC
-      // This is documented behavior: https://portal.thirdweb.com/changelog/deprecation-notice-insight-service-endpoints
-      // The SDK handles the fallback automatically, so functionality works correctly
-      // We suppress the expected 401 errors to keep console clean
-      const allTransferEvents = await suppressInsightApiErrors(() =>
-        getContractEvents({
-          contract,
-          events: [transferEvent],
-        })
+      // Fetch Transfer events using Thirdweb SDK only
+      // This queries events where 'from' is the marketplace address (actual sales)
+      // Thirdweb SDK handles all RPC internally using client ID
+      const saleEvents = await getTransferEventsFrom(
+        CONTRACT_ADDRESS,
+        MARKETPLACE_ADDRESS
       );
-      
-      // Filter events where from is the marketplace (actual sales)
-      const saleEvents = allTransferEvents.filter((event) => {
-        const args = event.args as { from?: string } | undefined;
-        const from = args?.from ? String(args.from).toLowerCase() : "";
-        return from === MARKETPLACE_ADDRESS;
-      });
 
-      // Extract tokenIds and block numbers
-      // Events are typically returned in chronological order (oldest first), so we'll reverse for most recent first
+      // Extract tokenIds and block numbers from Thirdweb SDK events
+      // Events are returned in chronological order (oldest first)
       const saleData: Array<{ tokenId: number; blockNumber: number; index: number }> = [];
       
-      if (Array.isArray(saleEvents)) {
-        saleEvents.forEach((event, index) => {
-          const args = event.args as { tokenId?: bigint | string | number } | undefined;
-          const tokenId = args?.tokenId;
-          const blockNumber = (event as { blockNumber?: bigint | number }).blockNumber 
-            ? Number((event as { blockNumber: bigint | number }).blockNumber) 
-            : 0;
-          
-          if (tokenId !== undefined) {
-            const tokenIdNum = typeof tokenId === "bigint" ? Number(tokenId) : typeof tokenId === "string" ? parseInt(tokenId) : Number(tokenId);
-            if (!isNaN(tokenIdNum) && tokenIdNum >= 0 && tokenIdNum < TOTAL_NFTS) {
-              saleData.push({ tokenId: tokenIdNum, blockNumber, index });
-            }
-          }
-        });
-      }
+      saleEvents.forEach((event, index) => {
+        const tokenIdNum = Number(event.tokenId);
+        if (!isNaN(tokenIdNum) && tokenIdNum >= 0 && tokenIdNum < TOTAL_NFTS) {
+          saleData.push({ 
+            tokenId: tokenIdNum, 
+            blockNumber: event.blockNumber, 
+            index 
+          });
+        }
+      });
 
       // Sort by block number (descending) - most recent sales first
       // If block numbers are unavailable or same, use reverse index order (most recent events are at end of array)

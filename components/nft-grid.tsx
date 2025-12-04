@@ -903,51 +903,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           </div>
         </div>
 
-        {/* Row 3: Sort by and Show dropdowns (2 columns on desktop) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {/* Column 1: Sort by dropdown */}
-          <div className="flex items-center gap-2 justify-start">
-            <span className="text-body-sm font-light opacity-80">Sort by:</span>
-            <Select value={sortBy} onValueChange={(value) => {
-              setSortBy(value);
-              setColumnSort(null);
-            }}>
-              <SelectTrigger className="w-[220px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0">
-                <SelectValue placeholder="Default" />
-              </SelectTrigger>
-              <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
-                <SelectItem value="default">Default</SelectItem>
-                <SelectItem value="favorites">Favorites</SelectItem>
-                <SelectItem value="most-recent">Sold: Most Recent</SelectItem>
-                <SelectItem value="price-asc">Price: Low to High</SelectItem>
-                <SelectItem value="price-desc">Price: High to Low</SelectItem>
-                <SelectItem value="rank-desc">Rank: High to Low</SelectItem>
-                <SelectItem value="rank-asc">Rank: Low to High</SelectItem>
-                <SelectItem value="rarity-desc">Rarity: High to Low</SelectItem>
-                <SelectItem value="rarity-asc">Rarity: Low to High</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Column 2: Show dropdown */}
-          <div className="flex items-center gap-2 justify-end">
-            <span className="text-body-sm font-light opacity-80">Show:</span>
-            <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
-              <SelectTrigger className="w-[150px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0">
-                <SelectValue placeholder="15 items" />
-              </SelectTrigger>
-              <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
-                <SelectItem value="15">15 items</SelectItem>
-                <SelectItem value="25">25 items</SelectItem>
-                <SelectItem value="50">50 items</SelectItem>
-                <SelectItem value="100">100 items</SelectItem>
-                <SelectItem value="250">250 items</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Row 4: Item count text and warning (2 columns) */}
+        {/* Row 3: Item count (left) and Sort/Show dropdowns (right) - 2 columns on desktop */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
           {/* Column 1: Item count text */}
           <div className="text-body-xs font-thin leading-tight opacity-80">
@@ -956,13 +912,57 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
             ) : null}
           </div>
 
-          {/* Column 2: Warning text (right-aligned) */}
-          {ownershipError && (
-            <div className="text-body-xs leading-tight text-yellow-500 justify-end flex" role="alert" aria-live="polite">
-              ⚠️ Some ownership data may be out of date
+          {/* Column 2: Sort by and Show dropdowns (right-aligned) */}
+          <div className="flex items-center gap-4 justify-end flex-wrap">
+            {/* Sort by dropdown */}
+            <div className="flex items-center gap-2">
+              <span className="text-body-sm font-light opacity-80">Sort by:</span>
+              <Select value={sortBy} onValueChange={(value) => {
+                setSortBy(value);
+                setColumnSort(null);
+              }}>
+                <SelectTrigger className="w-[220px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0">
+                  <SelectValue placeholder="Default" />
+                </SelectTrigger>
+                <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
+                  <SelectItem value="default" className="text-body-sm font-normal">Default</SelectItem>
+                  <SelectItem value="favorites" className="text-body-sm font-normal">Favorites</SelectItem>
+                  <SelectItem value="most-recent" className="text-body-sm font-normal">Sold: Most Recent</SelectItem>
+                  <SelectItem value="price-asc" className="text-body-sm font-normal">Price: Low to High</SelectItem>
+                  <SelectItem value="price-desc" className="text-body-sm font-normal">Price: High to Low</SelectItem>
+                  <SelectItem value="rank-desc" className="text-body-sm font-normal">Rank: High to Low</SelectItem>
+                  <SelectItem value="rank-asc" className="text-body-sm font-normal">Rank: Low to High</SelectItem>
+                  <SelectItem value="rarity-desc" className="text-body-sm font-normal">Rarity: High to Low</SelectItem>
+                  <SelectItem value="rarity-asc" className="text-body-sm font-normal">Rarity: Low to High</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          )}
+
+            {/* Show dropdown */}
+            <div className="flex items-center gap-2">
+              <span className="text-body-sm font-light opacity-80">Show:</span>
+              <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
+                <SelectTrigger className="w-[150px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0">
+                  <SelectValue placeholder="15 items" />
+                </SelectTrigger>
+                <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
+                  <SelectItem value="15" className="text-body-sm font-normal">15 items</SelectItem>
+                  <SelectItem value="25" className="text-body-sm font-normal">25 items</SelectItem>
+                  <SelectItem value="50" className="text-body-sm font-normal">50 items</SelectItem>
+                  <SelectItem value="100" className="text-body-sm font-normal">100 items</SelectItem>
+                  <SelectItem value="250" className="text-body-sm font-normal">250 items</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
+
+        {/* Row 4: Warning text (if needed) */}
+        {ownershipError && (
+          <div className="text-body-xs leading-tight text-yellow-500 justify-end flex" role="alert" aria-live="polite">
+            ⚠️ Some ownership data may be out of date
+          </div>
+        )}
       </div>
 
       {paginatedNFTs.length > 0 ? (

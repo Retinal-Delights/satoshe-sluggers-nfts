@@ -46,14 +46,14 @@ export default function NFTGridControls({
             <SelectValue placeholder="Default" />
           </SelectTrigger>
           <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
-            <SelectItem value="default" className="text-sidebar whitespace-nowrap">Default</SelectItem>
-            <SelectItem value="rank-asc" className="text-sidebar whitespace-nowrap">Rank: Low to High</SelectItem>
-            <SelectItem value="rank-desc" className="text-sidebar whitespace-nowrap">Rank: High to Low</SelectItem>
-            <SelectItem value="rarity-asc" className="text-sidebar whitespace-nowrap">Rarity: Low to High</SelectItem>
-            <SelectItem value="rarity-desc" className="text-sidebar whitespace-nowrap">Rarity: High to Low</SelectItem>
-            <SelectItem value="price-asc" className="text-sidebar whitespace-nowrap">Price: Low to High</SelectItem>
-            <SelectItem value="price-desc" className="text-sidebar whitespace-nowrap">Price: High to Low</SelectItem>
-            <SelectItem value="favorite" className="text-sidebar whitespace-nowrap">Favorites</SelectItem>
+            <SelectItem value="default" className="text-sidebar font-normal whitespace-nowrap">Default</SelectItem>
+            <SelectItem value="rank-asc" className="text-sidebar font-normal whitespace-nowrap">Rank: Low to High</SelectItem>
+            <SelectItem value="rank-desc" className="text-sidebar font-normal whitespace-nowrap">Rank: High to Low</SelectItem>
+            <SelectItem value="rarity-asc" className="text-sidebar font-normal whitespace-nowrap">Rarity: Low to High</SelectItem>
+            <SelectItem value="rarity-desc" className="text-sidebar font-normal whitespace-nowrap">Rarity: High to Low</SelectItem>
+            <SelectItem value="price-asc" className="text-sidebar font-normal whitespace-nowrap">Price: Low to High</SelectItem>
+            <SelectItem value="price-desc" className="text-sidebar font-normal whitespace-nowrap">Price: High to Low</SelectItem>
+            <SelectItem value="favorite" className="text-sidebar font-normal whitespace-nowrap">Favorites</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -65,11 +65,11 @@ export default function NFTGridControls({
             <SelectValue placeholder="15 items" />
           </SelectTrigger>
           <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
-            <SelectItem value="15" className="text-sidebar whitespace-nowrap">15 items</SelectItem>
-            <SelectItem value="25" className="text-sidebar whitespace-nowrap">25 items</SelectItem>
-            <SelectItem value="50" className="text-sidebar whitespace-nowrap">50 items</SelectItem>
-            <SelectItem value="100" className="text-sidebar whitespace-nowrap">100 items</SelectItem>
-            <SelectItem value="250" className="text-sidebar whitespace-nowrap">250 items</SelectItem>
+            <SelectItem value="15" className="text-sidebar font-normal whitespace-nowrap">15 items</SelectItem>
+            <SelectItem value="25" className="text-sidebar font-normal whitespace-nowrap">25 items</SelectItem>
+            <SelectItem value="50" className="text-sidebar font-normal whitespace-nowrap">50 items</SelectItem>
+            <SelectItem value="100" className="text-sidebar font-normal whitespace-nowrap">100 items</SelectItem>
+            <SelectItem value="250" className="text-sidebar font-normal whitespace-nowrap">250 items</SelectItem>
           </SelectContent>
         </Select>
       </div>
