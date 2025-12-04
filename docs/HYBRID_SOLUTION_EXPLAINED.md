@@ -1,7 +1,9 @@
 # 🔄 Hybrid Event Query Solution - Explained
 
+**⚠️ ARCHIVED - See `PRODUCTION_ROADMAP.md` for current status**
+
 **Date:** December 2025  
-**Status:** ✅ **IMPLEMENTED**
+**Status:** ✅ **UPDATED** - Now SDK-only (fallback removed)
 
 ---
 

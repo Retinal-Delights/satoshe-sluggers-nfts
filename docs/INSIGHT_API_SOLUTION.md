@@ -1,7 +1,9 @@
 # Insight API Solution - Proper Implementation
 
+**⚠️ ARCHIVED - See `PRODUCTION_ROADMAP.md` for current status**
+
 **Date:** December 2025  
-**Status:** ✅ **RESOLVED** - Replaced workaround with proper solution
+**Status:** ✅ **RESOLVED** - Now using Thirdweb SDK-only (no fallback)
 
 ---
 

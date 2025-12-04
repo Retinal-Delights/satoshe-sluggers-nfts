@@ -1,7 +1,9 @@
 # 🏗️ Architecture Blueprint - Complete System Overview
 
+**⚠️ ARCHIVED - See `PRODUCTION_ROADMAP.md` for current actionable tasks**
+
 **Date:** December 2025  
-**Status:** ✅ **IMPLEMENTED** - Hybrid solution deployed, ready for testing
+**Status:** ✅ **UPDATED** - Now SDK-only implementation
 
 ---
 
