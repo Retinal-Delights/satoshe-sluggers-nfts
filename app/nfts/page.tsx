@@ -141,14 +141,14 @@ function NFTsPageContent() {
   return (
     <div>
       <main id="main-content" className="min-h-screen bg-background text-off-white pt-24 sm:pt-28 w-full max-w-full">
-        <div className="w-full px-6 xxs:px-6 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24">
+        <div className="w-full px-6 xxs:px-6 sm:px-8 md:px-12 lg:px-12 xl:px-12 2xl:px-16">
         <Navigation activePage="nfts" />
 
       <section className="w-full py-6 sm:py-8 lg:py-10">
         {/* Consistent container for all content sections */}
-        <div className="w-full max-w-[1650px] 2xl:max-w-[2000px] 4xl:max-w-[2400px] mx-auto px-6 sm:px-6 md:px-8 lg:px-10 xl:px-12">
+        <div className="w-full max-w-[1650px] 2xl:max-w-[2000px] 4xl:max-w-[2400px] mx-auto px-6 sm:px-6 md:px-8 lg:px-8 xl:px-8">
           <div className="mb-8 lg:mb-12">
-            <h1 id="collection-heading" className="text-5xl sm:text-6xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-extrabold tracking-tight text-center pb-2">
+            <h1 id="collection-heading" className="text-[clamp(40px,5vw+16px,95px)] font-extrabold tracking-tight text-center pb-2">
               SATO<span className="text-brand-pink">SHE</span> SLUGGERS
             </h1>
             <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 md:gap-3 text-body-lg text-neutral-300 max-w-4xl mx-auto tracking-tight mt-2">
