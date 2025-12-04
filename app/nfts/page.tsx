@@ -224,39 +224,31 @@ function NFTsPageContent() {
             </div>
 
             {/* Mobile/Tablet Drawer */}
-            <div className="xl:hidden mb-4">
-              <Drawer direction="left" open={drawerOpen} onOpenChange={setDrawerOpen} shouldScaleBackground={false}>
-                <DrawerTrigger asChild>
-                  <button className="flex items-center gap-2 px-4 py-2 bg-[#ff0099] hover:bg-[#ff0099]/90 text-white rounded-[2px] transition-colors font-medium text-body-sm cursor-pointer">
-                    <Filter className="w-4 h-4" />
-                    Filters
-                  </button>
-                </DrawerTrigger>
-                <DrawerContent className="h-full w-[85vw] max-w-[400px] bg-neutral-900 border-r border-neutral-700 left-0 top-0 bottom-0">
-                  <DrawerHeader className="flex flex-row items-center justify-between border-b border-neutral-700 pb-4">
-                    <DrawerTitle className="text-h3 font-normal text-off-white">Filters</DrawerTitle>
-                    <DrawerClose asChild>
-                      <button className="text-[#ff0099] hover:text-[#ff0099]/80 transition-colors p-1 cursor-pointer" aria-label="Close filters">
-                        <X className="w-5 h-5" />
-                      </button>
-                    </DrawerClose>
-                  </DrawerHeader>
-                  <div className="overflow-y-auto flex-1 p-4">
-                    <NFTSidebar
-                      searchTerm={searchTerm}
-                      setSearchTerm={setSearchTerm}
-                      searchMode={searchMode}
-                      setSearchMode={setSearchMode}
-                      selectedFilters={selectedFilters}
-                      setSelectedFilters={setSelectedFilters}
-                      traitCounts={traitCounts}
-                      listingStatus={listingStatus}
-                      setListingStatus={setListingStatus}
-                    />
-                  </div>
-                </DrawerContent>
-              </Drawer>
-            </div>
+            <Drawer direction="left" open={drawerOpen} onOpenChange={setDrawerOpen} shouldScaleBackground={false}>
+              <DrawerContent className="h-full w-[85vw] max-w-[400px] bg-neutral-900 border-r border-neutral-700 left-0 top-0 bottom-0">
+                <DrawerHeader className="flex flex-row items-center justify-between border-b border-neutral-700 pb-4">
+                  <DrawerTitle className="text-h3 font-normal text-off-white">Filters</DrawerTitle>
+                  <DrawerClose asChild>
+                    <button className="text-[#ff0099] hover:text-[#ff0099]/80 transition-colors p-1 cursor-pointer" aria-label="Close filters">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </DrawerClose>
+                </DrawerHeader>
+                <div className="overflow-y-auto flex-1 p-4">
+                  <NFTSidebar
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    searchMode={searchMode}
+                    setSearchMode={setSearchMode}
+                    selectedFilters={selectedFilters}
+                    setSelectedFilters={setSelectedFilters}
+                    traitCounts={traitCounts}
+                    listingStatus={listingStatus}
+                    setListingStatus={setListingStatus}
+                  />
+                </div>
+              </DrawerContent>
+            </Drawer>
 
             <div className="w-full">
               {isInitialized ? (
@@ -271,6 +263,16 @@ function NFTsPageContent() {
                   setItemsPerPage={setItemsPerPage}
                   onFilteredCountChange={() => {}} // Empty callback since we don't use the count
                   onTraitCountsChange={setTraitCounts} // Pass trait counts to sidebar
+                  filtersButton={
+                    <div className="xl:hidden">
+                      <DrawerTrigger asChild>
+                        <button className="flex items-center gap-2 px-4 py-2 bg-[#ff0099] hover:bg-[#ff0099]/90 text-white rounded-[2px] transition-colors font-medium text-body-sm cursor-pointer">
+                          <Filter className="w-4 h-4" />
+                          Filters
+                        </button>
+                      </DrawerTrigger>
+                    </div>
+                  }
                 />
               ) : (
                 <div className="flex items-center justify-center h-64">

@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
+import type { ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { TOTAL_COLLECTION_SIZE } from "@/lib/contracts";
 import {
@@ -95,6 +96,7 @@ interface NFTGridProps {
   setItemsPerPage: (value: number) => void;
   onFilteredCountChange?: (count: number) => void;
   onTraitCountsChange?: (counts: Record<string, Record<string, number>>) => void;
+  filtersButton?: ReactNode;
 }
 
 // Helper to extract attribute value from metadata
@@ -140,7 +142,7 @@ function computeTraitCounts(nfts: NFTGridItem[], categories: string[]) {
   return counts;
 }
 
-export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listingStatus, sortBy, setSortBy, itemsPerPage, setItemsPerPage, onFilteredCountChange, onTraitCountsChange }: NFTGridProps) {
+export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listingStatus, sortBy, setSortBy, itemsPerPage, setItemsPerPage, onFilteredCountChange, onTraitCountsChange, filtersButton }: NFTGridProps) {
   const searchParams = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
   
@@ -769,193 +771,193 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
 
   return (
     <div className="w-full max-w-full overflow-x-hidden" data-nft-grid-container="true">
-      {/* Header section: Strict responsive grid layout */}
-      <div className="flex flex-col space-y-4 mb-6 w-full" style={{ maxWidth: '100%' }}>
-        {/* Row 1: NFT Collection heading (full width) */}
-        <h2 className="text-h2 font-bold">NFT Collection</h2>
+      {/* Header section: CSS Grid layout for responsive alignment */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 w-full" style={{ maxWidth: '100%' }}>
+        {/* Row 1, Col 1: NFT Collection heading */}
+        <h2 className="text-h2 font-bold sm:col-span-1">NFT Collection</h2>
+        
+        {/* Row 1, Col 2: Filters button - right aligned on larger screens */}
+        <div className="flex justify-start sm:justify-end items-center sm:col-span-1">
+          {filtersButton}
+        </div>
 
-        {/* Row 2: Tabs and View toggles - same row on all sizes */}
-        <div className="flex items-center justify-between gap-4 flex-wrap min-w-0">
-          {/* Status tabs */}
-          <div className="flex items-center justify-start flex-shrink-0 min-w-0">
-            <div className="flex items-center gap-0 border border-neutral-700 rounded-[2px] p-1 bg-neutral-900/50 w-fit overflow-hidden flex-nowrap">
-              <button
-                onClick={() => setTab("all")}
-                className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
-                  tab === "all"
-                    ? "bg-brand-pink text-[#FFFBFB]"
-                    : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
-                }`}
-                aria-label="Show all NFTs"
-                aria-pressed={tab === "all"}
-              >
-                All ({totalAll})
-              </button>
-              <button
-                onClick={() => setTab("live")}
-                className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
-                  tab === "live"
-                    ? "bg-blue-500 text-[#FFFBFB]"
-                    : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
-                }`}
-                aria-label="Show live NFTs"
-                aria-pressed={tab === "live"}
-              >
-                Live ({totalActive})
-              </button>
-              <button
-                onClick={() => setTab("sold")}
-                className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
-                  tab === "sold"
-                    ? "bg-[#00FF99] text-[#000000]"
-                    : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
-                }`}
-                aria-label="Show sold NFTs"
-                aria-pressed={tab === "sold"}
-              >
-                Sold ({totalSold})
-              </button>
+        {/* Row 2, Col 1: Status tabs */}
+        <div className="flex items-center justify-start flex-shrink-0 min-w-0 sm:col-span-1">
+          <div className="flex items-center gap-0 border border-neutral-700 rounded-[2px] p-1 bg-neutral-900/50 w-fit overflow-hidden flex-nowrap">
+            <button
+              onClick={() => setTab("all")}
+              className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
+                tab === "all"
+                  ? "bg-brand-pink text-[#FFFBFB]"
+                  : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
+              }`}
+              aria-label="Show all NFTs"
+              aria-pressed={tab === "all"}
+            >
+              All ({totalAll})
+            </button>
+            <button
+              onClick={() => setTab("live")}
+              className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
+                tab === "live"
+                  ? "bg-blue-500 text-[#FFFBFB]"
+                  : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
+              }`}
+              aria-label="Show live NFTs"
+              aria-pressed={tab === "live"}
+            >
+              Live ({totalActive})
+            </button>
+            <button
+              onClick={() => setTab("sold")}
+              className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
+                tab === "sold"
+                  ? "bg-[#00FF99] text-[#000000]"
+                  : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
+              }`}
+              aria-label="Show sold NFTs"
+              aria-pressed={tab === "sold"}
+            >
+              Sold ({totalSold})
+            </button>
+          </div>
+        </div>
+
+        {/* Row 2, Col 2: Sort by dropdown - right aligned on larger screens */}
+        <div className="flex items-center gap-2 min-w-0 sm:justify-end sm:col-span-1">
+          <span className="text-body-sm font-light opacity-80 whitespace-nowrap flex-shrink-0">Sort by:</span>
+          <Select value={sortBy} onValueChange={(value) => {
+            setSortBy(value);
+            setColumnSort(null);
+          }}>
+            <SelectTrigger className="w-full sm:w-[180px] md:w-[220px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0 min-w-0">
+              <SelectValue placeholder="Default" />
+            </SelectTrigger>
+            <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]" sideOffset={4} align="start" collisionPadding={8}>
+              <SelectItem value="default" className="text-body-sm font-normal">Default</SelectItem>
+              <SelectItem value="favorites" className="text-body-sm font-normal">Favorites</SelectItem>
+              <SelectItem value="most-recent" className="text-body-sm font-normal">Sold: Most Recent</SelectItem>
+              <SelectItem value="price-asc" className="text-body-sm font-normal">Price: Low to High</SelectItem>
+              <SelectItem value="price-desc" className="text-body-sm font-normal">Price: High to Low</SelectItem>
+              <SelectItem value="rank-desc" className="text-body-sm font-normal">Rank: High to Low</SelectItem>
+              <SelectItem value="rank-asc" className="text-body-sm font-normal">Rank: Low to High</SelectItem>
+              <SelectItem value="rarity-desc" className="text-body-sm font-normal">Rarity: High to Low</SelectItem>
+              <SelectItem value="rarity-asc" className="text-body-sm font-normal">Rarity: Low to High</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Row 3, Col 1: View toggles with label on small screens */}
+        <div className="flex items-center gap-2 flex-shrink-0 min-w-0 sm:col-span-1">
+          <span className="text-body-sm font-light opacity-80 whitespace-nowrap flex-shrink-0 sm:hidden">View:</span>
+          <TooltipProvider>
+            <div className="relative flex items-center gap-2 border border-neutral-700 rounded-[2px] p-1 flex-nowrap overflow-hidden">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => {
+                      setViewMode('grid-large')
+                      announceToScreenReader('Switched to large grid view')
+                    }}
+                    className={`p-2 rounded-[2px] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] cursor-pointer ${viewMode === 'grid-large' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                    aria-label="Switch to large grid view"
+                    aria-pressed={viewMode === 'grid-large'}
+                  >
+                    <Square className="w-4 h-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="bg-neutral-800 text-[#FFFBEB] border-neutral-600">
+                  <p>Large Grid</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => {
+                      setViewMode('grid-medium')
+                      announceToScreenReader('Switched to medium grid view')
+                    }}
+                    className={`p-2 rounded-[2px] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] cursor-pointer ${viewMode === 'grid-medium' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                    aria-label="Switch to medium grid view"
+                    aria-pressed={viewMode === 'grid-medium'}
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="bg-neutral-800 text-[#FFFBEB] border-neutral-600">
+                  <p>Medium Grid</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => {
+                      setViewMode('grid-small')
+                      announceToScreenReader('Switched to small grid view')
+                    }}
+                    className={`p-2 rounded-[2px] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] cursor-pointer ${viewMode === 'grid-small' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                    aria-label="Switch to small grid view"
+                    aria-pressed={viewMode === 'grid-small'}
+                  >
+                    <Grid3x3 className="w-4 h-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="bg-neutral-800 text-[#FFFBEB] border-neutral-600">
+                  <p>Small Grid</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => {
+                      setViewMode('compact')
+                      announceToScreenReader('Switched to compact table view')
+                    }}
+                    className={`p-2 rounded-[2px] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] cursor-pointer ${viewMode === 'compact' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                    aria-label="Switch to compact table view"
+                    aria-pressed={viewMode === 'compact'}
+                  >
+                    <Rows3 className="w-4 h-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="bg-neutral-800 text-[#FFFBEB] border-neutral-600">
+                  <p>Compact Table</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
-          </div>
-
-          {/* View toggle buttons */}
-          <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
-            <TooltipProvider>
-              <div className="relative flex items-center gap-2 border border-neutral-700 rounded-[2px] p-1 flex-nowrap overflow-hidden">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => {
-                        setViewMode('grid-large')
-                        announceToScreenReader('Switched to large grid view')
-                      }}
-                      className={`p-2 rounded-[2px] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] cursor-pointer ${viewMode === 'grid-large' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
-                      aria-label="Switch to large grid view"
-                      aria-pressed={viewMode === 'grid-large'}
-                    >
-                      <Square className="w-4 h-4" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="bg-neutral-800 text-[#FFFBEB] border-neutral-600">
-                    <p>Large Grid</p>
-                  </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => {
-                        setViewMode('grid-medium')
-                        announceToScreenReader('Switched to medium grid view')
-                      }}
-                      className={`p-2 rounded-[2px] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] cursor-pointer ${viewMode === 'grid-medium' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
-                      aria-label="Switch to medium grid view"
-                      aria-pressed={viewMode === 'grid-medium'}
-                    >
-                      <LayoutGrid className="w-4 h-4" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="bg-neutral-800 text-[#FFFBEB] border-neutral-600">
-                    <p>Medium Grid</p>
-                  </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => {
-                        setViewMode('grid-small')
-                        announceToScreenReader('Switched to small grid view')
-                      }}
-                      className={`p-2 rounded-[2px] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] cursor-pointer ${viewMode === 'grid-small' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
-                      aria-label="Switch to small grid view"
-                      aria-pressed={viewMode === 'grid-small'}
-                    >
-                      <Grid3x3 className="w-4 h-4" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="bg-neutral-800 text-[#FFFBEB] border-neutral-600">
-                    <p>Small Grid</p>
-                  </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => {
-                        setViewMode('compact')
-                        announceToScreenReader('Switched to compact table view')
-                      }}
-                      className={`p-2 rounded-[2px] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] cursor-pointer ${viewMode === 'compact' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
-                      aria-label="Switch to compact table view"
-                      aria-pressed={viewMode === 'compact'}
-                    >
-                      <Rows3 className="w-4 h-4" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="bg-neutral-800 text-[#FFFBEB] border-neutral-600">
-                    <p>Compact Table</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-            </TooltipProvider>
-          </div>
+          </TooltipProvider>
         </div>
 
-        {/* Row 3: Sort by and Show dropdowns */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 min-w-0 w-full max-w-full">
-          {/* Sort by dropdown */}
-          <div className="flex items-center gap-2 min-w-0 flex-1 sm:flex-initial max-w-full">
-            <span className="text-body-sm font-light opacity-80 whitespace-nowrap flex-shrink-0">Sort by:</span>
-            <Select value={sortBy} onValueChange={(value) => {
-              setSortBy(value);
-              setColumnSort(null);
-            }}>
-              <SelectTrigger className="w-full sm:w-[180px] md:w-[220px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0 min-w-0">
-                <SelectValue placeholder="Default" />
-              </SelectTrigger>
-              <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]" sideOffset={4} align="start" collisionPadding={8}>
-                <SelectItem value="default" className="text-body-sm font-normal">Default</SelectItem>
-                <SelectItem value="favorites" className="text-body-sm font-normal">Favorites</SelectItem>
-                <SelectItem value="most-recent" className="text-body-sm font-normal">Sold: Most Recent</SelectItem>
-                <SelectItem value="price-asc" className="text-body-sm font-normal">Price: Low to High</SelectItem>
-                <SelectItem value="price-desc" className="text-body-sm font-normal">Price: High to Low</SelectItem>
-                <SelectItem value="rank-desc" className="text-body-sm font-normal">Rank: High to Low</SelectItem>
-                <SelectItem value="rank-asc" className="text-body-sm font-normal">Rank: Low to High</SelectItem>
-                <SelectItem value="rarity-desc" className="text-body-sm font-normal">Rarity: High to Low</SelectItem>
-                <SelectItem value="rarity-asc" className="text-body-sm font-normal">Rarity: Low to High</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Show dropdown */}
-          <div className="flex items-center gap-2 min-w-0 flex-1 sm:flex-initial sm:ml-auto max-w-full">
-            <span className="text-body-sm font-light opacity-80 whitespace-nowrap flex-shrink-0">Show:</span>
-            <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
-              <SelectTrigger className="w-full sm:w-[130px] md:w-[150px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0 min-w-0">
-                <SelectValue placeholder="15 items" />
-              </SelectTrigger>
-              <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]" sideOffset={4} align="end" collisionPadding={8}>
-                <SelectItem value="15" className="text-body-sm font-normal">15 items</SelectItem>
-                <SelectItem value="25" className="text-body-sm font-normal">25 items</SelectItem>
-                <SelectItem value="50" className="text-body-sm font-normal">50 items</SelectItem>
-                <SelectItem value="100" className="text-body-sm font-normal">100 items</SelectItem>
-                <SelectItem value="250" className="text-body-sm font-normal">250 items</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        {/* Row 3, Col 2: Show dropdown - right aligned on larger screens */}
+        <div className="flex items-center gap-2 min-w-0 sm:justify-end sm:col-span-1">
+          <span className="text-body-sm font-light opacity-80 whitespace-nowrap flex-shrink-0">Show:</span>
+          <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
+            <SelectTrigger className="w-full sm:w-[130px] md:w-[150px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0 min-w-0">
+              <SelectValue placeholder="15 items" />
+            </SelectTrigger>
+            <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]" sideOffset={4} align="end" collisionPadding={8}>
+              <SelectItem value="15" className="text-body-sm font-normal">15 items</SelectItem>
+              <SelectItem value="25" className="text-body-sm font-normal">25 items</SelectItem>
+              <SelectItem value="50" className="text-body-sm font-normal">50 items</SelectItem>
+              <SelectItem value="100" className="text-body-sm font-normal">100 items</SelectItem>
+              <SelectItem value="250" className="text-body-sm font-normal">250 items</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        {/* Row 5: Warning text (if needed) */}
+        {/* Row 4, Col 1: Item count */}
+        <div className="sm:col-span-1">
+          {filteredNFTs.length > 0 && (
+            <div className="text-body-xs font-thin leading-tight opacity-80">
+              {`${startIndex + 1}-${Math.min(endIndex, filteredNFTs.length)} of ${filteredNFTs.length} NFTs`}
+            </div>
+          )}
+        </div>
+
+        {/* Row 4, Col 2: Warning text (if needed) */}
         {ownershipError && (
-          <div className="text-body-xs leading-tight text-yellow-500 justify-end flex" role="alert" aria-live="polite">
+          <div className="text-body-xs leading-tight text-yellow-500 sm:justify-end flex sm:col-span-1" role="alert" aria-live="polite">
             ⚠️ Some ownership data may be out of date
-          </div>
-        )}
-      </div>
-
-      {/* Item count - above grid, always visible, left-aligned */}
-      <div className="mb-4">
-        {filteredNFTs.length > 0 && (
-          <div className="text-body-xs font-thin leading-tight opacity-80">
-            {`${startIndex + 1}-${Math.min(endIndex, filteredNFTs.length)} of ${filteredNFTs.length} NFTs`}
           </div>
         )}
       </div>
