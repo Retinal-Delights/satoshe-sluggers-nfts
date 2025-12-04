@@ -17,10 +17,11 @@ import { cn } from './utils';
 export const typography = {
   // Font Weights (from style guide)
   weights: {
-    light: 'font-light',      // 300 - Values, body text
+    thin: 'font-thin',         // 100 - Item counts, metadata
+    light: 'font-light',        // 300 - Values, body text, rank/rarity/tier stats
     normal: 'font-normal',     // 400 - Labels, categories, buttons
-    medium: 'font-medium',     // 500 - Rare use
-    semibold: 'font-semibold', // 600 - Headings, NFT names, prices
+    medium: 'font-medium',     // 500 - Section headers, tab buttons
+    semibold: 'font-semibold',  // 600 - Headings, NFT names, prices
   },
   
   // Font Sizes (from style guide)
@@ -130,8 +131,8 @@ export const spacing = {
     xs: 'gap-2',    // 8px - Tight
     sm: 'gap-3',    // 12px - Small
     md: 'gap-4',    // 16px - Default
-    lg: 'gap-6',    // 24px - Large
-    xl: 'gap-8',    // 32px - Extra large
+    lg: 'gap-6',    // 24px - Large (NFT Collection header)
+    xl: 'gap-8',    // 32px - Extra large (NFT card grids, My NFTs page)
   },
   
   // Grid Gaps (from style guide)
@@ -150,8 +151,9 @@ export const spacing = {
   
   // Padding (from style guide)
   padding: {
-    sm: 'p-3',      // 12px - Small cards
-    md: 'p-4',      // 16px - Standard cards
+    sm: 'p-3',      // 12px - Small cards, compact elements
+    md: 'p-4',      // 16px - Standard cards, default padding
+    lg: 'p-6',      // 24px - Larger cards, My NFTs page cards
   },
 } as const;
 

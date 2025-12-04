@@ -330,8 +330,12 @@ function MyNFTsContent() {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {activeNFTs.map((nft) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {activeNFTs.map((nft) => {
+              // Extract NFT number from name (format: "Satoshe Slugger #1020" -> "#1020")
+              const nftNumber = nft.name?.match(/#(\d+)/)?.[0] || `#${parseInt(nft.tokenId || nft.id || "0") + 1}`;
+              
+              return (
               <div key={nft.id} className="rounded-[2px] overflow-hidden">
                 <div
                   className="relative w-full"
@@ -357,9 +361,9 @@ function MyNFTsContent() {
                     />
                   </Link>
                 </div>
-                <div className="p-4">
-                  <div className="flex w-full justify-between items-center px-1">
-                    <span className="text-sm font-medium">{nft.name}</span>
+                <div className="p-6">
+                  <div className="flex w-full justify-between items-center">
+                    <span className="text-base font-semibold">{nftNumber}</span>
                     {activeTab === "favorites" && (
                       <button
                         onClick={() =>

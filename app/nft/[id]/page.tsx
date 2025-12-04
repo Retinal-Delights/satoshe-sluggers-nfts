@@ -692,7 +692,7 @@ export default function NFTDetailPage() {
     <div>
       <main id="main-content" className="min-h-screen bg-background text-foreground flex flex-col">
         <Navigation activePage="nfts" />
-      <div className="w-full max-w-[900px] xl:max-w-[1100px] 2xl:max-w-[1300px] mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12">
+      <div className="w-full max-w-[900px] xl:max-w-[1100px] 2xl:max-w-[1300px] mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-6 sm:px-8 md:px-10 lg:px-12 xl:px-16">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-8 sm:mb-10">
           {(() => {
             // Prefer returning to the exact filtered collection URL when provided
@@ -843,20 +843,20 @@ export default function NFTDetailPage() {
             </div>
 
             {/* IPFS Links - Moved to right column after Collection Details - Mobile order-6 */}
-            <div className="space-y-3 order-6 lg:order-none hidden lg:block">
+            <div className="flex flex-row gap-3 order-6 lg:order-none hidden lg:block">
                 <a
                   href={metadata?.merged_data?.metadata_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none"
+                  className="flex items-center justify-between w-auto px-3 py-2 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none"
                   aria-label="View token metadata on IPFS"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: colors.filter.green + '20' }}>
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: colors.filter.green + '20' }}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
+                        width="14"
+                        height="14"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -873,22 +873,22 @@ export default function NFTDetailPage() {
                         <polyline points="10,9 9,9 8,9"></polyline>
                       </svg>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium" style={{ color: colors.filter.green }}>Token URI</p>
-                      <p className="text-xs text-neutral-400">View metadata on IPFS</p>
+                    <div className="flex items-center gap-1.5 whitespace-nowrap">
+                      <span className="text-xs font-medium" style={{ color: colors.filter.green }}>Token URI</span>
+                      <span className="text-[10px] text-neutral-400">View metadata</span>
                     </div>
                   </div>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
+                    width="12"
+                    height="12"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="text-neutral-400 group-hover:text-green-500 transition-colors"
+                    className="text-neutral-400 group-hover:text-green-500 transition-colors ml-1 flex-shrink-0"
                     aria-hidden="true"
                   >
                     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -901,15 +901,15 @@ export default function NFTDetailPage() {
                   href={metadata?.merged_data?.media_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="flex items-center justify-between w-auto px-3 py-2 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   aria-label="View NFT image on IPFS"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: colors.filter.blue + '20' }}>
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: colors.filter.blue + '20' }}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
+                        width="14"
+                        height="14"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -924,22 +924,22 @@ export default function NFTDetailPage() {
                         <polyline points="21,15 16,10 5,21"></polyline>
                       </svg>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium" style={{ color: colors.filter.blue }}>Media URI</p>
-                      <p className="text-xs text-neutral-400">View image on IPFS</p>
+                    <div className="flex items-center gap-1.5 whitespace-nowrap">
+                      <span className="text-xs font-medium" style={{ color: colors.filter.blue }}>Media URI</span>
+                      <span className="text-[10px] text-neutral-400">View image</span>
                     </div>
                   </div>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
+                    width="12"
+                    height="12"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="text-neutral-400 group-hover:text-blue-500 transition-colors"
+                    className="text-neutral-400 group-hover:text-blue-500 transition-colors ml-1 flex-shrink-0"
                     aria-hidden="true"
                   >
                     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -1298,20 +1298,20 @@ export default function NFTDetailPage() {
             </div>
 
             {/* IPFS Links - Mobile order-8 (after Collection Details) */}
-            <div className="space-y-3 order-8 lg:order-none lg:hidden">
+            <div className="flex flex-row gap-3 order-8 lg:order-none lg:hidden">
                 <a
                   href={metadata?.merged_data?.metadata_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none"
+                  className="flex items-center justify-between w-auto px-3 py-2 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none"
                   aria-label="View token metadata on IPFS"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: colors.filter.green + '20' }}>
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: colors.filter.green + '20' }}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
+                        width="14"
+                        height="14"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -1328,22 +1328,22 @@ export default function NFTDetailPage() {
                         <polyline points="10,9 9,9 8,9"></polyline>
                       </svg>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium" style={{ color: colors.filter.green }}>Token URI</p>
-                      <p className="text-xs text-neutral-400">View metadata on IPFS</p>
+                    <div className="flex items-center gap-1.5 whitespace-nowrap">
+                      <span className="text-xs font-medium" style={{ color: colors.filter.green }}>Token URI</span>
+                      <span className="text-[10px] text-neutral-400">View metadata</span>
                     </div>
                   </div>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
+                    width="12"
+                    height="12"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="text-neutral-400 group-hover:text-green-500 transition-colors"
+                    className="text-neutral-400 group-hover:text-green-500 transition-colors ml-1 flex-shrink-0"
                     aria-hidden="true"
                   >
                     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -1356,15 +1356,15 @@ export default function NFTDetailPage() {
                   href={metadata?.merged_data?.media_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="flex items-center justify-between w-auto px-3 py-2 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   aria-label="View NFT image on IPFS"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: colors.filter.blue + '20' }}>
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: colors.filter.blue + '20' }}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
+                        width="14"
+                        height="14"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -1379,22 +1379,22 @@ export default function NFTDetailPage() {
                         <polyline points="21,15 16,10 5,21"></polyline>
                       </svg>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium" style={{ color: colors.filter.blue }}>Media URI</p>
-                      <p className="text-xs text-neutral-400">View image on IPFS</p>
+                    <div className="flex items-center gap-1.5 whitespace-nowrap">
+                      <span className="text-xs font-medium" style={{ color: colors.filter.blue }}>Media URI</span>
+                      <span className="text-[10px] text-neutral-400">View image</span>
                     </div>
                   </div>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
+                    width="12"
+                    height="12"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="text-neutral-400 group-hover:text-blue-500 transition-colors"
+                    className="text-neutral-400 group-hover:text-blue-500 transition-colors ml-1 flex-shrink-0"
                     aria-hidden="true"
                   >
                     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -1402,7 +1402,7 @@ export default function NFTDetailPage() {
                     <line x1="10" y1="14" x2="21" y2="3"></line>
                   </svg>
                 </a>
-              </div>
+            </div>
 
             {/* Attributes - Mobile order-9 (after Collection Details) */}
             <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-9 lg:order-none lg:hidden">

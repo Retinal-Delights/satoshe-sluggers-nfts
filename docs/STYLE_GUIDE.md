@@ -20,9 +20,10 @@
 ### Font Weights (Hierarchy)
 ```
 font-semibold (600)  → Primary headings, NFT names, prices
-font-medium (500)    → Section headers, labels, categories
+font-medium (500)    → Section headers, labels, categories, tab buttons
 font-normal (400)    → Body text, buttons
-font-light (300)     → Values, descriptions
+font-light (300)     → Values, descriptions, rank/rarity/tier stats, labels
+font-thin (100)      → Item counts, metadata (e.g., "1-25 of 7777 NFTs")
 ```
 
 ### Typography Tokens (Design System)
@@ -101,8 +102,26 @@ All typography uses clamp-based responsive tokens defined in `app/design-tokens.
 - **Pink Fill Hover**: `#ff0099/90` (90% opacity)
 
 ### Action Colors
-- **Success Green**: `#10B981` (purchases, buy buttons)
-- **Info Blue**: `#3B82F6` (IPFS, media links)
+- **Success Green**: `#10B981` (purchases, buy buttons, sold status)
+- **Info Blue**: `#3B82F6` (IPFS, media links, live listings)
+- **Live Tab Blue**: `bg-blue-500` with `text-[#FFFBFB]` (active live listings tab)
+- **Sold Tab Green**: `bg-[#00FF99]` with `text-[#000000]` (active sold tab - bright green with black text)
+- **All Tab**: `bg-brand-pink` with `text-[#FFFBFB]` (active "All" tab - brand pink)
+
+### Tab Button Colors (NFT Collection Header)
+```tsx
+// All Tab (active)
+className="bg-brand-pink text-[#FFFBFB]"
+
+// Live Tab (active)
+className="bg-blue-500 text-[#FFFBFB]"
+
+// Sold Tab (active)
+className="bg-[#00FF99] text-[#000000]"
+
+// Inactive tabs
+className="text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
+```
 
 ### Neutral Grayscale
 ```
@@ -204,8 +223,9 @@ mb-8 (32px)     → Between NFT cards (vertical)
 
 ### Padding
 ```
-p-3 (12px)      → Smaller cards (attributes)
-p-4 (16px)      → Standard cards
+p-3 (12px)      → Smaller cards (attributes), compact elements
+p-4 (16px)      → Standard cards, default padding
+p-6 (24px)      → Larger cards (My NFTs page), increased breathing room
 ```
 
 ---
@@ -875,7 +895,7 @@ All spacing uses CSS variables from `app/design-tokens.css`:
 - 2xl: 80px (custom)
 
 ### **Border Radius (Consistent)**
-- **Standard**: `rounded-sm` (2px) - Used everywhere
+- **Standard**: `rounded-sm` or `rounded-[2px]` (2px) - Used everywhere, both are equivalent
 - **Circles**: `rounded-full` - Only for circular elements
 - **NO**: `rounded`, `rounded-md`, `rounded-lg` - Inconsistent
 
@@ -890,15 +910,28 @@ Buttons:
 - Tags: Pill-shaped buttons
 - Ghost: Transparent with hover
 
+Tabs (NFT Collection Header):
+- All Tab: bg-brand-pink with white text
+- Live Tab: bg-blue-500 with white text
+- Sold Tab: bg-[#00FF99] with black text
+- Inactive: neutral-400 text with hover states
+
 Cards:
-- Default: Standard card
+- Default: Standard card (p-4)
+- Large: Increased padding (p-6) for My NFTs page
 - Frosted Glass: Backdrop blur
-- Compact: Smaller padding
+- Compact: Smaller padding (p-3)
 
 Inputs:
 - Default: Standard input
 - Textarea: Multi-line input
 - All with consistent focus states
+
+Layout Patterns:
+- 2-Column Responsive Grid: grid-cols-1 sm:grid-cols-2 gap-6
+  Used for: NFT Collection header (tabs/view, sort/show)
+  Mobile: Stacks vertically
+  Desktop: Side-by-side columns
 ```
 
 ### **Design Token Usage**
@@ -921,14 +954,20 @@ import { typography, components } from '@/lib/design-system';
 ```
 
 ### **Implementation Notes**
-- **Consistent corner radius**: Only `rounded-sm` (2px) throughout
+- **Consistent corner radius**: Only `rounded-sm` or `rounded-[2px]` (2px) throughout - both are equivalent
 - **Typography hierarchy**: All typography uses design system tokens (`.text-h1`, `.text-body`, `.text-nft-title`, etc.)
-- **NO Tailwind text utilities**: Never use `text-xs`, `text-sm`, `text-base`, etc. for font sizing
+- **Font weights**: Use `font-thin` (100) for item counts/metadata, `font-light` (300) for stats, `font-medium` (500) for tabs
+- **NO Tailwind text utilities**: Never use `text-xs`, `text-sm`, `text-base`, etc. for font sizing (except for utility text like item counts)
 - **Fluid typography**: All text scales via clamp() tokens - no breakpoint-based font sizes
 - **Tokenized colors**: Design system tokens preferred, some hardcoded colors remain (migration in progress)
 - **Consistent spacing**: Use design tokens (--space-*) for all gaps/padding
+  - `gap-6` (24px) for NFT Collection header columns
+  - `gap-8` (32px) for NFT card grids and My NFTs page
+  - `p-6` (24px) for larger card padding
 - **Font usage**: Inter for UI, JetBrains Mono for values/data
 - **Component variants**: Standardized button and card styles
+- **Tab colors**: Blue (`bg-blue-500`) for Live, bright green (`bg-[#00FF99]` with black text) for Sold, pink for All
+- **Layout patterns**: 2-column responsive grid (`grid-cols-1 sm:grid-cols-2 gap-6`) for header sections
 - **Dark mode only**: No light mode toggle
 - **Frosted glass effects**: `backdrop-blur-md` for overlays
 - **Design System**: Typography tokens in `app/design-tokens.css`, colors in `lib/design-system.ts`
