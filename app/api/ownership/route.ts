@@ -8,11 +8,11 @@ import os from "os";
 import { batchCheckOwnership } from "@/lib/multicall3";
 
 const TOTAL_NFTS = 7777;
-const LISTING_OWNER_ADDRESS =
-  "0xD3aaf32FfBFFaF3Fc35aCA6bfcC487f83c6a17Ec".toLowerCase();
 
 const NFT_COLLECTION_ADDRESS =
   process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS!;
+const MARKETPLACE_ADDRESS =
+  process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
 const THIRDWEB_CLIENT_ID =
   process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID!;
 
@@ -34,9 +34,9 @@ const CACHE_PATH = getCachePath();
 export async function GET() {
   try {
     // ENV validation
-    if (!NFT_COLLECTION_ADDRESS || !THIRDWEB_CLIENT_ID) {
+    if (!NFT_COLLECTION_ADDRESS || !THIRDWEB_CLIENT_ID || !MARKETPLACE_ADDRESS) {
       return NextResponse.json(
-        { error: "Missing env vars: THIRDWEB_CLIENT_ID or NFT_COLLECTION_ADDRESS" },
+        { error: "Missing env vars: THIRDWEB_CLIENT_ID, NFT_COLLECTION_ADDRESS, or NEXT_PUBLIC_MARKETPLACE_ADDRESS" },
         { status: 500 }
       );
     }
@@ -65,13 +65,15 @@ export async function GET() {
     );
 
     // Convert to ACTIVE / SOLD records
+    // ACTIVE = owned by marketplace (available for sale)
+    // SOLD = owned by any other wallet (not available for sale)
     const ownership = results.map(({ tokenId, owner }: { tokenId: number; owner: string }) => {
       const normalized = owner?.toLowerCase?.() ?? "";
       return {
         tokenId,
         owner: normalized,
         status:
-          normalized === LISTING_OWNER_ADDRESS ? "ACTIVE" : "SOLD",
+          normalized === MARKETPLACE_ADDRESS ? "ACTIVE" : "SOLD",
       };
     });
 

@@ -164,12 +164,13 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   const [pricingMappings, setPricingMappings] = useState<Record<number, { price_eth: number; listing_id?: number }>>({});
   const [ownershipData, setOwnershipData] = useState<Array<{ tokenId: number; owner: string; status: "ACTIVE" | "SOLD" }>>([]);
   const [isLoadingOwnership, setIsLoadingOwnership] = useState(false);
+  const [ownershipError, setOwnershipError] = useState<string | null>(null);
   const [saleOrder, setSaleOrder] = useState<number[]>([]); // Array of tokenIds in sale order (most recent first)
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
   const [scrollPosition, setScrollPosition] = useState<number>(0);
   const gridRef = useRef<HTMLDivElement>(null);
   const gridContainerRef = useRef<HTMLDivElement>(null);
-  
+
   // Load ownership data from API (only once on mount)
   useEffect(() => {
     let cancelled = false;
@@ -184,11 +185,13 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         const data = await res.json();
         if (!cancelled) {
           setOwnershipData(data);
+          setOwnershipError(null);
         }
-      } catch {
+      } catch (error) {
         // On error, default all to empty array (counts will be 0)
         if (!cancelled) {
           setOwnershipData([]);
+          setOwnershipError(error instanceof Error ? error.message : "Failed to load ownership data");
         }
       } finally {
         if (!cancelled) {
@@ -755,64 +758,61 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   }
 
   return (
-      <div className="w-full" data-nft-grid-container="true">
-         <div className="flex flex-col gap-3 mb-6">
-          {/* Header section: Title, stats, and controls all together */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            {/* Left side: Title and stats */}
-            <div className="flex-shrink-0 min-w-0">
-              <h2 className="text-3xl font-bold mb-3">NFT Collection</h2>
-              {/* Tabs: All / Live / Sold - Contained toggle group */}
-              <div className="flex items-center gap-0 border border-neutral-700 rounded-[2px] p-1 bg-neutral-900/50 w-fit mb-3">
-                <button
-                  onClick={() => setTab("all")}
-                  className={`px-4 py-2 text-body-sm font-medium transition-all cursor-pointer rounded-[2px] ${
-                    tab === "all"
-                      ? "bg-brand-pink text-[#FFFBFB]"
-                      : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
-                  }`}
-                  aria-label="Show all NFTs"
-                  aria-pressed={tab === "all"}
-                >
-                  All ({totalAll})
-                </button>
-                <button
-                  onClick={() => setTab("live")}
-                  className={`px-4 py-2 text-body-sm font-medium transition-all cursor-pointer rounded-[2px] ${
-                    tab === "live"
-                      ? "bg-brand-pink text-[#FFFBFB]"
-                      : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
-                  }`}
-                  aria-label="Show live NFTs"
-                  aria-pressed={tab === "live"}
-                >
-                  Live ({totalActive})
-                </button>
-                <button
-                  onClick={() => setTab("sold")}
-                  className={`px-4 py-2 text-body-sm font-medium transition-all cursor-pointer rounded-[2px] ${
-                    tab === "sold"
-                      ? "bg-brand-pink text-[#FFFBFB]"
-                      : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
-                  }`}
-                  aria-label="Show sold NFTs"
-                  aria-pressed={tab === "sold"}
-                >
-                  Sold ({totalSold})
-                </button>
-              </div>
-              {filteredNFTs.length > 0 && (
-                <div className="text-[clamp(11px,0.4vw+5px,14px)] text-neutral-500 mt-1.5">
-                  {startIndex + 1}-{Math.min(endIndex, filteredNFTs.length)} of {filteredNFTs.length} NFTs
-                </div>
-              )}
-            </div>
+    <div className="w-full max-w-full overflow-x-hidden" data-nft-grid-container="true">
+      {/* Header section: Strict responsive grid layout */}
+      <div className="flex flex-col space-y-4 mb-6 w-full" style={{ maxWidth: '100%' }}>
+        {/* Row 1: NFT Collection heading (full width) */}
+        <h2 className="text-2xl font-bold">NFT Collection</h2>
 
-          {/* Right side: View toggles and dropdowns */}
-          <div className="flex flex-col gap-3 items-end ml-auto">
-            {/* View Mode Toggles */}
+        {/* Row 2: Tabs and View toggles (2 columns on desktop) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {/* Column 1: Status tabs */}
+          <div className="flex items-center justify-start">
+            <div className="flex items-center gap-0 border border-neutral-700 rounded-[2px] p-1 bg-neutral-900/50 w-fit overflow-hidden flex-nowrap">
+              <button
+                onClick={() => setTab("all")}
+                className={`px-4 py-1.5 text-xs font-medium transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
+                  tab === "all"
+                    ? "bg-brand-pink text-[#FFFBFB]"
+                    : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
+                }`}
+                aria-label="Show all NFTs"
+                aria-pressed={tab === "all"}
+              >
+                All ({totalAll})
+              </button>
+              <button
+                onClick={() => setTab("live")}
+                className={`px-4 py-1.5 text-xs font-medium transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
+                  tab === "live"
+                    ? "bg-blue-500 text-[#FFFBFB]"
+                    : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
+                }`}
+                aria-label="Show live NFTs"
+                aria-pressed={tab === "live"}
+              >
+                Live ({totalActive})
+              </button>
+              <button
+                onClick={() => setTab("sold")}
+                className={`px-4 py-1.5 text-xs font-medium transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
+                  tab === "sold"
+                    ? "bg-[#00FF99] text-[#000000]"
+                    : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
+                }`}
+                aria-label="Show sold NFTs"
+                aria-pressed={tab === "sold"}
+              >
+                Sold ({totalSold})
+              </button>
+            </div>
+          </div>
+
+          {/* Column 2: View label + toggle buttons */}
+          <div className="flex items-center gap-2 justify-end">
+            <span className="text-sm font-light opacity-80">View:</span>
             <TooltipProvider>
-              <div className="relative flex items-center gap-3 border border-neutral-700 rounded-[2px] p-1">
+              <div className="relative flex items-center gap-2 border border-neutral-700 rounded-[2px] p-1 flex-nowrap">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
@@ -887,50 +887,66 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                 </Tooltip>
               </div>
             </TooltipProvider>
-
-            {/* Dropdowns - Below view toggles */}
-            <div className={`flex items-center gap-3 ${viewMode === 'compact' ? 'flex-wrap' : 'flex-shrink-0'}`}>
-              <div className="flex items-center gap-2">
-                <span className="text-sidebar text-neutral-500 whitespace-nowrap">Sort by:</span>
-                <Select value={sortBy} onValueChange={(value) => {
-                  setSortBy(value);
-                  setColumnSort(null); // Clear column sort when using dropdown
-                }}>
-                  <SelectTrigger className={`${viewMode === 'compact' ? 'min-w-[180px] w-[180px]' : 'min-w-[200px] w-[200px] sm:min-w-[220px] sm:w-[220px]'} bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sidebar font-normal focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1`}>
-                    <SelectValue placeholder="Default" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
-                    <SelectItem value="default" className="text-sidebar">Default</SelectItem>
-                    <SelectItem value="favorites" className="text-sidebar">Favorites</SelectItem>
-                    <SelectItem value="most-recent" className="text-sidebar">Sold: Most Recent</SelectItem>
-                    <SelectItem value="price-asc" className="text-sidebar">Price: Low to High</SelectItem>
-                    <SelectItem value="price-desc" className="text-sidebar">Price: High to Low</SelectItem>
-                    <SelectItem value="rank-desc" className="text-sidebar">Rank: High to Low</SelectItem>
-                    <SelectItem value="rank-asc" className="text-sidebar">Rank: Low to High</SelectItem>
-                    <SelectItem value="rarity-desc" className="text-sidebar">Rarity: High to Low</SelectItem>
-                    <SelectItem value="rarity-asc" className="text-sidebar">Rarity: Low to High</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-sidebar text-neutral-500">Show:</span>
-                <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
-                  <SelectTrigger className={`${viewMode === 'compact' ? 'w-[130px]' : 'w-[150px]'} bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sidebar font-normal focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1`}>
-                    <SelectValue placeholder="15 items" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
-                    <SelectItem value="15" className="text-sidebar">15 items</SelectItem>
-                    <SelectItem value="25" className="text-sidebar">25 items</SelectItem>
-                    <SelectItem value="50" className="text-sidebar">50 items</SelectItem>
-                    <SelectItem value="100" className="text-sidebar">100 items</SelectItem>
-                    <SelectItem value="250" className="text-sidebar">250 items</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
           </div>
         </div>
+
+        {/* Row 3: Sort by and Show dropdowns (2 columns on desktop) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {/* Column 1: Sort by dropdown */}
+          <div className="flex items-center gap-2 justify-start">
+            <span className="text-sm font-light opacity-80">Sort by:</span>
+            <Select value={sortBy} onValueChange={(value) => {
+              setSortBy(value);
+              setColumnSort(null);
+            }}>
+              <SelectTrigger className="w-[220px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0">
+                <SelectValue placeholder="Default" />
+              </SelectTrigger>
+              <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
+                <SelectItem value="default">Default</SelectItem>
+                <SelectItem value="favorites">Favorites</SelectItem>
+                <SelectItem value="most-recent">Sold: Most Recent</SelectItem>
+                <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                <SelectItem value="rank-desc">Rank: High to Low</SelectItem>
+                <SelectItem value="rank-asc">Rank: Low to High</SelectItem>
+                <SelectItem value="rarity-desc">Rarity: High to Low</SelectItem>
+                <SelectItem value="rarity-asc">Rarity: Low to High</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Column 2: Show dropdown */}
+          <div className="flex items-center gap-2 justify-end">
+            <span className="text-sm font-light opacity-80">Show:</span>
+            <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
+              <SelectTrigger className="w-[150px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0">
+                <SelectValue placeholder="15 items" />
+              </SelectTrigger>
+              <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
+                <SelectItem value="15">15 items</SelectItem>
+                <SelectItem value="25">25 items</SelectItem>
+                <SelectItem value="50">50 items</SelectItem>
+                <SelectItem value="100">100 items</SelectItem>
+                <SelectItem value="250">250 items</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Row 4: Item count text (full width) */}
+        <div className="text-xs font-thin leading-tight opacity-80">
+          {filteredNFTs.length > 0 ? (
+            `${startIndex + 1}-${Math.min(endIndex, filteredNFTs.length)} of ${filteredNFTs.length} NFTs`
+          ) : null}
+        </div>
+
+        {/* Row 5: Warning text (full width) */}
+        {ownershipError && (
+          <div className="text-xs leading-tight text-yellow-500 mt-1" role="alert" aria-live="polite">
+            ⚠️ Some ownership data may be out of date
+          </div>
+        )}
       </div>
 
       {paginatedNFTs.length > 0 ? (

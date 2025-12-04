@@ -99,12 +99,12 @@ export default function NFTCard({
       <div className="nft-card-wrapper">
         <div className="nft-card-image">
           <div
-            className="relative overflow-visible"
+            className="relative p-3 overflow-visible"
             style={{ aspectRatio: "1/1" }}
           >
             <Link
               href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
-              className="block w-full h-full relative"
+              className="block w-full h-full relative overflow-visible"
             >
               <Image
                 src={showPlaceholder ? placeholder : image}
@@ -112,7 +112,8 @@ export default function NFTCard({
                 fill
                 priority={priority}
                 loading={priority ? undefined : "lazy"}
-                className={`object-contain object-center p-2 hover:scale-[1.02] hover:rotate-[5deg] transition-transform duration-300 ease-out ${showPlaceholder ? "animate-pulse" : ""}`}
+                className={`object-contain object-center hover:scale-[1.02] hover:rotate-[5deg] transition-transform duration-300 ease-out ${showPlaceholder ? "animate-pulse" : ""}`}
+                style={{ objectFit: "contain", objectPosition: "center" }}
                 onLoad={() => {
                   setImgLoaded(true);
                 }}
@@ -133,15 +134,16 @@ export default function NFTCard({
   if (viewMode === "grid-large") {
     return (
       <div className="nft-card-wrapper w-full flex flex-col">
-        <div className="relative w-full" style={{ aspectRatio: "0.9" }}>
-          <Link href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`} className="block w-full h-full relative">
+        <div className="relative w-full p-4 overflow-visible" style={{ aspectRatio: "0.9" }}>
+          <Link href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`} className="block w-full h-full relative overflow-visible">
             <Image
               src={showPlaceholder ? placeholder : image}
               alt={`${name} - NFT #${cardNumber}`}
               fill
               priority={priority}
               loading={priority ? undefined : "lazy"}
-              className="object-contain transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg]"
+              className="object-contain object-center transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg]"
+              style={{ objectFit: "contain", objectPosition: "center" }}
               sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
               onLoad={() => { setImgLoaded(true); }}
               onError={() => { setImgError(true); }}
@@ -174,16 +176,16 @@ export default function NFTCard({
 
           <div className="w-full flex flex-col gap-[2px] leading-[1.2]">
             <div className="flex justify-between gap-2">
-              <span className="text-[0.75rem] text-gray-300 font-normal whitespace-nowrap truncate flex-shrink-0">Rank:</span>
-              <span className="text-[0.8rem] text-gray-300 font-normal whitespace-nowrap truncate">{rank} of {TOTAL_COLLECTION_SIZE}</span>
+              <span className="text-[0.75rem] text-gray-300 font-light whitespace-nowrap truncate flex-shrink-0">Rank:</span>
+              <span className="text-[0.8rem] text-gray-300 font-light whitespace-nowrap truncate">{rank} of {TOTAL_COLLECTION_SIZE}</span>
             </div>
             <div className="flex justify-between gap-2">
-              <span className="text-[0.75rem] text-gray-300 font-normal whitespace-nowrap truncate flex-shrink-0">Rarity:</span>
-              <span className="text-[0.8rem] text-gray-300 font-normal whitespace-nowrap truncate">{rarityPercent}%</span>
+              <span className="text-[0.75rem] text-gray-300 font-light whitespace-nowrap truncate flex-shrink-0">Rarity:</span>
+              <span className="text-[0.8rem] text-gray-300 font-light whitespace-nowrap truncate">{rarityPercent}%</span>
             </div>
             <div className="flex justify-between gap-2 truncate">
-              <span className="text-[0.75rem] text-gray-300 font-normal whitespace-nowrap truncate flex-shrink-0">Tier:</span>
-              <span className="text-[0.8rem] text-gray-300 font-normal break-words">{rarity}</span>
+              <span className="text-[0.75rem] text-gray-300 font-light whitespace-nowrap truncate flex-shrink-0">Tier:</span>
+              <span className="text-[0.8rem] text-gray-300 font-light break-words">{rarity}</span>
             </div>
           </div>
 
@@ -229,15 +231,16 @@ export default function NFTCard({
   // --- View: Medium grid ---
   return (
     <div className="nft-card-wrapper w-full flex flex-col">
-      <div className="relative w-full" style={{ aspectRatio: "0.9" }}>
-        <Link href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`} className="block w-full h-full relative">
+      <div className="relative w-full p-4 overflow-visible" style={{ aspectRatio: "0.9" }}>
+        <Link href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`} className="block w-full h-full relative overflow-visible">
           <Image
             src={showPlaceholder ? placeholder : image}
             alt={name}
             fill
             priority={priority}
             loading={priority ? undefined : "lazy"}
-            className={`object-contain transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg] ${showPlaceholder ? "animate-pulse" : ""}`}
+            className={`object-contain object-center transition-transform duration-300 ease-out hover:scale-[1.02] hover:rotate-[5deg] ${showPlaceholder ? "animate-pulse" : ""}`}
+            style={{ objectFit: "contain", objectPosition: "center" }}
             onLoad={() => {
               setImgLoaded(true);
             }}

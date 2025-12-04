@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Heart, ChevronLeft, ChevronRight, ExternalLink, Copy, Check } from "lucide-react";
+import { ArrowLeft, Heart, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 import Footer from "@/components/footer";
 import Navigation from "@/components/navigation";
 import AttributeRarityChart from "@/components/attribute-rarity-chart";
@@ -69,9 +69,6 @@ export default function NFTDetailPage() {
   const [listingCheckComplete, setListingCheckComplete] = useState(false);
   const [ownershipStatus, setOwnershipStatus] = useState<"ACTIVE" | "SOLD" | null>(null); // From /api/ownership
   const [ownershipStatusCheckComplete, setOwnershipStatusCheckComplete] = useState(false);
-  const [copiedAddress, setCopiedAddress] = useState(false);
-  const [copiedContractAddress, setCopiedContractAddress] = useState(false);
-  const [transactionHash, setTransactionHash] = useState<string | null>(null);
 
   // Always reset all significant state when the token changes (prevents UI bleed when flipping NFTs)
   // This ensures a clean state for each NFT viewed and prevents stale data from previous NFT
@@ -88,9 +85,6 @@ export default function NFTDetailPage() {
     setListingCheckComplete(false);
     setOwnershipStatus(null);
     setOwnershipStatusCheckComplete(false);
-    setCopiedAddress(false);
-    setCopiedContractAddress(false);
-    setTransactionHash(null);
   }, [tokenId]);
   
   const { isFavorited, toggleFavorite, isConnected } = useFavorites();
@@ -540,7 +534,6 @@ export default function NFTDetailPage() {
     setTransactionState('success');
     setIsPurchased(true);
     setShowSuccess(true);
-    setTransactionHash(receipt.transactionHash); // Store transaction hash for Basescan link
     
     // Trigger confetti celebration (safely, only once)
     triggerConfetti();
@@ -721,7 +714,7 @@ export default function NFTDetailPage() {
           })()}
 
           {/* Navigation Arrows */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 w-full sm:w-auto justify-end">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 sm:ml-auto w-full sm:w-auto justify-end">
             {navigationTokens.prev !== null && (
               <Link
                 href={`/nft/${navigationTokens.prev}`}
@@ -772,7 +765,7 @@ export default function NFTDetailPage() {
                 href="https://kristenwoerdeman.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded-[2px] transition-all group cursor-pointer"
+                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded transition-all group cursor-pointer"
                 aria-label="Visit Kristen Woerdeman's website"
               >
                 <div className="flex items-center gap-3">
@@ -812,7 +805,7 @@ export default function NFTDetailPage() {
                 href="https://retinaldelights.io"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded-[2px] transition-all group cursor-pointer"
+                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded transition-all group cursor-pointer"
                 aria-label="Visit Retinal Delights website"
               >
                 <div className="flex items-center gap-3">
@@ -855,7 +848,7 @@ export default function NFTDetailPage() {
                   href={metadata?.merged_data?.metadata_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded-[2px] transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none"
+                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none"
                   aria-label="View token metadata on IPFS"
                 >
                   <div className="flex items-center gap-3">
@@ -908,7 +901,7 @@ export default function NFTDetailPage() {
                   href={metadata?.merged_data?.media_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded-[2px] transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   aria-label="View NFT image on IPFS"
                 >
                   <div className="flex items-center gap-3">
@@ -957,11 +950,11 @@ export default function NFTDetailPage() {
               </div>
 
             {/* Attributes - Moved to right column after Collection Details - Mobile order-7 */}
-            <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700 order-7 lg:order-none hidden lg:block">
+            <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-7 lg:order-none hidden lg:block">
               <h3 className="text-lg font-semibold mb-3 text-off-white">Attributes</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }, index: number) => (
-                  <div key={index} className="bg-neutral-800 p-3 rounded-[2px] border border-neutral-700">
+                  <div key={index} className="bg-neutral-800 p-3 rounded border border-neutral-700">
                     <div className="flex items-center mb-2">
                       <div
                         className="w-3 h-3 rounded-full mr-2"
@@ -1004,7 +997,7 @@ export default function NFTDetailPage() {
 
             {/* Connect to Interact Message */}
             {!isConnected && isForSale && (
-              <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-[2px] p-3 mb-4">
+              <div className="bg-yellow-500/10 border border-yellow-500/20 rounded p-3 mb-4">
                 <p className="text-yellow-400 text-sm text-center">
                   🔗 Connect your wallet to purchase this NFT
                 </p>
@@ -1013,7 +1006,7 @@ export default function NFTDetailPage() {
 
             {/* Buy Now Section - Simplified - Mobile order-3 */}
             {isForSale ? (
-              <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700 order-3 lg:order-none">
+              <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-3 lg:order-none">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                   <div className="flex-1">
                     <p className="text-sm md:text-base text-blue-500 mb-1">Buy Now Price</p>
@@ -1048,7 +1041,7 @@ export default function NFTDetailPage() {
                 </div>
               </div>
             ) : isConfirmedSold ? (
-              <div className="bg-neutral-800 p-4 rounded-[2px] border border-green-500/30 order-3 lg:order-none">
+              <div className="bg-neutral-800 p-4 rounded border border-green-500/30 order-3 lg:order-none">
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -1066,73 +1059,9 @@ export default function NFTDetailPage() {
                   </div>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-neutral-700">
                     {ownerAddress && (
-                      <div className="flex items-center gap-2">
-                        <p className="text-xs sm:text-sm text-neutral-400">
-                          Owner: <button
-                            onClick={async () => {
-                              try {
-                                await navigator.clipboard.writeText(ownerAddress);
-                                setCopiedAddress(true);
-                                setTimeout(() => setCopiedAddress(false), 2000);
-                              } catch {
-                                // Fallback for older browsers
-                                const textArea = document.createElement('textarea');
-                                textArea.value = ownerAddress;
-                                textArea.style.position = 'fixed';
-                                textArea.style.opacity = '0';
-                                document.body.appendChild(textArea);
-                                textArea.select();
-                                try {
-                                  document.execCommand('copy');
-                                  setCopiedAddress(true);
-                                  setTimeout(() => setCopiedAddress(false), 2000);
-                                } catch {
-                                  // Copy failed
-                                }
-                                document.body.removeChild(textArea);
-                              }
-                            }}
-                            className="text-green-400 underline hover:text-green-300 cursor-pointer"
-                            title="Click to copy full address"
-                          >
-                            {ownerAddress.slice(0,6)}...{ownerAddress.slice(-4)}
-                          </button>
-                        </p>
-                        <button
-                          onClick={async () => {
-                            try {
-                              await navigator.clipboard.writeText(ownerAddress);
-                              setCopiedAddress(true);
-                              setTimeout(() => setCopiedAddress(false), 2000);
-                            } catch {
-                              // Fallback for older browsers
-                              const textArea = document.createElement('textarea');
-                              textArea.value = ownerAddress;
-                              textArea.style.position = 'fixed';
-                              textArea.style.opacity = '0';
-                              document.body.appendChild(textArea);
-                              textArea.select();
-                              try {
-                                document.execCommand('copy');
-                                setCopiedAddress(true);
-                                setTimeout(() => setCopiedAddress(false), 2000);
-                              } catch {
-                                // Copy failed
-                              }
-                              document.body.removeChild(textArea);
-                            }
-                          }}
-                          className="p-1 hover:bg-neutral-700 rounded transition-colors"
-                          aria-label="Copy owner address"
-                          title="Copy full address"
-                        >
-                          {copiedAddress ? (
-                            <Check className="w-4 h-4 text-green-400" />
-                          ) : (
-                            <Copy className="w-4 h-4 text-neutral-400 hover:text-green-400 transition-colors" />
-                          )}
-                        </button>
-                      </div>
+                      <p className="text-xs sm:text-sm text-neutral-400">
+                        Owner: <a href={`https://basescan.org/address/${ownerAddress}`} target="_blank" rel="noopener noreferrer" className="text-green-400 underline hover:text-green-300">{ownerAddress.slice(0,6)}...{ownerAddress.slice(-4)}</a>
+                      </p>
                     )}
                     <Link
                       href={`https://opensea.io/assets/base/${getContractAddress()}/${parseInt(tokenId) - 1}`}
@@ -1147,7 +1076,7 @@ export default function NFTDetailPage() {
                 </div>
               </div>
             ) : (
-              <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700 order-3 lg:order-none">
+              <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-3 lg:order-none">
                 <p className="text-blue-400 text-center">This NFT is not currently for sale</p>
               </div>
             )}
@@ -1174,34 +1103,12 @@ export default function NFTDetailPage() {
                 <div className="bg-neutral-800 p-8 rounded-[2px] border border-neutral-700 text-center max-w-md mx-4">
                   <div className="text-6xl mb-4">🎉</div>
                   <h3 className="text-2xl font-bold text-green-400 mb-2">Purchase Successful!</h3>
-                  <p className="text-base text-neutral-300 mb-4">
+                  <p className="text-neutral-300 mb-4">
                     You successfully purchased <strong>Satoshe Slugger #{displayNftNumber}</strong> for {priceEth} ETH!
                   </p>
                   <p className="text-sm text-neutral-400 mb-4">
                     Transaction confirmed on the blockchain.
                   </p>
-                  <div className="flex flex-col items-center gap-2 mb-4">
-                    {transactionHash && (
-                      <Link
-                        href={`https://basescan.org/tx/${transactionHash}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-sm text-green-400 hover:text-green-300 underline transition-colors"
-                      >
-                        View Transaction on Basescan
-                        <ExternalLink className="w-4 h-4" />
-                      </Link>
-                    )}
-                    <Link
-                      href={`https://opensea.io/assets/base/${getContractAddress()}/${parseInt(tokenId) - 1}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-xs text-neutral-400 hover:text-neutral-300 underline transition-colors"
-                    >
-                      View on OpenSea (may take a moment to appear)
-                      <ExternalLink className="w-3 h-3" />
-                    </Link>
-                  </div>
                   <p className="text-xs text-neutral-500">
                     This message will disappear in a few seconds...
                   </p>
@@ -1210,7 +1117,7 @@ export default function NFTDetailPage() {
             )}
 
             {/* Collection Details - Mobile order-5 */}
-            <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700 order-5 lg:order-none">
+            <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-5 lg:order-none">
               <h3 className="text-lg font-semibold mb-3 text-off-white">Collection Details</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-4 sm:gap-y-5 text-sm">
                 <div className="min-w-0">
@@ -1255,74 +1162,37 @@ export default function NFTDetailPage() {
             </div>
 
             {/* Contract Details - Mobile order-6 (moved below Collection Details) */}
-            <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700 order-6 lg:order-none">
+            <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-6 lg:order-none">
               <h3 className="text-lg font-semibold mb-3 text-off-white">Contract Details</h3>
                 <div className="space-y-4 text-sm">
                   <div className="flex justify-between items-center gap-2 min-w-0">
                     <span className="text-neutral-400 flex-shrink-0">Contract Address</span>
                     <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-off-white truncate">{getContractAddress().slice(0, 6)}...{getContractAddress().slice(-4)}</span>
                       <button
-                        onClick={async () => {
-                          try {
-                            await navigator.clipboard.writeText(getContractAddress());
-                            setCopiedContractAddress(true);
-                            setTimeout(() => setCopiedContractAddress(false), 2000);
-                          } catch {
-                            // Fallback for older browsers
-                            const textArea = document.createElement('textarea');
-                            textArea.value = getContractAddress();
-                            textArea.style.position = 'fixed';
-                            textArea.style.opacity = '0';
-                            document.body.appendChild(textArea);
-                            textArea.select();
-                            try {
-                              document.execCommand('copy');
-                              setCopiedContractAddress(true);
-                              setTimeout(() => setCopiedContractAddress(false), 2000);
-                            } catch {
-                              // Copy failed
-                            }
-                            document.body.removeChild(textArea);
-                          }
+                        onClick={() => {
+                          navigator.clipboard.writeText(getContractAddress());
+                          // You could add a toast notification here if desired
                         }}
-                        className="text-off-white truncate hover:text-green-400 transition-colors cursor-pointer"
-                        title="Click to copy full address"
-                      >
-                        {getContractAddress().slice(0, 6)}...{getContractAddress().slice(-4)}
-                      </button>
-                      <button
-                        onClick={async () => {
-                          try {
-                            await navigator.clipboard.writeText(getContractAddress());
-                            setCopiedContractAddress(true);
-                            setTimeout(() => setCopiedContractAddress(false), 2000);
-                          } catch {
-                            // Fallback for older browsers
-                            const textArea = document.createElement('textarea');
-                            textArea.value = getContractAddress();
-                            textArea.style.position = 'fixed';
-                            textArea.style.opacity = '0';
-                            document.body.appendChild(textArea);
-                            textArea.select();
-                            try {
-                              document.execCommand('copy');
-                              setCopiedContractAddress(true);
-                              setTimeout(() => setCopiedContractAddress(false), 2000);
-                            } catch {
-                              // Copy failed
-                            }
-                            document.body.removeChild(textArea);
-                          }
-                        }}
-                        className="p-1 hover:bg-neutral-700 rounded transition-colors"
+                        className="p-1 hover:bg-neutral-700 rounded transition-colors group"
                         aria-label="Copy contract address"
-                        title="Copy full address"
+                        title="Copy contract address"
                       >
-                        {copiedContractAddress ? (
-                          <Check className="w-4 h-4 text-green-400" />
-                        ) : (
-                          <Copy className="w-4 h-4 text-neutral-400 hover:text-green-400 transition-colors" />
-                        )}
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-neutral-400 group-hover:text-green-500 transition-colors"
+                        >
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
                       </button>
                     </div>
                   </div>
@@ -1350,7 +1220,7 @@ export default function NFTDetailPage() {
                 href="https://kristenwoerdeman.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded-[2px] transition-all group cursor-pointer"
+                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded transition-all group cursor-pointer"
                 aria-label="Visit Kristen Woerdeman's website"
               >
                 <div className="flex items-center gap-3">
@@ -1390,7 +1260,7 @@ export default function NFTDetailPage() {
                 href="https://retinaldelights.io"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded-[2px] transition-all group cursor-pointer"
+                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded transition-all group cursor-pointer"
                 aria-label="Visit Retinal Delights website"
               >
                 <div className="flex items-center gap-3">
@@ -1433,7 +1303,7 @@ export default function NFTDetailPage() {
                   href={metadata?.merged_data?.metadata_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded-[2px] transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none"
+                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none"
                   aria-label="View token metadata on IPFS"
                 >
                   <div className="flex items-center gap-3">
@@ -1486,7 +1356,7 @@ export default function NFTDetailPage() {
                   href={metadata?.merged_data?.media_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded-[2px] transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   aria-label="View NFT image on IPFS"
                 >
                   <div className="flex items-center gap-3">
@@ -1535,11 +1405,11 @@ export default function NFTDetailPage() {
               </div>
 
             {/* Attributes - Mobile order-9 (after Collection Details) */}
-            <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700 order-9 lg:order-none lg:hidden">
+            <div className="bg-neutral-800 p-4 rounded border border-neutral-700 order-9 lg:order-none lg:hidden">
               <h3 className="text-lg font-semibold mb-4 text-off-white">Attributes</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }, index: number) => (
-                  <div key={index} className="bg-neutral-800 p-3 rounded-[2px] border border-neutral-700 min-w-0">
+                  <div key={index} className="bg-neutral-800 p-3 rounded border border-neutral-700 min-w-0">
                     <div className="flex items-center mb-2 min-w-0">
                       <div
                         className="w-3 h-3 rounded-full mr-2 flex-shrink-0"

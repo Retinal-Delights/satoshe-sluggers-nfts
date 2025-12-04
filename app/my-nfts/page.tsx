@@ -63,62 +63,10 @@ function MyNFTsContent() {
     };
   }, [removeFromFavorites]);
 
-  // Helper function to load and process owned NFTs
-  const loadOwnedNFTs = async (accountAddress: string, allMetadata: any[]): Promise<NFT[]> => {
-    const contract = getContract({
-      client,
-      chain: base,
-      address: process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS!,
-    });
-    const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS?.toLowerCase();
-    const ownedNFTsList: NFT[] = [];
-    
-    try {
-      // Get all NFTs owned by the user using Thirdweb SDK
-      const ownedNFTs = await getOwnedNFTs({
-        contract,
-        owner: accountAddress,
-      });
-
-      // Filter to only NFTs from our collection and process them
-      for (const nft of ownedNFTs) {
-        const nftContract = (nft.tokenAddress || "").toLowerCase();
-        if (CONTRACT_ADDRESS && nftContract === CONTRACT_ADDRESS) {
-          // Extract tokenId from the NFT
-          const tokenIdStr = nft.id?.toString() || "";
-          const tokenId = parseInt(tokenIdStr);
-          
-          if (
-            !isNaN(tokenId) &&
-            tokenId >= 0 &&
-            tokenId < allMetadata.length
-          ) {
-            const meta = allMetadata[tokenId];
-            if (meta) {
-              const mediaUrl = meta?.merged_data?.media_url || meta?.image;
-              const imageUrl = convertIpfsUrl(mediaUrl);
-              ownedNFTsList.push({
-                id: (tokenId + 1).toString(),
-                tokenId: tokenId.toString(),
-                name: meta?.name || `Satoshe Slugger #${tokenId + 1}`,
-                image: imageUrl || "/nfts/placeholder-nft.webp",
-                rarity: meta?.rarity_tier || "Unknown",
-              });
-            }
-          }
-        }
-      }
-    } catch {
-      // If getOwnedNFTs fails, return empty list
-      // Error is handled gracefully
-    }
-    
-    return ownedNFTsList;
-  };
-
   // Main effect: load user's NFTs using Thirdweb SDK
   useEffect(() => {
     let cancelled = false;
+    let purchaseHandler: ((e: Event) => void) | null = null;
 
     const loadUserData = async () => {
       if (!account?.address) {
@@ -131,14 +79,92 @@ function MyNFTsContent() {
       setIsLoading(true);
 
       try {
+        const contract = getContract({
+          client,
+          chain: base,
+          address: process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS!,
+        });
         const allMetadata = await loadAllNFTs();
         if (cancelled) return;
 
-        const ownedNFTsList = await loadOwnedNFTs(account.address, allMetadata);
-        if (cancelled) return;
+        // Use Thirdweb SDK to get owned NFTs
+        const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS?.toLowerCase();
+        const ownedNFTsList: NFT[] = [];
+        
+        try {
+          // Get all NFTs owned by the user using Thirdweb SDK
+          const ownedNFTs = await getOwnedNFTs({
+            contract,
+            owner: account.address,
+          });
+
+          if (cancelled) return;
+
+          // Filter to only NFTs from our collection and process them
+          for (const nft of ownedNFTs) {
+            if (cancelled) break;
+            
+            const nftContract = (nft.tokenAddress || "").toLowerCase();
+            if (CONTRACT_ADDRESS && nftContract === CONTRACT_ADDRESS) {
+              // Extract tokenId from the NFT
+              const tokenIdStr = nft.id?.toString() || "";
+              const tokenId = parseInt(tokenIdStr);
+              
+              if (
+                !isNaN(tokenId) &&
+                tokenId >= 0 &&
+                tokenId < allMetadata.length
+              ) {
+                const meta = allMetadata[tokenId];
+                if (meta) {
+                  const mediaUrl = meta?.merged_data?.media_url || meta?.image;
+                  const imageUrl = convertIpfsUrl(mediaUrl);
+                  ownedNFTsList.push({
+                    id: (tokenId + 1).toString(),
+                    tokenId: tokenId.toString(),
+                    name: meta?.name || `Satoshe Slugger #${tokenId + 1}`,
+                    image: imageUrl || "/nfts/placeholder-nft.webp",
+                    rarity: meta?.rarity_tier || "Unknown",
+                  });
+                }
+              }
+            }
+          }
+        } catch {
+          // If getOwnedNFTs fails, return empty list
+          // Error is handled gracefully
+        }
 
         if (!cancelled) {
           setOwnedNFTs(ownedNFTsList);
+          // Listen for direct purchase events so newly acquired NFTs appear immediately in list.
+          purchaseHandler = (e: Event) => {
+            const custom = e as CustomEvent<{ tokenId: number }>;
+            const t = custom.detail?.tokenId;
+            if (typeof t === "number" && !Number.isNaN(t) && !cancelled) {
+              const idStr = (t + 1).toString();
+              setOwnedNFTs((prev) => {
+                if (prev.some((n) => n.id === idStr)) return prev;
+                const meta = allMetadata[t];
+                const mediaUrl = meta?.merged_data?.media_url || meta?.image;
+                const imageUrl = convertIpfsUrl(mediaUrl);
+                return [
+                  {
+                    id: idStr,
+                    tokenId: t.toString(),
+                    name: meta?.name || `Satoshe Slugger #${t + 1}`,
+                    image: imageUrl || "/nfts/placeholder-nft.webp",
+                    rarity: meta?.rarity_tier || "Unknown",
+                  },
+                  ...prev,
+                ];
+              });
+            }
+          };
+          window.addEventListener(
+            "nftPurchased",
+            purchaseHandler as EventListener,
+          );
         }
       } catch {
         if (!cancelled) setOwnedNFTs([]);
@@ -150,35 +176,11 @@ function MyNFTsContent() {
     loadUserData();
     return () => {
       cancelled = true;
-    };
-  }, [account?.address]);
-
-  // Separate effect: Listen for purchase events and immediately refetch owned NFTs
-  useEffect(() => {
-    if (!account?.address) return;
-
-    const handlePurchase = async (e: Event) => {
-      const custom = e as CustomEvent<{ tokenId: number }>;
-      const purchasedTokenId = custom.detail?.tokenId;
-      
-      if (typeof purchasedTokenId === "number" && !Number.isNaN(purchasedTokenId)) {
-        // Wait a moment for the transaction to be indexed, then refetch
-        // This ensures we get the latest data from the blockchain
-        setTimeout(async () => {
-          try {
-            const allMetadata = await loadAllNFTs();
-            const ownedNFTsList = await loadOwnedNFTs(account.address, allMetadata);
-            setOwnedNFTs(ownedNFTsList);
-          } catch {
-            // Silently fail - the periodic refresh will catch it
-          }
-        }, 2000); // Wait 2 seconds for transaction to be indexed
-      }
-    };
-
-    window.addEventListener("nftPurchased", handlePurchase as EventListener);
-    return () => {
-      window.removeEventListener("nftPurchased", handlePurchase as EventListener);
+      if (purchaseHandler)
+        window.removeEventListener(
+          "nftPurchased",
+          purchaseHandler as EventListener,
+        );
     };
   }, [account?.address]);
 
@@ -280,36 +282,20 @@ function MyNFTsContent() {
         <div className="mb-6">
           <div className="flex border-b border-neutral-700">
             <button
-              className={`py-2 px-4 flex items-center gap-2 transition-all group cursor-pointer ${
-                activeTab === "favorites"
-                  ? "border-b-2 border-brand-pink text-[#FFFBFB] font-medium hover:bg-brand-pink"
-                  : "text-neutral-400 hover:text-neutral-300"
-              }`}
+              className={`py-2 px-4 flex items-center gap-2 ${activeTab === "favorites" ? "border-b-2 border-brand-pink text-offwhite font-medium" : "text-neutral-400 hover:text-offwhite"}`}
               onClick={() => setActiveTab("favorites")}
             >
               <Heart
-                className={`w-4 h-4 transition-colors ${
-                  activeTab === "favorites"
-                    ? "fill-brand-pink text-brand-pink group-hover:fill-[#FFFBFB] group-hover:text-[#FFFBFB]"
-                    : "group-hover:text-neutral-300"
-                }`}
+                className={`w-4 h-4 ${activeTab === "favorites" ? "fill-brand-pink text-brand-pink" : ""}`}
               />
               Favorites ({favorites.length - locallyUnfavorited.size})
             </button>
             <button
-              className={`py-2 px-4 flex items-center gap-2 transition-all group cursor-pointer ${
-                activeTab === "owned"
-                  ? "border-b-2 border-brand-pink text-[#FFFBFB] font-medium hover:bg-brand-pink"
-                  : "text-neutral-400 hover:text-neutral-300"
-              }`}
+              className={`py-2 px-4 flex items-center gap-2 ${activeTab === "owned" ? "border-b-2 border-brand-pink text-offwhite font-medium" : "text-neutral-400 hover:text-offwhite"}`}
               onClick={() => setActiveTab("owned")}
             >
               <Package
-                className={`w-4 h-4 transition-colors ${
-                  activeTab === "owned"
-                    ? "text-brand-pink group-hover:text-[#FFFBFB]"
-                    : "group-hover:text-neutral-300"
-                }`}
+                className={`w-4 h-4 ${activeTab === "owned" ? "text-brand-pink" : ""}`}
               />
               Owned ({Array.isArray(ownedNFTs) ? ownedNFTs.length : 0})
             </button>
@@ -371,9 +357,9 @@ function MyNFTsContent() {
                     />
                   </Link>
                 </div>
-                <div className="px-4 pt-6 pb-4">
-                  <div className="flex w-full justify-between items-center mb-4">
-                    <span className="text-[17px] font-medium">{nft.name}</span>
+                <div className="p-4">
+                  <div className="flex w-full justify-between items-center px-1">
+                    <span className="text-sm font-medium">{nft.name}</span>
                     {activeTab === "favorites" && (
                       <button
                         onClick={() =>
@@ -399,22 +385,20 @@ function MyNFTsContent() {
                     )}
                   </div>
                   {(nft as NFT).isLocallyUnfavorited && (
-                    <div className="mb-4">
+                    <div className="mb-3">
                       <span className="text-xs text-neutral-500 bg-neutral-800 px-2 py-1 rounded">
                         Unfavorited
                       </span>
                     </div>
                   )}
                   {activeTab === "owned" && (
-                    <div className="mt-6">
-                      <button
-                        onClick={() => router.push(`/nft/${nft.id}`)}
-                        className="font-light flex items-center justify-center h-8 w-full rounded border border-brand-pink text-brand-pink bg-transparent hover:!bg-brand-pink hover:!text-off-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-fluid-sm"
-                        aria-label="View NFT details"
-                      >
-                        View Details
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => router.push(`/nft/${nft.id}`)}
+                      className="font-light flex items-center justify-center h-8 w-full rounded border border-brand-pink text-brand-pink bg-transparent hover:!bg-brand-pink hover:!text-off-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-fluid-sm"
+                      aria-label="View NFT details"
+                    >
+                      View Details
+                    </button>
                   )}
                 </div>
               </div>
