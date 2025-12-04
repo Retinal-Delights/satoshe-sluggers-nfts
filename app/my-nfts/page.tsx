@@ -336,7 +336,7 @@ function MyNFTsContent() {
               const nftNumber = nft.name?.match(/#(\d+)/)?.[0] || `#${parseInt(nft.tokenId || nft.id || "0") + 1}`;
               
               return (
-              <div key={nft.id} className="rounded-[2px] overflow-hidden">
+                <div key={nft.id} className="rounded-[2px] overflow-hidden">
                 <div
                   className="relative w-full"
                   style={{ aspectRatio: "0.9/1" }}
@@ -405,8 +405,9 @@ function MyNFTsContent() {
                     </button>
                   )}
                 </div>
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

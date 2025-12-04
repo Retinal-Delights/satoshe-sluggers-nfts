@@ -227,7 +227,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         if (!cancelled && data.saleOrder) {
           setSaleOrder(data.saleOrder);
         }
-      } catch (error) {
+      } catch {
         // On error or timeout, default to empty array (will fall back to tokenId sorting)
         // This is non-critical - only affects "Sold: Most Recent" sort option
         if (!cancelled) {
@@ -447,7 +447,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
               // IMPORTANT: Only use ownership status if ownership data has actually loaded
               // If ownershipData is empty or still loading, default to ACTIVE (optimistic)
               const ownershipInfo = ownershipMap[tokenIdNum];
-              const hasOwnershipData = ownershipData.length > 0; // Check if we have any ownership data at all
+              const hasOwnershipData = Object.keys(ownershipMap).length > 0; // Check if we have any ownership data at all
               const status = hasOwnershipData ? (ownershipInfo?.status || "ACTIVE") : "ACTIVE";
               // Only mark as sold if we have explicit SOLD status AND ownership data has loaded
               const isSold = hasOwnershipData && status === 'SOLD';
