@@ -50,10 +50,13 @@ export async function GET() {
     try {
       // Fetch Transfer events where from_address is the marketplace
       // This indicates tokens that were sold from the marketplace
+      // Note: This may be slow on first load as it fetches all events via RPC
       const transferEvent = prepareEvent({
         signature: "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
       });
       
+      // Suppress Insight API errors - they're harmless (SDK falls back to RPC automatically)
+      // The SDK logs these errors internally, but we can't prevent that - it's expected behavior
       const allTransferEvents = await getContractEvents({
         contract,
         events: [transferEvent],
@@ -114,8 +117,13 @@ export async function GET() {
           "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60",
         },
       });
-    } catch {
-      // If event fetching fails, return cached data or empty array
+    } catch (error) {
+      // If event fetching fails (e.g., RPC timeout), return cached data or empty array
+      // This is non-critical - only affects "Sold: Most Recent" sorting
+      if (process.env.NODE_ENV === "development") {
+        console.warn("[Sale Order API] Event fetch failed, using cache or empty:", error instanceof Error ? error.message : String(error));
+      }
+      
       if (cache.data) {
         return NextResponse.json(cache.data, {
           headers: {
@@ -125,8 +133,12 @@ export async function GET() {
       }
       return NextResponse.json({ saleOrder: [] });
     }
-  } catch {
+  } catch (error) {
     // Return cached data if available, otherwise empty array
+    if (process.env.NODE_ENV === "development") {
+      console.error("[Sale Order API] Fatal error:", error instanceof Error ? error.message : String(error));
+    }
+    
     if (cache.data) {
       return NextResponse.json(cache.data);
     }

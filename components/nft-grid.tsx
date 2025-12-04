@@ -207,13 +207,22 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
     };
   }, []); // Only run once on mount
 
-  // Load sale order from API (only once on mount)
+  // Load sale order from API (only once on mount, non-blocking)
+  // This is used for "Sold: Most Recent" sorting only - not critical for page load
   useEffect(() => {
     let cancelled = false;
     
     const loadSaleOrder = async () => {
       try {
-        const res = await fetch("/api/nft/sale-order");
+        // Add timeout to prevent blocking page load
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
+        const res = await fetch("/api/nft/sale-order", {
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+        
         if (!res.ok) {
           throw new Error(`Failed to fetch sale order: ${res.statusText}`);
         }
@@ -221,14 +230,16 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         if (!cancelled && data.saleOrder) {
           setSaleOrder(data.saleOrder);
         }
-      } catch {
-        // On error, default to empty array (will fall back to tokenId sorting)
+      } catch (error) {
+        // On error or timeout, default to empty array (will fall back to tokenId sorting)
+        // This is non-critical - only affects "Sold: Most Recent" sort option
         if (!cancelled) {
           setSaleOrder([]);
         }
       }
     };
     
+    // Load in background, don't block page render
     loadSaleOrder();
     
     return () => {
@@ -436,8 +447,13 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
               let isForSale = false;
               
               // Get status from ownershipMap
-              const status = ownershipMap[tokenIdNum]?.status || "ACTIVE";
-              const isSold = status === 'SOLD';
+              // IMPORTANT: Only use ownership status if ownership data has actually loaded
+              // If ownershipData is empty or still loading, default to ACTIVE (optimistic)
+              const ownershipInfo = ownershipMap[tokenIdNum];
+              const hasOwnershipData = ownershipData.length > 0; // Check if we have any ownership data at all
+              const status = hasOwnershipData ? (ownershipInfo?.status || "ACTIVE") : "ACTIVE";
+              // Only mark as sold if we have explicit SOLD status AND ownership data has loaded
+              const isSold = hasOwnershipData && status === 'SOLD';
               
               // Get price from pricing mappings
               const pricing = pricingMappings[tokenIdNum];
@@ -762,7 +778,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
       {/* Header section: Strict responsive grid layout */}
       <div className="flex flex-col space-y-4 mb-6 w-full" style={{ maxWidth: '100%' }}>
         {/* Row 1: NFT Collection heading (full width) */}
-        <h2 className="text-2xl font-bold">NFT Collection</h2>
+        <h2 className="text-h2 font-bold">NFT Collection</h2>
 
         {/* Row 2: Tabs and View toggles (2 columns on desktop) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -771,7 +787,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
             <div className="flex items-center gap-0 border border-neutral-700 rounded-[2px] p-1 bg-neutral-900/50 w-fit overflow-hidden flex-nowrap">
               <button
                 onClick={() => setTab("all")}
-                className={`px-4 py-1.5 text-xs font-medium transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
+                className={`px-4 py-1.5 text-body-xs font-medium transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
                   tab === "all"
                     ? "bg-brand-pink text-[#FFFBFB]"
                     : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
@@ -783,7 +799,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
               </button>
               <button
                 onClick={() => setTab("live")}
-                className={`px-4 py-1.5 text-xs font-medium transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
+                className={`px-4 py-1.5 text-body-xs font-medium transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
                   tab === "live"
                     ? "bg-blue-500 text-[#FFFBFB]"
                     : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
@@ -795,7 +811,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
               </button>
               <button
                 onClick={() => setTab("sold")}
-                className={`px-4 py-1.5 text-xs font-medium transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
+                className={`px-4 py-1.5 text-body-xs font-medium transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
                   tab === "sold"
                     ? "bg-[#00FF99] text-[#000000]"
                     : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
@@ -810,7 +826,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
 
           {/* Column 2: View label + toggle buttons */}
           <div className="flex items-center gap-2 justify-end">
-            <span className="text-sm font-light opacity-80">View:</span>
+            <span className="text-body-sm font-light opacity-80">View:</span>
             <TooltipProvider>
               <div className="relative flex items-center gap-2 border border-neutral-700 rounded-[2px] p-1 flex-nowrap">
                 <Tooltip>
@@ -894,12 +910,12 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Column 1: Sort by dropdown */}
           <div className="flex items-center gap-2 justify-start">
-            <span className="text-sm font-light opacity-80">Sort by:</span>
+            <span className="text-body-sm font-light opacity-80">Sort by:</span>
             <Select value={sortBy} onValueChange={(value) => {
               setSortBy(value);
               setColumnSort(null);
             }}>
-              <SelectTrigger className="w-[220px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0">
+              <SelectTrigger className="w-[220px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0">
                 <SelectValue placeholder="Default" />
               </SelectTrigger>
               <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
@@ -918,9 +934,9 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
 
           {/* Column 2: Show dropdown */}
           <div className="flex items-center gap-2 justify-end">
-            <span className="text-sm font-light opacity-80">Show:</span>
+            <span className="text-body-sm font-light opacity-80">Show:</span>
             <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
-              <SelectTrigger className="w-[150px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0">
+              <SelectTrigger className="w-[150px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0">
                 <SelectValue placeholder="15 items" />
               </SelectTrigger>
               <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
@@ -935,7 +951,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         </div>
 
         {/* Row 4: Item count text (full width) */}
-        <div className="text-xs font-thin leading-tight opacity-80">
+        <div className="text-body-xs font-thin leading-tight opacity-80">
           {filteredNFTs.length > 0 ? (
             `${startIndex + 1}-${Math.min(endIndex, filteredNFTs.length)} of ${filteredNFTs.length} NFTs`
           ) : null}
@@ -943,7 +959,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
 
         {/* Row 5: Warning text (full width) */}
         {ownershipError && (
-          <div className="text-xs leading-tight text-yellow-500 mt-1" role="alert" aria-live="polite">
+          <div className="text-body-xs leading-tight text-yellow-500 mt-1" role="alert" aria-live="polite">
             ⚠️ Some ownership data may be out of date
           </div>
         )}
