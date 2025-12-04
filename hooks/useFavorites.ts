@@ -129,15 +129,8 @@ export function useFavorites() {
         if (prevAddressRef.current !== addressString) {
           return;
         }
-        // Suppress error logging for connection failures (reduces terminal clutter)
-        const errorMessage = err.message || 'Failed to load favorites';
-        const isConnectionError = 
-          errorMessage.includes('Failed to fetch') || 
-          errorMessage.includes('ERR_CONNECTION_REFUSED') ||
-          errorMessage.includes('NetworkError') ||
-          errorMessage.includes('ECONNREFUSED');
-        
         // Error loading favorites - will use localStorage fallback
+        const errorMessage = err.message || 'Failed to load favorites';
         
         setError(errorMessage);
         

@@ -48,10 +48,16 @@ function getColorForAttribute(attributeName: string) {
 export default function NFTDetailPage() {
   const params = useParams<{ id: string }>();
   
-  // TOKEN ID HANDLING:
+  // SECURITY: Validate and sanitize tokenId from URL
   // Route param (from URL) is 1-based (display/NFT #), but all on-chain and array lookups are 0-based.
-  // Always treat tokenId from the route as 1-based (display number)
-  const tokenId = params.id;
+  const rawTokenId = params.id;
+  
+  // SECURITY: Strict validation - only allow numeric strings
+  const tokenIdNum = rawTokenId ? parseInt(rawTokenId, 10) : NaN;
+  const isValidTokenId = !isNaN(tokenIdNum) && tokenIdNum >= 1 && tokenIdNum <= 7777 && Number.isInteger(tokenIdNum);
+  
+  // Use validated tokenId or default to "1" (fail-secure)
+  const tokenId = isValidTokenId ? rawTokenId : "1";
   
   const [metadata, setMetadata] = useState<NFTData | null>(null);
   const [imageUrl, setImageUrl] = useState<string>("/nfts/placeholder-nft.webp");

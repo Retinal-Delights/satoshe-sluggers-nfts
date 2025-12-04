@@ -195,7 +195,7 @@ export function useOnChainOwnership(totalNFTs: number = 7777) {
     window.addEventListener("nftPurchased", handler as EventListener);
     return () =>
       window.removeEventListener("nftPurchased", handler as EventListener);
-  }, [fetchAggregateCounts, saveCache]);
+  }, [fetchAggregateCounts, saveCache, totalNFTs]);
 
   // Return API: compatible with existing code
   if (!initialized) {

@@ -12,8 +12,11 @@
  * - Test coverage
  */
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const fs = require('fs');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const path = require('path');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { execSync } = require('child_process');
 
 const colors = {
@@ -35,7 +38,7 @@ function logSection(title) {
   console.log('='.repeat(60));
 }
 
-function checkFilePatterns(directory, patterns, description) {
+function checkFilePatterns(directory, patterns) {
   const results = [];
   const files = getAllFiles(directory);
   
@@ -77,7 +80,7 @@ function getAllFiles(dir, fileList = []) {
         fileList.push(filePath);
       }
     });
-  } catch (error) {
+  } catch {
     // Directory doesn't exist or can't be read
   }
   
@@ -310,7 +313,7 @@ function generateReport(results) {
   const totalChecks = Object.keys(results).length;
   let passedChecks = 0;
   
-  Object.entries(results).forEach(([check, result]) => {
+  Object.entries(results).forEach(([, result]) => {
     if (result.passed !== false) {
       passedChecks++;
     }

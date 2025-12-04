@@ -43,11 +43,21 @@ function NFTsPageContent() {
   // Initialize state from URL parameters
   useEffect(() => {
     if (!isInitialized) {
-      const urlSearchTerm = searchParams.get('search') || ""
-      const urlSearchMode = (searchParams.get('mode') as "contains" | "exact") || "contains"
-      const urlSortBy = searchParams.get('sortBy') || "default"
+      // SECURITY: Sanitize URL parameters to prevent injection
+      const urlSearchTerm = (searchParams.get('search') || "").slice(0, 200) // Limit length
+      const urlSearchModeRaw = searchParams.get('mode')
+      const urlSearchMode = (urlSearchModeRaw === "exact" ? "exact" : "contains") // Whitelist only
+      const urlSortByRaw = searchParams.get('sortBy')
+      // SECURITY: Whitelist allowed sort values
+      const allowedSorts = ["default", "price-asc", "price-desc", "rarity-asc", "rarity-desc", "rank-asc", "rank-desc", "sold-recent", "favorites"]
+      const urlSortBy: string = allowedSorts.includes(urlSortByRaw || "") ? (urlSortByRaw || "default") : "default"
+      
       const urlItemsPerPage = searchParams.get('itemsPerPage')
-      const itemsPerPageNum = urlItemsPerPage ? parseInt(urlItemsPerPage, 10) : 25
+      // SECURITY: Validate itemsPerPage - only allow whitelisted values
+      const allowedItemsPerPage = [10, 25, 50, 100]
+      const itemsPerPageNum = urlItemsPerPage && allowedItemsPerPage.includes(parseInt(urlItemsPerPage, 10)) 
+        ? parseInt(urlItemsPerPage, 10) 
+        : 25
       
       // Parse listing status from URL
       const urlListingStatus = {
@@ -69,27 +79,62 @@ function NFTsPageContent() {
       const simpleFilterKeys = ['rarity', 'background', 'skinTone', 'shirt', 'eyewear']
       const nestedFilterKeys = ['hair', 'headwear']
       
+      // SECURITY: Sanitize filter values from URL
       // Handle simple array filters
       simpleFilterKeys.forEach(key => {
         const value = searchParams.get(key)
         if (value) {
           try {
-            (urlFilters as Record<string, unknown>)[key] = JSON.parse(decodeURIComponent(value))
+            // SECURITY: Limit value length and validate it's an array
+            const decoded = decodeURIComponent(value.slice(0, 1000)) // Limit length
+            const parsed: unknown = JSON.parse(decoded)
+            // SECURITY: Only accept arrays of strings
+            if (Array.isArray(parsed) && parsed.every((item: unknown) => typeof item === 'string')) {
+              // SECURITY: Sanitize each string in array (limit length, remove dangerous chars)
+              const stringArray: string[] = parsed as string[]
+              const sanitizedArray: string[] = []
+              for (const item of stringArray) {
+                const str = String(item)
+                sanitizedArray.push(str.slice(0, 100).replace(/[<>{}[\]();'":\\\/]/g, ''))
+              }
+              (urlFilters as Record<string, unknown>)[key] = sanitizedArray
+            }
           } catch {
-            // If parsing fails, treat as single value
-            (urlFilters as Record<string, unknown>)[key] = [value]
+            // SECURITY: If parsing fails, treat as single value but sanitize it
+            const sanitized = String(value).slice(0, 100).replace(/[<>{}[\]();'":\\\/]/g, '')
+            if (sanitized) {
+              (urlFilters as Record<string, unknown>)[key] = [sanitized]
+            }
           }
         }
       })
       
-      // Handle nested object filters (hair, headwear)
+      // SECURITY: Sanitize nested object filters (hair, headwear)
       nestedFilterKeys.forEach(key => {
         const value = searchParams.get(key)
         if (value) {
           try {
-            (urlFilters as Record<string, unknown>)[key] = JSON.parse(decodeURIComponent(value))
+            // SECURITY: Limit value length and validate structure
+            const decoded = decodeURIComponent(value.slice(0, 2000)) // Limit length
+            const parsed = JSON.parse(decoded)
+            // SECURITY: Only accept objects with string array values
+            if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+              const sanitized: Record<string, string[]> = {}
+              for (const [subKey, subValue] of Object.entries(parsed)) {
+                if (typeof subKey === 'string' && Array.isArray(subValue) && subValue.every((item: unknown) => typeof item === 'string')) {
+                  const sanitizedKey = subKey.slice(0, 50).replace(/[^a-zA-Z0-9_-]/g, '')
+                  const sanitizedValues = subValue.map((item: string) => String(item).slice(0, 100).replace(/[<>{}[\]();'":\\\/]/g, ''))
+                  if (sanitizedKey && sanitizedValues.length > 0) {
+                    sanitized[sanitizedKey] = sanitizedValues
+                  }
+                }
+              }
+              if (Object.keys(sanitized).length > 0) {
+                (urlFilters as Record<string, unknown>)[key] = sanitized
+              }
+            }
           } catch {
-            // If parsing fails, skip this filter (invalid URL parameter)
+            // SECURITY: If parsing fails, skip this filter (fail-secure)
           }
         }
       })
@@ -148,7 +193,7 @@ function NFTsPageContent() {
         {/* Consistent container for all content sections */}
         <div className="w-full max-w-[1650px] 2xl:max-w-[2000px] 4xl:max-w-[2400px] mx-auto px-6 sm:px-6 md:px-8 lg:px-8 xl:px-8">
           <div className="mb-8 lg:mb-12">
-            <h1 id="collection-heading" className="text-[clamp(40px,5vw+16px,95px)] font-extrabold tracking-tight text-center pb-2">
+            <h1 id="collection-heading" className="text-[clamp(32px,4vw+12px,79px)] font-extrabold tracking-tighter text-center pb-2 leading-[0.9] sm:leading-tight">
               SATO<span className="text-brand-pink">SHE</span> SLUGGERS
             </h1>
             <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 md:gap-3 text-body-lg text-neutral-300 max-w-4xl mx-auto tracking-tight mt-2">
@@ -182,7 +227,7 @@ function NFTsPageContent() {
             <div className="xl:hidden mb-4">
               <Drawer direction="left" open={drawerOpen} onOpenChange={setDrawerOpen} shouldScaleBackground={false}>
                 <DrawerTrigger asChild>
-                  <button className="flex items-center gap-2 px-4 py-2 bg-[#ff0099] hover:bg-[#ff0099]/90 text-white rounded-[2px] transition-colors font-medium text-body-sm">
+                  <button className="flex items-center gap-2 px-4 py-2 bg-[#ff0099] hover:bg-[#ff0099]/90 text-white rounded-[2px] transition-colors font-medium text-body-sm cursor-pointer">
                     <Filter className="w-4 h-4" />
                     Filters
                   </button>

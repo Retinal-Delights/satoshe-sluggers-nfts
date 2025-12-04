@@ -19,8 +19,9 @@ if (!CONTRACT_ADDRESS || !MARKETPLACE_ADDRESS) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { tokenIds }: { tokenIds: number[] } = body;
+    const { tokenIds }: { tokenIds: unknown } = body;
 
+    // SECURITY: Strict validation - must be array
     if (!Array.isArray(tokenIds) || tokenIds.length === 0) {
       return NextResponse.json(
         { error: "tokenIds must be a non-empty array" },
@@ -28,11 +29,44 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Maximum batch size for any single API/user request
+    // SECURITY: Validate and sanitize each tokenId
+    // Only allow integers between 0 and 7776 (0-based token IDs)
+    const TOTAL_NFTS = 7777;
+    const MAX_TOKEN_ID = TOTAL_NFTS - 1;
+    const validTokenIds: number[] = [];
+    
+    for (const id of tokenIds) {
+      // Convert to number if string
+      const numId = typeof id === 'string' ? parseInt(id, 10) : typeof id === 'number' ? Math.floor(id) : NaN;
+      
+      // SECURITY: Strict validation
+      if (!isNaN(numId) && numId >= 0 && numId <= MAX_TOKEN_ID && Number.isInteger(numId)) {
+        validTokenIds.push(numId);
+      }
+      // Invalid tokenIds are silently skipped (fail-secure)
+    }
+
+    if (validTokenIds.length === 0) {
+      return NextResponse.json(
+        { error: "No valid tokenIds provided. Must be integers between 0 and 7776" },
+        { status: 400 },
+      );
+    }
+
+    // SECURITY: Limit batch size to prevent DoS
     const MAX_BATCH_SIZE = 200;
+    const MAX_TOTAL_REQUESTS = 1000; // Maximum total tokenIds per request
+    
+    if (validTokenIds.length > MAX_TOTAL_REQUESTS) {
+      return NextResponse.json(
+        { error: `Too many tokenIds. Maximum ${MAX_TOTAL_REQUESTS} allowed per request` },
+        { status: 400 },
+      );
+    }
+
     const batches: number[][] = [];
-    for (let i = 0; i < tokenIds.length; i += MAX_BATCH_SIZE) {
-      batches.push(tokenIds.slice(i, i + MAX_BATCH_SIZE));
+    for (let i = 0; i < validTokenIds.length; i += MAX_BATCH_SIZE) {
+      batches.push(validTokenIds.slice(i, i + MAX_BATCH_SIZE));
     }
 
     const results: Record<number, { owner: string; isSold: boolean }> = {};

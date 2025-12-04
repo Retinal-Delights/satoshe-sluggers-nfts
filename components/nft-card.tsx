@@ -99,7 +99,7 @@ export default function NFTCard({
       <div className="nft-card-wrapper">
         <div className="nft-card-image">
           <div
-            className="relative p-3 overflow-visible"
+            className="relative p-4 sm:p-3 overflow-visible"
             style={{ aspectRatio: "1/1" }}
           >
             <Link
@@ -137,7 +137,7 @@ export default function NFTCard({
         {/* Single container for image and text */}
         <div className="w-full flex flex-col">
           {/* Image container */}
-          <div className="relative w-full p-3 overflow-visible" style={{ aspectRatio: "0.9" }}>
+          <div className="relative w-full p-4 sm:p-3 overflow-visible" style={{ aspectRatio: "0.9" }}>
             <Link href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`} className="block w-full h-full relative overflow-visible">
               <Image
                 src={showPlaceholder ? placeholder : image}
@@ -156,7 +156,7 @@ export default function NFTCard({
           </div>
 
           {/* Text content - aligned with image edges */}
-          <div className="w-full px-3 pt-3 pb-4">
+          <div className="w-full pl-4 pr-3 pt-3 pb-4">
             <div className="flex items-start justify-between gap-2 min-w-0 mb-0.5">
               <h3 className="font-semibold text-off-white text-nft-title leading-snug truncate min-w-0 flex-1 whitespace-nowrap">
                 #{cardNumber}
@@ -222,9 +222,12 @@ export default function NFTCard({
                     </div>
                   ) : null}
                 </div>
-                <span className="px-3 py-2 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-nft-button bg-[#00FF99]/10 border border-[#00FF99]/30 text-[#00FF99] cursor-not-allowed opacity-75">
+                <Link
+                  href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
+                  className="px-3 py-2 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-nft-button bg-[#00FF99]/10 border border-[#00FF99]/30 text-[#00FF99] hover:bg-[#00FF99]/20 hover:border-[#00FF99]/50 cursor-pointer"
+                >
                   Sold
-                </span>
+                </Link>
               </div>
             )}
           </div>
@@ -239,7 +242,7 @@ export default function NFTCard({
       {/* Single container for image and text */}
       <div className="w-full flex flex-col">
         {/* Image container */}
-        <div className="relative w-full p-3 overflow-visible" style={{ aspectRatio: "0.9" }}>
+        <div className="relative w-full p-4 sm:p-3 overflow-visible" style={{ aspectRatio: "0.9" }}>
           <Link href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`} className="block w-full h-full relative overflow-visible">
             <Image
               src={showPlaceholder ? placeholder : image}
@@ -261,7 +264,7 @@ export default function NFTCard({
         </div>
 
         {/* Text content - aligned with image edges */}
-        <div className="w-full px-3 pt-3 pb-4">
+        <div className="w-full pl-4 pr-3 pt-3 pb-4">
           <div className="flex items-center justify-between gap-2 min-w-0">
             <div className={`font-normal leading-[1.15] text-nft-title ${isForSale ? 'text-blue-400' : 'text-green-400'} whitespace-nowrap truncate min-w-0 flex-1 pl-1.5`}>
               NFT — #{cardNumber}

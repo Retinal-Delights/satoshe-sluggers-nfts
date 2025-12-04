@@ -68,6 +68,108 @@ const ChartContainer = React.forwardRef<
 })
 ChartContainer.displayName = "Chart"
 
+/**
+ * SECURITY: Sanitize string for use in CSS selector
+ * STRICT: Only allows alphanumeric, hyphens, underscores, and dots
+ * Removes ALL special characters that could break CSS syntax or enable injection
+ */
+function sanitizeCssSelector(str: string): string {
+  if (!str || typeof str !== 'string') return 'chart-default'
+  // STRICT: Only allow alphanumeric, hyphens, underscores, dots
+  // Remove EVERYTHING else - no exceptions
+  const sanitized = str.replace(/[^a-zA-Z0-9._-]/g, '').replace(/^\.+|\.+$/g, '')
+  // Ensure it's not empty and doesn't start with a number
+  if (!sanitized || /^\d/.test(sanitized)) return 'chart-default'
+  // Limit length to prevent DoS
+  return sanitized.slice(0, 100)
+}
+
+/**
+ * SECURITY: Sanitize string for use as CSS variable name
+ * STRICT: Only allows alphanumeric, hyphens, and underscores
+ * Must start with letter or underscore (CSS variable requirement)
+ */
+function sanitizeCssVariableName(str: string): string {
+  if (!str || typeof str !== 'string') return ''
+  // STRICT: Only allow alphanumeric, hyphens, underscores
+  let sanitized = str.replace(/[^a-zA-Z0-9_-]/g, '')
+  // Remove leading/trailing hyphens
+  sanitized = sanitized.replace(/^-+|-+$/g, '')
+  // Must start with letter or underscore (CSS variable requirement)
+  if (!sanitized || /^\d/.test(sanitized)) {
+    sanitized = '_' + sanitized
+  }
+  // Limit length to prevent DoS
+  return sanitized.slice(0, 50)
+}
+
+/**
+ * SECURITY: Validate and sanitize CSS color value
+ * STRICT: Only allows whitelisted CSS color formats
+ * Rejects anything that doesn't match exact patterns
+ */
+function sanitizeCssColor(color: string | undefined): string | null {
+  if (!color || typeof color !== 'string') return null
+  
+  // STRICT: Remove ALL potentially dangerous characters first
+  const sanitized = color.trim().replace(/[<>{}[\]();'":\\\/\s]/g, '')
+  
+  // STRICT: Only allow exact patterns - no exceptions
+  // Hex: #rrggbb or #rgb (exact match)
+  const hexPattern = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/
+  // RGB/RGBA: rgb(...) or rgba(...) with strict number validation
+  const rgbPattern = /^rgba?\(\d+,\d+,\d+(,0?\.?\d+)?\)$/
+  // HSL/HSLA: hsl(...) or hsla(...) with strict validation
+  const hslPattern = /^hsla?\(\d+,\d+%,\d+%(,0?\.?\d+)?\)$/
+  // STRICT whitelist of safe named colors only
+  const namedColors = [
+    'transparent', 'currentColor', 'inherit', 'initial', 'unset',
+    'black', 'white', 'red', 'green', 'blue', 'yellow', 'cyan', 'magenta'
+  ]
+  
+  // STRICT: Must match exact pattern - no partial matches
+  if (hexPattern.test(sanitized)) {
+    return sanitized // Hex colors are safe
+  }
+  
+  if (rgbPattern.test(sanitized)) {
+    // Additional validation: ensure numbers are in valid ranges
+    const match = sanitized.match(/rgba?\((\d+),(\d+),(\d+)(,([\d.]+))?\)/)
+    if (match) {
+      const r = parseInt(match[1], 10)
+      const g = parseInt(match[2], 10)
+      const b = parseInt(match[3], 10)
+      const a = match[5] ? parseFloat(match[5]) : 1
+      if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255 && a >= 0 && a <= 1) {
+        return sanitized
+      }
+    }
+    return null
+  }
+  
+  if (hslPattern.test(sanitized)) {
+    // Additional validation: ensure numbers are in valid ranges
+    const match = sanitized.match(/hsla?\((\d+),(\d+)%,(\d+)%(,([\d.]+))?\)/)
+    if (match) {
+      const h = parseInt(match[1], 10)
+      const s = parseInt(match[2], 10)
+      const l = parseInt(match[3], 10)
+      const a = match[5] ? parseFloat(match[5]) : 1
+      if (h >= 0 && h <= 360 && s >= 0 && s <= 100 && l >= 0 && l <= 100 && a >= 0 && a <= 1) {
+        return sanitized
+      }
+    }
+    return null
+  }
+  
+  if (namedColors.includes(sanitized.toLowerCase())) {
+    return sanitized.toLowerCase()
+  }
+  
+  // STRICT: If it doesn't match any pattern exactly, reject it
+  return null
+}
+
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
     ([_unused, config]) => config.theme || config.color // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -77,6 +179,12 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
     return null
   }
 
+  // SECURITY: Sanitize all user-controlled inputs before inserting into CSS
+  // 1. Sanitize the `id` to prevent CSS selector injection
+  // 2. Sanitize the `key` to prevent CSS variable name injection
+  // 3. Validate and sanitize `color` values to prevent CSS injection
+  const sanitizedId = sanitizeCssSelector(id)
+
   return (
     <style
       dangerouslySetInnerHTML={{
@@ -84,12 +192,21 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
           .map(
             ([theme, prefix]) =>
               `
-${prefix} [data-chart=${id}] {
+${prefix} [data-chart="${sanitizedId}"] {
 ${colorConfig
   .map(([key, itemConfig]) => {
-    const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color
-    return color ? `  --color-${key}: ${color};` : null
+    // Sanitize the key (CSS variable name)
+    const sanitizedKey = sanitizeCssVariableName(key)
+    if (!sanitizedKey) return null
+    
+    // Get and sanitize the color value
+    const rawColor = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color
+    const sanitizedColor = sanitizeCssColor(rawColor)
+    
+    // Only output if we have a valid color
+    return sanitizedColor ? `  --color-${sanitizedKey}: ${sanitizedColor};` : null
   })
+  .filter(Boolean)
   .join("\n")}
 }
 `
