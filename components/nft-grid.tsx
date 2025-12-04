@@ -957,13 +957,13 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
       </div>
 
       {/* Item count - centered above grid */}
-      {filteredNFTs.length > 0 && (
+      {filteredNFTs.length > 0 ? (
         <div className="text-center mb-4">
           <div className="text-body-xs font-thin leading-tight opacity-80">
             {`${startIndex + 1}-${Math.min(endIndex, filteredNFTs.length)} of ${filteredNFTs.length} NFTs`}
           </div>
         </div>
-      )}
+      ) : null}
 
       {paginatedNFTs.length > 0 ? (
         <>

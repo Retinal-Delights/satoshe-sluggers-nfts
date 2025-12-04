@@ -99,7 +99,7 @@ export default function NFTCard({
       <div className="nft-card-wrapper">
         <div className="nft-card-image">
           <div
-            className="relative p-2 overflow-visible"
+            className="relative p-3 overflow-visible"
             style={{ aspectRatio: "1/1" }}
           >
             <Link
@@ -134,7 +134,7 @@ export default function NFTCard({
   if (viewMode === "grid-large") {
     return (
       <div className="nft-card-wrapper w-full flex flex-col">
-        <div className="relative w-full p-2 overflow-visible" style={{ aspectRatio: "0.9" }}>
+        <div className="relative w-full p-3 overflow-visible" style={{ aspectRatio: "0.9" }}>
           <Link href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`} className="block w-full h-full relative overflow-visible">
             <Image
               src={showPlaceholder ? placeholder : image}
@@ -231,7 +231,7 @@ export default function NFTCard({
   // --- View: Medium grid ---
   return (
     <div className="nft-card-wrapper w-full flex flex-col">
-      <div className="relative w-full p-2 overflow-visible" style={{ aspectRatio: "0.9" }}>
+      <div className="relative w-full p-3 overflow-visible" style={{ aspectRatio: "0.9" }}>
         <Link href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`} className="block w-full h-full relative overflow-visible">
           <Image
             src={showPlaceholder ? placeholder : image}
