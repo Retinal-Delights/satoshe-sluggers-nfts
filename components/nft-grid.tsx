@@ -778,9 +778,9 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         <h2 className="text-h2 font-bold">NFT Collection</h2>
 
         {/* Row 2: Tabs and View toggles - same row on all sizes */}
-        <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center justify-between gap-4 flex-wrap min-w-0">
           {/* Status tabs */}
-          <div className="flex items-center justify-start flex-shrink-0">
+          <div className="flex items-center justify-start flex-shrink-0 min-w-0">
             <div className="flex items-center gap-0 border border-neutral-700 rounded-[2px] p-1 bg-neutral-900/50 w-fit overflow-hidden flex-nowrap">
               <button
                 onClick={() => setTab("all")}
@@ -821,11 +821,10 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
             </div>
           </div>
 
-          {/* View label + toggle buttons */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="text-body-sm font-light opacity-80 whitespace-nowrap">View:</span>
+          {/* View toggle buttons */}
+          <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
             <TooltipProvider>
-              <div className="relative flex items-center gap-2 border border-neutral-700 rounded-[2px] p-1 flex-nowrap">
+              <div className="relative flex items-center gap-2 border border-neutral-700 rounded-[2px] p-1 flex-nowrap overflow-hidden">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
@@ -904,66 +903,66 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         </div>
 
         {/* Row 3: Sort/Show dropdowns (right-aligned) */}
-        <div className="flex items-center justify-end gap-4 flex-wrap">
-            {/* Sort by dropdown */}
-            <div className="flex items-center gap-2">
-              <span className="text-body-sm font-light opacity-80 whitespace-nowrap">Sort by:</span>
-              <Select value={sortBy} onValueChange={(value) => {
-                setSortBy(value);
-                setColumnSort(null);
-              }}>
-                <SelectTrigger className="w-[220px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0">
-                  <SelectValue placeholder="Default" />
-                </SelectTrigger>
-                <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
-                  <SelectItem value="default" className="text-body-sm font-normal">Default</SelectItem>
-                  <SelectItem value="favorites" className="text-body-sm font-normal">Favorites</SelectItem>
-                  <SelectItem value="most-recent" className="text-body-sm font-normal">Sold: Most Recent</SelectItem>
-                  <SelectItem value="price-asc" className="text-body-sm font-normal">Price: Low to High</SelectItem>
-                  <SelectItem value="price-desc" className="text-body-sm font-normal">Price: High to Low</SelectItem>
-                  <SelectItem value="rank-desc" className="text-body-sm font-normal">Rank: High to Low</SelectItem>
-                  <SelectItem value="rank-asc" className="text-body-sm font-normal">Rank: Low to High</SelectItem>
-                  <SelectItem value="rarity-desc" className="text-body-sm font-normal">Rarity: High to Low</SelectItem>
-                  <SelectItem value="rarity-asc" className="text-body-sm font-normal">Rarity: Low to High</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        <div className="flex items-center justify-end gap-4 flex-wrap min-w-0">
+          {/* Sort by dropdown */}
+          <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
+            <span className="text-body-sm font-light opacity-80 whitespace-nowrap flex-shrink-0">Sort by:</span>
+            <Select value={sortBy} onValueChange={(value) => {
+              setSortBy(value);
+              setColumnSort(null);
+            }}>
+              <SelectTrigger className="w-[220px] xxs:w-[140px] sm:w-[180px] md:w-[220px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0 min-w-0">
+                <SelectValue placeholder="Default" />
+              </SelectTrigger>
+              <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
+                <SelectItem value="default" className="text-body-sm font-normal">Default</SelectItem>
+                <SelectItem value="favorites" className="text-body-sm font-normal">Favorites</SelectItem>
+                <SelectItem value="most-recent" className="text-body-sm font-normal">Sold: Most Recent</SelectItem>
+                <SelectItem value="price-asc" className="text-body-sm font-normal">Price: Low to High</SelectItem>
+                <SelectItem value="price-desc" className="text-body-sm font-normal">Price: High to Low</SelectItem>
+                <SelectItem value="rank-desc" className="text-body-sm font-normal">Rank: High to Low</SelectItem>
+                <SelectItem value="rank-asc" className="text-body-sm font-normal">Rank: Low to High</SelectItem>
+                <SelectItem value="rarity-desc" className="text-body-sm font-normal">Rarity: High to Low</SelectItem>
+                <SelectItem value="rarity-asc" className="text-body-sm font-normal">Rarity: Low to High</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-            {/* Show dropdown */}
-            <div className="flex items-center gap-2">
-              <span className="text-body-sm font-light opacity-80 whitespace-nowrap">Show:</span>
-              <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
-                <SelectTrigger className="w-[150px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0">
-                  <SelectValue placeholder="15 items" />
-                </SelectTrigger>
-                <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
-                  <SelectItem value="15" className="text-body-sm font-normal">15 items</SelectItem>
-                  <SelectItem value="25" className="text-body-sm font-normal">25 items</SelectItem>
-                  <SelectItem value="50" className="text-body-sm font-normal">50 items</SelectItem>
-                  <SelectItem value="100" className="text-body-sm font-normal">100 items</SelectItem>
-                  <SelectItem value="250" className="text-body-sm font-normal">250 items</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          {/* Show dropdown */}
+          <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
+            <span className="text-body-sm font-light opacity-80 whitespace-nowrap flex-shrink-0">Show:</span>
+            <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
+              <SelectTrigger className="w-[150px] xxs:w-[100px] sm:w-[130px] md:w-[150px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0 min-w-0">
+                <SelectValue placeholder="15 items" />
+              </SelectTrigger>
+              <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
+                <SelectItem value="15" className="text-body-sm font-normal">15 items</SelectItem>
+                <SelectItem value="25" className="text-body-sm font-normal">25 items</SelectItem>
+                <SelectItem value="50" className="text-body-sm font-normal">50 items</SelectItem>
+                <SelectItem value="100" className="text-body-sm font-normal">100 items</SelectItem>
+                <SelectItem value="250" className="text-body-sm font-normal">250 items</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
-        {/* Row 4: Warning text (if needed) */}
-        {ownershipError && (
-          <div className="text-body-xs leading-tight text-yellow-500 justify-end flex" role="alert" aria-live="polite">
-            ⚠️ Some ownership data may be out of date
+        {/* Row 4: Item count (left) and Warning (right) */}
+        <div className="flex items-center justify-between gap-4 flex-wrap min-w-0">
+          {/* Left cell: Item count */}
+          <div className="text-body-xs font-thin leading-tight opacity-80 flex-shrink-0 min-w-0">
+            {filteredNFTs.length > 0 ? (
+              `${startIndex + 1}-${Math.min(endIndex, filteredNFTs.length)} of ${filteredNFTs.length} NFTs`
+            ) : null}
           </div>
-        )}
+
+          {/* Right cell: Warning text (if needed) */}
+          {ownershipError && (
+            <div className="text-body-xs leading-tight text-yellow-500 justify-end flex flex-shrink-0 min-w-0" role="alert" aria-live="polite">
+              ⚠️ Some ownership data may be out of date
+            </div>
+          )}
+        </div>
       </div>
-
-      {/* Item count - centered above grid */}
-      {filteredNFTs.length > 0 ? (
-        <div className="text-center mb-4">
-          <div className="text-body-xs font-thin leading-tight opacity-80">
-            {`${startIndex + 1}-${Math.min(endIndex, filteredNFTs.length)} of ${filteredNFTs.length} NFTs`}
-          </div>
-        </div>
-      ) : null}
 
       {paginatedNFTs.length > 0 ? (
         <>
