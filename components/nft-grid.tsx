@@ -777,14 +777,14 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         {/* Row 1: NFT Collection heading (full width) */}
         <h2 className="text-h2 font-bold">NFT Collection</h2>
 
-        {/* Row 2: Tabs and View toggles (2 columns on desktop) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {/* Column 1: Status tabs */}
-          <div className="flex items-center justify-start">
+        {/* Row 2: Tabs and View toggles - same row on all sizes */}
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          {/* Status tabs */}
+          <div className="flex items-center justify-start flex-shrink-0">
             <div className="flex items-center gap-0 border border-neutral-700 rounded-[2px] p-1 bg-neutral-900/50 w-fit overflow-hidden flex-nowrap">
               <button
                 onClick={() => setTab("all")}
-                className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-sm whitespace-nowrap flex-shrink-0 ${
+                className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
                   tab === "all"
                     ? "bg-brand-pink text-[#FFFBFB]"
                     : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
@@ -796,7 +796,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
               </button>
               <button
                 onClick={() => setTab("live")}
-                className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-sm whitespace-nowrap flex-shrink-0 ${
+                className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
                   tab === "live"
                     ? "bg-blue-500 text-[#FFFBFB]"
                     : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
@@ -808,7 +808,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
               </button>
               <button
                 onClick={() => setTab("sold")}
-                className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-sm whitespace-nowrap flex-shrink-0 ${
+                className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
                   tab === "sold"
                     ? "bg-[#00FF99] text-[#000000]"
                     : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
@@ -821,9 +821,9 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
             </div>
           </div>
 
-          {/* Column 2: View label + toggle buttons */}
-          <div className="flex items-center gap-2 justify-end">
-            <span className="text-body-sm font-light opacity-80">View:</span>
+          {/* View label + toggle buttons */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-body-sm font-light opacity-80 whitespace-nowrap">View:</span>
             <TooltipProvider>
               <div className="relative flex items-center gap-2 border border-neutral-700 rounded-[2px] p-1 flex-nowrap">
                 <Tooltip>
@@ -903,20 +903,11 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           </div>
         </div>
 
-        {/* Row 3: Item count (left) and Sort/Show dropdowns (right) - 2 columns on desktop */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
-          {/* Column 1: Item count text */}
-          <div className="text-body-xs font-thin leading-tight opacity-80">
-            {filteredNFTs.length > 0 ? (
-              `${startIndex + 1}-${Math.min(endIndex, filteredNFTs.length)} of ${filteredNFTs.length} NFTs`
-            ) : null}
-          </div>
-
-          {/* Column 2: Sort by and Show dropdowns (right-aligned) */}
-          <div className="flex items-center gap-4 justify-end flex-wrap">
+        {/* Row 3: Sort/Show dropdowns (right-aligned) */}
+        <div className="flex items-center justify-end gap-4 flex-wrap">
             {/* Sort by dropdown */}
             <div className="flex items-center gap-2">
-              <span className="text-body-sm font-light opacity-80">Sort by:</span>
+              <span className="text-body-sm font-light opacity-80 whitespace-nowrap">Sort by:</span>
               <Select value={sortBy} onValueChange={(value) => {
                 setSortBy(value);
                 setColumnSort(null);
@@ -940,7 +931,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
 
             {/* Show dropdown */}
             <div className="flex items-center gap-2">
-              <span className="text-body-sm font-light opacity-80">Show:</span>
+              <span className="text-body-sm font-light opacity-80 whitespace-nowrap">Show:</span>
               <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
                 <SelectTrigger className="w-[150px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0">
                   <SelectValue placeholder="15 items" />
@@ -965,11 +956,20 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         )}
       </div>
 
+      {/* Item count - centered above grid */}
+      {filteredNFTs.length > 0 && (
+        <div className="text-center mb-4">
+          <div className="text-body-xs font-thin leading-tight opacity-80">
+            {`${startIndex + 1}-${Math.min(endIndex, filteredNFTs.length)} of ${filteredNFTs.length} NFTs`}
+          </div>
+        </div>
+      )}
+
       {paginatedNFTs.length > 0 ? (
         <>
            {/* Grid Views */}
            {(viewMode === 'grid-large' || viewMode === 'grid-medium' || viewMode === 'grid-small') && (
-             <div ref={gridRef} className="mt-4 mb-8 w-full">
+             <div ref={gridRef} className="mb-8 w-full">
                <div ref={gridContainerRef} className="w-full flex flex-wrap justify-start gap-x-4 gap-y-6">
                  {paginatedNFTs.map((nft, index) => (
                      <div
