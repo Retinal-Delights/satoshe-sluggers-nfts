@@ -282,20 +282,20 @@ function MyNFTsContent() {
         <div className="mb-6">
           <div className="flex border-b border-neutral-700">
             <button
-              className={`py-2 px-4 flex items-center gap-2 ${activeTab === "favorites" ? "border-b-2 border-brand-pink text-offwhite font-medium" : "text-neutral-400 hover:text-offwhite"}`}
+              className={`py-2 px-4 flex items-center gap-2 transition-colors ${activeTab === "favorites" ? "border-b-2 border-brand-pink text-offwhite font-medium hover:bg-brand-pink/10" : "text-neutral-400 hover:text-offwhite"}`}
               onClick={() => setActiveTab("favorites")}
             >
               <Heart
-                className={`w-4 h-4 ${activeTab === "favorites" ? "fill-brand-pink text-brand-pink" : ""}`}
+                className={`w-4 h-4 transition-colors ${activeTab === "favorites" ? "fill-brand-pink text-brand-pink hover:fill-off-white hover:text-off-white" : ""}`}
               />
               Favorites ({favorites.length - locallyUnfavorited.size})
             </button>
             <button
-              className={`py-2 px-4 flex items-center gap-2 ${activeTab === "owned" ? "border-b-2 border-brand-pink text-offwhite font-medium" : "text-neutral-400 hover:text-offwhite"}`}
+              className={`py-2 px-4 flex items-center gap-2 transition-colors ${activeTab === "owned" ? "border-b-2 border-brand-pink text-offwhite font-medium hover:bg-brand-pink/10" : "text-neutral-400 hover:text-offwhite"}`}
               onClick={() => setActiveTab("owned")}
             >
               <Package
-                className={`w-4 h-4 ${activeTab === "owned" ? "text-brand-pink" : ""}`}
+                className={`w-4 h-4 transition-colors ${activeTab === "owned" ? "text-brand-pink hover:text-off-white" : ""}`}
               />
               Owned ({Array.isArray(ownedNFTs) ? ownedNFTs.length : 0})
             </button>
@@ -362,8 +362,8 @@ function MyNFTsContent() {
                   </Link>
                 </div>
                 <div className="p-6">
-                  <div className="flex w-full justify-between items-center">
-                    <span className="text-base font-semibold">{nftNumber}</span>
+                  <div className="flex w-full justify-between items-center gap-2">
+                    <span className="text-base font-semibold whitespace-nowrap">Satoshe Slugger {nftNumber}</span>
                     {activeTab === "favorites" && (
                       <button
                         onClick={() =>

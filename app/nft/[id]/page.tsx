@@ -710,7 +710,7 @@ export default function NFTDetailPage() {
     <div>
       <main id="main-content" className="min-h-screen bg-background text-foreground flex flex-col">
         <Navigation activePage="nfts" />
-      <div className="w-full max-w-[900px] xl:max-w-[1100px] 2xl:max-w-[1300px] mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-6 sm:px-8 md:px-10 lg:px-12 xl:px-16">
+      <div className="w-full max-w-[900px] xl:max-w-[1100px] 2xl:max-w-[1300px] mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-8 sm:mb-10">
           {(() => {
             // Prefer returning to the exact filtered collection URL when provided
@@ -763,7 +763,7 @@ export default function NFTDetailPage() {
           {/* Left Column - Image and metadata links - 50% width */}
           <div className="space-y-4 order-1 lg:order-1 w-full lg:w-[50%] lg:flex-shrink-0 lg:pr-4 min-w-0">
             {/* NFT Image Card */}
-            <div className="relative w-full" style={{ aspectRatio: "2700/3000", maxWidth: "100%" }}>
+            <div className="relative w-full sm:max-w-md lg:max-w-full mx-auto lg:mx-0" style={{ aspectRatio: "2700/3000", maxWidth: "100%" }}>
               <div className="relative w-full h-full">
                 <Image
                   src={imageUrl || "/nfts/placeholder-nft.webp"}
@@ -787,7 +787,7 @@ export default function NFTDetailPage() {
                         href="https://kristenwoerdeman.com"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded-[2px] transition-all group cursor-pointer"
+                        className="flex items-center justify-between w-full px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 hover:border-brand-pink rounded-[2px] transition-all group cursor-pointer"
                         aria-label="Visit Kristen Woerdeman's website"
                       >
                         <div className="flex items-center gap-3">
@@ -823,7 +823,7 @@ export default function NFTDetailPage() {
                         </svg>
                       </a>
                     </TooltipTrigger>
-                    <TooltipContent side="top" className="bg-neutral-800 text-off-white border-neutral-600">
+                    <TooltipContent side="top" className="bg-neutral-950/50 text-off-white border-neutral-800">
                       <div className="flex flex-col gap-1">
                         <p>Visit website</p>
                         <p className="text-xs font-light text-neutral-400">kristenwoerdeman.com</p>
@@ -837,7 +837,7 @@ export default function NFTDetailPage() {
                         href="https://retinaldelights.io"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-neutral-900 border border-neutral-600 hover:border-brand-pink rounded-[2px] transition-all group cursor-pointer"
+                        className="flex items-center justify-between w-full px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 hover:border-brand-pink rounded-[2px] transition-all group cursor-pointer"
                         aria-label="Visit Retinal Delights website"
                       >
                         <div className="flex items-center gap-3">
@@ -873,7 +873,7 @@ export default function NFTDetailPage() {
                         </svg>
                       </a>
                     </TooltipTrigger>
-                    <TooltipContent side="top" className="bg-neutral-800 text-off-white border-neutral-600">
+                    <TooltipContent side="top" className="bg-neutral-950/50 text-off-white border-neutral-800">
                       <div className="flex flex-col gap-1">
                         <p>Visit website</p>
                         <p className="text-xs font-light text-neutral-400">retinaldelights.io</p>
@@ -892,7 +892,7 @@ export default function NFTDetailPage() {
                         href={metadata?.merged_data?.metadata_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded-[2px] transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none cursor-pointer"
+                        className="flex items-center justify-between w-full px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 rounded-[2px] transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none cursor-pointer"
                         aria-label="View token metadata on IPFS"
                       >
                         <div className="flex items-center gap-2">
@@ -938,7 +938,7 @@ export default function NFTDetailPage() {
                         </svg>
                       </a>
                     </TooltipTrigger>
-                    <TooltipContent side="top" className="bg-neutral-800 text-off-white border-neutral-600">
+                    <TooltipContent side="top" className="bg-neutral-950/50 text-off-white border-neutral-800">
                       <p>View metadata on IPFS</p>
                     </TooltipContent>
                   </Tooltip>
@@ -949,7 +949,7 @@ export default function NFTDetailPage() {
                         href={metadata?.merged_data?.media_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-between w-full px-4 py-3 bg-neutral-800 hover:bg-[#171717] border border-neutral-600 rounded-[2px] transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"
+                        className="flex items-center justify-between w-full px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 rounded-[2px] transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"
                         aria-label="View NFT image on IPFS"
                       >
                         <div className="flex items-center gap-2">
@@ -993,7 +993,7 @@ export default function NFTDetailPage() {
                         </svg>
                       </a>
                     </TooltipTrigger>
-                    <TooltipContent side="top" className="bg-neutral-800 text-off-white border-neutral-600">
+                    <TooltipContent side="top" className="bg-neutral-950/50 text-off-white border-neutral-800">
                       <p>View image</p>
                     </TooltipContent>
                   </Tooltip>
@@ -1002,11 +1002,11 @@ export default function NFTDetailPage() {
             </div>
 
             {/* Attributes - Moved to right column after Collection Details - Mobile order-7 */}
-            <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700 order-7 lg:order-none hidden lg:block">
+            <div className="bg-neutral-950/50 p-4 rounded-[2px] border border-neutral-800 order-7 lg:order-none hidden lg:block">
               <h3 className="text-lg font-semibold mb-3 text-off-white">Attributes</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }, index: number) => (
-                  <div key={index} className="bg-neutral-800 p-3 rounded-[2px] border border-neutral-700">
+                  <div key={index} className="bg-neutral-950/50 p-3 rounded-[2px] border border-neutral-800">
                     <div className="flex items-center mb-2">
                       <div
                         className="w-3 h-3 rounded-full mr-2"
@@ -1058,7 +1058,7 @@ export default function NFTDetailPage() {
 
             {/* Buy Now Section - Simplified - Mobile order-3 */}
             {isForSale ? (
-              <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700 order-3 lg:order-none">
+              <div className="bg-neutral-950/50 p-4 rounded-[2px] border border-neutral-800 order-3 lg:order-none">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                   <div className="flex-1">
                     <p className="text-sm md:text-base text-blue-500 mb-1">Buy Now Price</p>
@@ -1149,7 +1149,7 @@ export default function NFTDetailPage() {
                             <ExternalLink className="w-4 h-4" />
                           </Link>
                         </TooltipTrigger>
-                        <TooltipContent side="top" className="bg-neutral-800 text-off-white border-neutral-600">
+                        <TooltipContent side="top" className="bg-neutral-950/50 text-off-white border-neutral-800">
                           <p>View on OpenSea</p>
                         </TooltipContent>
                       </Tooltip>
@@ -1158,7 +1158,7 @@ export default function NFTDetailPage() {
                 </div>
               </div>
             ) : (
-              <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700 order-3 lg:order-none">
+              <div className="bg-neutral-950/50 p-4 rounded-[2px] border border-neutral-800 order-3 lg:order-none">
                 <p className="text-blue-400 text-center">This NFT is not currently for sale</p>
               </div>
             )}
@@ -1182,7 +1182,7 @@ export default function NFTDetailPage() {
             {/* Success Message */}
             {showSuccess && (
               <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                <div className="bg-neutral-800 p-8 rounded-[2px] border border-neutral-700 text-center max-w-md mx-4">
+                <div className="bg-neutral-950/50 p-8 rounded-[2px] border border-neutral-800 text-center max-w-md mx-4">
                   <div className="text-6xl mb-4">🎉</div>
                   <h3 className="text-2xl font-bold mb-2" style={{ color: colors.filter.green }}>Purchase Successful!</h3>
                   <p className="text-neutral-300 mb-4">
@@ -1199,7 +1199,7 @@ export default function NFTDetailPage() {
             )}
 
             {/* Collection Details - Mobile order-5 */}
-            <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700 order-5 lg:order-none">
+              <div className="bg-neutral-950/50 p-4 rounded-[2px] border border-neutral-800 order-5 lg:order-none">
               <h3 className="text-lg font-semibold mb-3 text-off-white">Collection Details</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-4 sm:gap-y-5 text-sm">
                 <div className="min-w-0">
@@ -1244,7 +1244,7 @@ export default function NFTDetailPage() {
             </div>
 
             {/* Contract Details - Mobile order-6 (moved below Collection Details) */}
-            <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700 order-6 lg:order-none">
+            <div className="bg-neutral-950/50 p-4 rounded-[2px] border border-neutral-800 order-6 lg:order-none">
               <h3 className="text-lg font-semibold mb-3 text-off-white">Contract Details</h3>
                 <div className="space-y-4 text-sm">
                   <div className="flex justify-between items-center gap-2 min-w-0">
@@ -1478,11 +1478,11 @@ export default function NFTDetailPage() {
             </div>
 
             {/* Attributes - Mobile order-9 (after Collection Details) */}
-            <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700 order-9 lg:order-none lg:hidden">
+            <div className="bg-neutral-950/50 p-4 rounded-[2px] border border-neutral-800 order-9 lg:order-none lg:hidden">
               <h3 className="text-lg font-semibold mb-4 text-off-white">Attributes</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }, index: number) => (
-                  <div key={index} className="bg-neutral-800 p-3 rounded-[2px] border border-neutral-700 min-w-0">
+                  <div key={index} className="bg-neutral-950/50 p-3 rounded-[2px] border border-neutral-800 min-w-0">
                     <div className="flex items-center mb-2 min-w-0">
                       <div
                         className="w-3 h-3 rounded-full mr-2 flex-shrink-0"
@@ -1513,7 +1513,7 @@ export default function NFTDetailPage() {
                   overallRarity={metadata?.rarity_percent || "93.5"}
                 />
               ) : (
-                <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700 text-center py-8">
+                <div className="bg-neutral-950/50 p-4 rounded-[2px] border border-neutral-800 text-center py-8">
                   <p className="text-neutral-400">No attributes available for rarity distribution</p>
                   <p className="text-xs text-neutral-500 mt-2">Attributes count: {attributes.length}</p>
                   <p className="text-xs text-neutral-500 mt-1">Metadata: {metadata ? 'Loaded' : 'Not loaded'}</p>
