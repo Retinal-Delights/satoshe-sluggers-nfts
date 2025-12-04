@@ -62,7 +62,7 @@ export default function AttributeRarityChart({ attributes, overallRarity }: Attr
   // If no attributes, show a message
   if (!attributes || attributes.length === 0) {
     return (
-      <Card className="flex flex-col bg-neutral-800 border-neutral-700 mb-4 rounded-sm">
+      <Card className="flex flex-col bg-neutral-800 border-neutral-700 mb-4 rounded-[2px]">
         <CardContent className="flex-1 pb-4">
           <div className="flex items-center justify-center h-[200px] text-neutral-400">
             No attributes available for rarity distribution
@@ -82,7 +82,7 @@ export default function AttributeRarityChart({ attributes, overallRarity }: Attr
   }, {} as ChartConfig)
 
   return (
-    <Card className="flex flex-col bg-neutral-800 border border-neutral-700 rounded-sm">
+    <Card className="flex flex-col bg-neutral-800 border border-neutral-700 rounded-[2px]">
       <CardContent className="flex-1 pb-4 pt-4">
         <h3 className="text-lg font-semibold mb-4 text-off-white">Rarity Distribution</h3>
         <ChartContainer
@@ -158,7 +158,7 @@ export default function AttributeRarityChart({ attributes, overallRarity }: Attr
   )
   } catch (error) {
     return (
-      <Card className="flex flex-col bg-neutral-800 border-neutral-700 mb-4 rounded-sm">
+      <Card className="flex flex-col bg-neutral-800 border-neutral-700 mb-4 rounded-[2px]">
         <CardContent className="flex-1 pb-4">
           <div className="flex items-center justify-center h-[200px] text-red-400">
             Error loading rarity chart: {error instanceof Error ? error.message : 'Unknown error'}

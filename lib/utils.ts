@@ -35,8 +35,13 @@ export function convertIpfsUrl(url: string | undefined | null): string {
     return url.replace('https://cloudflare-ipfs.com/ipfs/', 'https://dweb.link/ipfs/');
   }
   
-  // Already an HTTP/HTTPS URL, return as-is (if already dweb.link or other working gateway)
-  if (url.startsWith('http://') || url.startsWith('https://')) {
+  // Convert any HTTP URLs to HTTPS for security
+  if (url.startsWith('http://')) {
+    return url.replace('http://', 'https://');
+  }
+  
+  // Already an HTTPS URL, return as-is (if already dweb.link or other working gateway)
+  if (url.startsWith('https://')) {
     return url;
   }
   
