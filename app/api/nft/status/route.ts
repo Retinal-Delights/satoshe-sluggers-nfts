@@ -104,8 +104,8 @@ export async function GET() {
     if (Array.isArray(transferEvents)) {
       transferEvents.forEach((event) => {
         // Extract data from Thirdweb SDK event format
-        const tokenIdNum = Number(event.tokenId);
-        const to = event.to.toLowerCase();
+        const tokenIdNum = Number(event.args.tokenId);
+        const to = event.args.to.toLowerCase();
         
         if (!isNaN(tokenIdNum) && tokenIdNum >= 0 && tokenIdNum < TOTAL_NFTS) {
           // Track latest transfer destination
