@@ -19,6 +19,7 @@ const config: Config = {
       },
     },
     screens: {
+      'xxs': '300px',
       'xs': '475px',
       'sm': '640px',
       'md': '768px',

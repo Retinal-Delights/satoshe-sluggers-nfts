@@ -31,7 +31,7 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
       <nav className="hidden lg:flex items-center gap-4 xl:gap-5 2xl:gap-6 absolute left-1/2 transform -translate-x-1/2">
         <Link
           href="/"
-          className={`text-xs lg:text-sm xl:text-base font-medium relative group ${
+          className={`text-nav font-normal relative group ${
             activePage === "home" ? "text-brand-pink" : "text-neutral-400 hover:text-off-white"
           }`}
         >

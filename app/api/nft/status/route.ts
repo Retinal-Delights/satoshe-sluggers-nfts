@@ -8,6 +8,7 @@ import { NextResponse } from "next/server";
 import { base } from "thirdweb/chains";
 import { getContract, getContractEvents, prepareEvent } from "thirdweb";
 import { client } from "@/lib/thirdweb";
+import { suppressInsightApiErrors } from "@/lib/utils";
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS;
 const MARKETPLACE_ADDRESS = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
@@ -71,13 +72,15 @@ export async function GET() {
       
       // NOTE: Insight API errors are expected and harmless
       // Thirdweb SDK v5 tries Insight API first (deprecated), fails with 401, then automatically falls back to RPC
-      // The error messages in console are from SDK's internal logging - we cannot suppress them
       // This is documented behavior: https://portal.thirdweb.com/changelog/deprecation-notice-insight-service-endpoints
       // The SDK handles the fallback automatically, so functionality works correctly
-      transferEvents = await getContractEvents({
-        contract,
-        events: [transferEvent],
-      });
+      // We suppress the expected 401 errors to keep console clean
+      transferEvents = await suppressInsightApiErrors(() =>
+        getContractEvents({
+          contract,
+          events: [transferEvent],
+        })
+      );
     } catch {
       // Return cached data if available, otherwise return default
       if (cache.data) {

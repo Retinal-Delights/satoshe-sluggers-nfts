@@ -8,7 +8,7 @@ import { cn } from './utils';
 // ============================================================================
 // BREAKPOINTS
 // ============================================================================
-// sm: 640px, md: 768px, lg: 1024px, xl: 1280px, 2xl: 1536px
+// xxs: 300px, xs: 475px, sm: 640px, md: 768px, lg: 1024px, xl: 1280px, 2xl: 1536px, 3xl: 1920px, 4xl: 2560px
 
 // ============================================================================
 // TYPOGRAPHY
@@ -247,6 +247,42 @@ export function getNFTButtonClass(isForSale: boolean, size: 'default' | 'small' 
     return isForSale ? buttons.buySmall : buttons.soldSmall;
   }
   return isForSale ? buttons.buy : buttons.sold;
+}
+
+/**
+ * Get section header styling
+ */
+export function getSectionHeader(): string {
+  return cn(typography.sizes.lg, typography.weights.normal, colors.text.primary);
+}
+
+/**
+ * Get label styling
+ */
+export function getLabel(): string {
+  return cn(typography.sizes.sm, typography.weights.normal, colors.text.secondary);
+}
+
+/**
+ * Get value styling
+ */
+export function getValue(size: 'default' | 'large' = 'default'): string {
+  const sizeClass = size === 'large' ? typography.sizes.base : typography.sizes.sm;
+  return cn(sizeClass, typography.weights.light, colors.text.primary);
+}
+
+/**
+ * Get card container styling
+ */
+export function getCardContainer(hover: boolean = false): string {
+  return hover ? containers.cardHover : containers.card;
+}
+
+/**
+ * Get input base styling
+ */
+export function getInputBase(isTextarea: boolean = false): string {
+  return isTextarea ? inputs.textarea : inputs.base;
 }
 
 // Export cn utility

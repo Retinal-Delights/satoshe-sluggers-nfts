@@ -170,7 +170,7 @@ const ChartTooltipContent = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          "grid min-w-[8rem] items-start gap-1.5 rounded-[2px] border border-neutral-700/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
+          "grid min-w-[8rem] items-start gap-2 rounded-sm border border-neutral-700/50 bg-background px-3 py-2 text-xs shadow-xl",
           className
         )}
       >
@@ -179,7 +179,7 @@ const ChartTooltipContent = React.forwardRef<
             {tooltipLabel}
           </div>
         ) : null}
-        <div className="grid gap-1.5">
+        <div className="grid gap-2">
           {payload.map((item, index) => {
             const key = `${nameKey || item.name || item.dataKey || "value"}`
             const itemConfig = getPayloadConfigFromPayload(config, item, key)
@@ -227,7 +227,7 @@ const ChartTooltipContent = React.forwardRef<
                         nestLabel ? "items-end" : "items-center"
                       )}
                     >
-                      <div className="grid gap-1.5">
+                      <div className="grid gap-2">
                         {nestLabel ? (
                           <div className={cn("font-medium", labelClassName)}>
                             {tooltipLabel}
@@ -292,7 +292,7 @@ const ChartLegendContent = React.forwardRef<
             <div
               key={item.value}
               className={cn(
-                "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
+                "flex items-center gap-2 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
               )}
             >
               {itemConfig?.icon && !hideIcon ? (

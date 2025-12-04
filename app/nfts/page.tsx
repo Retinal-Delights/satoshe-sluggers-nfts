@@ -189,9 +189,9 @@ function NFTsPageContent() {
                 </DrawerTrigger>
                 <DrawerContent className="h-full w-[85vw] max-w-[400px] bg-neutral-900 border-r border-neutral-700 left-0 top-0 bottom-0">
                   <DrawerHeader className="flex flex-row items-center justify-between border-b border-neutral-700 pb-4">
-                    <DrawerTitle className="text-h3 font-semibold text-off-white">Filters</DrawerTitle>
+                    <DrawerTitle className="text-h3 font-normal text-off-white">Filters</DrawerTitle>
                     <DrawerClose asChild>
-                      <button className="text-[#ff0099] hover:text-[#ff0099]/80 transition-colors p-1" aria-label="Close filters">
+                      <button className="text-[#ff0099] hover:text-[#ff0099]/80 transition-colors p-1 cursor-pointer" aria-label="Close filters">
                         <X className="w-5 h-5" />
                       </button>
                     </DrawerClose>

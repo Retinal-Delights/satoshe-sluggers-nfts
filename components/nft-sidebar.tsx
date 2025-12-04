@@ -270,7 +270,7 @@ function FilterSection({
                   />
                   <label
                       htmlFor={optValue}
-                      className={`cursor-pointer flex-1 py-0 whitespace-pre-line leading-[1.1] min-w-0 text-[clamp(12px,0.4vw+4px,14px)] font-normal ${selected.includes(optValue) ? colorClasses[color] : 'text-gray-300'}`}
+                      className={`cursor-pointer flex-1 py-0 whitespace-pre-line leading-[1.1] min-w-0 text-[clamp(12px,0.4vw+4px,14px)] font-light ${selected.includes(optValue) ? colorClasses[color] : 'text-gray-300'}`}
                   >
                     <div className="flex items-center justify-between gap-1">
                         <span className="break-words min-w-0">{optDisplay.replace('\n', ' ')}</span>
@@ -601,7 +601,7 @@ function SubcategorySection({
                         />
                         <label
                           htmlFor={`${subcategory.name}-${option}`}
-                          className={`cursor-pointer flex-1 py-0 min-w-0 text-[clamp(12px,0.4vw+4px,14px)] font-normal leading-[1.1] ${selected[subcategory.name]?.includes(option) ? colorClasses[color] : 'text-gray-300'}`}
+                          className={`cursor-pointer flex-1 py-0 min-w-0 text-[clamp(12px,0.4vw+4px,14px)] font-light leading-[1.1] ${selected[subcategory.name]?.includes(option) ? colorClasses[color] : 'text-gray-300'}`}
                         >
                           <div className="flex items-center justify-between gap-1">
                             <span className="break-words min-w-0">{option}</span>
@@ -872,7 +872,7 @@ export default function NFTSidebar({
 
       {/* Search */}
       <div suppressHydrationWarning={true}>
-        <h3 className="font-medium mb-2 text-off-white text-sidebar">Search</h3>
+        <h3 className="font-normal mb-2 text-off-white text-sidebar">Search</h3>
         
         <div className="mb-3">
           <div className="flex bg-neutral-700 rounded-[2px] p-1">
@@ -916,8 +916,7 @@ export default function NFTSidebar({
         </div>
         
         <button
-          className="font-light flex items-center justify-center h-8 w-full mb-4 rounded-[2px] border border-brand-pink text-brand-pink bg-transparent focus:outline-none focus:ring-0 focus:border-brand-pink hover:text-brand-pink hover:opacity-100 text-sidebar cursor-pointer"
-          style={{ fontWeight: 300 }}
+          className="font-normal flex items-center justify-center h-8 w-full mb-4 rounded-[2px] border border-brand-pink text-brand-pink bg-transparent focus:outline-none focus:ring-0 focus:border-brand-pink hover:text-brand-pink hover:opacity-100 text-sidebar cursor-pointer"
           aria-label="Search NFTs"
         >
           Search

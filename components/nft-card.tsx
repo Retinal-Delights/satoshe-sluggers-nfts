@@ -192,16 +192,16 @@ export default function NFTCard({
           {isForSale ? (
             <div className="w-full flex items-center justify-between mt-2">
               <div className="overflow-hidden min-w-0 flex-1">
-                <div className="text-[clamp(11px,0.4vw+5px,14px)] font-medium text-blue-500 whitespace-nowrap truncate">
+                <div className="text-nft-stat font-normal text-blue-500 whitespace-nowrap truncate">
                   Buy Now
                 </div>
-                <div className="text-[clamp(12px,0.55vw+6px,15px)] font-normal leading-[1.15] text-blue-400 whitespace-nowrap truncate">
+                <div className="text-nft-price font-normal leading-[1.15] text-blue-400 whitespace-nowrap truncate">
                   {displayPrice} ETH
                 </div>
               </div>
               <Link
                 href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
-                className="px-2 sm:px-3 py-1.5 rounded-[2px] font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500 text-center"
+                className="px-3 py-2 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-nft-button bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500 text-center"
               >
                 BUY
               </Link>
@@ -209,16 +209,16 @@ export default function NFTCard({
           ) : (
             <div className="w-full flex items-center justify-between mt-2">
               <div className="overflow-hidden min-w-0 flex-1">
-                <div className="text-[clamp(11px,0.4vw+5px,14px)] font-medium text-[#00FF99] whitespace-nowrap truncate">
+                <div className="text-nft-stat font-normal text-[#00FF99] whitespace-nowrap truncate">
                   Sold
                 </div>
                 {soldPriceEth && soldPriceEth > 0 ? (
-                  <div className="text-[clamp(12px,0.55vw+6px,15px)] font-normal leading-[1.15] text-[#00FF99] whitespace-nowrap truncate">
+                  <div className="text-nft-price font-normal leading-[1.15] text-[#00FF99] whitespace-nowrap truncate">
                     {soldPriceEth} ETH
                   </div>
                 ) : null}
               </div>
-              <span className="px-2 sm:px-3 py-1.5 rounded-[2px] font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(11px,0.5vw+5px,15px)] bg-[#00FF99]/10 border-[1.5px] border-[#00FF99]/30 text-[#00FF99] cursor-not-allowed opacity-75">
+              <span className="px-3 py-2 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-nft-button bg-[#00FF99]/10 border border-[#00FF99]/30 text-[#00FF99] cursor-not-allowed opacity-75">
                 Sold
               </span>
             </div>
@@ -254,7 +254,7 @@ export default function NFTCard({
 
       <div className="w-full pl-3 pt-3 pb-4">
         <div className="flex items-center justify-between gap-2 min-w-0">
-          <div className={`font-medium leading-[1.15] text-[clamp(12px,0.55vw+6px,15px)] ${isForSale ? 'text-blue-400' : 'text-green-400'} whitespace-nowrap truncate min-w-0 flex-1`}>
+          <div className={`font-normal leading-[1.15] text-nft-title ${isForSale ? 'text-blue-400' : 'text-green-400'} whitespace-nowrap truncate min-w-0 flex-1`}>
             NFT — #{cardNumber}
           </div>
           <Button
