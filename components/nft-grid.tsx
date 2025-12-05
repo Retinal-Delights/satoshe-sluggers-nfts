@@ -860,19 +860,19 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
             setSortBy(value);
             setColumnSort(null);
           }}>
-            <SelectTrigger className="w-full sm:w-[180px] md:w-[220px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0 min-w-0">
+            <SelectTrigger className="w-full sm:w-[180px] md:w-[220px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sidebar font-light focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0 min-w-0">
               <SelectValue placeholder="Default" />
             </SelectTrigger>
             <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]" sideOffset={4} align="start" collisionPadding={8}>
-              <SelectItem value="default" className="text-body-sm font-normal">Default</SelectItem>
-              <SelectItem value="favorites" className="text-body-sm font-normal">Favorites</SelectItem>
-              <SelectItem value="most-recent" className="text-body-sm font-normal">Sold: Most Recent</SelectItem>
-              <SelectItem value="price-asc" className="text-body-sm font-normal">Price: Low to High</SelectItem>
-              <SelectItem value="price-desc" className="text-body-sm font-normal">Price: High to Low</SelectItem>
-              <SelectItem value="rank-desc" className="text-body-sm font-normal">Rank: High to Low</SelectItem>
-              <SelectItem value="rank-asc" className="text-body-sm font-normal">Rank: Low to High</SelectItem>
-              <SelectItem value="rarity-desc" className="text-body-sm font-normal">Rarity: High to Low</SelectItem>
-              <SelectItem value="rarity-asc" className="text-body-sm font-normal">Rarity: Low to High</SelectItem>
+              <SelectItem value="default" className="text-sidebar font-light">Default</SelectItem>
+              <SelectItem value="favorites" className="text-sidebar font-light">Favorites</SelectItem>
+              <SelectItem value="most-recent" className="text-sidebar font-light">Sold: Most Recent</SelectItem>
+              <SelectItem value="price-asc" className="text-sidebar font-light">Price: Low to High</SelectItem>
+              <SelectItem value="price-desc" className="text-sidebar font-light">Price: High to Low</SelectItem>
+              <SelectItem value="rank-desc" className="text-sidebar font-light">Rank: High to Low</SelectItem>
+              <SelectItem value="rank-asc" className="text-sidebar font-light">Rank: Low to High</SelectItem>
+              <SelectItem value="rarity-desc" className="text-sidebar font-light">Rarity: High to Low</SelectItem>
+              <SelectItem value="rarity-asc" className="text-sidebar font-light">Rarity: Low to High</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -962,15 +962,15 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         <div className="flex items-center gap-2 min-w-0 sm:justify-end sm:col-span-1">
           <span className="text-body-sm font-light opacity-80 whitespace-nowrap flex-shrink-0">Show:</span>
           <Select value={itemsPerPage.toString()} onValueChange={(val) => setItemsPerPage(Number(val))}>
-            <SelectTrigger className="w-full sm:w-[130px] md:w-[150px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-body-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0 min-w-0">
+            <SelectTrigger className="w-full sm:w-[130px] md:w-[150px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sidebar font-light focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0 min-w-0">
               <SelectValue placeholder="15 items" />
             </SelectTrigger>
             <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]" sideOffset={4} align="end" collisionPadding={8}>
-              <SelectItem value="15" className="text-body-sm font-normal">15 items</SelectItem>
-              <SelectItem value="25" className="text-body-sm font-normal">25 items</SelectItem>
-              <SelectItem value="50" className="text-body-sm font-normal">50 items</SelectItem>
-              <SelectItem value="100" className="text-body-sm font-normal">100 items</SelectItem>
-              <SelectItem value="250" className="text-body-sm font-normal">250 items</SelectItem>
+              <SelectItem value="15" className="text-sidebar font-light">15 items</SelectItem>
+              <SelectItem value="25" className="text-sidebar font-light">25 items</SelectItem>
+              <SelectItem value="50" className="text-sidebar font-light">50 items</SelectItem>
+              <SelectItem value="100" className="text-sidebar font-light">100 items</SelectItem>
+              <SelectItem value="250" className="text-sidebar font-light">250 items</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -1176,14 +1176,14 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                                   {isSold ? (
                                     <Link
                                       href={`/nft/${nft.cardNumber && !isNaN(nft.cardNumber) ? nft.cardNumber : (parseInt(nft.tokenId) + 1)}${getReturnToUrl !== '/nfts' ? `?returnTo=${encodeURIComponent(getReturnToUrl)}` : ''}`}
-                                      className="px-3 py-2 bg-[#00FF99]/10 border border-[#00FF99]/30 rounded-sm text-[#00FF99] text-nft-button font-normal hover:bg-[#00FF99]/20 hover:border-[#00FF99]/50 transition-colors duration-300 ease-in-out whitespace-nowrap cursor-pointer"
+                                      className="px-2.5 py-1 md:px-3 md:py-1.5 lg:px-2.5 lg:py-1 xl:px-2 xl:py-1 bg-[#00FF99]/10 border border-[#00FF99]/30 rounded-sm text-[#00FF99] text-nft-button font-normal hover:bg-[#00FF99]/20 hover:border-[#00FF99]/50 transition-colors duration-300 ease-in-out whitespace-nowrap cursor-pointer"
                                     >
                                       Sold
                                     </Link>
                                   ) : (
                                     <Link
                                       href={`/nft/${nft.cardNumber && !isNaN(nft.cardNumber) ? nft.cardNumber : (parseInt(nft.tokenId) + 1)}${getReturnToUrl !== '/nfts' ? `?returnTo=${encodeURIComponent(getReturnToUrl)}` : ''}`}
-                                      className="px-3 py-2 bg-blue-500/10 border border-blue-500/30 rounded-sm text-blue-400 text-nft-button font-normal hover:bg-blue-500/20 hover:border-blue-500/50 transition-colors duration-300 ease-in-out whitespace-nowrap"
+                                      className="px-2.5 py-1 md:px-3 md:py-1.5 lg:px-2.5 lg:py-1 xl:px-2 xl:py-1 bg-blue-500/10 border border-blue-500/30 rounded-sm text-blue-400 text-nft-button font-normal hover:bg-blue-500/20 hover:border-blue-500/50 transition-colors duration-300 ease-in-out whitespace-nowrap"
                                     >
                                       Buy
                                     </Link>
