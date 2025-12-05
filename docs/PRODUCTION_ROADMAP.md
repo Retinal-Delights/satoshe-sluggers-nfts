@@ -48,6 +48,9 @@ The build is production-ready. All critical systems are working. Security has be
 - ✅ **Heart Icon Interactions** - Consistent across all view modes
 - ✅ **Corner Radius Consistency** - All using `rounded-[2px]`
 - ✅ **Image Hover Effects** - Working without cut-off
+- ✅ **Artist Tooltips** - Clean "Visit website" format with URL below
+- ✅ **My NFTs Page** - Tab hover states fixed, proper spacing and layout
+- ✅ **HTTPS Links** - All external links enforce HTTPS protocol
 
 ---
 
@@ -311,20 +314,22 @@ Frontend → /api/favorites → Supabase → Returns user's favorites
 **What was happening:**
 ```
 Error fetching from insight, falling back to rpc Error: 401 Unauthorized
+Error: 400 Bad Request - {"success":false,"error":{"issues":[{"code":"too_small","minimum":0,"type":"number","inclusive":false,"exact":false,"message":"Number must be greater than 0","path":["filter_block_number_gte"]}],"name":"ZodError"}}
 ```
 
 **Root cause:**
 - SDK's `getContractEvents()` uses Insight API first
 - Was using SDK Client ID (`b9de842602dfa0732a23d716af4c1451`) which doesn't have Insight API access
 - Got 401 error, then fell back to RPC
+- Also: Insight API requires `fromBlock > 0`, but we were passing `0`
 
 **Solution implemented:**
 - Created separate `insightClient` in `lib/thirdweb.ts` using `INSIGHT_CLIENT_ID`
 - Updated `lib/hybrid-events.ts` to use `insightClient` for event queries
+- Changed `fromBlock` default from `0` to `"earliest"` to satisfy Insight API validation
+- Added logic to convert `0` to `"earliest"` when passed as a number
 - Now `getContractEvents()` uses the correct Insight Client ID (`cf2e2081218cb0511c735f95e9b5d186`)
-- **Expected result:** No more 401 errors, Insight API should work correctly
-
-**Action:** Test to verify 401 errors are gone and Insight API is working
+- **Result:** ✅ Both 401 and 400 errors resolved - Insight API working correctly
 
 ### 2. NFT Status Accuracy (Needs Testing)
 **Status:** Needs verification
@@ -420,6 +425,14 @@ Error fetching from insight, falling back to rpc Error: 401 Unauthorized
 - ✅ Fixed heart icon hover interactions
 - ✅ Fixed corner radius consistency
 - ✅ Fixed responsive alignment
+- ✅ **Insight API Configuration:** Created separate `insightClient` using `INSIGHT_CLIENT_ID` for event queries
+- ✅ **Event Query Fix:** Changed `fromBlock` default from `0` to `"earliest"` to fix Insight API validation error
+- ✅ **Drawer Component Fix:** Fixed `DrawerTrigger` error on `/nfts` page by using state-based drawer control
+- ✅ **Artist Tooltips:** Updated to show "Visit website" with URL below in smaller, lighter text
+- ✅ **HTTPS Enforcement:** Updated `convertIpfsUrl()` to automatically convert all `http://` URLs to `https://`
+- ✅ **My NFTs Page:** Fixed tab hover icon visibility (pink icons change to off-white on hover when selected)
+- ✅ **My NFTs Page:** Added "Satoshe Slugger" text with `justify-between` layout for proper spacing
+- ✅ **My NFTs Page:** Added spacing between NFT name and "View Details" button
 
 ---
 
@@ -446,6 +459,7 @@ Error fetching from insight, falling back to rpc Error: 401 Unauthorized
 ---
 
 **Last Updated:** December 2025  
+**Last Changes:** Insight API configuration, event query fixes, UI improvements (My NFTs page, tooltips, HTTPS enforcement)
 **Next Review:** After testing phase complete
 
 ---
