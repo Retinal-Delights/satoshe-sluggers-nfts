@@ -193,7 +193,7 @@ function NFTsPageContent() {
         {/* Consistent container for all content sections */}
         <div className="w-full max-w-[1650px] 2xl:max-w-[2000px] 4xl:max-w-[2400px] mx-auto px-6 sm:px-6 md:px-8 lg:px-4 xl:px-4 2xl:px-4 3xl:px-4 4xl:px-4">
           <div className="mb-8 lg:mb-12">
-            <h1 id="collection-heading" className="text-[clamp(32px,4vw+12px,79px)] font-extrabold tracking-tighter text-center pb-2 leading-[0.9] sm:leading-tight">
+            <h1 id="collection-heading" className="text-[clamp(32px,4vw+12px,79px)] font-extrabold tracking-tight text-center pb-2 leading-[0.9] sm:leading-tight">
               SATO<span className="text-brand-pink">SHE</span> SLUGGERS
             </h1>
             <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 md:gap-3 text-body-lg text-neutral-300 max-w-4xl mx-auto tracking-tight mt-2">

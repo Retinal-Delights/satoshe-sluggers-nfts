@@ -49,8 +49,11 @@ The build is production-ready. All critical systems are working. Security has be
 - ✅ **Corner Radius Consistency** - All using `rounded-[2px]`
 - ✅ **Image Hover Effects** - Working without cut-off
 - ✅ **Artist Tooltips** - Clean "Visit website" format with URL below
-- ✅ **My NFTs Page** - Tab hover states fixed, proper spacing and layout
+- ✅ **My NFTs Page** - Tab hover states fixed, proper spacing and layout, Token ID display, cursor pointers
 - ✅ **HTTPS Links** - All external links enforce HTTPS protocol
+- ✅ **NFT Details Page** - Improved layout, responsive padding, proper section ordering, 2-column attributes grid
+- ✅ **Price Display** - Optimized font sizes for better readability
+- ✅ **Token URI/Media URI** - Properly positioned above Contract Details, matching Artist/Platform card sizes
 
 ---
 
@@ -433,6 +436,16 @@ Error: 400 Bad Request - {"success":false,"error":{"issues":[{"code":"too_small"
 - ✅ **My NFTs Page:** Fixed tab hover icon visibility (pink icons change to off-white on hover when selected)
 - ✅ **My NFTs Page:** Added "Satoshe Slugger" text with `justify-between` layout for proper spacing
 - ✅ **My NFTs Page:** Added spacing between NFT name and "View Details" button
+- ✅ **My NFTs Page:** Added Token ID display under NFT name, added cursor-pointer to tabs, improved hover effects
+- ✅ **My NFTs Page:** Fixed padding to match NFT card structure (pt-3 pl-4 pr-3 pb-4)
+- ✅ **NFT Details Page:** Fixed price size (reduced from text-2xl sm:text-3xl to text-xl sm:text-2xl)
+- ✅ **NFT Details Page:** Fixed heart icon collision (changed from absolute positioning to flex layout with justify-between)
+- ✅ **NFT Details Page:** Fixed Token URI/Media URI placement (now appears above Contract Details with proper order values)
+- ✅ **NFT Details Page:** Increased responsive padding on smaller devices (px-6 sm:px-8)
+- ✅ **NFT Details Page:** Made attributes 2-column grid (responsive: 1 column mobile, 2 columns sm and up)
+- ✅ **NFT Details Page:** Fixed rarity distribution background color to match other sections (bg-neutral-950/50)
+- ✅ **NFT Details Page:** Fixed image padding on medium breakpoints (md:px-8 lg:px-12 xl:px-16)
+- ✅ **NFT Card:** Fixed padding structure and spacing consistency
 
 ---
 
@@ -459,7 +472,7 @@ Error: 400 Bad Request - {"success":false,"error":{"issues":[{"code":"too_small"
 ---
 
 **Last Updated:** December 2025  
-**Last Changes:** Insight API configuration, event query fixes, UI improvements (My NFTs page, tooltips, HTTPS enforcement)
+**Last Changes:** NFT details page layout improvements, My NFTs page enhancements, responsive design fixes, UI consistency improvements
 **Next Review:** After testing phase complete
 
 ---
