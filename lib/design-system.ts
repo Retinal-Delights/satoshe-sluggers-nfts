@@ -194,6 +194,9 @@ export const buttons = {
   buySmall: 'px-3 py-1 border border-[#3B82F6] bg-blue-500/10 text-blue-400 text-xs font-normal rounded-sm hover:bg-blue-500/30 hover:border-blue-500/60 hover:text-blue-300 transition-all duration-200',
   soldSmall: 'px-3 py-1 border border-[#10B981] bg-green-500/10 text-green-400 text-xs font-normal rounded-sm hover:bg-green-500/30 hover:border-green-500/60 hover:text-green-300 transition-all duration-200',
   
+  // Clear Filters Button (Pink Outline - Mobile)
+  clearFilters: 'px-4 py-2 border border-[#ff0099] bg-transparent text-[#ff0099] font-medium text-body-sm rounded-[2px] hover:bg-[#ff0099]/10 transition-colors cursor-pointer',
+  
   // Disabled State
   disabled: 'disabled:opacity-50 disabled:cursor-not-allowed',
 } as const;

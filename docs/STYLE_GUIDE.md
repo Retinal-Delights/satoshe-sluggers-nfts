@@ -322,6 +322,26 @@ className="border" // 1px standard
 </button>
 ```
 
+### Clear Filters Button (Pink Outline - Mobile)
+
+Used on mobile breakpoints when filters are active. Appears next to the Filters button.
+
+```tsx
+<button className="px-4 py-2 border border-[#ff0099] bg-transparent text-[#ff0099] font-medium text-body-sm rounded-[2px] hover:bg-[#ff0099]/10 transition-colors cursor-pointer">
+  Clear Filters
+</button>
+```
+
+**Clear Filters Button Rules:**
+- ✅ Pink outline (`border border-[#ff0099]`)
+- ✅ Pink text (`text-[#ff0099]`)
+- ✅ Transparent background (no fill)
+- ✅ Subtle hover effect (`hover:bg-[#ff0099]/10`)
+- ✅ `font-medium` weight (500) - slightly heavier than standard buttons
+- ✅ `text-body-sm` size
+- ✅ Only shows when filters are active
+- ✅ Clears all filters and search term on click
+
 **Button Rules:**
 - ✅ `font-normal` (400) weight - NOT `font-medium` or `font-semibold`
 - ✅ Thin borders (`border` not `border-2`)
