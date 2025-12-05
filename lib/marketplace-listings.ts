@@ -11,7 +11,7 @@
 
 import { getContract, readContract } from "thirdweb";
 import { base } from "thirdweb/chains";
-import { client } from "./thirdweb";
+import { insightClient } from "./thirdweb";
 
 const MARKETPLACE_ADDRESS = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS;
 const NFT_COLLECTION_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS?.toLowerCase();
@@ -28,7 +28,7 @@ export async function getActiveListings(): Promise<Set<number>> {
 
   try {
     const marketplace = getContract({
-      client,
+      client: insightClient, // Use Insight API for cheaper reads
       chain: base,
       address: MARKETPLACE_ADDRESS,
     });
