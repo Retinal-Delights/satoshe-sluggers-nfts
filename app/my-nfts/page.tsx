@@ -401,7 +401,7 @@ function MyNFTsContent() {
                   {activeTab === "owned" && (
                     <button
                       onClick={() => router.push(`/nft/${nft.id}`)}
-                      className="font-light flex items-center justify-center h-8 w-full rounded border border-brand-pink text-brand-pink bg-transparent hover:!bg-brand-pink hover:!text-off-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-fluid-sm mt-4"
+                      className="font-light flex items-center justify-center h-8 w-full rounded border border-brand-pink text-brand-pink bg-transparent hover:!bg-brand-pink hover:!text-off-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-fluid-sm mt-4 cursor-pointer"
                       aria-label="View NFT details"
                     >
                       View Details

@@ -14,7 +14,7 @@ export default function AboutPage() {
           <div className="max-w-3xl w-full">
             <Image
               src="/about-page/satoshe-sluggers-about-us-offwhite-op.svg"
-              alt="About Satoshe Sluggers"
+              alt="About Satoshe Sluggers. Satoshe Sluggers is a collection of NFTs funding the future of women's baseball. The collection features unique digital collectibles representing female baseball players, with proceeds supporting women's baseball programs and initiatives. Each NFT in the collection is part of a limited edition series, combining art, sports, and blockchain technology to create meaningful impact for women in baseball."
               width={800}
               height={1000}
               className="w-full h-auto"

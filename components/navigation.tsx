@@ -17,7 +17,7 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
   return (
     <header className="border-b border-neutral-700 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-3 sm:py-4 flex items-center justify-between bg-neutral-950/80 backdrop-blur-md fixed top-0 left-0 right-0 z-50">
       <div className="flex items-center">
-        <a href="https://retinaldelights.io" target="_blank" rel="noopener noreferrer" className="flex items-center">
+        <a href="https://retinaldelights.io" target="_blank" rel="noopener noreferrer" className="flex items-center" aria-label="Visit Retinal Delights website (opens in a new window)">
           <Image
             src="/brands/retinal-delights/retinal_delights-horizontal-brand-offwhite-op.svg"
             alt="Retinal Delights"
@@ -31,9 +31,10 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
       <nav className="hidden lg:flex items-center gap-4 xl:gap-5 2xl:gap-6 absolute left-1/2 transform -translate-x-1/2">
         <Link
           href="/"
-          className={`text-nav font-normal relative group ${
+          className={`text-nav font-normal relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 rounded-sm px-1 ${
             activePage === "home" ? "text-brand-pink" : "text-neutral-400 hover:text-off-white"
           }`}
+          aria-label="Navigate to home page"
         >
           HOME
           <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out ${
@@ -44,9 +45,10 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
         </Link>
         <Link
           href="/about"
-          className={`text-xs lg:text-sm xl:text-base font-medium relative group ${
+          className={`text-xs lg:text-sm xl:text-base font-medium relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 rounded-sm px-1 ${
             activePage === "about" ? "text-brand-pink" : "text-neutral-400 hover:text-off-white"
           }`}
+          aria-label="Navigate to about page"
         >
           ABOUT
           <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out ${
@@ -57,9 +59,10 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
         </Link>
         <Link
           href="/nfts"
-          className={`text-xs lg:text-sm xl:text-base font-medium relative group ${
+          className={`text-xs lg:text-sm xl:text-base font-medium relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 rounded-sm px-1 ${
             activePage === "nfts" ? "text-brand-pink" : "text-neutral-400 hover:text-off-white"
           }`}
+          aria-label="Navigate to NFTs collection page"
         >
           NFTS
           <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out ${
@@ -70,9 +73,10 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
         </Link>
         <Link
           href="/provenance"
-          className={`text-xs lg:text-sm xl:text-base font-medium relative group ${
+          className={`text-xs lg:text-sm xl:text-base font-medium relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 rounded-sm px-1 ${
             activePage === "provenance" ? "text-brand-pink" : "text-neutral-400 hover:text-off-white"
           }`}
+          aria-label="Navigate to provenance page"
         >
           PROVENANCE
           <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out ${
@@ -83,9 +87,10 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
         </Link>
         <Link
           href="/contact"
-          className={`text-xs lg:text-sm xl:text-base font-medium relative group ${
+          className={`text-xs lg:text-sm xl:text-base font-medium relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 rounded-sm px-1 ${
             activePage === "contact" ? "text-brand-pink" : "text-neutral-400 hover:text-off-white"
           }`}
+          aria-label="Navigate to contact page"
         >
           CONTACT
           <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out ${
@@ -97,9 +102,10 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
         {account && (
           <Link
             href="/my-nfts"
-            className={`text-xs lg:text-sm xl:text-base font-medium relative group ${
+            className={`text-xs lg:text-sm xl:text-base font-medium relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/50 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 rounded-sm px-1 ${
               activePage === "my-nfts" ? "text-brand-pink" : "text-neutral-400 hover:text-off-white"
             }`}
+            aria-label="Navigate to My NFTs page"
           >
             MY NFTS
             <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out ${

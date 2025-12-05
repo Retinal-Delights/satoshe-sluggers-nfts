@@ -162,11 +162,11 @@ const Header80: React.FC = () => {
               <div className="relative group">
                 {/* Enhanced glowing effect for the button */}
                 <div className="absolute inset-0 rounded bg-blue-600/25 blur-xl group-hover:bg-blue-500/50 transition-all duration-300 scale-125"></div>
-                <Link href="/nfts">
+                <Link href="/nfts" aria-label="Navigate to NFTs collection page to buy a slugger">
                   <Button
                     variant="outline"
                     className="relative z-10 text-xl md:text-2xl lg:text-3xl px-10 py-8 md:px-14 md:py-10 font-bold text-blue-500 border-blue-500 border hover:border-transparent hover:bg-[hsl(0,0%,4%)] transition-all duration-300 shadow-[0_0_10px_rgba(59,130,246,0.3)] hover:shadow-[0_0_15px_rgba(59,130,246,0.4)] bg-neutral-900/80 rounded cursor-pointer"
-                    title="BUY A SLUGGER"
+                    aria-label="Buy a slugger - navigate to NFTs collection"
                   >
                     BUY A SLUGGER
                   </Button>

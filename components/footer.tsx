@@ -32,7 +32,7 @@ export default function Footer() {
       <div className="container mx-auto py-4 px-4 text-center">
         <div className="flex flex-col items-center justify-center">
           <div className="flex items-center justify-center mt-6 mb-8">
-            <a href="https://retinaldelights.io" target="_blank" rel="noopener noreferrer">
+            <a href="https://retinaldelights.io" target="_blank" rel="noopener noreferrer" aria-label="Visit Retinal Delights website (opens in a new window)">
               <Image
                 src="/brands/retinal-delights/retinal_delights-horizontal-brand-offwhite-op.svg"
                 alt="Retinal Delights"
@@ -56,6 +56,7 @@ export default function Footer() {
                       window.Termly.displayPreferenceModal();
                     }
                   }}
+                  aria-label={`Open ${link.label} preferences modal`}
                 >
                   {link.label}
                 </a>
@@ -65,7 +66,8 @@ export default function Footer() {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-off-white transition-colors"
+                  className="hover:text-off-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/50 focus-visible:ring-offset-2 rounded-sm px-1"
+                  aria-label={`${link.label} (opens in a new window)`}
                 >
                   {link.label}
                 </Link>
@@ -82,9 +84,10 @@ export default function Footer() {
             Created with <Heart className="inline-block h-3 w-3 mx-1 text-brand-pink fill-brand-pink" /> in Los Angeles by{" "}
             <a
               href="https://kristenwoerdeman.com"
-              className="text-brand-pink hover:text-off-white transition-colors font-medium"
+              className="text-brand-pink hover:text-off-white transition-colors font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/50 focus-visible:ring-offset-2 rounded-sm px-1"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Visit Kristen Woerdeman's website (opens in a new window)"
             >
               Kristen
             </a>.
@@ -94,9 +97,10 @@ export default function Footer() {
             2025 ©{" "}
             <a
               href="https://retinaldelights.io"
-              className="text-brand-pink hover:text-off-white transition-colors font-medium"
+              className="text-brand-pink hover:text-off-white transition-colors font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/50 focus-visible:ring-offset-2 rounded-sm px-1"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Visit Retinal Delights website (opens in a new window)"
             >
               Retinal Delights, Inc.
             </a>{" "}

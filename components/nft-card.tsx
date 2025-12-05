@@ -105,10 +105,11 @@ export default function NFTCard({
             <Link
               href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
               className="block w-full h-full relative overflow-visible"
+              aria-label={`View details for ${name} - NFT #${cardNumber}`}
             >
               <Image
                 src={showPlaceholder ? placeholder : image}
-                alt={name}
+                alt={`${name} - NFT #${cardNumber}, Rank ${rank} of ${TOTAL_COLLECTION_SIZE}, ${rarity} rarity (${rarityPercent}%), ${isForSale ? 'Available for purchase' : 'Sold'}`}
                 fill
                 priority={priority}
                 loading={priority ? undefined : "lazy"}
@@ -141,7 +142,7 @@ export default function NFTCard({
             <Link href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`} className="block w-full h-full relative overflow-visible">
               <Image
                 src={showPlaceholder ? placeholder : image}
-                alt={`${name} - NFT #${cardNumber}`}
+                alt={`${name} - NFT #${cardNumber}, Rank ${rank} of ${TOTAL_COLLECTION_SIZE}, ${rarity} rarity (${rarityPercent}%), ${isForSale ? 'Available for purchase' : 'Sold'}`}
                 fill
                 priority={priority}
                 loading={priority ? undefined : "lazy"}
@@ -206,6 +207,7 @@ export default function NFTCard({
                 <Link
                   href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
                   className="px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-nft-button bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500 text-center"
+                  aria-label={`Buy NFT #${cardNumber} for ${displayPrice} ETH`}
                 >
                   BUY
                 </Link>
@@ -225,6 +227,7 @@ export default function NFTCard({
                 <Link
                   href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
                   className="px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-nft-button bg-[#00FF99]/10 border border-[#00FF99]/30 text-[#00FF99] hover:bg-[#00FF99]/20 hover:border-[#00FF99]/50 cursor-pointer"
+                  aria-label={`View details for NFT #${cardNumber} - Sold${soldPriceEth && soldPriceEth > 0 ? ` for ${soldPriceEth} ETH` : ''}`}
                 >
                   Sold
                 </Link>
@@ -243,10 +246,10 @@ export default function NFTCard({
       <div className="w-full flex flex-col">
         {/* Image container */}
         <div className="relative w-full p-4 sm:p-3 overflow-visible" style={{ aspectRatio: "0.9" }}>
-          <Link href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`} className="block w-full h-full relative overflow-visible">
+          <Link href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`} className="block w-full h-full relative overflow-visible" aria-label={`View details for ${name} - NFT #${cardNumber}`}>
             <Image
               src={showPlaceholder ? placeholder : image}
-              alt={name}
+              alt={`${name} - NFT #${cardNumber}, Rank ${rank} of ${TOTAL_COLLECTION_SIZE}, ${rarity} rarity (${rarityPercent}%), ${isForSale ? 'Available for purchase' : 'Sold'}`}
               fill
               priority={priority}
               loading={priority ? undefined : "lazy"}
