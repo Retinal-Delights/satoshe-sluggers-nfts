@@ -282,7 +282,7 @@ function MyNFTsContent() {
         <div className="mb-6">
           <div className="flex border-b border-neutral-700">
             <button
-              className={`py-2 px-4 flex items-center gap-2 transition-colors cursor-pointer group ${activeTab === "favorites" ? "border-b-2 border-brand-pink text-offwhite font-medium hover:bg-brand-pink/10" : "text-neutral-400 hover:text-offwhite hover:bg-neutral-800/30"}`}
+              className={`py-2 px-4 flex items-center gap-2 transition-colors cursor-pointer group ${activeTab === "favorites" ? "border-b-2 border-brand-pink text-offwhite font-medium hover:bg-brand-pink/10" : "text-neutral-400 hover:text-offwhite hover:bg-neutral-800/50"}`}
               onClick={() => setActiveTab("favorites")}
             >
               <Heart
@@ -291,7 +291,7 @@ function MyNFTsContent() {
               Favorites ({favorites.length - locallyUnfavorited.size})
             </button>
             <button
-              className={`py-2 px-4 flex items-center gap-2 transition-colors cursor-pointer group ${activeTab === "owned" ? "border-b-2 border-brand-pink text-offwhite font-medium hover:bg-brand-pink/10" : "text-neutral-400 hover:text-offwhite hover:bg-neutral-800/30"}`}
+              className={`py-2 px-4 flex items-center gap-2 transition-colors cursor-pointer group ${activeTab === "owned" ? "border-b-2 border-brand-pink text-offwhite font-medium hover:bg-brand-pink/10" : "text-neutral-400 hover:text-offwhite hover:bg-neutral-800/50"}`}
               onClick={() => setActiveTab("owned")}
             >
               <Package
@@ -361,7 +361,7 @@ function MyNFTsContent() {
                     />
                   </Link>
                 </div>
-                <div className="pt-3 pl-4 pr-6 pb-6">
+                <div className="pt-3 pl-4 pr-3 pb-4">
                   <div className="flex w-full justify-between items-start gap-2">
                     <div className="min-w-0">
                       <div className="text-base font-semibold whitespace-nowrap pl-1.5">Satoshe Slugger {nftNumber}</div>

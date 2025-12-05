@@ -763,7 +763,7 @@ export default function NFTDetailPage() {
           {/* Left Column - Image and metadata links - 50% width */}
           <div className="space-y-4 order-1 lg:order-1 w-full lg:w-[50%] lg:flex-shrink-0 lg:pr-4 min-w-0">
             {/* NFT Image Card */}
-            <div className="relative w-full sm:max-w-md lg:max-w-full mx-auto lg:mx-0" style={{ aspectRatio: "2700/3000", maxWidth: "100%" }}>
+            <div className="relative w-full sm:max-w-md md:px-4 lg:px-0 lg:max-w-full mx-auto lg:mx-0" style={{ aspectRatio: "2700/3000", maxWidth: "100%" }}>
               <div className="relative w-full h-full">
                 <Image
                   src={imageUrl || "/nfts/placeholder-nft.webp"}
