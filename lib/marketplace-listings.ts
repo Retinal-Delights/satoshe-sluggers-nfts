@@ -48,8 +48,8 @@ export async function getActiveListings(): Promise<Set<number>> {
     }
 
     // Query in smaller batches to avoid "execution reverted" errors
-    // Batch size of 500 should be safe for most RPC providers
-    const BATCH_SIZE = 500;
+    // Per thirdweb recommendation: use 50-100 batch size, iterate one-by-one after first failure
+    const BATCH_SIZE = 100;
     const allListings: Array<{
       listingId: bigint;
       tokenId: bigint;
@@ -64,6 +64,8 @@ export async function getActiveListings(): Promise<Set<number>> {
       status: number;
       reserved: boolean;
     }> = [];
+
+    let lastSuccessfulId = -1;
 
     // Query in batches
     for (let startId = 0; startId < totalListings; startId += BATCH_SIZE) {
@@ -89,15 +91,56 @@ export async function getActiveListings(): Promise<Set<number>> {
           reserved: boolean;
         }>;
         
-        allListings.push(...batch);
-      } catch (batchError) {
-        // If a batch fails, log and continue (might be out of range)
-        if (process.env.NODE_ENV === "development") {
-          console.warn(`[Marketplace Listings] Batch ${startId}-${endId} failed:`, batchError);
+        if (batch.length > 0) {
+          lastSuccessfulId = endId;
+          allListings.push(...batch);
         }
-        // Stop if we hit an error (likely reached the end)
+      } catch (batchError) {
+        // If a batch fails, try one-by-one to find the last valid listing ID
+        // This handles cases where totalListings() returns a number larger than actual valid listings
+        if (process.env.NODE_ENV === "development") {
+          console.warn(`[Marketplace Listings] Batch ${startId}-${endId} failed, trying one-by-one:`, batchError);
+        }
+        
+        // Try one-by-one to find the last valid ID
+        for (let i = startId; i <= endId; i++) {
+          try {
+            const single = await readContract({
+              contract: marketplace,
+              method: "function getAllValidListings(uint256 _startId, uint256 _endId) view returns ((uint256 listingId, uint256 tokenId, uint256 quantity, uint256 pricePerToken, uint128 startTimestamp, uint128 endTimestamp, address listingCreator, address assetContract, address currency, uint8 tokenType, uint8 status, bool reserved)[] _validListings)",
+              params: [BigInt(i), BigInt(i)],
+            }) as unknown as Array<{
+              listingId: bigint;
+              tokenId: bigint;
+              quantity: bigint;
+              pricePerToken: bigint;
+              startTimestamp: bigint;
+              endTimestamp: bigint;
+              listingCreator: string;
+              assetContract: string;
+              currency: string;
+              tokenType: number;
+              status: number;
+              reserved: boolean;
+            }>;
+            
+            if (single.length > 0) {
+              allListings.push(...single);
+              lastSuccessfulId = i;
+            }
+          } catch {
+            // Reached the end of valid listings
+            break;
+          }
+        }
+        
+        // Stop after first failed batch (we've found the last valid ID)
         break;
       }
+    }
+    
+    if (process.env.NODE_ENV === "development" && lastSuccessfulId >= 0) {
+      console.log(`[Marketplace Listings] Last successful listing ID: ${lastSuccessfulId}, totalListings() returned: ${totalListings}`);
     }
 
     const listings = allListings;
