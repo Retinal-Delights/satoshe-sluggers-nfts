@@ -1,11 +1,15 @@
 /**
  * NFT Status API Route
- * Fetches all Transfer events from the ERC-721 contract to determine ACTIVE/SOLD status for each tokenId.
- * This is the single source of truth for NFT status.
+ * Determines ACTIVE/SOLD status by checking for active listings on the marketplace.
+ * ACTIVE = Has an active listing on the marketplace (available for sale)
+ * SOLD = No active listing (either unlisted or sold to a buyer)
+ * 
+ * This uses the marketplace contract's getAllValidListings() to check for active listings,
+ * which is the correct approach for non-custodial marketplaces (NFTs stay in owner's wallet).
  */
 
 import { NextResponse } from "next/server";
-import { getTransferEventsHybrid } from "@/lib/hybrid-events";
+import { getActiveListings } from "@/lib/marketplace-listings";
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS;
 const MARKETPLACE_ADDRESS = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
@@ -52,23 +56,14 @@ export async function GET() {
       );
     }
 
-    // Fetch ALL Transfer events using Thirdweb SDK only
-    // We need all transfers to determine which tokens have been sold
-    // Thirdweb SDK handles all RPC internally using client ID
-    let transferEvents;
+    // Fetch active listings from marketplace
+    // This is the correct approach for non-custodial marketplaces
+    // NFTs stay in owner's wallet, but are listed on the marketplace contract
+    let activeListings: Set<number>;
     try {
-      const allEvents = await getTransferEventsHybrid(CONTRACT_ADDRESS);
-      
-      // Convert to format expected by rest of code
-      transferEvents = allEvents.map((event) => ({
-        args: {
-          from: event.from,
-          to: event.to,
-          tokenId: event.tokenId,
-        },
-        blockNumber: BigInt(event.blockNumber),
-      }));
-    } catch {
+      activeListings = await getActiveListings();
+    } catch (error) {
+      console.error("[NFT Status API] Error fetching active listings:", error);
       // Return cached data if available, otherwise return default
       if (cache.data) {
         return NextResponse.json(cache.data, {
@@ -77,7 +72,7 @@ export async function GET() {
           },
         });
       }
-      // Return default: all ACTIVE
+      // Return default: all ACTIVE (optimistic - assume all are listed)
       const defaultStatus: Record<string, "ACTIVE" | "SOLD"> = {};
       for (let i = 0; i < TOTAL_NFTS; i++) {
         defaultStatus[i.toString()] = "ACTIVE";
@@ -94,69 +89,21 @@ export async function GET() {
         },
       });
     }
-    
-    // Track which tokens have been transferred to a non-zero, non-marketplace address
-    // A token is SOLD if it has EVER been transferred to a non-zero address that is not the marketplace
-    // UNLESS the current owner is the marketplace contract (then it's ACTIVE again)
-    const tokensEverSold = new Set<number>();
-    const latestTransfer = new Map<number, string>(); // tokenId -> latest "to" address
-    
-    if (Array.isArray(transferEvents)) {
-      transferEvents.forEach((event) => {
-        // Extract data from Thirdweb SDK event format
-        const tokenIdNum = Number(event.args.tokenId);
-        const to = event.args.to.toLowerCase();
-        
-        if (!isNaN(tokenIdNum) && tokenIdNum >= 0 && tokenIdNum < TOTAL_NFTS) {
-          // Track latest transfer destination
-          latestTransfer.set(tokenIdNum, to);
-          
-          // If transferred to a non-zero address that is not the marketplace, mark as ever sold
-          if (to !== "0x0000000000000000000000000000000000000000" && to !== MARKETPLACE_ADDRESS) {
-            tokensEverSold.add(tokenIdNum);
-          }
-        }
-      });
-    }
 
-    // Now check current ownership for tokens that were ever sold
-    // If current owner is marketplace, they're ACTIVE again (relisted)
-    const currentOwners = new Map<number, string>();
-    if (tokensEverSold.size > 0) {
-      // Fetch current ownership for tokens that were ever sold using Multicall3
-      const tokenIdsToCheck = Array.from(tokensEverSold);
-      const { batchCheckOwnership } = await import("@/lib/multicall3");
-      
-      try {
-        const ownershipResults = await batchCheckOwnership(CONTRACT_ADDRESS, tokenIdsToCheck);
-        ownershipResults.forEach(({ tokenId, owner }) => {
-          currentOwners.set(tokenId, owner.toLowerCase());
-        });
-      } catch {
-        // If batch check fails, use latest transfer as fallback
-        // This is acceptable as it's a best-effort check
-      }
-    }
-
-    // Build status map
+    // Build status map based on active listings
+    // ACTIVE = has an active listing on marketplace (available for sale)
+    // SOLD = no active listing (either unlisted or sold to a buyer)
     const statusByTokenId: Record<string, "ACTIVE" | "SOLD"> = {};
     let soldCount = 0;
     
     for (let i = 0; i < TOTAL_NFTS; i++) {
-      if (tokensEverSold.has(i)) {
-        // Token was ever sold - check if current owner is marketplace
-        const currentOwner = currentOwners.get(i) || latestTransfer.get(i) || "";
-        if (currentOwner === MARKETPLACE_ADDRESS) {
-          // Re-listed, so ACTIVE
-          statusByTokenId[i.toString()] = "ACTIVE";
-        } else {
-          // Still sold
-          statusByTokenId[i.toString()] = "SOLD";
-          soldCount++;
-        }
-      } else {
-        // Never sold, so ACTIVE
+      if (activeListings.has(i)) {
+        // Has active listing → ACTIVE
         statusByTokenId[i.toString()] = "ACTIVE";
+      } else {
+        // No active listing → SOLD
+        statusByTokenId[i.toString()] = "SOLD";
+        soldCount++;
       }
     }
     

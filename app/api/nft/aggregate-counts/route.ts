@@ -1,11 +1,15 @@
 /**
  * NFT Aggregate Counts API Route
- * Counts sold NFTs using Transfer events from the blockchain.
- * Always caches results for 1 minute to avoid excess RPC pressure.
+ * Counts live/sold NFTs by checking for active listings on the marketplace.
+ * liveCount = NFTs with active listings (available for sale)
+ * soldCount = NFTs without active listings (either unlisted or sold)
+ * 
+ * This uses the marketplace contract's getAllValidListings() to check for active listings,
+ * which is the correct approach for non-custodial marketplaces.
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getTransferEventsFrom } from "@/lib/hybrid-events";
+import { getActiveListings } from "@/lib/marketplace-listings";
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS;
 const MARKETPLACE_ADDRESS = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
@@ -42,31 +46,21 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    let liveCount = 0;
     let soldCount = 0;
 
     try {
-      // Fetch Transfer events using Thirdweb SDK only
-      // This queries events where 'from' is the marketplace address (actual sales)
-      // Thirdweb SDK handles all RPC internally using client ID
-      const transferEvents = await getTransferEventsFrom(
-        CONTRACT_ADDRESS,
-        MARKETPLACE_ADDRESS
-      );
-
-      // Count unique tokenIds that were transferred from marketplace
-      const tokenSet = new Set<string>();
-      transferEvents.forEach((event) => {
-        const tokenIdStr = event.tokenId.toString();
-        tokenSet.add(tokenIdStr);
-      });
-      soldCount = tokenSet.size;
-    } catch {
-      // If event fetching fails, return cached data or default
+      // Fetch active listings from marketplace
+      // This is the correct approach for non-custodial marketplaces
+      const activeListings = await getActiveListings();
+      liveCount = activeListings.size;
+      soldCount = Math.max(0, TOTAL_NFTS - liveCount);
+    } catch (error) {
+      console.error("[Aggregate Counts API] Error fetching active listings:", error);
+      // If fetching fails, return cached data or default
       if (cache.data) return NextResponse.json({ ...cache.data, cached: true });
       return NextResponse.json({ liveCount: TOTAL_NFTS, soldCount: 0, cached: false });
     }
-
-    const liveCount = Math.max(0, TOTAL_NFTS - soldCount);
 
     const result = { liveCount, soldCount, cached: false };
     

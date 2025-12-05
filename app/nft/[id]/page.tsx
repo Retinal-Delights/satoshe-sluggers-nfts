@@ -767,7 +767,7 @@ export default function NFTDetailPage() {
               <div className="relative w-full h-full">
                 <Image
                   src={imageUrl || "/nfts/placeholder-nft.webp"}
-                  alt={metadata ? `${metadata.name || `SATOSHE SLUGGER #${displayNftNumber}`} - NFT #${displayNftNumber}${metadata.rank ? `, Rank ${metadata.rank} of ${TOTAL_COLLECTION_SIZE}` : ''}${metadata.rarity ? `, ${metadata.rarity} rarity` : ''}${ownershipStatus === 'ACTIVE' ? ', Available for purchase' : ownershipStatus === 'SOLD' ? ', Sold' : ''}` : `SATOSHE SLUGGER #${displayNftNumber}`}
+                  alt={metadata ? `${metadata.name || `SATOSHE SLUGGER #${displayNftNumber}`} - NFT #${displayNftNumber}${metadata.rank ? `, Rank ${metadata.rank} of ${TOTAL_COLLECTION_SIZE}` : ''}${metadata.rarity_tier ? `, ${metadata.rarity_tier} rarity` : ''}${ownershipStatus === 'ACTIVE' ? ', Available for purchase' : ownershipStatus === 'SOLD' ? ', Sold' : ''}` : `SATOSHE SLUGGER #${displayNftNumber}`}
                   fill
                   sizes="(max-width: 1024px) 100vw, 400px"
                   className="object-contain"

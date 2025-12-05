@@ -78,14 +78,25 @@ export async function GET() {
       console.log(`[Ownership API] Sample raw results (first 5):`, results.slice(0, 5));
     }
 
+    // Fetch active listings from marketplace to determine status
+    // For non-custodial marketplaces, status is based on active listings, not ownership
+    const { getActiveListings } = await import("@/lib/marketplace-listings");
+    let activeListings: Set<number>;
+    try {
+      activeListings = await getActiveListings();
+    } catch (error) {
+      console.error("[Ownership API] Error fetching active listings:", error);
+      activeListings = new Set(); // Fallback to empty set
+    }
+
     // Convert to ACTIVE / SOLD records
-    // ACTIVE = owned by marketplace (available for sale)
-    // SOLD = owned by any other wallet (not available for sale)
+    // ACTIVE = has an active listing on marketplace (available for sale)
+    // SOLD = no active listing (either unlisted or sold)
+    // Owner is still returned for informational purposes
     const ownership = results.map(({ tokenId, owner }: { tokenId: number; owner: string }) => {
-      // Normalize both owner and marketplace address for comparison
       const normalizedOwner = owner?.toLowerCase?.().trim() ?? "";
-      const normalizedMarketplace = MARKETPLACE_ADDRESS?.toLowerCase?.().trim() ?? "";
-      const isActive = normalizedOwner === normalizedMarketplace && normalizedOwner.length > 0;
+      // Status is based on active listings, not ownership
+      const isActive = activeListings.has(tokenId);
       return {
         tokenId,
         owner: normalizedOwner,
