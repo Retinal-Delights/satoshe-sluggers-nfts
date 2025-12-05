@@ -267,7 +267,7 @@ function NFTsPageContent() {
                   onFilteredCountChange={() => {}} // Empty callback since we don't use the count
                   onTraitCountsChange={setTraitCounts} // Pass trait counts to sidebar
                   filtersButton={
-                    <div className="xl:hidden">
+                    <div className="xl:hidden flex items-center gap-2">
                       <button 
                         onClick={() => setDrawerOpen(true)}
                         className="flex items-center gap-2 px-4 py-2 bg-[#ff0099] hover:bg-[#ff0099]/90 text-white rounded-[2px] transition-colors font-medium text-body-sm cursor-pointer"
@@ -275,6 +275,35 @@ function NFTsPageContent() {
                         <Filter className="w-4 h-4" />
                         Filters
                       </button>
+                      {(() => {
+                        const hasActiveFilters = searchTerm || 
+                          Object.keys(selectedFilters).some(key => {
+                            const value = selectedFilters[key as keyof typeof selectedFilters];
+                            if (Array.isArray(value)) {
+                              return value.length > 0;
+                            }
+                            if (typeof value === 'object' && value !== null) {
+                              return Object.keys(value).length > 0;
+                            }
+                            return false;
+                          });
+                        
+                        if (hasActiveFilters) {
+                          return (
+                            <button
+                              onClick={() => {
+                                setSearchTerm("");
+                                setSelectedFilters({});
+                                setSearchMode("contains");
+                              }}
+                              className="flex items-center gap-2 px-4 py-2 border border-[#ff0099] hover:bg-[#ff0099]/10 text-[#ff0099] rounded-[2px] transition-colors font-medium text-body-sm cursor-pointer"
+                            >
+                              Clear Filters
+                            </button>
+                          );
+                        }
+                        return null;
+                      })()}
                     </div>
                   }
                 />

@@ -786,7 +786,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           <div className="flex items-center gap-0 border border-neutral-700 rounded-[2px] p-1 bg-neutral-900/50 w-fit overflow-hidden flex-nowrap">
             <button
               onClick={() => setTab("all")}
-              className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
+              className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 leading-tight ${
                 tab === "all"
                   ? "bg-brand-pink text-[#FFFBFB]"
                   : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
@@ -798,7 +798,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
             </button>
             <button
               onClick={() => setTab("live")}
-              className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
+              className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 leading-tight ${
                 tab === "live"
                   ? "bg-blue-500 text-[#FFFBFB]"
                   : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
@@ -810,7 +810,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
             </button>
             <button
               onClick={() => setTab("sold")}
-              className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 ${
+              className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 leading-tight ${
                 tab === "sold"
                   ? "bg-[#00FF99] text-[#000000]"
                   : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
