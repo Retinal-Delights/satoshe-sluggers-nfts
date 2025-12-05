@@ -9,7 +9,7 @@
 
 import { getContract, readContract } from "thirdweb";
 import { base } from "thirdweb/chains";
-import { client } from "./thirdweb";
+import { serverClient } from "./thirdweb"; // Use serverClient for API routes (uses secretKey if available)
 import { Interface } from "ethers";
 
 // Standard Multicall3 contract address (same on all chains)
@@ -87,7 +87,7 @@ export async function batchCheckOwnership(
   if (tokenIds.length === 0) return [];
 
   const multicall3 = getContract({
-    client,
+    client: serverClient, // Use serverClient for API routes (uses secretKey if available)
     chain: base,
     address: MULTICALL3_ADDRESS,
     abi: MULTICALL3_ABI,
