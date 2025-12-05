@@ -538,9 +538,9 @@ function SubcategorySection({
               <div key={subcategory.name} className="pl-1">
                 <div className="flex items-center mb-0.5 cursor-pointer" onClick={() => handleSubcategoryToggle(subcategory.name)}>
                   {isChecked ? (
-                    <ChevronDown className={`h-4 w-4 mr-1 transition-transform duration-200 ${colorClasses[color]}`} />
+                    <ChevronDown className={`h-4 w-4 mr-1 transition-transform duration-300 ease-in-out ${colorClasses[color]}`} />
                   ) : (
-                    <ChevronRight className={`h-4 w-4 mr-1 transition-transform duration-200 ${colorClasses[color]}`} />
+                    <ChevronRight className={`h-4 w-4 mr-1 transition-transform duration-300 ease-in-out ${colorClasses[color]}`} />
                   )}
                   <input
                     type="checkbox"
@@ -916,7 +916,7 @@ export default function NFTSidebar({
         </div>
         
         <button
-          className="font-normal flex items-center justify-center h-8 w-full mb-4 rounded-[2px] border border-brand-pink text-brand-pink bg-transparent focus:outline-none focus:ring-0 focus:border-brand-pink hover:text-brand-pink hover:opacity-100 text-sidebar cursor-pointer"
+          className="font-normal flex items-center justify-center h-8 w-full mb-4 rounded-[2px] border border-brand-pink text-brand-pink bg-transparent focus:outline-none focus:ring-0 focus:border-brand-pink hover:text-brand-pink hover:opacity-100 text-sidebar cursor-pointer transition-colors duration-300 ease-in-out"
           aria-label="Search NFTs"
         >
           Search
@@ -930,7 +930,7 @@ export default function NFTSidebar({
           variant="outline" 
           size="sm" 
           onClick={clearAllFilters}
-          className="font-light flex items-center justify-center gap-1 h-8 w-full rounded-[2px] border-neutral-500 text-neutral-300 hover:bg-neutral-700 hover:text-white hover:border-neutral-400 focus:outline-none focus:ring-0 focus:border-neutral-400 transition-colors text-sidebar cursor-pointer"
+          className="font-light flex items-center justify-center gap-1 h-8 w-full rounded-[2px] border-neutral-500 text-neutral-300 hover:bg-neutral-700 hover:text-white hover:border-neutral-400 focus:outline-none focus:ring-0 focus:border-neutral-400 transition-colors duration-300 ease-in-out text-sidebar cursor-pointer"
           style={{ fontWeight: 300 }}
           aria-label="Clear all filters and search"
         >

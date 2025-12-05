@@ -67,7 +67,7 @@ export default function NFTTableView({
           <thead className="bg-neutral-800/50 border-b border-neutral-700">
             <tr className="text-left">
               <th 
-                className="text-left px-4 py-3 text-sm font-semibold text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors"
+                className="text-left px-4 py-3 text-sm font-semibold text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors duration-300 ease-in-out"
                 onClick={() => onColumnSort('nft')}
               >
                 <div className="flex items-center gap-1">
@@ -80,7 +80,7 @@ export default function NFTTableView({
                 </div>
               </th>
               <th 
-                className="text-left px-4 py-3 text-sm font-semibold text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors"
+                className="text-left px-4 py-3 text-sm font-semibold text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors duration-300 ease-in-out"
                 onClick={() => onColumnSort('rank')}
               >
                 <div className="flex items-center gap-1">
@@ -93,7 +93,7 @@ export default function NFTTableView({
                 </div>
               </th>
               <th 
-                className="text-left px-4 py-3 text-sm font-semibold text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors"
+                className="text-left px-4 py-3 text-sm font-semibold text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors duration-300 ease-in-out"
                 onClick={() => onColumnSort('rarity')}
               >
                 <div className="flex items-center gap-1">
@@ -106,7 +106,7 @@ export default function NFTTableView({
                 </div>
               </th>
               <th 
-                className="text-left px-4 py-3 text-sm font-semibold text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors"
+                className="text-left px-4 py-3 text-sm font-semibold text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors duration-300 ease-in-out"
                 onClick={() => onColumnSort('tier')}
               >
                 <div className="flex items-center gap-1">
@@ -119,7 +119,7 @@ export default function NFTTableView({
                 </div>
               </th>
               <th 
-                className="text-left px-4 py-3 text-sm font-semibold text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors"
+                className="text-left px-4 py-3 text-sm font-semibold text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors duration-300 ease-in-out"
                 onClick={() => onColumnSort('price')}
               >
                 <div className="flex items-center gap-1">
@@ -132,7 +132,7 @@ export default function NFTTableView({
                 </div>
               </th>
               <th 
-                className="text-right px-4 py-3 text-sm font-semibold text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors"
+                className="text-right px-4 py-3 text-sm font-semibold text-off-white hover:text-brand-pink hover:underline cursor-pointer select-none transition-colors duration-300 ease-in-out"
                 onClick={() => onColumnSort('favorite')}
               >
                 <div className="flex items-center justify-center gap-1">
@@ -153,13 +153,13 @@ export default function NFTTableView({
                 key={nft.id} 
                 tabIndex={0}
                 onKeyDown={(e) => onKeyDown(e, index)}
-                className={`border-b border-neutral-700/50 hover:bg-neutral-800/30 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-inset ${
+                className={`border-b border-neutral-700/50 hover:bg-neutral-800/30 transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-inset ${
                   index % 2 === 0 ? 'bg-neutral-900/20' : ''
                 } ${focusedIndex === index ? 'ring-2 ring-brand-pink ring-inset' : ''}`}
               >
                 <td className="px-4 py-2 text-sm">
                   <div className="flex items-center gap-2 min-w-0">
-                    <Link href={`/nft/${nft.cardNumber}${typeof window !== 'undefined' && window.location.search ? `?returnTo=${encodeURIComponent(`/nfts${window.location.search}`)}` : ''}`} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity min-w-0 flex-1">
+                    <Link href={`/nft/${nft.cardNumber}${typeof window !== 'undefined' && window.location.search ? `?returnTo=${encodeURIComponent(`/nfts${window.location.search}`)}` : ''}`} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity duration-300 ease-in-out min-w-0 flex-1">
                       <Image src={nft.image} alt={`${nft.name} - NFT #${nft.cardNumber}, Rank ${nft.rank}, ${nft.rarity} rarity, Tier ${nft.tier}`} width={32} height={32} className="rounded object-contain flex-shrink-0" />
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-normal text-off-white leading-tight line-clamp-2">NFT #{nft.cardNumber}</p>
@@ -200,10 +200,10 @@ export default function NFTTableView({
                         rarityPercent: nft.rarityPercent,
                       });
                     }}
-                    className="p-1 hover:bg-transparent transition-colors mx-auto"
+                    className="p-1 hover:bg-transparent transition-colors duration-300 ease-in-out mx-auto"
                     aria-label={isFavorited(nft.tokenId) ? "Remove from favorites" : "Add to favorites"}
                   >
-                    <Heart className={`w-4 h-4 transition-colors cursor-pointer ${isFavorited(nft.tokenId) ? "fill-[#FF0099] text-[#FF0099]" : "text-[#FFFBE8] hover:text-[#FF0099]"}`} />
+                    <Heart className={`w-4 h-4 transition-colors duration-300 ease-in-out cursor-pointer ${isFavorited(nft.tokenId) ? "fill-[#FF0099] text-[#FF0099]" : "text-[#FFFBE8] hover:text-[#FF0099]"}`} />
                   </button>
                 </td>
                 <td className="px-4 py-2 text-sm text-right">
@@ -212,13 +212,13 @@ export default function NFTTableView({
                         <>
                           <Link
                             href={`/nft/${nft.cardNumber}${typeof window !== 'undefined' && window.location.search ? `?returnTo=${encodeURIComponent(`/nfts${window.location.search}`)}` : ''}`}
-                            className="px-2 py-0.5 bg-yellow-500/10 border border-yellow-500/30 rounded-[2px] text-yellow-400 text-xs font-normal hover:bg-yellow-500/20 hover:border-yellow-500/50 transition-colors whitespace-nowrap"
+                            className="px-2 py-0.5 bg-yellow-500/10 border border-yellow-500/30 rounded-[2px] text-yellow-400 text-xs font-normal hover:bg-yellow-500/20 hover:border-yellow-500/50 transition-colors duration-300 ease-in-out whitespace-nowrap"
                           >
                             View
                           </Link>
                           <Link
                             href={`/nft/${nft.cardNumber}${typeof window !== 'undefined' && window.location.search ? `?returnTo=${encodeURIComponent(`/nfts${window.location.search}`)}` : ''}`}
-                            className="px-2 py-0.5 bg-blue-500/10 border border-blue-500 rounded-[2px] text-blue-400 text-xs font-normal hover:bg-blue-500/20 hover:border-blue-500 transition-colors whitespace-nowrap"
+                            className="px-2 py-0.5 bg-blue-500/10 border border-blue-500 rounded-[2px] text-blue-400 text-xs font-normal hover:bg-blue-500/20 hover:border-blue-500 transition-colors duration-300 ease-in-out whitespace-nowrap"
                           >
                             Buy
                           </Link>
@@ -226,7 +226,7 @@ export default function NFTTableView({
                       ) : (
                         <Link
                           href={`/nft/${nft.cardNumber}${typeof window !== 'undefined' && window.location.search ? `?returnTo=${encodeURIComponent(`/nfts${window.location.search}`)}` : ''}`}
-                          className="px-2 py-0.5 bg-green-500/10 border border-green-500/30 rounded-[2px] text-green-400 text-xs font-normal hover:bg-green-500/20 hover:border-green-500/50 transition-colors whitespace-nowrap"
+                          className="px-2 py-0.5 bg-green-500/10 border border-green-500/30 rounded-[2px] text-green-400 text-xs font-normal hover:bg-green-500/20 hover:border-green-500/50 transition-colors duration-300 ease-in-out whitespace-nowrap"
                         >
                           Sold
                         </Link>

@@ -37,7 +37,7 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
           aria-label="Navigate to home page"
         >
           HOME
-          <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out ${
+          <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-in-out ${
             activePage === "home" 
               ? "w-full bg-brand-pink" 
               : "w-0 group-hover:w-full bg-off-white"
@@ -51,7 +51,7 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
           aria-label="Navigate to about page"
         >
           ABOUT
-          <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out ${
+          <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-in-out ${
             activePage === "about" 
               ? "w-full bg-brand-pink" 
               : "w-0 group-hover:w-full bg-off-white"
@@ -65,7 +65,7 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
           aria-label="Navigate to NFTs collection page"
         >
           NFTS
-          <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out ${
+          <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-in-out ${
             activePage === "nfts" 
               ? "w-full bg-brand-pink" 
               : "w-0 group-hover:w-full bg-off-white"
@@ -79,7 +79,7 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
           aria-label="Navigate to provenance page"
         >
           PROVENANCE
-          <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out ${
+          <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-in-out ${
             activePage === "provenance" 
               ? "w-full bg-brand-pink" 
               : "w-0 group-hover:w-full bg-off-white"
@@ -93,7 +93,7 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
           aria-label="Navigate to contact page"
         >
           CONTACT
-          <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out ${
+          <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-in-out ${
             activePage === "contact" 
               ? "w-full bg-brand-pink" 
               : "w-0 group-hover:w-full bg-off-white"
@@ -108,7 +108,7 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
             aria-label="Navigate to My NFTs page"
           >
             MY NFTS
-            <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out ${
+            <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-in-out ${
               activePage === "my-nfts" 
                 ? "w-full bg-brand-pink" 
                 : "w-0 group-hover:w-full bg-off-white"
@@ -123,7 +123,7 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
               <TooltipTrigger asChild>
                 <Link
                   href="/my-nfts"
-                  className="hidden lg:flex items-center justify-center group hover:scale-110 transition-transform duration-200"
+                  className="hidden lg:flex items-center justify-center group hover:scale-110 transition-transform duration-300 ease-in-out"
                   aria-label="Profile"
                 >
                   <Image

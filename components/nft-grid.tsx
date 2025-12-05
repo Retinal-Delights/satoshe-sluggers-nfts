@@ -786,7 +786,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           <div className="flex items-center gap-0 border border-neutral-700 rounded-[2px] p-1 bg-neutral-900/50 w-fit overflow-hidden flex-nowrap">
             <button
               onClick={() => setTab("all")}
-              className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 leading-tight ${
+              className={`px-4 py-2 text-body-xs font-normal transition-all duration-300 ease-in-out cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 leading-tight ${
                 tab === "all"
                   ? "bg-brand-pink text-[#FFFBFB]"
                   : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
@@ -798,7 +798,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
             </button>
             <button
               onClick={() => setTab("live")}
-              className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 leading-tight ${
+              className={`px-4 py-2 text-body-xs font-normal transition-all duration-300 ease-in-out cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 leading-tight ${
                 tab === "live"
                   ? "bg-blue-500 text-[#FFFBFB]"
                   : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
@@ -810,7 +810,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
             </button>
             <button
               onClick={() => setTab("sold")}
-              className={`px-4 py-2 text-body-xs font-normal transition-all cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 leading-tight ${
+              className={`px-4 py-2 text-body-xs font-normal transition-all duration-300 ease-in-out cursor-pointer rounded-[2px] whitespace-nowrap flex-shrink-0 leading-tight ${
                 tab === "sold"
                   ? "bg-[#00FF99] text-[#000000]"
                   : "text-neutral-400 hover:text-neutral-300 hover:bg-neutral-800"
@@ -859,7 +859,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                       setViewMode('grid-large')
                       announceToScreenReader('Switched to large grid view')
                     }}
-                    className={`p-2 rounded-[2px] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] cursor-pointer ${viewMode === 'grid-large' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                    className={`p-2 rounded-[2px] transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] cursor-pointer ${viewMode === 'grid-large' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
                     aria-label="Switch to large grid view"
                     aria-pressed={viewMode === 'grid-large'}
                   >
@@ -877,7 +877,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                       setViewMode('grid-medium')
                       announceToScreenReader('Switched to medium grid view')
                     }}
-                    className={`p-2 rounded-[2px] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] cursor-pointer ${viewMode === 'grid-medium' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                    className={`p-2 rounded-[2px] transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] cursor-pointer ${viewMode === 'grid-medium' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
                     aria-label="Switch to medium grid view"
                     aria-pressed={viewMode === 'grid-medium'}
                   >
@@ -895,7 +895,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                       setViewMode('grid-small')
                       announceToScreenReader('Switched to small grid view')
                     }}
-                    className={`p-2 rounded-[2px] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] cursor-pointer ${viewMode === 'grid-small' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                    className={`p-2 rounded-[2px] transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] cursor-pointer ${viewMode === 'grid-small' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
                     aria-label="Switch to small grid view"
                     aria-pressed={viewMode === 'grid-small'}
                   >
@@ -913,7 +913,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                       setViewMode('compact')
                       announceToScreenReader('Switched to compact table view')
                     }}
-                    className={`p-2 rounded-[2px] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] cursor-pointer ${viewMode === 'compact' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
+                    className={`p-2 rounded-[2px] transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus:rounded-[2px] cursor-pointer ${viewMode === 'compact' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
                     aria-label="Switch to compact table view"
                     aria-pressed={viewMode === 'compact'}
                   >
@@ -1096,13 +1096,13 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                       key={nft.id} 
                       tabIndex={0}
                       onKeyDown={(e) => handleKeyDown(e, index)}
-                      className={`border-b border-neutral-700/50 hover:bg-neutral-800/30 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-inset ${
+                      className={`border-b border-neutral-700/50 hover:bg-neutral-800/30 transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:ring-inset ${
                         index % 2 === 0 ? 'bg-neutral-900/20' : ''
                       } ${focusedIndex === index ? 'ring-2 ring-[#ff0099] ring-inset' : ''}`}
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <Link href={`/nft/${nft.cardNumber && !isNaN(nft.cardNumber) ? nft.cardNumber : (parseInt(nft.tokenId) + 1)}${getReturnToUrl !== '/nfts' ? `?returnTo=${encodeURIComponent(getReturnToUrl)}` : ''}`} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+                          <Link href={`/nft/${nft.cardNumber && !isNaN(nft.cardNumber) ? nft.cardNumber : (parseInt(nft.tokenId) + 1)}${getReturnToUrl !== '/nfts' ? `?returnTo=${encodeURIComponent(getReturnToUrl)}` : ''}`} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity duration-300 ease-in-out">
                             <Image src={nft.image} alt={`${nft.name} - NFT #${nft.cardNumber || (parseInt(nft.tokenId) + 1)}, Rank ${nft.rank}, ${nft.rarity} rarity, Tier ${nft.tier}`} width={40} height={40} className="rounded object-contain" style={{ width: "auto", height: "40px" }} />
                             <div>
                               <p className="text-body-xs font-normal text-[#FFFBEB] truncate">{nft.name}</p>
@@ -1135,10 +1135,10 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                                     rarityPercent: nft.rarityPercent,
                                   });
                                 }}
-                                className="p-1 hover:bg-transparent transition-colors"
+                                className="p-1 hover:bg-transparent transition-colors duration-300 ease-in-out"
                                 aria-label={isFavorited(nft.tokenId) ? "Remove from favorites" : "Add to favorites"}
                               >
-                                <Heart className={`w-4 h-4 transition-colors cursor-pointer ${isFavorited(nft.tokenId) ? "fill-[#FF0099] text-[#FF0099]" : "text-[#FFFBE8] hover:text-[#FF0099]"}`} />
+                                <Heart className={`w-4 h-4 transition-colors duration-300 ease-in-out cursor-pointer ${isFavorited(nft.tokenId) ? "fill-[#FF0099] text-[#FF0099]" : "text-[#FFFBE8] hover:text-[#FF0099]"}`} />
                               </button>
                             </td>
                             <td className="px-4 py-3 text-right">
@@ -1146,14 +1146,14 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                                   {isSold ? (
                                     <Link
                                       href={`/nft/${nft.cardNumber && !isNaN(nft.cardNumber) ? nft.cardNumber : (parseInt(nft.tokenId) + 1)}${getReturnToUrl !== '/nfts' ? `?returnTo=${encodeURIComponent(getReturnToUrl)}` : ''}`}
-                                      className="px-3 py-2 bg-[#00FF99]/10 border border-[#00FF99]/30 rounded-sm text-[#00FF99] text-nft-button font-normal hover:bg-[#00FF99]/20 hover:border-[#00FF99]/50 transition-colors whitespace-nowrap cursor-pointer"
+                                      className="px-3 py-2 bg-[#00FF99]/10 border border-[#00FF99]/30 rounded-sm text-[#00FF99] text-nft-button font-normal hover:bg-[#00FF99]/20 hover:border-[#00FF99]/50 transition-colors duration-300 ease-in-out whitespace-nowrap cursor-pointer"
                                     >
                                       Sold
                                     </Link>
                                   ) : (
                                     <Link
                                       href={`/nft/${nft.cardNumber && !isNaN(nft.cardNumber) ? nft.cardNumber : (parseInt(nft.tokenId) + 1)}${getReturnToUrl !== '/nfts' ? `?returnTo=${encodeURIComponent(getReturnToUrl)}` : ''}`}
-                                      className="px-3 py-2 bg-blue-500/10 border border-blue-500/30 rounded-sm text-blue-400 text-nft-button font-normal hover:bg-blue-500/20 hover:border-blue-500/50 transition-colors whitespace-nowrap"
+                                      className="px-3 py-2 bg-blue-500/10 border border-blue-500/30 rounded-sm text-blue-400 text-nft-button font-normal hover:bg-blue-500/20 hover:border-blue-500/50 transition-colors duration-300 ease-in-out whitespace-nowrap"
                                     >
                                       Buy
                                     </Link>

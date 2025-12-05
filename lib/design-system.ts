@@ -179,23 +179,23 @@ export const borders = {
 
 export const buttons = {
   // Primary Button (from style guide)
-  primary: 'px-6 py-2 bg-[#ff0099] text-white font-normal rounded-sm hover:bg-[#ff0099]/90 transition-all duration-200',
+  primary: 'px-6 py-2 bg-[#ff0099] text-white font-normal rounded-sm hover:bg-[#ff0099]/90 transition-all duration-300 ease-in-out',
   
   // Outline Button (from style guide)
-  outline: 'px-6 py-2 border border-[#ff0099] bg-transparent text-[#ff0099] font-normal rounded-sm hover:bg-[#ff0099] hover:text-off-white transition-all duration-200',
+  outline: 'px-6 py-2 border border-[#ff0099] bg-transparent text-[#ff0099] font-normal rounded-sm hover:bg-[#ff0099] hover:text-off-white transition-all duration-300 ease-in-out',
   
   // Buy Button (Blue - for purchasable items)
-  buy: 'px-6 py-2 border border-[#3B82F6] bg-blue-500/10 text-blue-400 font-normal rounded-sm hover:bg-blue-500/30 hover:border-blue-500/60 hover:text-blue-300 transition-all duration-200',
+  buy: 'px-6 py-2 border border-[#3B82F6] bg-blue-500/10 text-blue-400 font-normal rounded-sm hover:bg-blue-500/30 hover:border-blue-500/60 hover:text-blue-300 transition-all duration-300 ease-in-out',
   
   // Sold Button (Green - for sold items)
-  sold: 'px-6 py-2 border border-[#10B981] bg-green-500/10 text-green-400 font-normal rounded-sm hover:bg-green-500/30 hover:border-green-500/60 hover:text-green-300 transition-all duration-200',
+  sold: 'px-6 py-2 border border-[#10B981] bg-green-500/10 text-green-400 font-normal rounded-sm hover:bg-green-500/30 hover:border-green-500/60 hover:text-green-300 transition-all duration-300 ease-in-out',
   
   // Small Buy/Sold Buttons
-  buySmall: 'px-3 py-1 border border-[#3B82F6] bg-blue-500/10 text-blue-400 text-xs font-normal rounded-sm hover:bg-blue-500/30 hover:border-blue-500/60 hover:text-blue-300 transition-all duration-200',
-  soldSmall: 'px-3 py-1 border border-[#10B981] bg-green-500/10 text-green-400 text-xs font-normal rounded-sm hover:bg-green-500/30 hover:border-green-500/60 hover:text-green-300 transition-all duration-200',
+  buySmall: 'px-3 py-1 border border-[#3B82F6] bg-blue-500/10 text-blue-400 text-xs font-normal rounded-sm hover:bg-blue-500/30 hover:border-blue-500/60 hover:text-blue-300 transition-all duration-300 ease-in-out',
+  soldSmall: 'px-3 py-1 border border-[#10B981] bg-green-500/10 text-green-400 text-xs font-normal rounded-sm hover:bg-green-500/30 hover:border-green-500/60 hover:text-green-300 transition-all duration-300 ease-in-out',
   
   // Clear Filters Button (Pink Outline - Mobile)
-  clearFilters: 'px-4 py-2 border border-[#ff0099] bg-transparent text-[#ff0099] font-medium text-body-sm rounded-[2px] hover:bg-[#ff0099]/10 transition-colors cursor-pointer',
+  clearFilters: 'px-4 py-2 border border-[#ff0099] bg-transparent text-[#ff0099] font-medium text-body-sm rounded-[2px] hover:bg-[#ff0099]/10 transition-colors duration-300 ease-in-out cursor-pointer',
   
   // Disabled State
   disabled: 'disabled:opacity-50 disabled:cursor-not-allowed',
@@ -207,7 +207,7 @@ export const buttons = {
 
 export const containers = {
   card: 'bg-neutral-800 p-4 rounded-sm border border-neutral-700',
-  cardHover: 'bg-neutral-800 p-4 rounded-sm border border-neutral-700 hover:border-[#ff0099]/50 transition-colors',
+  cardHover: 'bg-neutral-800 p-4 rounded-sm border border-neutral-700 hover:border-[#ff0099]/50 transition-colors duration-300 ease-in-out',
   glass: 'bg-neutral-950/80 backdrop-blur-md border border-neutral-700 rounded-sm',
   attributeCard: 'bg-neutral-800 p-3 rounded-sm border border-neutral-700',
 } as const;
@@ -217,8 +217,8 @@ export const containers = {
 // ============================================================================
 
 export const inputs = {
-  base: 'text-sm font-normal rounded-sm text-neutral-100 border-neutral-700 bg-neutral-950/80 backdrop-blur-md placeholder:text-neutral-500 focus:outline-none focus:ring-0 focus:border-[#ff0099] transition-all duration-200',
-  textarea: 'text-sm font-normal rounded-sm text-neutral-100 border-neutral-700 bg-neutral-950/80 backdrop-blur-md placeholder:text-neutral-500 focus:outline-none focus:ring-0 focus:border-[#ff0099] transition-all duration-200 resize-none',
+  base: 'text-sm font-normal rounded-sm text-neutral-100 border-neutral-700 bg-neutral-950/80 backdrop-blur-md placeholder:text-neutral-500 focus:outline-none focus:ring-0 focus:border-[#ff0099] transition-all duration-300 ease-in-out',
+  textarea: 'text-sm font-normal rounded-sm text-neutral-100 border-neutral-700 bg-neutral-950/80 backdrop-blur-md placeholder:text-neutral-500 focus:outline-none focus:ring-0 focus:border-[#ff0099] transition-all duration-300 ease-in-out resize-none',
 } as const;
 
 // ============================================================================
@@ -226,9 +226,9 @@ export const inputs = {
 // ============================================================================
 
 export const transitions = {
-  default: 'transition-all duration-200',
-  colors: 'transition-colors duration-200',
-  transform: 'transition-transform duration-300',
+  default: 'transition-all duration-300 ease-in-out',
+  colors: 'transition-colors duration-300 ease-in-out',
+  transform: 'transition-transform duration-300 ease-in-out',
 } as const;
 
 // ============================================================================

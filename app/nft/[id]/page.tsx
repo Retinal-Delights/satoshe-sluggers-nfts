@@ -723,9 +723,9 @@ export default function NFTDetailPage() {
             return (
               <Link
                 href={backTo}
-                className="inline-flex items-center text-neutral-400 hover:text-off-white transition-colors group flex-shrink-0 text-sm"
+                className="inline-flex items-center text-neutral-400 hover:text-off-white transition-colors duration-300 ease-in-out group flex-shrink-0 text-sm"
               >
-                <ArrowLeft className="h-4 w-4 mr-2 transition-all group-hover:-translate-x-1 group-hover:text-off-white" />
+                <ArrowLeft className="h-4 w-4 mr-2 transition-all duration-300 ease-in-out group-hover:-translate-x-1 group-hover:text-off-white" />
                 Back to collection
               </Link>
             );
@@ -736,10 +736,10 @@ export default function NFTDetailPage() {
             {navigationTokens.prev !== null && (
               <Link
                 href={`/nft/${navigationTokens.prev}`}
-                className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-neutral-800 hover:bg-neutral-900 text-neutral-400 transition-all border border-neutral-700 hover:border-brand-pink group flex-shrink-0"
+                className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-neutral-800 hover:bg-neutral-900 text-neutral-400 transition-all duration-300 ease-in-out border border-neutral-700 hover:border-brand-pink group flex-shrink-0"
                 title={`Previous NFT #${navigationTokens.prev}`}
               >
-                <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 transition-colors group-hover:text-brand-pink" />
+                <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-300 ease-in-out group-hover:text-brand-pink" />
               </Link>
             )}
             
@@ -750,10 +750,10 @@ export default function NFTDetailPage() {
             {navigationTokens.next !== null && (
               <Link
                 href={`/nft/${navigationTokens.next}`}
-                className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-neutral-800 hover:bg-neutral-900 text-neutral-400 transition-all border border-neutral-700 hover:border-brand-pink group flex-shrink-0"
+                className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-neutral-800 hover:bg-neutral-900 text-neutral-400 transition-all duration-300 ease-in-out border border-neutral-700 hover:border-brand-pink group flex-shrink-0"
                 title={`Next NFT #${navigationTokens.next}`}
               >
-                <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 transition-colors group-hover:text-brand-pink" />
+                <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-300 ease-in-out group-hover:text-brand-pink" />
               </Link>
             )}
           </div>
@@ -787,7 +787,7 @@ export default function NFTDetailPage() {
                         href="https://kristenwoerdeman.com"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-between w-full px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 hover:border-brand-pink rounded-[2px] transition-all group cursor-pointer"
+                        className="flex items-center justify-between w-full px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 hover:border-brand-pink rounded-[2px] transition-all duration-300 ease-in-out group cursor-pointer"
                         aria-label="Visit Kristen Woerdeman's website"
                       >
                         <div className="flex items-center gap-3">
@@ -800,8 +800,8 @@ export default function NFTDetailPage() {
                             sizes="26px"
                           />
                           <div>
-                            <p className="text-sm font-medium text-off-white group-hover:text-off-white transition-colors">Artist</p>
-                            <p className="text-xs text-neutral-400 group-hover:text-off-white transition-colors">Kristen Woerdeman</p>
+                            <p className="text-sm font-medium text-off-white group-hover:text-off-white transition-colors duration-300 ease-in-out">Artist</p>
+                            <p className="text-xs text-neutral-400 group-hover:text-off-white transition-colors duration-300 ease-in-out">Kristen Woerdeman</p>
                           </div>
                         </div>
                         <svg
@@ -814,7 +814,7 @@ export default function NFTDetailPage() {
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          className="text-neutral-400 group-hover:text-brand-pink transition-colors"
+                          className="text-neutral-400 group-hover:text-brand-pink transition-colors duration-300 ease-in-out"
                           aria-hidden="true"
                         >
                           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -837,7 +837,7 @@ export default function NFTDetailPage() {
                         href="https://retinaldelights.io"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-between w-full px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 hover:border-brand-pink rounded-[2px] transition-all group cursor-pointer"
+                        className="flex items-center justify-between w-full px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 hover:border-brand-pink rounded-[2px] transition-all duration-300 ease-in-out group cursor-pointer"
                         aria-label="Visit Retinal Delights website"
                       >
                         <div className="flex items-center gap-3">
@@ -864,7 +864,7 @@ export default function NFTDetailPage() {
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          className="text-neutral-400 group-hover:text-brand-pink transition-colors"
+                          className="text-neutral-400 group-hover:text-brand-pink transition-colors duration-300 ease-in-out"
                           aria-hidden="true"
                         >
                           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -892,7 +892,7 @@ export default function NFTDetailPage() {
                         href={metadata?.merged_data?.metadata_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-between w-full px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 rounded-[2px] transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none cursor-pointer"
+                        className="flex items-center justify-between w-full px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 rounded-[2px] transition-colors duration-300 ease-in-out group focus:ring-2 focus:ring-green-500 focus:outline-none cursor-pointer"
                         aria-label="View token metadata on IPFS"
                       >
                         <div className="flex items-center gap-2">
@@ -929,7 +929,7 @@ export default function NFTDetailPage() {
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          className="text-neutral-400 group-hover:text-green-500 transition-colors ml-1 flex-shrink-0"
+                          className="text-neutral-400 group-hover:text-green-500 transition-colors duration-300 ease-in-out ml-1 flex-shrink-0"
                           aria-hidden="true"
                         >
                           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -949,7 +949,7 @@ export default function NFTDetailPage() {
                         href={metadata?.merged_data?.media_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-between w-full px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 rounded-[2px] transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"
+                        className="flex items-center justify-between w-full px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 rounded-[2px] transition-colors duration-300 ease-in-out group focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"
                         aria-label="View NFT image on IPFS"
                       >
                         <div className="flex items-center gap-2">
@@ -984,7 +984,7 @@ export default function NFTDetailPage() {
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          className="text-neutral-400 group-hover:text-blue-500 transition-colors ml-1 flex-shrink-0"
+                          className="text-neutral-400 group-hover:text-blue-500 transition-colors duration-300 ease-in-out ml-1 flex-shrink-0"
                           aria-hidden="true"
                         >
                           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -1057,11 +1057,11 @@ export default function NFTDetailPage() {
               </h1>
               <button
                 onClick={handleFavoriteToggle}
-                className="flex-shrink-0 p-2 rounded-full hover:bg-transparent transition-colors"
+                className="flex-shrink-0 p-2 rounded-full hover:bg-transparent transition-colors duration-300 ease-in-out"
                 aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
               >
                 <Heart
-                  className={`w-6 h-6 transition-colors cursor-pointer ${
+                  className={`w-6 h-6 transition-colors duration-300 ease-in-out cursor-pointer ${
                     isFav
                       ? "fill-[#FF0099] text-[#FF0099]"
                       : "text-[#FFFBE8] hover:text-[#FF0099]"
@@ -1103,7 +1103,7 @@ export default function NFTDetailPage() {
                     onTransactionSent={handleTransactionPending}
                     onTransactionConfirmed={handleTransactionSuccess}
                     onError={handleTransactionError}
-                    className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-bold transition-all duration-500 ease-out focus:ring-2 focus:ring-offset-2 text-white rounded-[2px] disabled:opacity-50 disabled:cursor-not-allowed hover:!bg-blue-700 w-full sm:w-auto"
+                    className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-bold transition-all duration-300 ease-in-out focus:ring-2 focus:ring-offset-2 text-white rounded-[2px] disabled:opacity-50 disabled:cursor-not-allowed hover:!bg-blue-700 w-full sm:w-auto"
                     style={{
                       backgroundColor: transactionState === 'pending' ? "#6B7280" : "#3B82F6",
                       color: "white",
@@ -1143,7 +1143,7 @@ export default function NFTDetailPage() {
                             setCopiedAddress('owner');
                             setTimeout(() => setCopiedAddress(null), 2000);
                           }}
-                          className="flex items-center gap-1.5 p-1 hover:bg-neutral-700 rounded-[2px] transition-colors group cursor-pointer"
+                          className="flex items-center gap-1.5 p-1 hover:bg-neutral-700 rounded-[2px] transition-colors duration-300 ease-in-out group cursor-pointer"
                           aria-label="Copy owner address"
                           title="Copy owner address"
                         >
@@ -1151,7 +1151,7 @@ export default function NFTDetailPage() {
                           {copiedAddress === 'owner' ? (
                             <Check className="w-3 h-3" style={{ color: colors.filter.green }} />
                           ) : (
-                            <Copy className="w-3 h-3 text-neutral-400 group-hover:text-green-500 transition-colors" />
+                            <Copy className="w-3 h-3 text-neutral-400 group-hover:text-green-500 transition-colors duration-300 ease-in-out" />
                           )}
                         </button>
                       </div>
@@ -1163,7 +1163,7 @@ export default function NFTDetailPage() {
                             href={`https://opensea.io/assets/base/${getContractAddress()}/${parseInt(tokenId) - 1}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 text-sm transition-colors whitespace-nowrap cursor-pointer"
+                            className="inline-flex items-center gap-2 text-sm transition-colors duration-300 ease-in-out whitespace-nowrap cursor-pointer"
                             style={{ color: colors.filter.green }}
                             onMouseEnter={(e) => e.currentTarget.style.color = colors.filter.green}
                             onMouseLeave={(e) => e.currentTarget.style.color = colors.filter.green}
@@ -1380,7 +1380,7 @@ export default function NFTDetailPage() {
                           setCopiedAddress('contract');
                           setTimeout(() => setCopiedAddress(null), 2000);
                         }}
-                        className="flex items-center gap-2 p-1 hover:bg-neutral-700 rounded transition-colors group cursor-pointer"
+                        className="flex items-center gap-2 p-1 hover:bg-neutral-700 rounded transition-colors duration-300 ease-in-out group cursor-pointer"
                         aria-label="Copy contract address"
                         title="Copy contract address"
                       >

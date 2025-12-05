@@ -115,7 +115,7 @@ export function MobileMenu({ isWalletConnected = false, hasUserActivity = false 
 
   const mobileMenuContent = open && mounted && (
     <div 
-      className={`fixed inset-0 z-[60] transition-opacity duration-200 ease-out ${
+      className={`fixed inset-0 z-[60] transition-opacity duration-300 ease-in-out ${
         isAnimating ? 'opacity-100' : 'opacity-0'
       }`}
       style={{
@@ -128,7 +128,7 @@ export function MobileMenu({ isWalletConnected = false, hasUserActivity = false 
     >
           <div 
             ref={menuRef}
-            className={`w-80 max-w-[90vw] fixed left-1/2 -translate-x-1/2 rounded-[2px] pt-4 pb-12 px-8 transition-all duration-200 ease-out ${
+            className={`w-80 max-w-[90vw] fixed left-1/2 -translate-x-1/2 rounded-[2px] pt-4 pb-12 px-8 transition-all duration-300 ease-in-out ${
               isAnimating 
                 ? 'opacity-100 translate-y-0' 
                 : 'opacity-0 -translate-y-4'
@@ -233,7 +233,7 @@ export function MobileMenu({ isWalletConnected = false, hasUserActivity = false 
             <TooltipTrigger asChild>
               <Link
                 href="/my-nfts"
-                className="flex items-center justify-center group hover:scale-110 transition-transform duration-200"
+                className="flex items-center justify-center group hover:scale-110 transition-transform duration-300 ease-in-out"
                 aria-label="Go to My NFTs page"
               >
                 <Image

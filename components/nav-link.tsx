@@ -23,7 +23,7 @@ export function NavLink({
   ariaLabel,
   variant = "desktop"
 }: NavLinkProps) {
-  const baseClasses = "text-base font-medium relative group transition-all duration-300"
+  const baseClasses = "text-base font-medium relative group transition-all duration-300 ease-in-out"
   
   const variantClasses = {
     desktop: "text-base",
@@ -35,8 +35,8 @@ export function NavLink({
     : "text-neutral-400 hover:text-off-white"
   
   const underlineClasses = variant === "desktop" 
-    ? "absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-out"
-    : "absolute bottom-1 left-1/2 -translate-x-1/2 h-0.5 transition-all duration-300 ease-out"
+    ? "absolute bottom-0 left-0 h-0.5 transition-all duration-300 ease-in-out"
+    : "absolute bottom-1 left-1/2 -translate-x-1/2 h-0.5 transition-all duration-300 ease-in-out"
   
   const getUnderlineWidth = () => {
     if (variant === "desktop") {
