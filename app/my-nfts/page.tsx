@@ -282,20 +282,20 @@ function MyNFTsContent() {
         <div className="mb-6">
           <div className="flex border-b border-neutral-700">
             <button
-              className={`py-2 px-4 flex items-center gap-2 transition-colors cursor-pointer ${activeTab === "favorites" ? "border-b-2 border-brand-pink text-offwhite font-medium hover:bg-brand-pink/10" : "text-neutral-400 hover:text-offwhite"}`}
+              className={`py-2 px-4 flex items-center gap-2 transition-colors cursor-pointer group ${activeTab === "favorites" ? "border-b-2 border-brand-pink text-offwhite font-medium hover:bg-brand-pink/10" : "text-neutral-400 hover:text-offwhite hover:bg-neutral-800/30"}`}
               onClick={() => setActiveTab("favorites")}
             >
               <Heart
-                className={`w-4 h-4 transition-colors ${activeTab === "favorites" ? "fill-brand-pink text-brand-pink hover:fill-off-white hover:text-off-white" : ""}`}
+                className={`w-4 h-4 transition-colors ${activeTab === "favorites" ? "fill-brand-pink text-brand-pink group-hover:fill-[#FFFBEB] group-hover:text-[#FFFBEB]" : ""}`}
               />
               Favorites ({favorites.length - locallyUnfavorited.size})
             </button>
             <button
-              className={`py-2 px-4 flex items-center gap-2 transition-colors cursor-pointer ${activeTab === "owned" ? "border-b-2 border-brand-pink text-offwhite font-medium hover:bg-brand-pink/10" : "text-neutral-400 hover:text-offwhite"}`}
+              className={`py-2 px-4 flex items-center gap-2 transition-colors cursor-pointer group ${activeTab === "owned" ? "border-b-2 border-brand-pink text-offwhite font-medium hover:bg-brand-pink/10" : "text-neutral-400 hover:text-offwhite hover:bg-neutral-800/30"}`}
               onClick={() => setActiveTab("owned")}
             >
               <Package
-                className={`w-4 h-4 transition-colors ${activeTab === "owned" ? "text-brand-pink hover:text-off-white" : ""}`}
+                className={`w-4 h-4 transition-colors ${activeTab === "owned" ? "text-brand-pink group-hover:text-[#FFFBEB]" : ""}`}
               />
               Owned ({Array.isArray(ownedNFTs) ? ownedNFTs.length : 0})
             </button>
@@ -361,11 +361,11 @@ function MyNFTsContent() {
                     />
                   </Link>
                 </div>
-                <div className="p-6">
+                <div className="pt-3 pl-4 pr-6 pb-6">
                   <div className="flex w-full justify-between items-start gap-2">
                     <div className="min-w-0">
-                      <div className="text-base font-semibold whitespace-nowrap">Satoshe Slugger {nftNumber}</div>
-                      <div className="text-xs text-neutral-400 mt-1">Token ID: {nft.tokenId || "0"}</div>
+                      <div className="text-base font-semibold whitespace-nowrap pl-1.5">Satoshe Slugger {nftNumber}</div>
+                      <div className="text-xs text-neutral-400 mt-1 pl-1.5">Token ID: {nft.tokenId || "0"}</div>
                     </div>
                     {activeTab === "favorites" && (
                       <button
