@@ -282,7 +282,7 @@ function MyNFTsContent() {
         <div className="mb-6">
           <div className="flex border-b border-neutral-700">
             <button
-              className={`py-2 px-4 flex items-center gap-2 transition-colors ${activeTab === "favorites" ? "border-b-2 border-brand-pink text-offwhite font-medium hover:bg-brand-pink/10" : "text-neutral-400 hover:text-offwhite"}`}
+              className={`py-2 px-4 flex items-center gap-2 transition-colors cursor-pointer ${activeTab === "favorites" ? "border-b-2 border-brand-pink text-offwhite font-medium hover:bg-brand-pink/10" : "text-neutral-400 hover:text-offwhite"}`}
               onClick={() => setActiveTab("favorites")}
             >
               <Heart
@@ -291,7 +291,7 @@ function MyNFTsContent() {
               Favorites ({favorites.length - locallyUnfavorited.size})
             </button>
             <button
-              className={`py-2 px-4 flex items-center gap-2 transition-colors ${activeTab === "owned" ? "border-b-2 border-brand-pink text-offwhite font-medium hover:bg-brand-pink/10" : "text-neutral-400 hover:text-offwhite"}`}
+              className={`py-2 px-4 flex items-center gap-2 transition-colors cursor-pointer ${activeTab === "owned" ? "border-b-2 border-brand-pink text-offwhite font-medium hover:bg-brand-pink/10" : "text-neutral-400 hover:text-offwhite"}`}
               onClick={() => setActiveTab("owned")}
             >
               <Package
@@ -362,8 +362,11 @@ function MyNFTsContent() {
                   </Link>
                 </div>
                 <div className="p-6">
-                  <div className="flex w-full justify-between items-center gap-2">
-                    <span className="text-base font-semibold whitespace-nowrap">Satoshe Slugger {nftNumber}</span>
+                  <div className="flex w-full justify-between items-start gap-2">
+                    <div className="min-w-0">
+                      <div className="text-base font-semibold whitespace-nowrap">Satoshe Slugger {nftNumber}</div>
+                      <div className="text-xs text-neutral-400 mt-1">Token ID: {nft.tokenId || "0"}</div>
+                    </div>
                     {activeTab === "favorites" && (
                       <button
                         onClick={() =>
