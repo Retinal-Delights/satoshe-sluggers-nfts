@@ -33,16 +33,24 @@ export async function getActiveListings(): Promise<Set<number>> {
       address: MARKETPLACE_ADDRESS,
     });
 
-    // Use getAllValidListings directly - doesn't fetch metadata, just listing data
-    // This is more efficient and doesn't require IPFS/storage credentials
-    const START_ID = 0;
-    const END_ID = 10000; // Adjust if you have more than 10k listings
+    // First, get the total number of listings to avoid querying invalid ranges
+    let totalListings = 0;
+    try {
+      const total = await readContract({
+        contract: marketplace,
+        method: "function totalListings() view returns (uint256)",
+        params: [],
+      });
+      totalListings = Number(total);
+    } catch {
+      // If totalListings doesn't exist or fails, use a safe default
+      totalListings = 1000; // Conservative estimate
+    }
 
-    const listings = await readContract({
-      contract: marketplace,
-      method: "function getAllValidListings(uint256 _startId, uint256 _endId) view returns ((uint256 listingId, uint256 tokenId, uint256 quantity, uint256 pricePerToken, uint128 startTimestamp, uint128 endTimestamp, address listingCreator, address assetContract, address currency, uint8 tokenType, uint8 status, bool reserved)[] _validListings)",
-      params: [BigInt(START_ID), BigInt(END_ID)],
-    }) as unknown as Array<{
+    // Query in smaller batches to avoid "execution reverted" errors
+    // Batch size of 500 should be safe for most RPC providers
+    const BATCH_SIZE = 500;
+    const allListings: Array<{
       listingId: bigint;
       tokenId: bigint;
       quantity: bigint;
@@ -55,7 +63,44 @@ export async function getActiveListings(): Promise<Set<number>> {
       tokenType: number;
       status: number;
       reserved: boolean;
-    }>;
+    }> = [];
+
+    // Query in batches
+    for (let startId = 0; startId < totalListings; startId += BATCH_SIZE) {
+      const endId = Math.min(startId + BATCH_SIZE - 1, totalListings - 1);
+      
+      try {
+        const batch = await readContract({
+          contract: marketplace,
+          method: "function getAllValidListings(uint256 _startId, uint256 _endId) view returns ((uint256 listingId, uint256 tokenId, uint256 quantity, uint256 pricePerToken, uint128 startTimestamp, uint128 endTimestamp, address listingCreator, address assetContract, address currency, uint8 tokenType, uint8 status, bool reserved)[] _validListings)",
+          params: [BigInt(startId), BigInt(endId)],
+        }) as unknown as Array<{
+          listingId: bigint;
+          tokenId: bigint;
+          quantity: bigint;
+          pricePerToken: bigint;
+          startTimestamp: bigint;
+          endTimestamp: bigint;
+          listingCreator: string;
+          assetContract: string;
+          currency: string;
+          tokenType: number;
+          status: number;
+          reserved: boolean;
+        }>;
+        
+        allListings.push(...batch);
+      } catch (batchError) {
+        // If a batch fails, log and continue (might be out of range)
+        if (process.env.NODE_ENV === "development") {
+          console.warn(`[Marketplace Listings] Batch ${startId}-${endId} failed:`, batchError);
+        }
+        // Stop if we hit an error (likely reached the end)
+        break;
+      }
+    }
+
+    const listings = allListings;
 
     // Filter for listings that:
     // 1. Match our NFT collection address
