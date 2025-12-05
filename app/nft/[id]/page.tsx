@@ -710,7 +710,7 @@ export default function NFTDetailPage() {
     <div>
       <main id="main-content" className="min-h-screen bg-background text-foreground flex flex-col">
         <Navigation activePage="nfts" />
-      <div className="w-full max-w-[900px] xl:max-w-[1100px] 2xl:max-w-[1300px] mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+      <div className="w-full max-w-[900px] xl:max-w-[1100px] 2xl:max-w-[1300px] mx-auto py-4 sm:py-6 flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 px-6 sm:px-8 md:px-8 lg:px-12 xl:px-16">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-8 sm:mb-10">
           {(() => {
             // Prefer returning to the exact filtered collection URL when provided
@@ -763,7 +763,7 @@ export default function NFTDetailPage() {
           {/* Left Column - Image and metadata links - 50% width */}
           <div className="space-y-4 order-1 lg:order-1 w-full lg:w-[50%] lg:flex-shrink-0 lg:pr-4 min-w-0">
             {/* NFT Image Card */}
-            <div className="relative w-full sm:max-w-md md:px-4 lg:px-0 lg:max-w-full mx-auto lg:mx-0" style={{ aspectRatio: "2700/3000", maxWidth: "100%" }}>
+            <div className="relative w-full sm:max-w-md md:px-8 lg:px-12 xl:px-16 lg:max-w-full mx-auto lg:mx-0" style={{ aspectRatio: "2700/3000", maxWidth: "100%" }}>
               <div className="relative w-full h-full">
                 <Image
                   src={imageUrl || "/nfts/placeholder-nft.webp"}
@@ -1001,25 +1001,48 @@ export default function NFTDetailPage() {
               </TooltipProvider>
             </div>
 
-            {/* Attributes - Moved to right column after Collection Details - Mobile order-7 */}
-            <div className="bg-neutral-950/50 p-4 rounded-[2px] border border-neutral-800 order-7 lg:order-none hidden lg:block">
-              <h3 className="text-lg font-semibold mb-3 text-off-white">Attributes</h3>
-              <div className="grid grid-cols-1 gap-3">
-                {attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }, index: number) => (
-                  <div key={index} className="bg-neutral-950/50 p-3 rounded-[2px] border border-neutral-800">
-                    <div className="flex items-center mb-2">
-                      <div
-                        className="w-3 h-3 rounded-full mr-2"
-                        style={{ backgroundColor: getColorForAttribute(attr.name) }}
-                      ></div>
-                      <span className="text-xs text-neutral-400">{attr.name}</span>
+            {/* Attributes and Rarity Distribution - side by side on desktop - Mobile order-7 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 order-7 lg:order-none hidden lg:grid">
+              {/* Attributes - Left side */}
+              <div className="bg-neutral-950/50 p-4 rounded-[2px] border border-neutral-800">
+                <h3 className="text-lg font-semibold mb-3 text-off-white">Attributes</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }, index: number) => (
+                    <div key={index} className="bg-neutral-950/50 p-3 rounded-[2px] border border-neutral-800">
+                      <div className="flex items-center mb-2">
+                        <div
+                          className="w-3 h-3 rounded-full mr-2"
+                          style={{ backgroundColor: getColorForAttribute(attr.name) }}
+                        ></div>
+                        <span className="text-xs text-neutral-400">{attr.name}</span>
+                      </div>
+                      <div className="text-base md:text-sm font-medium text-off-white mb-1">{formatAttributeValueForDisplay(attr.name, attr.value)}</div>
+                      <div className="text-xs text-neutral-400">
+                        {attr.percentage}% • {attr.occurrence} of {TOTAL_COLLECTION_SIZE}
+                      </div>
                     </div>
-                    <div className="text-base md:text-sm font-medium text-off-white mb-1">{formatAttributeValueForDisplay(attr.name, attr.value)}</div>
-                    <div className="text-xs text-neutral-400">
-                      {attr.percentage}% • {attr.occurrence} of {TOTAL_COLLECTION_SIZE}
-                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Rarity Distribution - Right side */}
+              <div>
+                {attributes.length > 0 ? (
+                  <AttributeRarityChart
+                    attributes={attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }) => ({
+                      name: attr.name,
+                      value: attr.value,
+                      percentage: attr.percentage || 0,
+                      occurrence: attr.occurrence,
+                      color: getColorForAttribute(attr.name)
+                    }))}
+                    overallRarity={metadata?.rarity_percent || "93.5"}
+                  />
+                ) : (
+                  <div className="bg-neutral-950/50 p-4 rounded-[2px] border border-neutral-800 text-center py-8">
+                    <p className="text-neutral-400">No attributes available for rarity distribution</p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
 
@@ -1028,13 +1051,13 @@ export default function NFTDetailPage() {
           {/* Right Column - NFT Details - 50% width */}
           <div className="space-y-4 order-2 lg:order-2 flex flex-col w-full lg:w-[50%] lg:flex-shrink-0 lg:pl-4 min-w-0">
             {/* NFT Name with Heart Icon - order-1 */}
-            <div className="flex items-center justify-start gap-4 order-1 min-w-0 relative w-full">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-left mb-2 truncate text-off-white leading-normal pb-0.5">
+            <div className="flex items-center justify-between gap-4 order-1 min-w-0 w-full">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-left truncate text-off-white leading-normal pb-0.5 flex-1 min-w-0">
                 {metadata?.name || `Satoshe Slugger #${displayNftNumber}`}
               </h1>
               <button
                 onClick={handleFavoriteToggle}
-                className="absolute right-0 p-2 rounded-full hover:bg-transparent transition-colors"
+                className="flex-shrink-0 p-2 rounded-full hover:bg-transparent transition-colors"
                 aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
               >
                 <Heart
@@ -1062,7 +1085,7 @@ export default function NFTDetailPage() {
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                   <div className="flex-1">
                     <p className="text-sm md:text-base text-blue-500 mb-1">Buy Now Price</p>
-                    <p className="text-2xl sm:text-3xl md:text-2xl font-bold text-blue-500">
+                    <p className="text-xl sm:text-2xl font-bold text-blue-500">
                       {priceEth} ETH
                     </p>
                     {transactionState === 'pending' && (
@@ -1098,7 +1121,7 @@ export default function NFTDetailPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <p className="text-sm md:text-base mb-1" style={{ color: colors.filter.green }}>Purchased for</p>
-                      <p className="text-2xl sm:text-3xl md:text-2xl font-bold" style={{ color: colors.filter.green }}>
+                      <p className="text-xl sm:text-2xl font-bold" style={{ color: colors.filter.green }}>
                         {soldPriceEth && soldPriceEth > 0 ? `${soldPriceEth} ETH` : (priceEth > 0 ? `${priceEth} ETH` : '—')}
                       </p>
                     </div>
@@ -1198,8 +1221,8 @@ export default function NFTDetailPage() {
               </div>
             )}
 
-            {/* Collection Details - order-3 */}
-              <div className="bg-neutral-950/50 p-4 rounded-[2px] border border-neutral-800 order-3">
+            {/* Collection Details - order-2 */}
+              <div className="bg-neutral-950/50 p-4 rounded-[2px] border border-neutral-800 order-2">
               <h3 className="text-lg font-semibold mb-3 text-off-white">Collection Details</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-4 sm:gap-y-5 text-sm">
                 <div className="min-w-0">
@@ -1241,6 +1264,107 @@ export default function NFTDetailPage() {
                   <p className="font-normal text-off-white break-words">{metadata?.rarity_percent ?? "—"}%</p>
                 </div>
               </div>
+            </div>
+
+            {/* Token URI and Media URI - order-3 (above Contract Details) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 order-3">
+                <a
+                  href={metadata?.merged_data?.metadata_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 rounded-[2px] transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none cursor-pointer"
+                  aria-label="View token metadata on IPFS"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: colors.filter.green + '20' }}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ color: colors.filter.green }}
+                        aria-hidden="true"
+                      >
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14,2 14,8 20,8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10,9 9,9 8,9"></polyline>
+                      </svg>
+                    </div>
+                    <span className="text-xs font-medium" style={{ color: colors.filter.green }}>Token URI</span>
+                  </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-neutral-400 group-hover:text-green-500 transition-colors ml-1 flex-shrink-0"
+                    aria-hidden="true"
+                  >
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                  </svg>
+                </a>
+
+                <a
+                  href={metadata?.merged_data?.media_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between w-full px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 rounded-[2px] transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"
+                  aria-label="View NFT image on IPFS"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: colors.filter.blue + '20' }}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ color: colors.filter.blue }}
+                        aria-hidden="true"
+                      >
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21,15 16,10 5,21"></polyline>
+                      </svg>
+                    </div>
+                    <span className="text-xs font-medium" style={{ color: colors.filter.blue }}>Media URI</span>
+                  </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-neutral-400 group-hover:text-blue-500 transition-colors ml-1 flex-shrink-0"
+                    aria-hidden="true"
+                  >
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                  </svg>
+                </a>
             </div>
 
             {/* Contract Details - order-4 */}
@@ -1370,117 +1494,10 @@ export default function NFTDetailPage() {
               </a>
             </div>
 
-            {/* Token URI and Media URI - order-5 */}
-            <div className="flex flex-row gap-3 order-5 lg:hidden">
-                <a
-                  href={metadata?.merged_data?.metadata_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between w-auto px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 rounded-[2px] transition-colors group focus:ring-2 focus:ring-green-500 focus:outline-none"
-                  aria-label="View token metadata on IPFS"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: colors.filter.green + '20' }}>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        style={{ color: colors.filter.green }}
-                        aria-hidden="true"
-                      >
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14,2 14,8 20,8"></polyline>
-                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                        <polyline points="10,9 9,9 8,9"></polyline>
-                      </svg>
-                    </div>
-                    <div className="flex items-center gap-1.5 whitespace-nowrap">
-                      <span className="text-xs font-medium" style={{ color: colors.filter.green }}>Token URI</span>
-                      <span className="text-[10px] text-neutral-400">View metadata</span>
-                    </div>
-                  </div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-neutral-400 group-hover:text-green-500 transition-colors ml-1 flex-shrink-0"
-                    aria-hidden="true"
-                  >
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                    <polyline points="15 3 21 3 21 9"></polyline>
-                    <line x1="10" y1="14" x2="21" y2="3"></line>
-                  </svg>
-                </a>
-
-                <a
-                  href={metadata?.merged_data?.media_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between w-auto px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 rounded-[2px] transition-colors group focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  aria-label="View NFT image on IPFS"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: colors.filter.blue + '20' }}>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        style={{ color: colors.filter.blue }}
-                        aria-hidden="true"
-                      >
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                        <polyline points="21,15 16,10 5,21"></polyline>
-                      </svg>
-                    </div>
-                    <div className="flex items-center gap-1.5 whitespace-nowrap">
-                      <span className="text-xs font-medium" style={{ color: colors.filter.blue }}>Media URI</span>
-                      <span className="text-[10px] text-neutral-400">View image</span>
-                    </div>
-                  </div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-neutral-400 group-hover:text-blue-500 transition-colors ml-1 flex-shrink-0"
-                    aria-hidden="true"
-                  >
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                    <polyline points="15 3 21 3 21 9"></polyline>
-                    <line x1="10" y1="14" x2="21" y2="3"></line>
-                  </svg>
-                </a>
-            </div>
-
             {/* Attributes - order-7 */}
             <div className="bg-neutral-950/50 p-4 rounded-[2px] border border-neutral-800 order-7">
               <h3 className="text-lg font-semibold mb-4 text-off-white">Attributes</h3>
-              <div className="grid grid-cols-1 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }, index: number) => (
                   <div key={index} className="bg-neutral-950/50 p-3 rounded-[2px] border border-neutral-800 min-w-0">
                     <div className="flex items-center mb-2 min-w-0">
@@ -1499,8 +1516,8 @@ export default function NFTDetailPage() {
               </div>
             </div>
 
-            {/* Rarity Distribution - order-8 */}
-            <div className="order-8">
+            {/* Rarity Distribution - order-8 (mobile only, desktop is combined with attributes) */}
+            <div className="order-8 lg:hidden">
               {attributes.length > 0 ? (
                 <AttributeRarityChart
                   attributes={attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }) => ({
