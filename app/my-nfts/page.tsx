@@ -389,7 +389,7 @@ function MyNFTsContent() {
                     )}
                   </div>
                   {(nft as NFT).isLocallyUnfavorited && (
-                    <div className="mb-3">
+                    <div className="mb-3 mt-2">
                       <span className="text-xs text-neutral-500 bg-neutral-800 px-2 py-1 rounded">
                         Unfavorited
                       </span>
@@ -398,7 +398,7 @@ function MyNFTsContent() {
                   {activeTab === "owned" && (
                     <button
                       onClick={() => router.push(`/nft/${nft.id}`)}
-                      className="font-light flex items-center justify-center h-8 w-full rounded border border-brand-pink text-brand-pink bg-transparent hover:!bg-brand-pink hover:!text-off-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-fluid-sm"
+                      className="font-light flex items-center justify-center h-8 w-full rounded border border-brand-pink text-brand-pink bg-transparent hover:!bg-brand-pink hover:!text-off-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-fluid-sm mt-4"
                       aria-label="View NFT details"
                     >
                       View Details
