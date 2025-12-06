@@ -206,7 +206,7 @@ export default function NFTCard({
                 </div>
                 <Link
                   href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
-                  className="px-2.5 py-1 md:px-3 md:py-1.5 lg:px-2.5 lg:py-1 xl:px-2 xl:py-1 rounded-sm font-normal transition-all duration-300 ease-in-out whitespace-nowrap flex-shrink-0 text-nft-button bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500 text-center"
+                  className="px-3 py-1.5 md:px-3.5 md:py-2 lg:px-3 lg:py-1.5 xl:px-2.5 xl:py-1.5 rounded-sm font-normal transition-all duration-300 ease-in-out whitespace-nowrap flex-shrink-0 text-nft-button bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500 text-center"
                   aria-label={`Buy NFT #${cardNumber} for ${displayPrice} ETH`}
                 >
                   BUY
@@ -226,7 +226,7 @@ export default function NFTCard({
                 </div>
                 <Link
                   href={`/nft/${cardNumber}${returnToUrl ? `?returnTo=${encodeURIComponent(returnToUrl)}` : ''}`}
-                  className="px-2.5 py-1 md:px-3 md:py-1.5 lg:px-2.5 lg:py-1 xl:px-2 xl:py-1 rounded-sm font-normal transition-all duration-300 ease-in-out whitespace-nowrap flex-shrink-0 text-[13px] md:text-[14px] lg:text-[13px] xl:text-[12px] bg-[#00FF99]/10 border border-[#00FF99]/30 text-[#00FF99] hover:bg-[#00FF99]/20 hover:border-[#00FF99]/50 cursor-pointer"
+                  className="px-3 py-1.5 md:px-3.5 md:py-2 lg:px-3 lg:py-1.5 xl:px-2.5 xl:py-1.5 rounded-sm font-normal transition-all duration-300 ease-in-out whitespace-nowrap flex-shrink-0 text-nft-button bg-[#00FF99]/10 border border-[#00FF99]/30 text-[#00FF99] hover:bg-[#00FF99]/20 hover:border-[#00FF99]/50 cursor-pointer"
                   aria-label={`View details for NFT #${cardNumber} - Sold${soldPriceEth && soldPriceEth > 0 ? ` for ${soldPriceEth} ETH` : ''}`}
                 >
                   Sold
