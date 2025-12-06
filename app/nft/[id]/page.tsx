@@ -86,6 +86,7 @@ export default function NFTDetailPage() {
   const [ownershipStatus, setOwnershipStatus] = useState<"ACTIVE" | "SOLD" | null>(null); // From /api/ownership
   const [ownershipStatusCheckComplete, setOwnershipStatusCheckComplete] = useState(false);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null); // Track which address was copied
+  const [transactionTimeoutId, setTransactionTimeoutId] = useState<NodeJS.Timeout | null>(null); // Track transaction timeout
 
   // Always reset all significant state when the token changes (prevents UI bleed when flipping NFTs)
   // This ensures a clean state for each NFT viewed and prevents stale data from previous NFT
@@ -103,7 +104,12 @@ export default function NFTDetailPage() {
     setOwnershipStatus(null);
     setOwnershipStatusCheckComplete(false);
     setCopiedAddress(null); // Reset copy feedback
-  }, [tokenId]);
+    // Clear any pending transaction timeout
+    if (transactionTimeoutId) {
+      clearTimeout(transactionTimeoutId);
+      setTransactionTimeoutId(null);
+    }
+  }, [tokenId, transactionTimeoutId]);
   
   const { isFavorited, toggleFavorite, isConnected } = useFavorites();
 
@@ -550,11 +556,29 @@ export default function NFTDetailPage() {
 
   // Handle transaction state changes
   const handleTransactionPending = () => {
+    console.log('[NFT Details] Transaction sent - waiting for confirmation', { tokenId, listingId });
     setTransactionState('pending');
     setTransactionError(null);
+    
+    // Set a timeout to prevent infinite spinning (30 seconds)
+    const timeoutId = setTimeout(() => {
+      console.error('[NFT Details] Transaction timeout - no confirmation received after 30 seconds', { tokenId, listingId });
+      setTransactionState('error');
+      setTransactionError('Transaction is taking longer than expected. Please check your wallet or try again.');
+    }, 30000);
+    
+    setTransactionTimeoutId(timeoutId);
   };
 
   const handleTransactionSuccess = async (receipt: { transactionHash: string; blockNumber: bigint }) => {
+    console.log('[NFT Details] Transaction confirmed', { tokenId, listingId, transactionHash: receipt.transactionHash });
+    
+    // Clear any pending timeout
+    if (transactionTimeoutId) {
+      clearTimeout(transactionTimeoutId);
+      setTransactionTimeoutId(null);
+    }
+    
     setTransactionState('success');
     setIsPurchased(true);
     setShowSuccess(true);
@@ -623,8 +647,17 @@ export default function NFTDetailPage() {
   };
 
   const handleTransactionError = (error: Error) => {
+    // Clear any pending timeout
+    if (transactionTimeoutId) {
+      clearTimeout(transactionTimeoutId);
+      setTransactionTimeoutId(null);
+    }
+    
     // Transaction failed - set error state
     setTransactionState('error');
+    
+    // Log the full error for debugging
+    console.error('[NFT Details] Transaction error:', error);
     
     // Parse error message for user-friendly display
     let errorMessage = "Transaction failed. Please try again.";
@@ -885,6 +918,7 @@ export default function NFTDetailPage() {
                     onTransactionSent={handleTransactionPending}
                     onTransactionConfirmed={handleTransactionSuccess}
                     onError={handleTransactionError}
+                    disabled={(!listingId || listingId === 0 || transactionState === 'pending')}
                     className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-bold transition-all duration-300 ease-in-out focus:ring-2 focus:ring-offset-2 text-white rounded-[2px] disabled:opacity-50 disabled:cursor-not-allowed hover:!bg-blue-700 w-full sm:w-auto"
                     style={{
                       backgroundColor: transactionState === 'pending' ? "#6B7280" : "#3B82F6",
@@ -1168,11 +1202,11 @@ export default function NFTDetailPage() {
                           setCopiedAddress('contract');
                           setTimeout(() => setCopiedAddress(null), 2000);
                         }}
-                        className="flex items-center gap-2 p-1 hover:bg-neutral-700 rounded transition-colors duration-300 ease-in-out group cursor-pointer"
+                        className="flex items-center gap-2 p-1 rounded transition-colors duration-300 ease-in-out group cursor-pointer"
                         aria-label="Copy contract address"
                         title="Copy contract address"
                       >
-                        <span className="text-off-white truncate">{getContractAddress().slice(0, 6)}...{getContractAddress().slice(-4)}</span>
+                        <span className="text-off-white group-hover:text-green-500 truncate transition-colors duration-300 ease-in-out">{getContractAddress().slice(0, 6)}...{getContractAddress().slice(-4)}</span>
                         {copiedAddress === 'contract' ? (
                           <Check className="w-4 h-4" style={{ color: colors.filter.green }} />
                         ) : (
