@@ -146,6 +146,13 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   const searchParams = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
   
+  // Handle page change with scroll to top
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top of page when changing pages
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  
   // Get current URL params for returnTo navigation
   const getReturnToUrl = useMemo(() => {
     const params = new URLSearchParams();
@@ -442,7 +449,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
 
   // Reset to page 1 when filters change
   useEffect(() => {
-    setCurrentPage(1);
+    handlePageChange(1);
   }, [itemsPerPage, searchTerm, listingStatus, tab]);
 
   // Process NFTs from metadata and check marketplace listings
@@ -743,7 +750,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   // Update page if out of bounds
   useEffect(() => {
     if (currentPage > totalPages) {
-      setCurrentPage(1);
+      handlePageChange(1);
     }
   }, [currentPage, totalPages]);
 
@@ -1222,7 +1229,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         totalPages={totalPages}
         totalItems={filteredNFTs.length}
         itemsPerPage={itemsPerPage}
-        onPageChange={setCurrentPage}
+        onPageChange={handlePageChange}
       />
     </div>
   );
