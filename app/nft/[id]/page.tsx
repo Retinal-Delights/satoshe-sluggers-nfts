@@ -834,7 +834,7 @@ export default function NFTDetailPage() {
           <div className="w-full order-2 space-y-4" style={{ paddingLeft: '10px' }}>
             {/* NFT Name with Heart Icon */}
             <div className="flex items-center justify-between gap-4 min-w-0 w-full">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-left truncate text-off-white leading-normal pb-0.5 flex-1 min-w-0">
+              <h1 className="text-[clamp(1.125rem,2vw+0.5rem,2rem)] font-bold tracking-tight text-left text-off-white leading-normal pb-0.5 flex-1 min-w-0 break-words">
                 {metadata?.name || `Satoshe Slugger #${displayNftNumber}`}
               </h1>
               <button
