@@ -6,6 +6,7 @@ import { MobileMenu } from "@/components/mobile-menu"
 import ConnectWalletButton from "@/components/simple-connect-button"
 import { useActiveAccount } from "thirdweb/react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import DyslexicFontToggle from "@/components/dyslexic-font-toggle"
 
 interface NavigationProps {
   activePage?: "home" | "about" | "nfts" | "sell" | "my-nfts" | "contact" | "provenance"
@@ -117,6 +118,9 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
         )}
       </nav>
       <div className="relative flex items-center gap-2 lg:gap-2.5 ml-4">
+        <div className="hidden lg:block">
+          <DyslexicFontToggle />
+        </div>
         {account && (
           <TooltipProvider>
             <Tooltip>

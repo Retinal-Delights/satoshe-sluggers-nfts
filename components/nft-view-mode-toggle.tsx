@@ -37,7 +37,14 @@ export default function NFTViewModeToggle({
                 onViewModeChange('grid-large');
                 announceToScreenReader('Switched to large grid view');
               }}
-              className={`p-2 rounded-sm transition-colors ${viewMode === 'grid-large' ? 'bg-neutral-800 text-brand-pink' : 'text-neutral-500 hover:text-neutral-300'}`}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onViewModeChange('grid-large');
+                  announceToScreenReader('Switched to large grid view');
+                }
+              }}
+              className={`p-2 rounded-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 ${viewMode === 'grid-large' ? 'bg-neutral-800 text-brand-pink' : 'text-neutral-500 hover:text-neutral-300'}`}
               aria-label="Switch to large grid view"
               aria-pressed={viewMode === 'grid-large'}
             >
@@ -55,7 +62,14 @@ export default function NFTViewModeToggle({
                 onViewModeChange('grid-medium');
                 announceToScreenReader('Switched to medium grid view');
               }}
-              className={`p-2 rounded-sm transition-colors ${viewMode === 'grid-medium' ? 'bg-neutral-800 text-brand-pink' : 'text-neutral-500 hover:text-neutral-300'}`}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onViewModeChange('grid-medium');
+                  announceToScreenReader('Switched to medium grid view');
+                }
+              }}
+              className={`p-2 rounded-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 ${viewMode === 'grid-medium' ? 'bg-neutral-800 text-brand-pink' : 'text-neutral-500 hover:text-neutral-300'}`}
               aria-label="Switch to medium grid view"
               aria-pressed={viewMode === 'grid-medium'}
             >
@@ -73,7 +87,14 @@ export default function NFTViewModeToggle({
                 onViewModeChange('grid-small');
                 announceToScreenReader('Switched to small grid view');
               }}
-              className={`p-2 rounded-sm transition-colors ${viewMode === 'grid-small' ? 'bg-neutral-800 text-brand-pink' : 'text-neutral-500 hover:text-neutral-300'}`}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onViewModeChange('grid-small');
+                  announceToScreenReader('Switched to small grid view');
+                }
+              }}
+              className={`p-2 rounded-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 ${viewMode === 'grid-small' ? 'bg-neutral-800 text-brand-pink' : 'text-neutral-500 hover:text-neutral-300'}`}
               aria-label="Switch to small grid view"
               aria-pressed={viewMode === 'grid-small'}
             >
@@ -91,7 +112,14 @@ export default function NFTViewModeToggle({
                 onViewModeChange('compact');
                 announceToScreenReader('Switched to compact table view');
               }}
-              className={`p-2 rounded-sm transition-colors ${viewMode === 'compact' ? 'bg-neutral-800 text-brand-pink' : 'text-neutral-500 hover:text-neutral-300'}`}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onViewModeChange('compact');
+                  announceToScreenReader('Switched to compact table view');
+                }
+              }}
+              className={`p-2 rounded-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 ${viewMode === 'compact' ? 'bg-neutral-800 text-brand-pink' : 'text-neutral-500 hover:text-neutral-300'}`}
               aria-label="Switch to compact table view"
               aria-pressed={viewMode === 'compact'}
             >

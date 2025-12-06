@@ -12,6 +12,7 @@ import { NavLink } from "@/components/nav-link"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { createPortal } from "react-dom"
 import { colors } from "@/lib/design-system"
+import DyslexicFontToggle from "@/components/dyslexic-font-toggle"
 
 interface MobileMenuProps {
   isWalletConnected?: boolean
@@ -159,7 +160,11 @@ export function MobileMenu({ isWalletConnected = false, hasUserActivity = false 
             <h2 id="mobile-menu-title" className="sr-only">Mobile Navigation Menu</h2>
 
         <div className="flex flex-col gap-2 py-2 items-center">
-                  <div className="mb-4 flex items-center justify-center w-full">
+                  <div className="mb-4 flex flex-col items-center gap-3 w-full">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-neutral-400">Dyslexic Font:</span>
+                      <DyslexicFontToggle />
+                    </div>
                     <SimpleConnectButton />
                   </div>
           <nav className="flex flex-col space-y-3 items-center w-full">

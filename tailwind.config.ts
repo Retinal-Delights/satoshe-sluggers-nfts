@@ -101,6 +101,7 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "JetBrains Mono", "monospace"],
+        dyslexic: ["var(--font-dyslexic)", "Lexend", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {

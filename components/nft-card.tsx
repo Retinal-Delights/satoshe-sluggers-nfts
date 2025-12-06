@@ -75,7 +75,7 @@ export default function NFTCard({
   const { isFavorited, toggleFavorite, isConnected } = useFavorites();
   const isFav = isFavorited(tokenId);
 
-  const handleFavoriteClick = (e: React.MouseEvent) => {
+  const handleFavoriteClick = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -91,6 +91,13 @@ export default function NFTCard({
       tokenId,
       rarity,
     });
+  };
+
+  const handleFavoriteKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleFavoriteClick(e);
+    }
   };
 
   // --- View: Small grid ---
@@ -167,7 +174,8 @@ export default function NFTCard({
               size="sm"
               className="h-6 w-6 p-0 flex-shrink-0 bg-transparent hover:bg-transparent"
               onClick={handleFavoriteClick}
-              aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
+              onKeyDown={handleFavoriteKeyDown}
+              aria-label={isFav ? `Remove ${name} from favorites` : `Add ${name} to favorites`}
             >
               <Heart
                 className={`w-4 h-4 transition-colors cursor-pointer ${
@@ -277,7 +285,8 @@ export default function NFTCard({
               size="sm"
               className="h-6 w-6 p-0 bg-transparent hover:bg-transparent flex-shrink-0"
               onClick={handleFavoriteClick}
-              aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
+              onKeyDown={handleFavoriteKeyDown}
+              aria-label={isFav ? `Remove ${name} from favorites` : `Add ${name} to favorites`}
             >
               <Heart
                 className={`w-4 h-4 transition-colors cursor-pointer ${

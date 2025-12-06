@@ -2,6 +2,7 @@
 import { ConnectButton, darkTheme } from "thirdweb/react";
 import { client as sharedClient } from "@/lib/thirdweb";
 import { createWallet } from "thirdweb/wallets";
+import { base } from "thirdweb/chains";
 
 // Use shared client configured via env (no insecure fallbacks)
 const client = sharedClient;
@@ -19,6 +20,7 @@ export default function SimpleConnectButton() {
   return (
     <ConnectButton
       client={client}
+      chains={[base]}
       connectButton={{ label: "CONNECT" }}
       connectModal={{
         privacyPolicyUrl: "https://retinaldelights.io/privacy",

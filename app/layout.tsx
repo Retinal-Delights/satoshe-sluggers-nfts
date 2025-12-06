@@ -1,6 +1,6 @@
 // app/layout.tsx
 import type { Metadata } from "next"
-import { Inter, JetBrains_Mono } from "next/font/google"
+import { Inter, JetBrains_Mono, Lexend } from "next/font/google"
 import "./globals.css"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -19,6 +19,12 @@ const inter = Inter({
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
+  display: "swap"
+})
+
+const lexend = Lexend({
+  subsets: ["latin"],
+  variable: "--font-dyslexic",
   display: "swap"
 })
 
@@ -89,7 +95,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${jetbrainsMono.variable} overflow-x-hidden`} suppressHydrationWarning>
+    <html lang="en" className={`dark ${inter.variable} ${jetbrainsMono.variable} ${lexend.variable} overflow-x-hidden`} suppressHydrationWarning>
       <head>
         {/* Termly CMP: must be first to block unapproved resources */}
         <TermlyScript />

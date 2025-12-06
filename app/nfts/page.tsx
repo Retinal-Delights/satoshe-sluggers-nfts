@@ -296,7 +296,16 @@ function NFTsPageContent() {
                                 setSelectedFilters({});
                                 setSearchMode("contains");
                               }}
-                              className="flex items-center gap-2 px-4 py-2 border border-[#ff0099] hover:bg-[#ff0099]/10 text-[#ff0099] rounded-[2px] transition-colors font-medium text-body-sm cursor-pointer"
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  setSearchTerm("");
+                                  setSelectedFilters({});
+                                  setSearchMode("contains");
+                                }
+                              }}
+                              className="flex items-center gap-2 px-4 py-2 border border-[#ff0099] hover:bg-[#ff0099]/10 text-[#ff0099] rounded-[2px] transition-colors font-medium text-body-sm cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900"
+                              aria-label="Clear all filters and search"
                             >
                               Clear Filters
                             </button>

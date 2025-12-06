@@ -768,62 +768,27 @@ export default function NFTDetailPage() {
 
         {/* Main Grid Layout - Desktop: 2 columns, Mobile: 1 column */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-          {/* Left Column - NFT Image Card with Drop Shadow */}
+          {/* Left Column - NFT Image */}
           <div className="w-full order-1">
-            {/* NFT Card Container with border and drop shadow */}
-            <div className="relative w-full" style={{ aspectRatio: "2700/3000", paddingLeft: '10px', paddingTop: '10px', paddingRight: '10px', paddingBottom: '10px' }}>
-              {/* NFT Card with border and drop shadow */}
-              <div className="relative w-full h-full border-2 rounded-sm" style={{ 
-                borderColor: '#FFFBEB',
-                backgroundColor: '#FFFBEB',
-                aspectRatio: "2700/3000",
-                filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3))',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-              }}>
-                {/* Inner content area */}
-                <div className="absolute inset-0 p-4 sm:p-6">
-                  {/* Retinal Delights Logo */}
-                  <div className="mb-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-6 h-6 rounded-full bg-neutral-900 flex items-center justify-center">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-[#FFFBEB]">
-                          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                          <circle cx="12" cy="12" r="6" stroke="currentColor" strokeWidth="1.5"/>
-                          <circle cx="12" cy="12" r="2" fill="currentColor"/>
-                        </svg>
-                      </div>
-                      <span className="text-sm font-semibold text-neutral-900">Retinal Delights</span>
-                    </div>
-                    <p className="text-xs text-neutral-700">Joy for the eye to see.</p>
-                  </div>
-                  
-                  {/* NFT Image */}
-                  <div className="relative flex-1" style={{ minHeight: 'calc(100% - 60px)' }}>
-                    <Image
-                      src={imageUrl || "/nfts/placeholder-nft.webp"}
-                      alt={metadata ? `${metadata.name || `SATOSHE SLUGGER #${displayNftNumber}`} - NFT #${displayNftNumber}${metadata.rank ? `, Rank ${metadata.rank} of ${TOTAL_COLLECTION_SIZE}` : ''}${metadata.rarity_tier ? `, ${metadata.rarity_tier} rarity` : ''}${ownershipStatus === 'ACTIVE' ? ', Available for purchase' : ownershipStatus === 'SOLD' ? ', Sold' : ''}` : `SATOSHE SLUGGER #${displayNftNumber}`}
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                      className="object-contain"
-                      onError={() => setImageUrl("/nfts/placeholder-nft.webp")}
-                      unoptimized={Boolean(imageUrl && typeof imageUrl === 'string' && (imageUrl.includes('/ipfs/') || imageUrl.includes('cloudflare-ipfs') || imageUrl.includes('ipfs.io')))}
-                    />
-                  </div>
-                  
-                  {/* NFT Name at bottom */}
-                  <div className="mt-4">
-                    <p className="text-base font-bold text-neutral-900 uppercase">SATOSHE SLUGGER</p>
-                  </div>
-                </div>
-              </div>
+            {/* NFT Image - Only the image, no background or text */}
+            <div className="relative w-full" style={{ aspectRatio: "2700/3000" }}>
+              <Image
+                src={imageUrl || "/nfts/placeholder-nft.webp"}
+                alt={metadata ? `${metadata.name || `SATOSHE SLUGGER #${displayNftNumber}`} - NFT #${displayNftNumber}${metadata.rank ? `, Rank ${metadata.rank} of ${TOTAL_COLLECTION_SIZE}` : ''}${metadata.rarity_tier ? `, ${metadata.rarity_tier} rarity` : ''}${ownershipStatus === 'ACTIVE' ? ', Available for purchase' : ownershipStatus === 'SOLD' ? ', Sold' : ''}` : `SATOSHE SLUGGER #${displayNftNumber}`}
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-contain"
+                onError={() => setImageUrl("/nfts/placeholder-nft.webp")}
+                unoptimized={Boolean(imageUrl && typeof imageUrl === 'string' && (imageUrl.includes('/ipfs/') || imageUrl.includes('cloudflare-ipfs') || imageUrl.includes('ipfs.io')))}
+              />
             </div>
 
-            {/* Desktop: Attributes and Rarity Distribution - side by side below image */}
-            <div className="hidden lg:grid grid-cols-2 gap-4 mt-6">
+            {/* Desktop: Attributes above Rarity Distribution */}
+            <div className="hidden lg:block mt-6 space-y-4">
               {/* Attributes */}
               <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700">
                 <h3 className="text-lg font-semibold mb-3 text-off-white">Attributes</h3>
-                <div className="grid grid-cols-1 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   {attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }, index: number) => (
                     <div key={index} className="bg-neutral-800 p-3 rounded-[2px] border border-neutral-700">
                       <div className="flex items-center mb-2">
@@ -1114,7 +1079,10 @@ export default function NFTDetailPage() {
                         <polyline points="10,9 9,9 8,9"></polyline>
                       </svg>
                     </div>
-                    <span className="text-xs font-medium" style={{ color: colors.filter.green }}>Token URI</span>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium" style={{ color: colors.filter.green }}>Token URI</span>
+                      <span className="text-xs text-neutral-400">View metadata on IPFS</span>
+                    </div>
                   </div>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -1162,7 +1130,10 @@ export default function NFTDetailPage() {
                         <polyline points="21,15 16,10 5,21"></polyline>
                       </svg>
                     </div>
-                    <span className="text-xs font-medium" style={{ color: colors.filter.blue }}>Media URI</span>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium" style={{ color: colors.filter.blue }}>Media URI</span>
+                      <span className="text-xs text-neutral-400">View NFT on IPFS</span>
+                    </div>
                   </div>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -1246,9 +1217,9 @@ export default function NFTDetailPage() {
                     className="w-6 h-6"
                     sizes="26px"
                   />
-                  <div>
-                    <p className="text-sm font-medium text-off-white group-hover:text-off-white transition-colors">Artist</p>
-                    <p className="text-xs text-neutral-400 group-hover:text-off-white transition-colors">Kristen Woerdeman</p>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-medium text-off-white group-hover:text-off-white transition-colors">Artist</span>
+                    <span className="text-xs text-neutral-400 group-hover:text-off-white transition-colors">Kristen Woerdeman</span>
                   </div>
                 </div>
                 <svg
@@ -1286,9 +1257,9 @@ export default function NFTDetailPage() {
                     className="w-6 h-6"
                     sizes="26px"
                   />
-                  <div>
-                    <p className="text-sm font-medium text-off-white group-hover:text-off-white transition-colors">Platform</p>
-                    <p className="text-xs text-neutral-400 group-hover:text-off-white transition-colors">Retinal Delights</p>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-medium text-off-white group-hover:text-off-white transition-colors">Platform</span>
+                    <span className="text-xs text-neutral-400 group-hover:text-off-white transition-colors">Retinal Delights</span>
                   </div>
                 </div>
                 <svg
@@ -1309,28 +1280,6 @@ export default function NFTDetailPage() {
                   <line x1="10" y1="14" x2="21" y2="3"></line>
                 </svg>
               </a>
-            </div>
-
-            {/* Attributes */}
-            <div className="bg-neutral-800 p-4 rounded-[2px] border border-neutral-700">
-              <h3 className="text-lg font-semibold mb-4 text-off-white">Attributes</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {attributes.map((attr: { name: string; value: string; percentage?: number; occurrence?: number }, index: number) => (
-                  <div key={index} className="bg-neutral-800 p-3 rounded-[2px] border border-neutral-700 min-w-0">
-                    <div className="flex items-center mb-2 min-w-0">
-                      <div
-                        className="w-3 h-3 rounded-full mr-2 flex-shrink-0"
-                        style={{ backgroundColor: getColorForAttribute(attr.name) }}
-                      ></div>
-                      <span className="text-xs text-neutral-400 truncate">{attr.name}</span>
-                    </div>
-                    <div className="text-sm font-medium text-off-white mb-1 break-words">{formatAttributeValueForDisplay(attr.name, attr.value)}</div>
-                    <div className="text-xs text-neutral-400 break-words">
-                      {attr.percentage}% • {attr.occurrence} of {TOTAL_COLLECTION_SIZE}
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
 
             {/* Rarity Distribution - Mobile only */}
