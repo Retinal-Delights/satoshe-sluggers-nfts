@@ -1205,34 +1205,34 @@ export default function NFTDetailPage() {
                 href="https://kristenwoerdeman.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 hover:border-brand-pink rounded-[2px] transition-all group cursor-pointer"
+                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 rounded-[2px] transition-colors group focus:ring-2 focus:ring-brand-pink focus:outline-none cursor-pointer"
                 aria-label="Visit Kristen Woerdeman's website"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <Image
                     src="/brands/kristen-woerdeman/kwoerd-circular-offwhite-32.png"
                     alt="Kristen Woerdeman"
-                    width={26}
-                    height={26}
-                    className="w-6 h-6"
-                    sizes="26px"
+                    width={24}
+                    height={24}
+                    className="w-6 h-6 flex-shrink-0"
+                    sizes="24px"
                   />
                   <div className="flex flex-col">
-                    <span className="text-xs font-medium text-off-white group-hover:text-off-white transition-colors">Artist</span>
-                    <span className="text-xs text-neutral-400 group-hover:text-off-white transition-colors">Kristen Woerdeman</span>
+                    <span className="text-xs font-medium text-off-white">Artist</span>
+                    <span className="text-xs text-neutral-400">Kristen Woerdeman</span>
                   </div>
                 </div>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
+                  width="12"
+                  height="12"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="text-neutral-400 group-hover:text-brand-pink transition-colors"
+                  className="text-neutral-400 group-hover:text-brand-pink transition-colors ml-1 flex-shrink-0"
                   aria-hidden="true"
                 >
                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -1245,34 +1245,34 @@ export default function NFTDetailPage() {
                 href="https://retinaldelights.io"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 hover:border-brand-pink rounded-[2px] transition-all group cursor-pointer"
+                className="flex items-center justify-between w-full px-4 py-3 bg-neutral-950/50 hover:bg-neutral-900/50 border border-neutral-800 rounded-[2px] transition-colors group focus:ring-2 focus:ring-brand-pink focus:outline-none cursor-pointer"
                 aria-label="Visit Retinal Delights website"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <Image
                     src="/brands/retinal-delights/retinal-delights-cicular-offwhite-32.png"
                     alt="Retinal Delights"
-                    width={26}
-                    height={26}
-                    className="w-6 h-6"
-                    sizes="26px"
+                    width={24}
+                    height={24}
+                    className="w-6 h-6 flex-shrink-0"
+                    sizes="24px"
                   />
                   <div className="flex flex-col">
-                    <span className="text-xs font-medium text-off-white group-hover:text-off-white transition-colors">Platform</span>
-                    <span className="text-xs text-neutral-400 group-hover:text-off-white transition-colors">Retinal Delights</span>
+                    <span className="text-xs font-medium text-off-white">Platform</span>
+                    <span className="text-xs text-neutral-400">Retinal Delights</span>
                   </div>
                 </div>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
+                  width="12"
+                  height="12"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="text-neutral-400 group-hover:text-brand-pink transition-colors"
+                  className="text-neutral-400 group-hover:text-brand-pink transition-colors ml-1 flex-shrink-0"
                   aria-hidden="true"
                 >
                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
