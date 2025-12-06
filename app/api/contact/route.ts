@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
-// SECURITY: No fallbacks - fail hard if env var missing
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-if (!RESEND_API_KEY) {
-  // This route is disabled, but if enabled, it should fail without API key
-  throw new Error("SECURITY ERROR: Missing RESEND_API_KEY environment variable. No fallbacks allowed.");
-}
-const resend = new Resend(RESEND_API_KEY);
-
 export async function POST(request: NextRequest) {
   try {
+    // SECURITY: Check env vars at runtime (not build time) - fail hard if missing
+    const RESEND_API_KEY = process.env.RESEND_API_KEY;
+    if (!RESEND_API_KEY) {
+      return NextResponse.json(
+        { error: 'Contact form is not configured. Please contact support directly.' },
+        { status: 503 }
+      );
+    }
+    const resend = new Resend(RESEND_API_KEY);
     const { name, email, subject, message } = await request.json()
 
     // Validate required fields
