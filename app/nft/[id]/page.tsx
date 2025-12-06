@@ -222,11 +222,11 @@ export default function NFTDetailPage() {
                 const listingIdNum = parseInt(listingId);
                 const priceNum = parseFloat(price);
                 
-                if (!isNaN(priceNum)) {
-                  const listingId = !isNaN(listingIdNum) ? listingIdNum : (tokenIdNum + 10000);
+                if (!isNaN(priceNum) && !isNaN(listingIdNum) && listingIdNum > 0) {
+                  // Only use listing ID if it's valid - never generate fallback IDs
                   setPricingData({
                     price_eth: priceNum,
-                    listing_id: listingId
+                    listing_id: listingIdNum
                   });
                   return; // Success, exit early
                 }
@@ -234,9 +234,10 @@ export default function NFTDetailPage() {
             }
           }
         }
-      } catch {
+      } catch (error) {
         // Error loading pricing data - continue without pricing
         // NFT will show as "not for sale"
+        console.error('[NFT Details] Error loading pricing data:', error);
       }
     };
     
@@ -300,12 +301,14 @@ export default function NFTDetailPage() {
           const hasQuantity = quantity > 0;
 
           setHasActiveListing(isActive && notExpired && hasQuantity);
-        } catch {
+        } catch (error) {
           // Listing doesn't exist or error fetching → no active listing
+          console.error('[NFT Details] Error checking listing status:', error);
           setHasActiveListing(false);
         }
-      } catch {
+      } catch (error) {
         // Error checking listing → assume no active listing (safer default)
+        console.error('[NFT Details] Error in listing check:', error);
         setHasActiveListing(false);
       } finally {
         setListingCheckComplete(true);
@@ -352,8 +355,9 @@ export default function NFTDetailPage() {
           // Error fetching - default to ACTIVE
           setOwnershipStatus("ACTIVE");
         }
-      } catch {
+      } catch (error) {
         // Error fetching - default to ACTIVE
+        console.error('[NFT Details] Error fetching ownership status:', error);
         setOwnershipStatus("ACTIVE");
       } finally {
         setOwnershipStatusCheckComplete(true);
@@ -397,8 +401,9 @@ export default function NFTDetailPage() {
           }
         }
         setOwnerAddress(normalizedOwner);
-      } catch {
+      } catch (error) {
         // Error fetching owner - set null (will show as "not for sale" by default)
+        console.error('[NFT Details] Error fetching owner address:', error);
         setOwnerAddress(null);
       } finally {
         // Always mark check as complete, even on error (prevents infinite loading state)
@@ -452,8 +457,9 @@ export default function NFTDetailPage() {
             }
             setOwnerAddress(normalizedOwner);
             setOwnerCheckComplete(true);
-          } catch {
+          } catch (error) {
             // Error fetching owner - still mark as complete to prevent infinite loading
+            console.error('[NFT Details] Error refetching owner after purchase:', error);
             setOwnerCheckComplete(true);
           }
         };
@@ -597,8 +603,9 @@ export default function NFTDetailPage() {
           setOwnerAddress(String((result as { _value: unknown })._value).toLowerCase());
         }
         setOwnerCheckComplete(true);
-      } catch {
+      } catch (error) {
         // Error fetching owner - still mark as complete (prevents infinite loading)
+        console.error('[NFT Details] Error fetching owner in success handler:', error);
         setOwnerCheckComplete(true);
       }
     }, 5000);
