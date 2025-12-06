@@ -9,24 +9,26 @@ import { createThirdwebClient } from "thirdweb";
 import { base } from "thirdweb/chains";
 import { getContract, readContract } from "thirdweb";
 
-// Environment variable sanity checks
-const CLIENT_ID = process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID;
-const INSIGHT_CLIENT_ID =
-  process.env.NEXT_PUBLIC_INSIGHT_CLIENT_ID ||
-  process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID;
-const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS;
-const MARKETPLACE_ADDRESS =
-  process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
-
-if (!CLIENT_ID || !CONTRACT_ADDRESS || !MARKETPLACE_ADDRESS) {
-  throw new Error("Missing required environment variables for ownership API");
-}
-
-const client = createThirdwebClient({ clientId: CLIENT_ID });
-
 // Main POST handler
 export async function POST(request: NextRequest) {
   try {
+    // Environment variable checks at runtime (not build time)
+    const CLIENT_ID = process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID;
+    const INSIGHT_CLIENT_ID =
+      process.env.NEXT_PUBLIC_INSIGHT_CLIENT_ID ||
+      process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID;
+    const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_NFT_COLLECTION_ADDRESS;
+    const MARKETPLACE_ADDRESS =
+      process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
+
+    if (!CLIENT_ID || !CONTRACT_ADDRESS || !MARKETPLACE_ADDRESS) {
+      return NextResponse.json(
+        { error: "Missing required environment variables for ownership API" },
+        { status: 503 }
+      );
+    }
+
+    const client = createThirdwebClient({ clientId: CLIENT_ID });
     const body = await request.json();
     const { tokenIds }: { tokenIds: number[] } = body;
 
@@ -49,17 +51,17 @@ export async function POST(request: NextRequest) {
     for (const batch of batches) {
       try {
         // Try fast Insight API if available
-        const insightResults = await fetchInsightOwnership(batch);
+        const insightResults = await fetchInsightOwnership(batch, CONTRACT_ADDRESS, MARKETPLACE_ADDRESS, INSIGHT_CLIENT_ID || "");
         if (insightResults) {
           Object.assign(results, insightResults);
         } else {
           // Fallback to on-chain direct method if Insight fails/unavailable
-          const rpcResults = await fetchRPCOwnership(batch);
+          const rpcResults = await fetchRPCOwnership(batch, client, CONTRACT_ADDRESS, MARKETPLACE_ADDRESS);
           Object.assign(results, rpcResults);
         }
       } catch {
         // On error, always fallback to on-chain lookup for robustness
-        const rpcResults = await fetchRPCOwnership(batch);
+        const rpcResults = await fetchRPCOwnership(batch, client, CONTRACT_ADDRESS, MARKETPLACE_ADDRESS);
         Object.assign(results, rpcResults);
       }
     }
@@ -76,6 +78,9 @@ export async function POST(request: NextRequest) {
 // Insight indexer - fast, cheap, may be rate limited occasionally
 async function fetchInsightOwnership(
   tokenIds: number[],
+  contractAddress: string,
+  marketplaceAddress: string,
+  insightClientId: string,
 ): Promise<Record<number, { owner: string; isSold: boolean }> | null> {
   try {
     const results: Record<number, { owner: string; isSold: boolean }> = {};
@@ -89,10 +94,10 @@ async function fetchInsightOwnership(
       const batchPromises = batch.map(async (tokenId) => {
         try {
           const resp = await fetch(
-            `https://insight.thirdweb.com/v1/tokens/${CHAIN_ID}/${CONTRACT_ADDRESS}/owners?tokenId=${tokenId}&page=1&limit=1`,
+            `https://insight.thirdweb.com/v1/tokens/${CHAIN_ID}/${contractAddress}/owners?tokenId=${tokenId}&page=1&limit=1`,
             {
               headers: {
-                "x-client-id": INSIGHT_CLIENT_ID || "",
+                "x-client-id": insightClientId || "",
                 "Content-Type": "application/json",
               },
             },
@@ -103,7 +108,7 @@ async function fetchInsightOwnership(
           if (data.data && Array.isArray(data.data) && data.data.length > 0) {
             owner = (data.data[0].owner || "").toLowerCase();
           }
-          const isSold = owner !== "" && owner !== MARKETPLACE_ADDRESS;
+          const isSold = owner !== "" && owner !== marketplaceAddress;
           return { tokenId, owner, isSold };
         } catch {
           return { tokenId, owner: "", isSold: false };
@@ -129,11 +134,14 @@ async function fetchInsightOwnership(
 // On-chain direct fallback (slower but always accurate)
 async function fetchRPCOwnership(
   tokenIds: number[],
+  client: ReturnType<typeof createThirdwebClient>,
+  contractAddress: string,
+  marketplaceAddress: string,
 ): Promise<Record<number, { owner: string; isSold: boolean }>> {
   const contract = getContract({
     client,
     chain: base,
-    address: CONTRACT_ADDRESS!,
+    address: contractAddress,
   });
 
   const results: Record<number, { owner: string; isSold: boolean }> = {};
@@ -155,7 +163,7 @@ async function fetchRPCOwnership(
           return {
             tokenId,
             owner: ownerLower,
-            isSold: ownerLower !== MARKETPLACE_ADDRESS,
+            isSold: ownerLower !== marketplaceAddress,
           };
         } catch {
           return {
