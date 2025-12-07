@@ -1111,12 +1111,12 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
                             {nft.isForSale ? (
                               <Link
                                 href={`/nft/${nft.tokenId}`}
-                                className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 rounded-sm text-blue-400 text-xs font-medium hover:bg-blue-500/20 hover:border-blue-500/50 transition-colors"
+                                className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 rounded-sm text-blue-400 text-xs font-medium hover:bg-blue-500/20 hover:border-blue-500/50 transition-colors flex items-center justify-center text-center"
                               >
                                 Buy
                               </Link>
                             ) : (
-                              <span className="px-2.5 py-1 bg-green-500/10 border border-green-500/30 rounded-sm text-green-400 text-xs font-medium">
+                              <span className="px-2.5 py-1 bg-green-500/10 border border-green-500/30 rounded-sm text-green-400 text-xs font-medium flex items-center justify-center text-center">
                                 Sold
                               </span>
                             )}

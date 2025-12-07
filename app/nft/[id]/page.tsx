@@ -994,7 +994,7 @@ export default function NFTDetailPage() {
                     onTransactionSent={handleTransactionPending}
                     onTransactionConfirmed={handleTransactionSuccess}
                     onError={handleTransactionError}
-                    className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-bold transition-all duration-500 ease-out focus:ring-2 focus:ring-offset-2 text-white rounded-sm disabled:opacity-50 disabled:cursor-not-allowed hover:!bg-blue-700 w-full sm:w-auto"
+                    className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-bold transition-all duration-500 ease-out focus:ring-2 focus:ring-offset-2 text-white rounded-sm disabled:opacity-50 disabled:cursor-not-allowed hover:!bg-blue-700 w-full sm:w-auto flex items-center justify-center text-center"
                     style={{
                       backgroundColor: transactionState === 'pending' ? "#6B7280" : "#3B82F6",
                       color: "white",
@@ -1018,7 +1018,7 @@ export default function NFTDetailPage() {
                     </div>
                     <button
                       disabled
-                      className="px-4 py-2 sm:px-6 sm:py-3 rounded-sm text-sm sm:text-base font-normal bg-green-500/10 border border-green-500/30 text-green-400 cursor-not-allowed opacity-75"
+                      className="px-4 py-2 sm:px-6 sm:py-3 rounded-sm text-sm sm:text-base font-normal bg-green-500/10 border border-green-500/30 text-green-400 cursor-not-allowed opacity-75 flex items-center justify-center text-center"
                     >
                       Sold
                     </button>

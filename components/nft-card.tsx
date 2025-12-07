@@ -198,7 +198,7 @@ export default function NFTCard({
               </div>
               <Link
                 href={`/nft/${cardNumber}`}
-                className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.7rem,0.5vw,0.85rem)] bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500"
+                className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.7rem,0.5vw,0.85rem)] bg-blue-500/10 border border-blue-500 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500 flex items-center justify-center text-center"
               >
                 BUY
               </Link>
@@ -217,7 +217,7 @@ export default function NFTCard({
               </div>
               <Link
                 href={`/nft/${cardNumber}`}
-                className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.7rem,0.5vw,0.85rem)] bg-green-500/10 border-[1.5px] border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50"
+                className="px-2 sm:px-3 py-1.5 rounded-sm font-normal transition-all duration-200 whitespace-nowrap flex-shrink-0 text-[clamp(0.7rem,0.5vw,0.85rem)] bg-green-500/10 border-[1.5px] border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50 flex items-center justify-center text-center"
               >
                 Sold
               </Link>
