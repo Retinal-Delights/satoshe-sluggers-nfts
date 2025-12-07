@@ -38,7 +38,7 @@ This is a high-value collection. Security standards must be:
 
 ---
 
-### October 2024 - Production Security Hardening
+### October 2025 - Production Security Hardening
 
 #### Fixed Issues:
 
@@ -234,7 +234,11 @@ These may be aliases or mapped in Vercel - confirmed working by user.
 
 **Current Status:** ✅ Build succeeds with zero errors
 
-**Last Verified:** January 2025  
+**Last Verified:** December 2024  
+**Next.js Version:** 16.0.7 (patched for CVE-2025-55182, CVE-2025-66478)  
+**React Version:** 19.1.2  
+**Build System:** Webpack (explicitly configured)  
+**Node.js Engine:** >=18 (supports Node.js 24.x)  
 **Warnings:** All resolved  
 **TypeScript Errors:** None  
 **Lint Errors:** None
@@ -258,7 +262,47 @@ These may be aliases or mapped in Vercel - confirmed working by user.
 
 ---
 
-**Last Updated:** January 2025  
+---
+
+## 🔄 Recent Updates (December 2024)
+
+### Next.js Security Update ✅
+**Date:** December 2024  
+**Issue:** Vulnerable Next.js version detected (CVE-2025-55182, CVE-2025-66478)  
+**Fix Applied:**
+- Updated Next.js from 15.5.6 to 16.0.7
+- Updated eslint-config-next to 16.0.7
+- Updated React to 19.1.2
+- **Status:** FIXED ✅
+
+### Build System Configuration ✅
+**Date:** December 2024  
+**Issue:** Build failures with WalletConnect dependencies importing test files  
+**Fix Applied:**
+- Created `lib/empty.js` for webpack aliasing
+- Configured webpack to alias `thread-stream` to empty module (client-side only)
+- Added externals for test dependencies: `tap`, `tape`, `fastbench`, `why-is-node-running`, `pino-elasticsearch`, `pino-pretty`, `desm`
+- Explicitly forced Webpack usage (not Turbopack) via `--webpack` flags
+- **Status:** FIXED ✅
+
+### Node.js Engine Update ✅
+**Date:** December 2024  
+**Issue:** Vercel warning about Node.js version mismatch  
+**Fix Applied:**
+- Updated `engines.node` from `">=18 <23"` to `">=18"` to allow Node.js 24.x
+- **Status:** FIXED ✅
+
+### Accessibility Features Added ✅
+**Date:** December 2024  
+**Features:**
+- Added dyslexia-friendly font toggle (OpenDyslexic)
+- Added All/Live/Sold tabs for filtering
+- Improved cursor pointer styling across interactive elements
+- **Status:** COMPLETE ✅
+
+---
+
+**Last Updated:** December 2024  
 **Maintained By:** Development Team  
 **Security Level:** Maximum (High-Value Collection)
 

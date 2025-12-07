@@ -8,12 +8,13 @@ Satoshe Sluggers is a unique NFT collection of 7,777 digital sluggers on Base bl
 
 ## 🚀 Tech Stack
 
-- **Framework**: Next.js 15 (App Router) with React 19
+- **Framework**: Next.js 16.0.7 (App Router) with React 19.1.2
 - **Language**: TypeScript for type safety
 - **Blockchain**: Thirdweb v5 SDK for Web3 integration
 - **Styling**: Tailwind CSS v4 with custom design system
 - **UI Components**: ShadCN/ui component library
 - **Package Manager**: PNPM for efficient dependency management
+- **Build System**: Webpack (explicitly configured)
 - **Network**: Base (Chain ID: 8453)
 - **Analytics**: Vercel Analytics for performance monitoring
 
@@ -32,6 +33,8 @@ Satoshe Sluggers is a unique NFT collection of 7,777 digital sluggers on Base bl
 - **Loading States**: Comprehensive loading indicators and error handling
 - **Transaction Feedback**: Real-time transaction status with confetti animations
 - **Accessibility**: WCAG compliant with keyboard navigation support
+- **Dyslexia-Friendly Mode**: Toggle for OpenDyslexic font support
+- **Interactive Tabs**: All/Live/Sold filtering tabs for easy navigation
 
 ### 🔐 Security & Performance
 - **SIWE Authentication**: Secure Sign-In With Ethereum
@@ -132,9 +135,11 @@ satoshe-sluggers/
 │   ├── simple-data-service.ts   # Data loading service
 │   ├── design-tokens.ts         # Design system tokens
 │   ├── performance.ts           # Performance monitoring
-│   └── accessibility.ts         # Accessibility utilities
+│   ├── accessibility.ts         # Accessibility utilities
+│   └── empty.js                 # Empty module for webpack aliasing
 ├── hooks/                       # Custom React hooks
-│   └── useFavorites.ts          # Favorites management
+│   ├── useFavorites.ts          # Favorites management
+│   └── useDyslexiaMode.ts      # Dyslexia-friendly font toggle
 ├── public/                      # Static assets
 │   ├── data/                    # Runtime data files
 │   │   ├── complete_metadata.json    # NFT metadata
