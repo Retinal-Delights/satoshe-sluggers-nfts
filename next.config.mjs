@@ -4,6 +4,12 @@
  * to avoid breaking functionality. We can tighten this iteratively.
  */
 
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
 const securityHeaders = [
@@ -82,16 +88,25 @@ const nextConfig = {
   },
   experimental: {
     optimizePackageImports: ['framer-motion', 'lucide-react'],
-    turbo: false,
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   webpack(config, { isServer }) {
-    const path = require('path');
+    // Prevent Turbopack/Webpack from touching thread-stream client-side
     if (!isServer) {
-      config.resolve.alias['thread-stream'] = path.resolve(__dirname, 'lib/empty.js');
+      config.resolve.alias["thread-stream"] = path.resolve(__dirname, "lib/empty.js");
     }
+
+    // Prevent bundling of test dependencies
+    config.externals = config.externals || [];
+    config.externals.push("tap");
+    config.externals.push("tape");
+    config.externals.push("fastbench");
+    config.externals.push("why-is-node-running");
+    config.externals.push("pino-elasticsearch");
+    config.externals.push("desm");
+
     return config;
   },
   async headers() {
