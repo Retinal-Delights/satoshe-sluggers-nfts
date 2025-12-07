@@ -198,6 +198,7 @@ function NFTsPageContent() {
                 searchMode={searchMode}
                 selectedFilters={selectedFilters}
                 listingStatus={listingStatus}
+                setListingStatus={setListingStatus}
                 onFilteredCountChange={() => {}} // Empty callback since we don't use the count
                 onTraitCountsChange={setTraitCounts} // Pass trait counts to sidebar
               />

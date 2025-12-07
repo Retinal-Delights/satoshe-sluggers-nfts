@@ -1018,7 +1018,7 @@ export default function NFTDetailPage() {
                     </div>
                     <button
                       disabled
-                      className="px-4 py-2 sm:px-6 sm:py-3 rounded-sm text-sm sm:text-base font-bold bg-green-500/10 border border-green-500/30 text-green-400 cursor-not-allowed opacity-75"
+                      className="px-4 py-2 sm:px-6 sm:py-3 rounded-sm text-sm sm:text-base font-normal bg-green-500/10 border border-green-500/30 text-green-400 cursor-not-allowed opacity-75"
                     >
                       Sold
                     </button>

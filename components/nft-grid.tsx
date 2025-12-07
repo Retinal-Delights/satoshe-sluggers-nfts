@@ -15,6 +15,7 @@ import Pagination from "@/components/ui/pagination";
 import NFTCard from "./nft-card";
 import { LayoutGrid, Rows3, Grid3x3, Heart, Square } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useFavorites } from "@/hooks/useFavorites";
 import Link from "next/link";
 import Image from "next/image";
@@ -91,6 +92,7 @@ interface NFTGridProps {
     sold: boolean;
     secondary: boolean;
   };
+  setListingStatus?: (status: { live: boolean; sold: boolean; secondary: boolean }) => void;
   onFilteredCountChange?: (count: number) => void;
   onTraitCountsChange?: (counts: Record<string, Record<string, number>>) => void;
 }
@@ -138,7 +140,7 @@ function computeTraitCounts(nfts: NFTGridItem[], categories: string[]) {
   return counts;
 }
 
-export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listingStatus, onFilteredCountChange, onTraitCountsChange }: NFTGridProps) {
+export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listingStatus, setListingStatus, onFilteredCountChange, onTraitCountsChange }: NFTGridProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
   const [sortBy, setSortBy] = useState("default");
@@ -727,8 +729,54 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
     );
   }
 
+  // Determine active tab value
+  const getActiveTab = () => {
+    if (listingStatus.live && listingStatus.sold && !listingStatus.secondary) return "all";
+    if (listingStatus.live && !listingStatus.sold && !listingStatus.secondary) return "live";
+    if (!listingStatus.live && listingStatus.sold && !listingStatus.secondary) return "sold";
+    return "all"; // Default fallback
+  };
+
+  const handleTabChange = (value: string) => {
+    if (!setListingStatus) return;
+    
+    if (value === "all") {
+      setListingStatus({ live: true, sold: true, secondary: false });
+    } else if (value === "live") {
+      setListingStatus({ live: true, sold: false, secondary: false });
+    } else if (value === "sold") {
+      setListingStatus({ live: false, sold: true, secondary: false });
+    }
+  };
+
   return (
     <div className="w-full max-w-full overflow-x-hidden">
+      {/* All/Live/Sold Tabs */}
+      {setListingStatus && (
+        <div className="mb-4">
+          <ToggleGroup type="single" value={getActiveTab()} onValueChange={handleTabChange} className="gap-1">
+            <ToggleGroupItem
+              value="all"
+              className="h-7 px-3 rounded-sm data-[state=on]:bg-[#ff0099]/20 data-[state=on]:text-[#ff0099] data-[state=on]:border-[#ff0099] text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-[#ff0099] flex items-center justify-center leading-none text-fluid-sm font-normal cursor-pointer"
+            >
+              All
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="live"
+              className="h-7 px-3 rounded-sm data-[state=on]:bg-blue-500/20 data-[state=on]:text-blue-400 data-[state=on]:border-blue-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-blue-400 flex items-center justify-center leading-none text-fluid-sm font-normal cursor-pointer"
+            >
+              Live
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="sold"
+              className="h-7 px-3 rounded-sm data-[state=on]:bg-green-500/20 data-[state=on]:text-green-400 data-[state=on]:border-green-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-green-400 flex items-center justify-center leading-none text-fluid-sm font-normal cursor-pointer"
+            >
+              Sold
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+      )}
+
       {/* Header section: Strict 2-column CSS Grid layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-6 items-start mb-6 w-full">
         {/* LEFT COLUMN */}
@@ -739,7 +787,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
           {/* Live/Sold counts */}
           {filteredNFTs.length > 0 && (
             <div className="flex flex-row gap-3 items-center justify-start">
-              <div className="text-sm font-medium">
+              <div className="text-sm font-normal">
                 <span className="text-green-400">
                   {filteredNFTs.filter(nft => {
                     const inv = inventoryData[parseInt(nft.tokenId)];
@@ -771,12 +819,12 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
 
           {/* Sort By */}
           <div className="flex flex-row gap-2 items-center">
-            <span className="text-sm opacity-80">Sort by:</span>
+            <span className="text-sm opacity-80 whitespace-nowrap">Sort by:</span>
             <Select value={sortBy} onValueChange={(value) => {
               setSortBy(value);
               setColumnSort(null); // Clear column sort when using dropdown
             }}>
-              <SelectTrigger className="w-[180px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0">
+              <SelectTrigger className="w-[200px] sm:w-[220px] md:w-[240px] min-w-[200px] max-w-full bg-neutral-900 border-neutral-700 rounded-[2px] text-[#FFFBEB] text-sm font-normal focus-visible:ring-[#ff0099] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 flex-shrink-0">
                 <SelectValue placeholder="Default" />
               </SelectTrigger>
               <SelectContent className="bg-neutral-950/95 backdrop-blur-md border-neutral-700 rounded-[2px]">
