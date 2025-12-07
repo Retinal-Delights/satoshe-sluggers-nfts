@@ -60,7 +60,7 @@
     "typescript": "^5.9.3"
   },
   "engines": {
-    "node": ">=18 <23"
+    "node": ">=18"
   },
   "pnpm": {
     "auditConfig": {
