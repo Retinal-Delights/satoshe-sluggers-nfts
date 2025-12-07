@@ -234,7 +234,7 @@ These may be aliases or mapped in Vercel - confirmed working by user.
 
 **Current Status:** ✅ Build succeeds with zero errors
 
-**Last Verified:** December 2024  
+**Last Verified:** December 2025  
 **Next.js Version:** 16.0.7 (patched for CVE-2025-55182, CVE-2025-66478)  
 **React Version:** 19.1.2  
 **Build System:** Webpack (explicitly configured)  
@@ -264,10 +264,10 @@ These may be aliases or mapped in Vercel - confirmed working by user.
 
 ---
 
-## 🔄 Recent Updates (December 2024)
+## 🔄 Recent Updates (December 2025)
 
 ### Next.js Security Update ✅
-**Date:** December 2024  
+**Date:** December 2025  
 **Issue:** Vulnerable Next.js version detected (CVE-2025-55182, CVE-2025-66478)  
 **Fix Applied:**
 - Updated Next.js from 15.5.6 to 16.0.7
@@ -276,7 +276,7 @@ These may be aliases or mapped in Vercel - confirmed working by user.
 - **Status:** FIXED ✅
 
 ### Build System Configuration ✅
-**Date:** December 2024  
+**Date:** December 2025  
 **Issue:** Build failures with WalletConnect dependencies importing test files  
 **Fix Applied:**
 - Created `lib/empty.js` for webpack aliasing
@@ -286,14 +286,14 @@ These may be aliases or mapped in Vercel - confirmed working by user.
 - **Status:** FIXED ✅
 
 ### Node.js Engine Update ✅
-**Date:** December 2024  
+**Date:** December 2025  
 **Issue:** Vercel warning about Node.js version mismatch  
 **Fix Applied:**
 - Updated `engines.node` from `">=18 <23"` to `">=18"` to allow Node.js 24.x
 - **Status:** FIXED ✅
 
 ### Accessibility Features Added ✅
-**Date:** December 2024  
+**Date:** December 2025  
 **Features:**
 - Added dyslexia-friendly font toggle (OpenDyslexic)
 - Added All/Live/Sold tabs for filtering
@@ -302,7 +302,7 @@ These may be aliases or mapped in Vercel - confirmed working by user.
 
 ---
 
-**Last Updated:** December 2024  
+**Last Updated:** December 2025  
 **Maintained By:** Development Team  
 **Security Level:** Maximum (High-Value Collection)
 
