@@ -105,6 +105,7 @@ const nextConfig = {
     config.externals.push("fastbench");
     config.externals.push("why-is-node-running");
     config.externals.push("pino-elasticsearch");
+    config.externals.push("pino-pretty");
     config.externals.push("desm");
 
     return config;
