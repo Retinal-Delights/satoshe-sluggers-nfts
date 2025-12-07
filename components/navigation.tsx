@@ -1,12 +1,14 @@
 "use client"
 
-// Removed unused imports: useState, useEffect
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { MobileMenu } from "@/components/mobile-menu"
 import ConnectWalletButton from "@/components/simple-connect-button"
 import { useActiveAccount } from "thirdweb/react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useDyslexiaMode } from "@/hooks/useDyslexiaMode"
+import { Type } from "lucide-react"
 
 interface NavigationProps {
   activePage?: "home" | "about" | "nfts" | "sell" | "my-nfts" | "contact" | "provenance"
@@ -14,6 +16,7 @@ interface NavigationProps {
 
 export default function Navigation({ activePage = "home" }: NavigationProps) {
   const account = useActiveAccount()
+  const { isDyslexiaMode, toggleDyslexiaMode, mounted } = useDyslexiaMode()
 
   return (
     <header className="border-b border-neutral-700 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-3 sm:py-4 flex items-center justify-between bg-neutral-950/80 backdrop-blur-md fixed top-0 left-0 right-0 z-50">
@@ -112,6 +115,36 @@ export default function Navigation({ activePage = "home" }: NavigationProps) {
         )}
       </nav>
       <div className="flex items-center gap-2 lg:gap-2.5 ml-4">
+        {/* Dyslexia-Friendly Toggle */}
+        {mounted && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={toggleDyslexiaMode}
+                  className="flex items-center justify-center p-2 rounded-sm hover:bg-neutral-800 transition-colors cursor-pointer"
+                  aria-label={isDyslexiaMode ? "Disable dyslexia-friendly font" : "Enable dyslexia-friendly font"}
+                  aria-pressed={isDyslexiaMode}
+                >
+                  <Type 
+                    className={`h-5 w-5 transition-colors ${
+                      isDyslexiaMode ? "text-brand-pink" : "text-neutral-400"
+                    }`}
+                  />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent 
+                side="left" 
+                sideOffset={8} 
+                className="bg-neutral-800 text-off-white border-neutral-600"
+                collisionPadding={20}
+              >
+                <p>{isDyslexiaMode ? "Dyslexia-friendly font: ON" : "Dyslexia-friendly font: OFF"}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
         {account && (
           <TooltipProvider>
             <Tooltip>

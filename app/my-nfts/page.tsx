@@ -358,20 +358,20 @@ function MyNFTsContent() {
         <div className="mb-6">
           <div className="flex border-b border-neutral-700">
             <button
-              className={`py-2 px-4 flex items-center gap-2 ${activeTab === "favorites" ? "border-b-2 border-brand-pink text-offwhite font-medium" : "text-neutral-400 hover:text-offwhite"}`}
+              className={`py-2 px-4 flex items-center gap-2 cursor-pointer ${activeTab === "favorites" ? "border-b-2 border-brand-pink text-offwhite font-medium" : "text-neutral-400 hover:text-offwhite"}`}
               onClick={() => setActiveTab("favorites")}
             >
               <Heart
-                className={`w-4 h-4 ${activeTab === "favorites" ? "fill-brand-pink text-brand-pink" : ""}`}
+                className={`w-4 h-4 ${activeTab === "favorites" ? "fill-brand-pink text-brand-pink hover:fill-off-white hover:text-off-white" : ""}`}
               />
               Favorites ({favorites.length - locallyUnfavorited.size})
             </button>
             <button
-              className={`py-2 px-4 flex items-center gap-2 ${activeTab === "owned" ? "border-b-2 border-brand-pink text-offwhite font-medium" : "text-neutral-400 hover:text-offwhite"}`}
+              className={`py-2 px-4 flex items-center gap-2 cursor-pointer ${activeTab === "owned" ? "border-b-2 border-brand-pink text-offwhite font-medium" : "text-neutral-400 hover:text-offwhite"}`}
               onClick={() => setActiveTab("owned")}
             >
               <Package
-                className={`w-4 h-4 ${activeTab === "owned" ? "text-brand-pink" : ""}`}
+                className={`w-4 h-4 ${activeTab === "owned" ? "text-brand-pink hover:text-off-white" : ""}`}
               />
               Owned ({Array.isArray(ownedNFTs) ? ownedNFTs.length : 0})
             </button>
@@ -384,7 +384,7 @@ function MyNFTsContent() {
             </p>
             <Button
               onClick={() => window.location.reload()}
-              className="px-6 py-2 border border-brand-pink bg-transparent text-brand-pink font-normal rounded-sm hover:!bg-brand-pink hover:!text-off-white transition-all duration-200"
+              className="px-6 py-2 border border-brand-pink bg-transparent text-brand-pink font-normal rounded-sm hover:!bg-brand-pink hover:!text-off-white transition-all duration-200 cursor-pointer"
             >
               Refresh Page
             </Button>
@@ -470,7 +470,7 @@ function MyNFTsContent() {
                   {activeTab === "owned" && (
                     <button
                       onClick={() => router.push(`/nft/${nft.id}`)}
-                      className="font-light flex items-center justify-center h-8 w-full rounded border border-brand-pink text-brand-pink bg-transparent hover:!bg-brand-pink hover:!text-off-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-fluid-sm"
+                      className="font-light flex items-center justify-center h-8 w-full rounded border border-brand-pink text-brand-pink bg-transparent hover:!bg-brand-pink hover:!text-off-white focus:outline-none focus:ring-0 focus:border-brand-pink transition-all duration-200 text-fluid-sm cursor-pointer"
                       aria-label="View NFT details"
                     >
                       View Details
