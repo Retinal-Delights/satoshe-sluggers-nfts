@@ -15,8 +15,8 @@ import Pagination from "@/components/ui/pagination";
 import NFTCard from "./nft-card";
 import { LayoutGrid, Rows3, Grid3x3, Heart, Square } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useFavorites } from "@/hooks/useFavorites";
-import { useOnChainOwnership } from "@/hooks/useOnChainOwnership";
 import Link from "next/link";
 import Image from "next/image";
 import { loadAllNFTs } from "@/lib/simple-data-service";
@@ -145,8 +145,6 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   const [itemsPerPage, setItemsPerPage] = useState(25);
   const [sortBy, setSortBy] = useState("default");
   const [columnSort, setColumnSort] = useState<{ field: string; direction: 'asc' | 'desc' } | null>({ field: 'nft', direction: 'asc' });
-  const [activeFilter, setActiveFilter] = useState<'all' | 'live' | 'sold'>('all');
-  const { liveCount, soldCount } = useOnChainOwnership(7777);
   const [nfts, setNfts] = useState<NFTGridItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [allMetadata, setAllMetadata] = useState<unknown[]>([]);
@@ -393,7 +391,7 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [itemsPerPage, searchTerm, listingStatus, activeFilter]);
+  }, [itemsPerPage, searchTerm, listingStatus]);
 
   // Process NFTs from metadata and check marketplace listings
   useEffect(() => {
@@ -564,23 +562,18 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         }
       });
 
-    // Active filter (All/Live/Sold tabs) - takes priority over listingStatus
+    // Listing status filtering
     const tokenIdNum = parseInt(nft.tokenId);
     const inventory = inventoryData[tokenIdNum];
-    
-    let matchesActiveFilter = true;
-    if (activeFilter === 'live') {
-      matchesActiveFilter = inventory?.status === 'ACTIVE';
-    } else if (activeFilter === 'sold') {
-      matchesActiveFilter = inventory?.status === 'SOLD';
-    }
-    // activeFilter === 'all' shows everything (matchesActiveFilter = true)
-    
-    // Also respect listingStatus from sidebar (for backward compatibility)
     const marketplaceAddress = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
-    let matchesListingStatus = true;
-    if (listingStatus.live || listingStatus.sold || listingStatus.secondary) {
-      matchesListingStatus = false;
+    
+    let matchesListingStatus = false;
+    
+    // If no listing status is selected, show all (shouldn't happen, but safety check)
+    if (!listingStatus.live && !listingStatus.sold && !listingStatus.secondary) {
+      matchesListingStatus = true;
+    } else {
+      // Check each status
       if (listingStatus.live && inventory?.status === 'ACTIVE') {
         matchesListingStatus = true;
       }
@@ -588,10 +581,9 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
         matchesListingStatus = true;
       }
       if (listingStatus.secondary) {
-        // Secondary market: owner is not the marketplace
-        if (inventory && inventory.owner !== marketplaceAddress && inventory.status === 'ACTIVE') {
-          matchesListingStatus = true;
-        }
+        // Secondary market: owner is not the marketplace (coming soon - placeholder)
+        // For now, this won't match anything since it's disabled
+        matchesListingStatus = false;
       }
     }
 
@@ -604,11 +596,10 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
       matchesEyewear &&
       matchesHair &&
       matchesHeadwear &&
-      matchesActiveFilter &&
       matchesListingStatus
     );
   });
-  }, [nfts, searchTerm, searchMode, selectedFilters, listingStatus, inventoryData, activeFilter]);
+  }, [nfts, searchTerm, searchMode, selectedFilters, listingStatus, inventoryData]);
 
   // Restore scroll position after filtering
   useEffect(() => {
@@ -738,132 +729,94 @@ export default function NFTGrid({ searchTerm, searchMode, selectedFilters, listi
     );
   }
 
+  // Determine active tab value
+  const getActiveTab = () => {
+    if (listingStatus.live && listingStatus.sold && !listingStatus.secondary) return "all";
+    if (listingStatus.live && !listingStatus.sold && !listingStatus.secondary) return "live";
+    if (!listingStatus.live && listingStatus.sold && !listingStatus.secondary) return "sold";
+    return "all"; // Default fallback
+  };
+
+  const handleTabChange = (value: string) => {
+    if (!setListingStatus) return;
+    
+    if (value === "all") {
+      setListingStatus({ live: true, sold: true, secondary: false });
+    } else if (value === "live") {
+      setListingStatus({ live: true, sold: false, secondary: false });
+    } else if (value === "sold") {
+      setListingStatus({ live: false, sold: true, secondary: false });
+    }
+  };
+
   return (
     <div className="w-full max-w-full overflow-x-hidden">
-      {/* Row 1: NFT Collection title */}
-      <h2 className="text-2xl font-bold mb-4">NFT Collection</h2>
-
-      {/* Row 2: Tabs and View Toggle */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-        {/* All/Live/Sold Tabs */}
-        <div className="flex gap-4 items-center">
-          <button
-            className={`px-4 py-2 rounded-sm font-normal text-sm transition-colors cursor-pointer ${
-              activeFilter === 'all'
-                ? 'bg-[#ff0099]/20 text-[#ff0099] border border-[#ff0099]'
-                : 'bg-transparent text-neutral-400 border border-neutral-600 hover:bg-neutral-800 hover:text-[#ff0099]'
-            }`}
-            onClick={() => setActiveFilter('all')}
-          >
-            All (7777)
-          </button>
-          <button
-            className={`px-4 py-2 rounded-sm font-normal text-sm transition-colors cursor-pointer ${
-              activeFilter === 'live'
-                ? 'bg-blue-500/20 text-blue-400 border border-blue-500'
-                : 'bg-transparent text-neutral-400 border border-neutral-600 hover:bg-neutral-800 hover:text-blue-400'
-            }`}
-            onClick={() => setActiveFilter('live')}
-          >
-            Live ({liveCount})
-          </button>
-          <button
-            className={`px-4 py-2 rounded-sm font-normal text-sm transition-colors cursor-pointer ${
-              activeFilter === 'sold'
-                ? 'bg-green-500/20 text-green-400 border border-green-500'
-                : 'bg-transparent text-neutral-400 border border-neutral-600 hover:bg-neutral-800 hover:text-green-400'
-            }`}
-            onClick={() => setActiveFilter('sold')}
-          >
-            Sold ({soldCount})
-          </button>
+      {/* All/Live/Sold Tabs */}
+      {setListingStatus && (
+        <div className="mb-4">
+          <ToggleGroup type="single" value={getActiveTab()} onValueChange={handleTabChange} className="gap-1">
+            <ToggleGroupItem
+              value="all"
+              className="h-7 px-3 rounded-sm data-[state=on]:bg-[#ff0099]/20 data-[state=on]:text-[#ff0099] data-[state=on]:border-[#ff0099] text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-[#ff0099] flex items-center justify-center leading-none text-fluid-sm font-normal cursor-pointer"
+            >
+              All
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="live"
+              className="h-7 px-3 rounded-sm data-[state=on]:bg-blue-500/20 data-[state=on]:text-blue-400 data-[state=on]:border-blue-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-blue-400 flex items-center justify-center leading-none text-fluid-sm font-normal cursor-pointer"
+            >
+              Live
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="sold"
+              className="h-7 px-3 rounded-sm data-[state=on]:bg-green-500/20 data-[state=on]:text-green-400 data-[state=on]:border-green-500 text-neutral-400 border-neutral-600 hover:bg-neutral-800 hover:text-green-400 flex items-center justify-center leading-none text-fluid-sm font-normal cursor-pointer"
+            >
+              Sold
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
+      )}
 
-        {/* View mode toggles */}
-        <div className="flex flex-row gap-2 items-center justify-start md:justify-end flex-nowrap">
-          <TooltipProvider>
-            <div className="relative flex items-center gap-2 border border-neutral-700 rounded-[2px] p-1 flex-nowrap">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => {
-                      setViewMode('grid-large')
-                      announceToScreenReader('Switched to large grid view')
-                    }}
-                    className={`p-2 rounded-[2px] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ff0099] focus:ring-offset-2 focus:ring-offset-neutral-900 focus:rounded-[2px] ${viewMode === 'grid-large' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
-                    aria-label="Switch to large grid view"
-                    aria-pressed={viewMode === 'grid-large'}
-                  >
-                    <Square className="w-4 h-4" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="bg-neutral-800 text-[#FFFBEB] border-neutral-600">
-                  <p>Large Grid</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => {
-                      setViewMode('grid-medium')
-                      announceToScreenReader('Switched to medium grid view')
-                    }}
-                    className={`p-2 rounded-[2px] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ff0099] focus:ring-offset-2 focus:ring-offset-neutral-900 focus:rounded-[2px] ${viewMode === 'grid-medium' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
-                    aria-label="Switch to medium grid view"
-                    aria-pressed={viewMode === 'grid-medium'}
-                  >
-                    <Grid3x3 className="w-4 h-4" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="bg-neutral-800 text-[#FFFBEB] border-neutral-600">
-                  <p>Medium Grid</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => {
-                      setViewMode('grid-small')
-                      announceToScreenReader('Switched to small grid view')
-                    }}
-                    className={`p-2 rounded-[2px] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ff0099] focus:ring-offset-2 focus:ring-offset-neutral-900 focus:rounded-[2px] ${viewMode === 'grid-small' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
-                    aria-label="Switch to small grid view"
-                    aria-pressed={viewMode === 'grid-small'}
-                  >
-                    <LayoutGrid className="w-4 h-4" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="bg-neutral-800 text-[#FFFBEB] border-neutral-600">
-                  <p>Small Grid</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => {
-                      setViewMode('compact')
-                      announceToScreenReader('Switched to table view')
-                    }}
-                    className={`p-2 rounded-[2px] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ff0099] focus:ring-offset-2 focus:ring-offset-neutral-900 focus:rounded-[2px] ${viewMode === 'compact' ? 'bg-neutral-800 text-[#ff0099]' : 'text-neutral-500 hover:text-neutral-300'}`}
-                    aria-label="Switch to table view"
-                    aria-pressed={viewMode === 'compact'}
-                  >
-                    <Rows3 className="w-4 h-4" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="bg-neutral-800 text-[#FFFBEB] border-neutral-600">
-                  <p>Table View</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          </TooltipProvider>
-        </div>
-      </div>
-
-      {/* Row 3: Sort and Show dropdowns */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-6 items-start mb-4 w-full">
+      {/* Header section: Strict 2-column CSS Grid layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-6 items-start mb-6 w-full">
         {/* LEFT COLUMN */}
         <div className="flex flex-col gap-2">
+          {/* NFT Collection title */}
+          <h2 className="text-2xl font-bold">NFT Collection</h2>
+
+          {/* Live/Sold counts */}
+          {filteredNFTs.length > 0 && (
+            <div className="flex flex-row gap-3 items-center justify-start">
+              <div className="text-sm font-normal">
+                <span className="text-green-400">
+                  {filteredNFTs.filter(nft => {
+                    const inv = inventoryData[parseInt(nft.tokenId)];
+                    return inv?.status === 'ACTIVE';
+                  }).length} Live
+                </span>
+                <span className="text-neutral-400"> • </span>
+                <span className="text-blue-400">
+                  {filteredNFTs.filter(nft => {
+                    const inv = inventoryData[parseInt(nft.tokenId)];
+                    return inv?.status === 'SOLD';
+                  }).length} Sold
+                </span>
+                {listingStatus.secondary && (
+                  <>
+                    <span className="text-neutral-400"> • </span>
+                    <span className="text-purple-400">
+                      {filteredNFTs.filter(nft => {
+                        const inv = inventoryData[parseInt(nft.tokenId)];
+                        const marketplaceAddr = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS?.toLowerCase();
+                        return inv && inv.owner !== marketplaceAddr && inv.status === 'ACTIVE';
+                      }).length} Secondary
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Sort By */}
           <div className="flex flex-row gap-2 items-center">
             <span className="text-sm opacity-80 whitespace-nowrap">Sort by:</span>
