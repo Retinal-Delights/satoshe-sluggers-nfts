@@ -82,12 +82,17 @@ const nextConfig = {
   },
   experimental: {
     optimizePackageImports: ['framer-motion', 'lucide-react'],
+    turbo: false,
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  turbopack: {
-    root: process.cwd(),
+  webpack(config, { isServer }) {
+    const path = require('path');
+    if (!isServer) {
+      config.resolve.alias['thread-stream'] = path.resolve(__dirname, 'lib/empty.js');
+    }
+    return config;
   },
   async headers() {
     return [
